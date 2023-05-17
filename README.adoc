@@ -1,4 +1,6 @@
-= Eclipse-uProtocol Specification image:logo/uprotocol_logo.png[uProtocol Logo,width=640]
+image:https://github.com/eclipse-uprotocol/.github/blob/main/logo/uprotocol_logo.png?raw=true[uProtocol Logo,width=640]
+
+= Eclipse-uProtocol Specification
 :toc:
 :sectnums:
 
