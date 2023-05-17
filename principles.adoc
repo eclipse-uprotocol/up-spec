@@ -1,0 +1,87 @@
+= Guiding Principles (Requirements)
+:toc:
+:sectnums:
+
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+== Use Cases
+
+The table below helps to illustrate the various use cases for uProtocol.
+
+.Use Cases
+[#uprotocol-use-cases]
+[width=100%",cols="25%,30%,45%"]
+|===
+|Category |Use Case Name |Description
+
+|File Transfer |Large file Transfer |Transmission of large files (>1MB) through the streamer
+| |Small file Transfer |Transmission of small data/files (<1MB in size) either through RPC or the streamer
+|Events (pub/sub) |Event data |Non time sensitive event
+| |Low latency event data |Time sensitive event
+|Notifications |Targeted event data |When a producer wants to notify a specific consumer of an event that occurs
+|RPC |Commands and Instructions |Invoking API calls in local or remote services from an application
+|Streaming |Video streaming |Sending captured video from one device to the next
+|===
+
+== Guiding Principles
+
+.Guiding Principles
+|===
+|Principle |Description
+
+|*Service (not Signal) Oriented Architecture* a|
+* *MUST* provide service oriented architecture interfaces in lieu of signal based architecture
+
+|*Architecture Patterns* a|
+* *MUST* support publisher/subscriber, observer (notification), and RPC architecture design patterns
+* *MUST* provide the same mechanism for pub/sub and RPC regardless of the device the uE runs on
+
+|*Follow Clean Architecture Principles* a|
+* *MUST* point dependencies inward
+* *MUST* provide abstraction where it makes sense
+* *MUST* avoid unnecessary translation/duplication
+* *SHOULD* support a single reflection
+
+|*_Declare Once, Use Everywhere_* a|
+* All types (services, resources, data structures, etc...) *MUST* be declared once resulting in a single source of truth for said types
+* *MUST* use a common Interface Definition languages that supports majority of well known programming languages (Java, C++, Rust, C, Python, etc...)
+* *MUST* describe event data in a common way such that the same message can be sent over any transport
+* *MUST* be able to dispatch/route messages without looking at the data (payload)
+
+|*_Ubiquitous Language_* a|
+* *MUST* expose the same interfaces regardless of the device/deployment
+
+|*Dynamic Deployment* a|
+* *MUST* decouple applications from services (can be independently updatable), and decouple application/services from the platform
+
+|*Event Transport Abstraction* a|
+* *MUST* support all common automotive use cases (defined in link:README.adoc#_use_cases[Use Cases])
+* *MUST* decouple messages from the underlining transport such that producers can be unaware of their consumers (and how the messages are transported)
+
+
+|*Duplication of Data Is Bad* a|
+* Batching, aggregation, queuing of events, *MUST* be handled by the platform such that each application and/or service, doesn't have to do it
+
+|===
+
+

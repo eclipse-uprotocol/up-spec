@@ -1,0 +1,73 @@
+= Error Model
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto[`google.rpc.Status`] to ensure consistency across APIs declared for uEs and in messages to avoid re-definition of status/error codes per-application.
+
+* All uE APIs *SHOULD* use the error model of `google.rpc.Status` and not declare their own error model
+
+== Error Codes
+
+Error codes that are used for uEs are declared in https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto[`google.rpc.Code`]. The table below summarizes the use cases when the various values are to be sent.
+
+.Error Codes
+[width="100%",cols="25%,75%",options="header",]
+|===
+|`google.rpc.Code` |API Return Condition (When)
+
+|`*OK*` |Completes successfully
+|`*CANCELLED*` |Operation has been cancelled by the caller
+|`*UNKNOWN*` |An unknown (but not critical) error has occurred
+|`*INVALID_ARGUMENT*` |Passed arguments are invalid (ex. improperly formatted)
+|`*DEADLINE_EXCEEDED*` |Operation has expired (timeout)
+|`*NOT_FOUND*` a|
+Operation cannot be completed because the requested entity was not found (ex. database lookup and the data is not found)
+
+* Calling uE *MAY* retry the operation with back-off
+
+|`*ALREADY_EXISTS*` |The calling uE requested to add/create something that already exists (ex. add to a database something that is already there)
+|`*PERMISSION_DENIED*` |The calling uE is authenticated but not permitted to call the API
+|`*UNAUTHENTICATED*` |The calling uE does not have valid authentication credentials for the API
+|`*RESOURCE_EXHAUSTED*` |The resource being accessed has been exhausted (ex. out of disk space, etc...)
+|`*FAILED_PRECONDITION*` a|
+The system (service) is in a state that it cannot handle the request
+
+* Calling uEs *SHOULD NOT* retry the operation till the system state has been corrected
+
+|`*ABORTED*` a|
+The operation was aborted, typically due to a concurrency issue such as  a sequencer check failure or transaction abort
+
+* Calling uEs *MAY* retry but at a higher frequency than UNAVAILABLE
+
+|`*UNAVAILABLE*` a|
+The operation is currently unavailable
+
+* Calling uEs *MAY* retry with back-off
+
+|`*OUT_OF_RANGE*` |A caller would typically iterating through the results from said API and can is expected to detect the end of the results (out of range)
+|`*UNIMPLEMENTED*` |Part or all of the requested operation has not been implemented yet
+|`*DATA_LOSS*` |When an unrecoverable data loss or corruption has occurred
+|`*INTERNAL*` |There is a serious error has occurred not described by error codes mentioned above
+|===

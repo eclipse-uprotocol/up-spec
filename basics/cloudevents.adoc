@@ -1,0 +1,59 @@
+= CloudEvents
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+== Overview
+
+https://cloudevents.io/[CloudEvents] is a CNCF specification for describing events in a common way. We will use CloudEvents to formulate all kinds of uProtocol messages that will be sent to and from uEs.
+
+.CloudEvents
+image::cloudevents.drawio.svg[CloudEvents]
+
+CloudEvents are:
+
+* An envelope for information about the occurrence of change in a system, it has a "from" address (source) with the "to" address is optional (sink)
+* carry facts in metadata with standard attributes
+* Self-contained & unique (you don't need to attach data to an event)
+* Can be encoded/decoded into different formats without losing/modifying information
+
+Cloud Events answers the following in the metadata:
+
+* What kind of event?--> *type*
+* When was it sent? --> *time*
+* Who sent it? -->**source**
+* What is the event unique identifier? --> *id*
+* What is the shape of the data event? --> *dataschema*
+* What is the event data? --> *data*
+
+The specification is transport agnostic (can run over HTTP, MQTT, AMQP, NATS, Kafka), and comes with SDK in most common languages.
+
+== CloudEvent Format vs Data Format
+
+CloudEvents can be represented as objects (in the programming language of choice) as well as serialized to any binary or text encoding formats such as protobuf, JSON, AVRO, XML, etc.... CloudEvent are often referred to as "the envelope for data" as it holds the data and metadata.
+
+https://cloudevents.io/[CloudEvents] has defined a set of specifications for the well know formats (ex. https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf], etc..) as well as how to send these messages over well-known transports (ex. https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[HTTP], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[MQTT], etc..).
+
+NOTE: Additional formats and transports not covered by https://cloudevents.io/[CloudEvents.io] shall be covered in link:../up-l1/README.adoc[uP-L1 Specifications]
+
+

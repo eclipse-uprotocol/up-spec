@@ -1,0 +1,67 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box uDevice #white
+	Collections uEs #red
+	entity LDS #orange
+end box
+entity CDS #orange
+
+uEs -> LDS: LookupUri(UriRequest)
+note right
+<size:14>**UriRequest:**</size>
+""uri"": ""//topic//""
+end note
+
+alt Found Locally
+LDS --> uEs: UriResponse
+note right
+<size:14>**UriRequest:**</size>
+""uris"": {""//topic//"", ""//topic//""}
+""result"": {""code"": ""OK""}
+end note
+|||
+else Invalid Argument or Permission Denied
+LDS --> uEs: UriResponse
+note right
+<size:14>**UriResponse:**</size>
+""result"" : { ""code"": ""INVALID_ARGUMENT | PERMISSION_DENIED"" }
+end note
+|||
+else Remote Lookup Required
+LDS -> CDS: LookupUri(UriRequest)
+alt Success
+CDS --> LDS: UriResponse
+note right
+<size:14>**UriResponse:**</size>
+""uris"": {""//topic//"", ""//topic//""}
+""result"": {""code"": ""OK""}
+end note
+LDS -> LDS: Cache (per ttl)
+LDS --> uEs: UriResponse
+note right
+<size:14>**UriResponse:**</size>
+""uris"": {""//topic//"", ""//topic//""}
+""result"": {""code"": ""OK""}
+end note
+else Failure
+CDS --> LDS: UriResponse
+note right
+<size:14>**UriResponse:**</size>
+""result"": {""code"": ""INVALID_ARGUMENT | NOT_FOUND | PERMISSION_DENIED""}
+end note
+LDS --> uEs: UriResponse
+end alt
+
+else Not Found
+LDS --> uEs: UriResponse
+note right
+<size:14>**UriResponse:**</size>
+""result"": {""code"": ""NOT_FOUND""}
+end note
+end alt
+
+LDS --> uEs: UriResponse
+@enduml

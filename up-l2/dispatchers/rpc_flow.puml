@@ -1,0 +1,59 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor uApp #red
+collections dispatchers as UB
+entity uService as US #blue
+
+uApp --\ UB: req.v1
+note right
+	<size:12>**req.v1:**</size>
+    "id" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
+    "source": "up://Device1/uApp/1/rpc.response"
+    "sink": "up://Device1/uService/1/rpc.Method
+    "specversion": "1.0"
+    "type": "req.v1"
+    "dataschema": //url of Method schema//
+    "data": //Protobuf serialized Request Message//
+end note
+
+alt Delivery Error
+	UB -> UB: Create res.v1
+	note right
+ 		<size:12>**res.v1:**</size>
+    	"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
+	    "source": "up://Device1/dispatcher/1/rpc.Method
+    	"sink": "up://Device1/uApp/1/rpc.response"
+	    "specversion": "1.0"
+    	"type": "res.v1"
+	    "request_id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
+		"commstatus":  /* google.rpc.Code for the error */
+	end note
+else Delivery Success
+ 	UB --\ US: req.v1
+ 	US -> US: Process req.v1
+ 	note right
+		<size:12>**res.v1:**</size>
+    	"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
+	    "source": "up://Device1/dispatcher/1/rpc.Method
+   		"sink": "up://Device1/uApp/1/rpc.response"
+	    "specversion": "1.0"
+   		"type": "res.v1"
+    	"request_id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
+		"dataschema": //url of Method Response Message//
+		"data": // Protobuf serialized Response Message//
+	end note
+	US --/ UB: res.v1
+end alt
+UB --/ uApp: res.v1
+uApp -> uApp: Process res.v1
+note right
+	<size:12>**Process res.v1:**</size>
+   	if (commstatus)
+		// Process L2 Error//
+	else
+		//handle returned L3 message//
+end note
+@enduml

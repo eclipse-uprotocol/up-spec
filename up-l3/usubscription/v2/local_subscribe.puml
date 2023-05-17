@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box Device1 #white
+	actor uApp #red
+	entity uSubscription as SM1 #brown
+	entity uExample #blue
+end box
+
+uApp -> SM1: Subscribe(SubscriptionRequest)
+note right
+ 	<size:12>**SubscriptionRequest:**</size>
+	""topic:"" { ""uri"": ""//topic//"" }
+	""subscriber"": { ""uri"": "up://Device1/uApp/" }
+	""attributes"": { //Subscription Attributes// }
+end note
+|||
+alt Success
+	SM1 --> uApp: SubscriptionResponse
+	note right
+		<size:12>**SubscriptionResponse:**</size>
+		""status:"" {
+			\t""state"": ""SUBSCRIBED"",
+			\t""code"": ""OK""
+		}
+		""config:"" { //Platform specific config// }
+	end note
+	SM1 -[#0000FF]-\ uExample: <font color=blue>Update</font>
+	note right
+		<size:12>**Update:**</size>
+		""topic:"" { ""uri"": ""//topic//"" }
+		""subscriber"": { ""uri"": "up://Device1/uApp/" }
+ 		""status:"" {
+			\t""state"": ""SUBSCRIBED"",
+			\t""code"": ""OK""
+		}
+		""attributes"": { //Subscription Attributes// }
+	end note
+|||
+else Failure
+	SM1 --> uApp: SubscriptionResponse
+ 	note right
+		<size:12>**SubscriptionResponse:**</size>
+		""status:"" {
+			\t""state"": ""UNSUBSCRIBED"",
+			\t""code"": ""INVALID_ARGUMENT | NOT_FOUND | PERMISSION_DENIED""
+		}
+	end note
+end alt
+@enduml

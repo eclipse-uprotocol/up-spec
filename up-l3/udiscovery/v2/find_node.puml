@@ -1,0 +1,77 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box uDevice1 #white
+	Collections uEs #red
+	entity LDS #orange
+end box
+entity CDS #orange
+
+group Local uDevice Query
+	uEs -> LDS: FindNodes(FindNodesRequest)
+  	note right
+	<size:12>**FindNodesRequest:**</size>
+		""uri"":  "up://Device1/uService"
+		""depth"": -1
+	end note
+	alt Found
+		LDS --> uEs: FindNodesResponse
+		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //One or more nodes// }
+			""status"": {""code"": ""OK""}
+		end note
+	else Error
+ 		LDS --> uEs: FindNodesResponse
+		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //Empty Node// }
+			""status"": {""code"":  ""INVALID_ARGUMENT | NOT_FOUND | PERMISSION_DENIED""}
+		end note
+  end alt
+end
+|||
+group Remote uDevice Query
+	uEs -> LDS: FindNodes(FindNodesRequest)
+	note right
+	<size:12>**FindNodesRequest:**</size>
+		""uri"":  "up://Device2/uService"
+		""depth"": -1
+	end note
+	LDS -> CDS: FindNodes(FindNodesRequest)
+ 	alt Found
+		CDS --> LDS: FindNodesResponse
+		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //One or more nodes// }
+			""status"": {""code"": ""OK""}
+		end note
+		LDS -> LDS: Cache Node Info (per ttl)
+	else NOT FOUND
+  		CDS --> LDS: FindNodesResponse
+		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //Empty Node// }
+			""status"": {""code"":  ""NOT_FOUND""}
+			""ttl"": 432000000 ///* 5 days *///
+		end note
+		LDS -> LDS: Cache Node Info (per ttl)
+	else TIMEOUT
+ 		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //Empty Node// }
+			""status"": {""code"":  ""DEADLINE_EXCEEDED""}
+		end note
+ 	else ERROR
+ 		CDS --> LDS: FindNodesResponse
+		note right
+		<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //One or more nodes// }
+			""status"": {""code"":  ""INVALID_ARGUMENT | PERMISSION_DENIED""}
+		end note
+  	end alt
+	LDS --> uEs: FindNodesResponse
+end
+@enduml

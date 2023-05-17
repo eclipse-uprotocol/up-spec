@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box Device1 #white
+	collections uEs #red
+	entity uSubscription as SM1 #brown
+	entity uExample #blue
+end box
+
+uExample-> SM1: DeprecateTopic(\nDeprecateTopicRequest)
+note right
+ 	<size:12>**DeprecateTopicRequest:**</size>
+	""topic:"" { ""uri"": ""//topic//"" }
+end note
+
+SM1--> uExample: Status
+note right
+	<size:12>**Status:**</size>
+	""code"": ""OK""
+end note
+@enduml

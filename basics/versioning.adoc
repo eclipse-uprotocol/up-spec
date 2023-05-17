@@ -1,0 +1,67 @@
+= Versioning
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+Built into the protocol will be a mechanism to version different parts of the protocol and system. Since different components need to be versioned by different mechanisms and at different frequency, we will discuss the types in this section.
+
+== Format
+
+* Versioning *MUST* follow https://semver.org/[Semantic Versioning 2.0.0] definitions with the format `MAJOR.MINOR.PATCH`
+
+=== MAJOR
+
+* *MUST* start with 1 fo the initial release
+
+* *MUST* increment when the interface, API, specification is not backwards compatible
+
+=== MINOR
+
+* *MUST* increment when the service/protocol interfaces updates are backwards compatible
+
+Backwards compatibility is baked into the protobuf specifications and as such updating the service proto file should only force an update to the MINOR
+
+== What Must be Versioned
+
+=== Messages
+
+link:../up-l2/README.adoc[uP-L2 Messages] *MUST* contain a version such that the serialization and deserialization between devices of said message can be done.
+
+=== uEs
+
+Interfaces for uEs are declared in proto files. Protobuf builds in backwards and forwards compatibility support into the IDL so a server and client may be updated independently of each other without breaking the communication or serialization/deserialization of generated code.
+
+If the uE declares an interface in proto:
+* *MUST* have their `MAJOR.MINOR` version values specified (declared) inside their proto file per link:../up-l3/README.adoc[uP-L3 Specifications]
+
+
+=== Distribution
+
+Distribution is the collection of software entities (uEs) for a given deployment.
+
+* MAJOR *SHOULD* be the calendar year of the SW release, ex. 24 for 2024
+* MINOR *SHOULD* be the quarterly release number for the calendar year, ex. "1" for first quarter
+* PATCH *MAY* be the release number for the quarterly release starting with 0
+* uEs *MUST* be able to be updated separately from the distribution version
+* Additional version information **MAY **be present after the `MAJOR.MINOR.PATCH`

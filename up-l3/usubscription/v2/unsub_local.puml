@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box Device1 #white
+	actor uApp #red
+	entity uSubscription as SM1 #brown
+	entity uExample #blue
+end box
+
+uApp -> SM1: Unsubscribe(UnsubscribeRequest)
+note right
+ 	<size:12>**UnsubscribeRequest:**</size>
+	""topic:"" { ""uri"": ""//topic//"" }
+	""subscriber"": { ""uri"": "up://Device1/uApp/" }
+end note
+
+SM1-->  uApp: ""OK""
+SM1 -[#0000FF]-\ uExample: <font color=blue>Update</font>
+note right
+	<size:12>**Update:**</size>
+	""topic:"" { ""uri"": ""//topic//"" }
+	""subscriber"": { ""uri"": "up://Device1/uApp/" }
+	""status:"" {
+		\t""state"": ""UNSUBSCRIBED"",
+		\t""code"": ""OK""
+	}
+end note
+@enduml

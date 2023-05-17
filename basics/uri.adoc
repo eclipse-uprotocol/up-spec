@@ -1,0 +1,144 @@
+= URIs
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+URI is used as a method to uniquely identify uthings (devices, software entities, topics, methods, etc...). Defining a common URI for the system allows uEs to publish and discover each other as well as maintain a database/repository of microservices in the various vehicles.
+
+== RFC3986
+
+The standard URI format is defined in https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] and illustrated in the figure below.
+
+.URI
+image::rfc3986.png[RFC3986 URI]
+
+URI specifications are covered at length in RFC3986 and will not be covered in this document, we will focus on the additions to RFC3986 that are specific to the uProtocol.
+
+The following is taken from https://datatracker.ietf.org/doc/html/rfc3986#appendix-A[RFC3986 Appendix-A] and shall be used as reference in this specification:
+
+[source]
+----
+ gen-delims = ":" / "/" / "?" / "#" / "\[" / "\]" / "@"
+ sub-delims = "!" / "$" / "&" / "'" / "(" / ")"
+ / "*" / "+" / "," / ";" / "="
+ pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+ unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+ reserved = gen-delims / sub-delims
+----
+
+== uProtocol URI
+
+.URI Specification
+image::uri.drawio.svg[uProtocol URI Specification]
+
+=== Long Form
+
+.Long Form URI Description
+[#long-form-uri]
+[width="100%",cols="20%,10%,15%,55%",options="header"]
+|===
+|Item |RFC2119 |Value |Description
+
+|`*up:*` |*R* |up: |Scheme (protocol name) always up:
+|*USERINFO* |*O* |pchar |User information
+|*UDEVICE* |*O* |unreserved |Canonical hostname or IP address of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
+|*UDOMAIN* |*O* | |Canonical domain name of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
+|*PORT* |*O* |uint |The external port that the device streamer is listening on. Default **MAY **be 443
+|*UE* |*O* |pchar |The name of the uE
+|*UE_VERSION* |*O* |pchar a|
+uE version  section.
+
+If the URI is part of a topic:
+
+* *MUST* only contain the MAJOR version number
+
+|*METHOD* |*OPTIONAL* |pchar |Service rpc method name as defined in the service proto file, contains the prefix rpc. before the method name
+|*RESOURCE* |*OPTIONAL* |pchar |A uThing that can be uniquely identified using a URI and manipulated/controlled by a service. Resources unique scope is when prepended with device and service to become a fully qualified URI. uThings that are not resources may be a service specific features, functionality, capabilities, etc…
+|*MESSAGE* |*OPTIONAL* |*( pchar / "/" / "?" ) |Protobuf message name as defined in https://developers.google.com/protocol-buffers/docs/overview.
+|===
+
+
+*Additional URI Protocol Rules:*
+
+* *MAY* contain schema
+* A segment in the path (UE_NAME, UE_VERSION, RESOURCE, METHOD) *MAY* be empty, resulting in two consecutive slashes (//) in the path component
+* Schema and authority *MUST* be case-insensitive per RFC3986
+* Path, query, and message *MUST* be case-sensitive
+
+If a segment in the path is empty:
+
+* The path *MUST NOT* start with "//"
+* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
+
+=== Short Form
+Short form URIs are used to represent various portions of the URI using IDs in lieu of strings. IDs in are declared in as metadata (Custom Options) in service protobufs.
+
+.Short Form URI Descriptions
+[#short-form-uri]
+[width="100%",cols="20%,10%,15%,55%",options="header"]
+|===
+|Item |RFC2119 |Value |Description
+
+|`*up:*` |*R* |up: |Scheme (protocol name) always up:
+|*USERINFO* |*O* |pchar |User information
+|*UAUTHORITY* |*O* |unreserved | IP address (v4 ior v6) of the device
+|*PORT* |*O* |uint
+|The external port that the device streamer is listening on. Default **MAY **be 443
+|*UE_ID* |*O* |pchar a|The unique identifier assigned to the uE.
+
+* *MUST* be unique per feature/function in the network
+
+|*UE_VERSION* |*O* |pchar a| uE version  section.
+
+|*METHOD_ID \| TOPIC_ID* |*OPTIONAL* |uint
+a| Method or topic Id from the protobuf file
+
+* *MUST* be unique to the uE (method and topic IDs must not overlap)
+
+|===
+
+=== Fully Qualified URI
+A URI long or short form URI containing all the items listed in either <<long-form-uri>> or <<short-form-uri>> tables depending on the URI format.
+
+== Wildcards
+The wildcard character `*` is used in certain circumstances in lieu of an item in the URI for matching any character or sequence of characters in a search.
+
+NOTE: Please use of wildcards, please refer to link:../up-l3/README.adoc[uP-L3 Specifications]
+
+== Example URIs
+
+The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
+
+When the authority is missing from the URI, it is considered a local URI.
+
+.Example URIs
+|===
+|Use Case |Long Form |Short Form
+
+|*publish* (source attribute)
+|up://VCU.4Y1SL65848Z411439.veh.example.com/body.access/1/doors.front_left#Door
+|up://192.168.1.100/4/1
+
+|*request* (sink attribute)
+|up://VCU.4Y1SL65848Z411439.veh.example.com/core.usubscription/2/rpc.Subscribe
+|up://2001:cb0:fc::abc/0/
+|===
+
+NOTE: Local URIs do not contain the authority (and begin with `/`)
+
+.Query URIs
+|===
+| URI | Description
+
+|up:/body.access/*/
+|Reference latest version since version information is blank
+
+|up:/body.access/[^1\|1}1.x\|1.*\|~1]
+|Any version between 1.0.0 and 2.0.0
+|up:/body.access/^1
+|Resolve vehicle service from resource
+|===
+
+
+NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for more examples of version strings

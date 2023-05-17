@@ -1,0 +1,59 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box Device2 #white
+	actor CDS #orange
+endbox
+box Device1 #white
+	entity LDS as DS #orange
+	entity uService as US #blue
+	actor uApp #red
+endbox
+
+US -> DS: UpdateNode(\nUpdateNodeRequest)
+note right
+	<size:12>**UpdateNodeRequest:**</size>
+	""node"" { //Changed Info//	}
+	""ttl"": -1
+end note
+DS -> DS: Update Node
+note right
+ 	<size:12>**Node Metadata:**</size>
+	save //""ttl""//
+	//""last_updated""//=//current time//
+ 	//""inactive""//=""false""
+end note
+DS --> US: Status
+note right
+	<size:12>**Status:**</size>
+	""code"": ""OK""
+end note
+|||
+loop Notify Observers
+	DS -[#0000FF]-\ uApp: <font color=blue>Notification</font>
+	note right
+		<size:12>**Notification:**</size>
+		""uri"" : //uri of changed node//
+		""operation"": ""UPDATE""
+		""ttl"": -1
+	end note
+	DS -[#0000FF]-\ CDS: <font color=blue>Notification</font>
+
+	opt Fetch Updated Node
+		CDS -> DS: FindNodes(FindNodesRequest)
+ 		note right
+			<size:12>**FindNodesRequest:**</size>
+			""uri"": //uri of the changed node//
+			""depth"": -1
+		end note
+		DS --> CDS: FindNodesResponse
+		note right
+			<size:12>**FindNodesResponse:**</size>
+			""nodes"": { //updated node// }
+			""status"": {""code"": ""OK""}
+		end note
+	end opt
+end loop
+@enduml

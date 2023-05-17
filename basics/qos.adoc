@@ -1,0 +1,28 @@
+= QoS
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+
+Prioritization is used to control QoS at uP-L1 between devices. This document will follow https://datatracker.ietf.org/doc/html/rfc4594[RFC4594] _Configuration Guidelines for DiffServ Service Classes_.
+
+* All messages *MUST* be assigned a priority
+* Every topic *MUST* have a priority code associated with it.
+* Default priority when not assigned *MUST* be CS1
+
+.QoS Classifications
+[width="100%",cols="8%,49%,43%",options="header",]
+|===
+|Class |Description |Use Case
+
+|*CS0* |Low Priority. No bandwidth assurance |File Transfer
+|*CS1* |Standard, undifferentiated application |General (unclassified)
+|*CS2* |Operations, Administration, and Management |Streamer messages (sub, connect, etc…)
+|*CS3* |Multimedia streaming |Video Streaming
+|*CS4* |Real-time interactive |High priority (rpc events)
+|*CS5* |Signaling |Important
+|*CS6* |Network control |Safety Critical
+|===
+
+NOTE: Please see link:../up-l2/README.adoc[uP-L2 Specifications] for values used per message type.

@@ -1,0 +1,125 @@
+= Transport & Session Layer (uP-L1)
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+== Overview
+Transport & Session Layer is responsible for connecting uEs together for bidirectional point-2-point communication.
+
+Specifications are organized by the transport types where each transport shall define the following requirements:
+
+* *Session & Transport Binding*
+** How connections are established and managed between uEs (over the transport)
+* *uP-L2 Protocol Binding*
+** How uP-L2 messages (CloudEvents) are carried over the various transports
+
+
+NOTE: Not all transports are the same, some map CE headers into their transport headers while others place the entire CE into  transport's payload.
+
+* *CloudEvent Format*
+** Encoding (format) of both the CloudEvent and payload for a given transport
+
+NOTE: Some protocols/implementations require a specific content type while others are flexible (i.e. there is a _data content type_ attribute in the transport's header). See link:../up-l2/messages/README.adoc#_formats[CloudEvent Format vs Data Format] for more information
+
+== Transport Protocols
+
+Table below provides a breakdown of the various transport specific specifications with links to their detailed specifications.
+
+.Transport Layers
+|===
+| Protocol |Description |Format(s) |Examples
+
+|link:binder/[*Binder*]
+|Androids IPC & RPC communication transport, used for uprotocol-android uE-2-uE transport
+|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf]
+|https://github.com/eclipse-uprotocol/uprotocol-android[uprotocol-android]
+
+|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[*MQTT*]
+|Device-2-Cloud & Cloud-2-Device Communication
+|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON]
+|https://github.com/eclipse-uprotocol/uprotocol-android[uprotocol-android]
+
+|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[*HTTP/2*]
+|Cloud intra-Device uE-2-uE transport
+| https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON] or
+https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf]
+|_Coming soon_
+
+|link:someip/README.adoc[*SOME/IP*]
+|uDevice to mDevice communication to bridge uProtocol to SOME/IP
+|SOME/IP message format (translated from CloudEvents)
+|_Coming soon_
+
+|===
+
+
+== uLink API
+
+uLink is the uProtocol transport layer API responsible for point-2-point communication. The interface provides basic functionality to  `connect()` &  `disconnect()` to the other uE as well as `send()` & `receive()` of CEs between software components.
+
+* All transports *MUST* implement the APIs declared below
+* Additional APIs *MAY* be added to simplify sending and receiving of messages (ex. `InvokeMethod()` to handle correlation between request and response messages)
+
+NOTE: Given implementation of uLink is language and transport specific, we describe the interface in <<ulink-api>> below in lieu of in an IDL.
+
+.uP-L1 API Definition
+[#ulink-api]
+[width="100%",cols="40%,60%"]
+|===
+|Method |Description
+
+| `connect(String clientUri, in Any clientToken, in IEventListener listener);`
+|Create a point-2-point connection with an event dispatcher uE (ex. uBus, uStreamer, etc...). Passed parameters are the clients uProtocol URI, a deployment specific identity token (used to confirm the identity of the connecting client), and an event listener if the event delivery is link:../basics/delivery.adoc#_event_delivery_methods[push method] (ex. Android Binder)
+
+| `disconnect()`
+|Terminate the connection to the dispatcher
+
+|`send(CloudEvent message)`
+|Send a link:../up-l2/README.adoc[uP-L2 Message] to the dispatcher
+
+|`CloudEvent pull(String uri, int count)`
+|Fetch the latest message from the dispatcher, used for link:../basics/delivery.adoc#_event_delivery_methods[pull event method]
+
+|===
+
+
+== Message Delivery
+
+=== Policy
+
+* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver
+* Transport *MUST* support retransmission of CEs that are no able to be sent
+
+If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
+
+* *MUST* use Transmission Control Protocols (TCP) and *MUST NOT* User Datagram Protocol (UDP) for message delivery
+
+==== Method
+
+* Transport *MUST* support either push or pull delivery method
+* *MAY* support both push or pull CE delivery methods between uEs
+* Delivery method *SHOULD* be known by uEs at design time
+* Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
+
+NOTE: Delivery method advertising shall be defined later

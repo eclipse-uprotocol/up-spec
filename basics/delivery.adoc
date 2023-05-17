@@ -1,0 +1,68 @@
+= Delivery
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+In the following section we will introduce event delivery policies and methods that will be referred throughout this document. Event delivery requirements shall be covered in their respective layers of uProtocol in subsequent sections,
+
+== Policies
+
+Below are a high level summary of well known delivery policies:
+
+.Delivery Policies
+[width="100%",cols="20%,80%",options="header",]
+|===
+|Terms |Definition
+
+|*At most once delivery policy*
+|The producer will send messages at most one time, and will not try sending them again if it receives an error or timeout message, example is UDP transport layer protocol.  Maps to MQTT QoS level 0.
+
+|*At-least-once delivery policy*
+|For each message that is attempted to be sent, multiple attempts are made to deliver the message such that at least one succeeds; this means that messages may be duplicated but *not lost*
+
+|https://www.cloudcomputingpatterns.org/exactly_once_delivery/[*Exactly-once delivery policy*]
+|Upon creation, each message is associated with a unique message identifier. This identifier is used to filter message duplicates during their traversal from sender to receiver. Maps to MQTT QOS 2 – Only Once (guaranteed)
+
+|https://www.cloudcomputingpatterns.org/transaction_based_delivery/[*Transaction-based delivery policy*]
+|The https://www.cloudcomputingpatterns.org/message_oriented_middleware/[Message-oriented Middleware] and the client reading a message from a queue participate in a transaction.
+
+|https://www.cloudcomputingpatterns.org/timeout_based_delivery/[*Time-out delivery policy*]
+|Timeout-based delivery service assures that a client receives a message before being deleted from a message queue. This is done by not deleting the message immediately after a client has read it, but only marking is as being invisible. After the client has read a message, it sends an acknowledgment to the message queue and the message is deleted.
+|===
+
+== Event Delivery Methods
+
+.Event Delivery Methods
+[width="100%",cols="17%,83%",options="header",]
+|===
+|Term |Definition
+
+|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Push*]
+|Data is pushed from the Sender to the Receiver
+
+
+|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Poll/Pull*]
+|Data is pulled from the Sender to the Receiver. This is done at certain intervals, the receiver does not know when new data is available. You may say that the receiver *pulls* the data, the distinction between polling and pulling is that polling is done at certain intervals to see if there is new data available.
+
+|===

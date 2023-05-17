@@ -1,0 +1,68 @@
+= Naming Conventions
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+In the following section we will outline fundamental rules for naming conventions for uProtocol things like uDomains, uDevices, and uEs, these names are used to address the uThings by distributed apps and services.
+
+== uEs
+
+* All uEs *MUST* have a name
+* *MUST* be unique across feature/function
+* *MUST* uniquely define a feature(-set), independently of its deployment (where a specific instance is running)
+* *MUST* be made up of unreserved characters per RFC3986 Appendix A: +
+ALPHA / DIGIT / "-" / "." / "_" / "~"
+* *MUST* follow the Hierarchical Namespace defined in <<img-namespace>> below
+
+.Namespace
+[#img-namespace]
+image::namespace.drawio.svg[Namespace]
+
+* CATEGORY, SUB CATEGORIES, and NAMES *MUST* be separated by  the "." delimitator (ex. core.udiscovery)
+* *MUST NOT* assign uE name from the reserved categories are defined in below:
+
+.Reserved Categories
+[width=100%,cols="15%,40%,45%",options="header",]]
+|===
+|Value |Description |RFC2119
+
+|core |Core uProtocol required uEs (ex. uDiscovery, uSubscription)
+|* *MUST* be declared in link:../up-l3/README.adoc[uP-L3 Specifications]
+
+|===
+
+NOTE: TODO: Registry of names for uEs
+
+== uDevice
+
+A device is a logical independent representation of a service bus in different execution environments. Below are some general requirements for deciding when an execution environment should or should not be considered a separate device:
+
+* *MUST* be assigned a static fixed hostname that represents the name of the module.
+* *SHOULD* be bound by memory space. If two domains (ADAS and infotainment) share the same memory space, then they MAY be the same device. Device is loosely bound by the operating system boundary but depends on the implementer's discretion.
+* Different hardware modules connected over a network interface *MUST* be separate devices. Some examples are vehicle ECUs.
+
+
+== uDomain
+
+uProtocol will follow Domain Name System (DNS) specifications such as https://datatracker.ietf.org/doc/html/rfc1034[RFC1034], https://datatracker.ietf.org/doc/html/rfc1035[RFC1035], https://datatracker.ietf.org/doc/html/rfc1123[RFC1123], https://datatracker.ietf.org/doc/html/rfc8117[RFC8117], and other RFCs, for naming and organizing devices into domains (a.k.a grouping of devices). A domain name is an identification string that defines a realm of administrative autonomy, authority or control within the Internet.

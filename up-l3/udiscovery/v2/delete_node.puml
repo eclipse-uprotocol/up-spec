@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+box Device2 #white
+	actor CDS #orange
+endbox
+box Device1 #white
+	entity uDiscovery as DS #orange
+	entity uOTA as US #blue
+	actor uApp #red
+endbox
+US -> US: Uninstall of uService
+US -> DS: DeleteNodes(\nDeleteNodesRequest)
+note right
+	<size:12>**DeleteNodesRequest:**</size>
+	""uris"": ["up://Device1/uService"]
+end note
+DS -> DS: Delete Node
+note right
+ 	<size:12>**Node Metadata:**</size>
+	//""last_updated""//=//current time//
+ 	//""inactive""//=""true""
+end note
+DS --> US: Status
+note right
+	<size:12>**Status:**</size>
+	""code"": ""OK""
+end note
+|||
+loop Observers
+	DS -[#0000FF]-\ uApp: <font color=blue>Notification</font>
+	note right
+		<size:12>**Notification:**</size>
+	  	""uri"": "up://Device1/uService"
+		""operation"": ""DELETE""
+	end note
+	DS -[#0000FF]-\ CDS: <font color=blue>Notification</font>
+	CDS -> CDS: Delete Node
+	note right
+		<size:12>**Node Metadata:**</size>
+		//""last_updated""//=//current time//
+		//""inactive""//=""true""
+	end note
+end loop
+
+@enduml

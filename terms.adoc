@@ -1,0 +1,88 @@
+= Definition of Terms
+:toc:
+
+== General Terms
+
+.General Terms
+|===
+|Term |Definition
+
+|https://mqtt.org/[MQTT] |Lightweight publish/subscribe messaging transport
+|https://en.wikipedia.org/wiki/Uniform_Resource_Identifier[URI] |Uniform Resource Identifier per RFC3986
+|https://oauth.net/2/[OAuth 2.0] |The industry-standard protocol for authorization.
+|https://en.wikipedia.org/wiki/Hostname[hostname] |A label that is assigned to a device connected to a computer network and that is used to identify the device in various forms of electronic communication
+|https://en.wikipedia.org/wiki/Domain_name[Domain Name] |Identification string that defines a realm of administrative autonomy, authority or control within the Internet. Domain names are used in various networking contexts and for application-specific naming and addressing purposes. In general, a domain name identifies a network domain
+|https://en.wikipedia.org/wiki/Domain_Name_System[Domain Name System (DNS)] |The is the hierarchical and decentralized naming system used to identify computers, services, and other resources reachable through the Internet or other Internet Protocol (IP) networks
+|FQDN |Fully qualified domain name 
+|https://en.wikipedia.org/wiki/Entity-control-boundary[Entity-Control-Boundary Pattern (ECB)] a|
+An https://en.wikipedia.org/wiki/Architectural_pattern[architectural pattern] used in https://en.wikipedia.org/wiki/Use_case[use-case] driven https://en.wikipedia.org/wiki/Object-oriented_software_engineering[object-oriented software design] that structures the classes composing a https://en.wikipedia.org/wiki/Software[software] according to their responsibilities in the use-case realization
+
+[width="100%",cols="19%,81%",options="header",]
+!===
+!*Object* !*Description*
+!*Entity* !Long-lived information relevant for the stakeholders (i.e. mostly derived from domain objects, usually persistent)
+!*Boundary* !Encapsulates interaction with external controllers (users or external systems)
+!*Controller* !Ensures the processing required for the execution of a use-case and its business logic, and coordinates, sequences controls other objects involved in the use-case
+!*Actor* !Represents an object interacting with the system. Objects, or actors, represent various roles, such as users or external systems
+!===
+
+|Protocol |A set of rules governing the exchange or transmission of data between software components
+|https://aws.amazon.com/what-is/routing/#:~:text=Routing%20is%20the%20process%20of,place%20through%20many%20different%20paths[Routing] |Routing is the process of path selection in any network
+|Packet |A block of data transmitted across a network
+|https://www.computerhope.com/jargon/b/bind.htm[Binding ] |Creating a connection between two software entities for a specified amount of time to allow data to be sent and/or received
+|https://byjusexamprep.com/application-layer-protocols-dns-smtp-pop-ftp-http-i[Communication Protocol] |Is a set of rules that allows two or more entities of a https://en.wikipedia.org/wiki/Communications_system[communications system] to transmit https://en.wikipedia.org/wiki/Information[information] via any kind of variation of a https://en.wikipedia.org/wiki/Physical_quantity[physical quantity]. The protocol defines the rules, https://en.wikipedia.org/wiki/Syntax[syntax], https://en.wikipedia.org/wiki/Semantics_(computer_science)[semantics] and https://en.wikipedia.org/wiki/Synchronization[synchronization] of https://en.wikipedia.org/wiki/Communication[communication] and possible https://en.wikipedia.org/wiki/Error_detection_and_correction[error recovery methods]. Protocols may be implemented by https://en.wikipedia.org/wiki/Computer_hardware[hardware], https://en.wikipedia.org/wiki/Software[software], or a combination of both.
+|https://byjusexamprep.com/application-layer-protocols-dns-smtp-pop-ftp-http-i[Application Protocol] a|
+An application layer protocol defines how processes (clients and servers), running on same or different end systems, pass messages to each other. In particular, an application layer protocol defines:
+
+* The types of messages, e.g., request messages and response messages.
+* The syntax of the various message types, i.e., the fields in the message and how the fields are delineated.
+* The semantics of the fields, i.e., the meaning of the information that the field is supposed to contain;
+* Rules for determining when and how a process sends messages and responds to messages.
+
+|Transport Protocol |A specification for providing transparent transfer of data from point-2-point, providing reliable data transfer services to the upper layers. 
+|https://en.wikipedia.org/wiki/Network_socket[Network Socket] a|
+A software structure within a https://en.wikipedia.org/wiki/Node_(networking)[network node] of a https://en.wikipedia.org/wiki/Computer_network[computer network] that serves as an endpoint for sending and receiving data across the network. The structure and properties of a socket are defined by an https://en.wikipedia.org/wiki/Application_programming_interface[application programming interface] (API) for the networking architecture. Sockets are created only during the lifetime of a https://en.wikipedia.org/wiki/Process_(computing)[process] of an application running in the node.
+
+_socket_ is also used for the software endpoint of node-internal https://en.wikipedia.org/wiki/Inter-process_communication[inter-process communication] (IPC), which often uses the same API as a network socket.
+
+|https://cloudevents.io/[CloudEvent (CE)] |A specifications for describing event data in a common way
+|https://en.wikipedia.org/wiki/Quality_of_service[QoS] |Quality of service is the description or measurement of the overall performance of a service, such as a telephony or computer network, or a cloud computing service, particularly the performance seen by the users of the network
+|https://en.wikipedia.org/wiki/Business_logic[Business Logic] (Domain Logic) |The part of the program that encodes the real-world business rules that determine how data can be created, stored, and changed. It is contrasted with the remainder of the software that might be concerned with lower-level details of managing a database or displaying the user interface, system infrastructure, or generally connecting various parts of the program.
+|===
+
+== uProtocol Terms
+
+.uProtocol Terms
+|===
+|Terms |Definition
+
+|*C2D* |Cloud-2-Device Communication
+|*D2C* |Device-2-Cloud Communication
+|*D2D* |Device-2-Device Communication
+|*uDevice* |Independent software execution environment that will implement uProtocol and contain a collection of uEs along with dispatcher(s)
+|*Device Proxy Router (DPR)* |Proxies D2D communication when devices are unable to connect directly with each other
+|*uDomain* |Collection of uDevices using DNS nomenclature
+|*Message* |Protobuf defined data structure used for communication in the uProtocol
+|*Property* |An attribute, quality, or characteristic of a uThing that are stored in the uDiscovery database
+|*Resources* a|
+Something that can be manipulated/controlled/exposed by a service. Resources are unique when prepended with device and service.
+
+*Static Topic:* Resource that is declared in the service proto in Resource enum and known at compile time (ex. door, window, etc...)
+
+*Dynamic Topic:* Created at runtime and not defined in the service proto (ex. geo-fence locations)
+
+|*uBus* |Message bus that dispatches CEs between uEs over a common transport. It provides multicast and forwarding functionality (works like a network switch) 
+|*uStreamer* |Device-2-Device event dispatcher to enable seamless communication between uEs on different devices whom might talk different transport layer protocols. Performs various additional functionality such as file transfer, event buffering and more. i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router) 
+|*uDiscovery* |Provides a means for uEs to discover each other, their location (address), properties, and more.
+|*Topic* |What applications subscribe to and services publish to. It is made up of service, resource, and message in uProtocol URI format]
+|*uApplication* |A uE that performs the role of consumer
+|*uService* |A uE that performs the role of producer whos interfaces are defined with a protobuf IDL
+|*uThing* |URI addressable stuff that can be accessed by the uProtocol. Examples of uThings are devices, domains, service, and resources.
+
+|*Cloud Gateway* |Component that lives in the cloud that devices connect with to communicate with the Back-office domain/device
+|*uE* |Pronounced "_You-We_" is a piece of software that communicates to another uEs using uProtocol
+|*Platform uE* |Special purpose built uE that is required per the protocol be present either in each uDevice, domain
+|*uP-L1* |uProtocol Transport & Session Layer
+|*uP-L2* |uProtocol Communication Layer
+|*uP-L3* |uProtocol Application Layer
+|===

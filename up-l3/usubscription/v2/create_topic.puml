@@ -1,0 +1,20 @@
+@startuml
+autonumber
+box Device1 #white
+	entity uSubscription as SM #brown
+	entity uExample #blue
+end box
+uExample -> SM: CreateTopic(CreateTopicRequest)
+note right
+	<size:12>**CreateTopicRequest:**</size>
+	""topic"" : { ""uri"": ""//topic//"" }
+end note
+SM --> uExample: OK
+uExample -> SM: RegisterForNotifications(NotificationsRequest)
+note right
+	<size:12>**NotificationsRequest:**</size>
+	""topic:"" { ""uri"": ""//topic//"" }
+	""subscriber:"" { ""uri"": "up://Device1/uexample/1/" }
+end note
+SM --> uExample: OK
+@enduml

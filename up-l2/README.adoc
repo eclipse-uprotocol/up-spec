@@ -1,0 +1,12 @@
+= Communication Layer (uP-L2)
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+
+Communication layer is contains the following sections:
+
+* link:messages/README.adoc[*Messages*]
+* link:dispatchers/README.adoc[*Dispatchers*]
+* link:permissions.adoc[*Permissions*]

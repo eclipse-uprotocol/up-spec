@@ -1,0 +1,55 @@
+= Android Binder Transport
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+
+== Overview
+https://developer.android.com/reference/android/os/Binder[Binder] is a lightweight remote procedure call mechanism used by Android for Inter-Process Communication (IPC) to be able to pass objects between processes.
+
+https://android.googlesource.com/platform/frameworks/native/+/5553ac45e0cb23102016858789603d6e12ab456b[Recent updates] to Binder added socket support thus allowing for the client and server to be connected over the network for Remote-Procedure Call (RPC).
+
+The messages send over the Binder communication channel are https://developer.android.com/reference/android/os/Parcel[Parcels]. It contains both the flattened data (that will be un-flattened on the other side) and metadata such as callers context.
+Binder marshals the Parcel to be sent, sends and receives it, and then unmarshals it on the other side to reconstruct a copy of the original Parcel.
+
+== Binder uP-L1
+=== Interface Definition
+
+https://developer.android.com/guide/components/aidl[Android Interface Definition Language (AIDL)], is used to define the ULink interface used between uEs on an based uDevice.
+
+NOTE: Android uLink interface can be found link:aidl/org/eclipse/uprotocol/core/ubus/IULink.aidl[IUlink.aidl]
+
+Binder uses a link:../../basics/delivery.adoc#_event_delivery_methods[push delivery method], this means that clients register a listener to be able to receive events.
+
+Listener method `onEvent()` is declared oneway so that the service does not block when it performs the callback.
+
+NOTE: Lisntener interface is defined link:aidl/org/eclipse/uprotocol/core/ubus/IEventListener.aidl[IEventListener.aidl]
+
+=== Messages
+
+link:java/org/eclipse/uprotocol/core/internal/CloudEventProto.java[CloudEventProto.java] and link:java/org/eclipse/uprotocol/core/internal/CloudEventProto.java[StatusProto.java]StatusProto implement Parcelable interface in order to pass uP-L2 messages (CloudEvent and Status).
+
+=== Callers Identity
+uE's connection is identified by a client URI which matches the name and version of a uE, and client token (Binder object) which maintains a unique identity across all processes in the system.
+
+When a uE connects to uBus these parameters are passed with `connect()` method and later the client token is used for authorization of all subsequent calls.

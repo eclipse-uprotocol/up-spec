@@ -1,0 +1,60 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+@startuml
+box vehicleA #white
+    entity TireService #blue
+    entity DoorService #blue
+    actor App #red
+    actor App2 #red
+    control uPlatform #black
+    control uTwin #black
+end box
+    box cloud #white
+    control uPlatform.c #black
+    control uTwin.c #black
+    actor App.c #red
+    actor App2.c #red
+    entity WeatherService.c #blue
+end box
+
+== Initialization of subscriptions == 
+
+App -> uPlatform: subscribe(\n"vA.Tyre.TyrePressure")
+App -> uPlatform: subscribe(\n"vA.Door.LeftFrontDoorStatus")
+App -> uPlatform: subscribe(\n"c.Weather.Detroit")
+uPlatform -> uPlatform.c: subscribe(\n"c.Weather.Detroit")
+App.c -> uPlatform.c: subscribe(\n"vA.Tyre.RightFrontTyrePressure")
+uPlatform.c -> uPlatform: subscribe(\n"vA.Tyre.RightFrontTyrePressure")
+
+== Publication with local subscriber only, only local uTwin updated == 
+DoorService -> uPlatform : publish(\n"vA.Door.LeftFrontDoorStatus" , \nValue="Locked")
+uPlatform -> uTwin : publish(\n"vA.Door.LeftFrontDoorStatus" , \nValue="Locked")
+uTwin -> uTwin : store(\nDevice="vA", \n"vA.Door.LeftFrontDoorStatus" , \nValue="Locked") 
+uPlatform -> App : publish(\n"vA.Door.LeftFrontDoorStatus" , \nValue="Locked")
+
+== Publication in vehicle with remote subscriber, triggering update of both local and remote uTwin == 
+TireService -> uPlatform : publish(\n"vB.Tyre.RightFrontTyrePressure" , \nValue="78")
+uPlatform -> uTwin : publish(\n"vA.Tyre.RightFrontTyrePressure" , \nValue="78")
+uTwin -> uTwin : store(\nDevice="vA", \n"vA.Tyre.RightFrontTyrePressure" , \nValue="78") 
+uPlatform -> App : publish(\n"vA.Tyre.RightFrontTyrePressure" , Value="Locked")
+uPlatform -> uPlatform.c : publish(\n"vA.Tyre.RightFrontTyrePressure" , Value="Locked")
+uPlatform.c -> uTwin.c : publish(\n"vA.Tyre.RightFrontTyrePressure" , \nValue="78")
+uTwin.c -> uTwin.c : store(\nDevice="vA", \n"vA.Tyre.RightFrontTyrePressure" , \nValue="78") 
+uPlatform.c -> App.c : publish(\n"vA.Tyre.RightFrontTyrePressure" , \nValue="78")
+
+== Publication in cloud with remote subscriber, triggering update of remote uTwin == 
+WeatherService.c -> uPlatform.c : publish(\n"c.Weather.Detroit", \nValue="Sunny")
+uPlatform.c -> uPlatform : publish(\n"c.Weather.Detroit", \nValue="Sunny")
+uPlatform -> uTwin : publish(\n"c.Weather.Detroit", \nValue="Sunny")
+uTwin -> uTwin : store(\nDevice="c", \n"c.Weather.Detroit" , \nValue="Sunny") 
+
+== Access to uTwin == 
+App2.c -> uTwin.c : GetLastMessage(\ndevice="vA", \n"vA.Tyre.RightFrontTyrePressure")
+uTwin.c -> App2.c : response(Value="78")
+
+App2 -> uTwin : GetLastMessage(\ndevice="vA", \n"vA.Tyre.RightFrontTyrePressure")
+uTwin -> App2 : response(Value="78")
+
+
+@enduml
