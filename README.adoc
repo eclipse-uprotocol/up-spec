@@ -109,4 +109,11 @@ Core uEs are business layer logic to perform a specific function of the protocol
 
 |===
 
+=== Topology
+<<img-topology>> below illustrates what a uProtcol topology consists of when all the uEs connected together.
+
+.Topology
+[#img-topology]
+image::platform_ues.drawio.svg[uProtocol Topology]
+
 NOTE: Please see link:principles.adoc[Guiding Principles] for more information about motivations and high-level requirements/principles driving the specification
