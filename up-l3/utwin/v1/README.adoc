@@ -25,21 +25,21 @@ under the License.
 
 == Purpose
 
-In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices deliver information as events through the uPlatform. These events can be considered to represent updates to the uService _state._ The collection of events that a uService publishes therefore represents the current "public state" of the uService (public because some more internal states might exist but not published).
+In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the uPlatform. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without beingexposed externally).
 
-An event published on a uDevice is propagated to all other uDevices that have at least one uE subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEs running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEs in the sense that uE's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uE subscribed to Topics of the uService. <<utwin-overview>> figure below provides a visual description of the context.
+An event published on a uDevice is propagated to all other uDevices that have at least one uE subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEs running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEs in the sense that uE's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uE. <<utwin-overview>> figure below provides a visual description of the context.
 
 .uTwin
 [#utwin-overview]
 image::utwin.drawio.svg[uTwin]
 
-A uE relying on a uService will therefore subscribe to Topics created by the uService and that it uses to publish its updated "state". Consequently, once a uE is _connected_ to uPlatform *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE connecting to uPlatform to receive the "last known state" of the uService it relies on. A uE _connects_ to uPlatform for the following reasons:
+A uE requiring information/state from a uService will therefore subscribe to Topics od interest created by that uService. Consequently, once a uE is _connected_ to uPlatform *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE connecting to uPlatform to receive the "last known state" (published while the uE was not connected to uPlatform) of the uServices it relies on. A uE _connects_ to uPlatform for the following reasons:
 
 * Executed for the first time after installation
 * Connected to a new uService (e.g. cloud uE connecting to a new vehicle that enrolled to the service provided by the cloud uE)
 * uE restarting for whatever reason (uE crash, ignition off, system in deep sleep)
 
-The mechanism aimed at providing "last known uService state" to uE requiring it is also known as digital twin. While usually this mechanism is used for replication of a state in remote devices (e.g. IoT device state replicated in Cloud), in our context, we also need a similar mechanism to deliver such last known state to local uEs. <<last-known-state-use-cases>> below illustrates the usefulness of the uTwin:
+The mechanism aimed at providing "last known uService state" to uEs requiring it is also known as digital twin. While  this mechanism is usually used for replication of a state in remote devices (e.g. IoT device state replicated in Cloud), in our context, we also need a similar mechanism to deliver such last known state to local uEs. <<last-known-state-use-cases>> below illustrates the usefulness of the uTwin:
 
 .Example Last-Known-State Use Cases
 [width="100%",cols="30%,25%,24%,21%",options="header",]
@@ -66,15 +66,15 @@ NOTE: The uTwin interface is link:../../../../src/main/proto/core/utwin/v1/utwin
 
 == Proposal
 
-The solution consists in creating a software component, named uTwin, that embodies this automatically-created digital twin component. The uTwin component is connected to the communication framework (i.e. the uBus) of each device in charge of dispatching messages.
+The solution consists in creating a software component, named uTwin, that embodies this automatically created and updated digital twin component. The uTwin component is connected to the communication framework (i.e. the uBus) of each device in charge of dispatching messages.
 
 * Every publish message that flows through the uBus *SHALL* be “delivered” to uTwin
 
-the uTwin stores the published message by a _primary key_ to enable local software components to retrieve it. This _primary key_ is the full name of the Topic, hence also including the device name. The fact that the _primary key_ represents a topics ensures that only the last event of a given Topic is stored in the uTwin. The collection of events stored in a uTwin instance of a device, whose keys include a specific device name (e.g. deviceA), represent the digital twin of that device (deviceA in our example).
+the uTwin stores the published message using a _primary key_ to enable local software components to retrieve it. This _primary key_ is the full name of the Topic, hence also including the device name. The fact that the _primary key_ represents a topics ensures that only the last event of a given Topic is stored in the uTwin. The collection of events stored in a uTwin instance of a device, whose keys include a specific device name (e.g. deviceA), represent the digital twin of that device (deviceA in our example).
 
 Examples of events for a vehicle may include tire pressure, window position, gear position but also vehicle mode (driving, parked), and in general any information that is published within the vehicle for the purpose of operating it and activating its features.
 
-So, for example, if a cloud application MyApp subscribes to the tire pressure of a given vehicle (named vehA), then every time vehA publishes a new value for the tire pressure, the event will be delivered to the cloud and deliver it to MyApp. The uTwin instance running on the cloud will also receive this information and store it with the primary key including the vehicle name vehA and the topic name TirePressure, so that any other software wishing to subsequently access the tire pressure can simply request it from the cloud uTwin.
+So, for example, if a cloud application MyApp subscribes to the tire pressure of a given vehicle (named vehA), then every time vehA publishes a new value for the tire pressure, the event will be delivered to the cloud and to MyApp. The uTwin instance running on the cloud will also receive this information and store it with the primary key including the vehicle name vehA and the topic name TirePressure, so that any other software subsequently wishing to access the tire pressure can simply request it from the cloud uTwin.
 
 <<utwin-sequence-diagram>> below illustrates the overall mechanism, with special focus on the following properties:
 
@@ -126,7 +126,7 @@ The implementation of `GetLastEvent()` *MUST* enforce permissions associated wit
 
 This function enables an "external" component to set the last event of a given Topic.
 
-WARNING: Usage of this function should be restricted to uPlatform components, specifically the uBus
+WARNING: Usage of this function *MUST* be restricted to uPlatform components, specifically the uBus
 
 The implementation of SetLastEvent MUST enforce permissions associated with the Topic being requested. Either checking permission for each request, or if calling this API is structurally embedded inside uBus
 
@@ -150,7 +150,7 @@ NOTE: *MUST* store ingress (to the uBus) published events; egress are merge copi
 
 Access to a Topic is done with subscriptions. The intrinsic property of a subscription is that all events published, to said topic, will be received by the subscriber.
 
-In some cases, a uE might require one-time access to a Topic, that is, to receive only the last event published on a Topic, without receiving future event that will be published. uTwin can be used for this purpose. There are 4 possible cases in this scenario:
+In some cases, a uE might require one-time access to a Topic, that is, to receive only the last event published on a Topic, without receiving future events that will be published. uTwin can be used for this purpose. There are 4 possible cases in this scenario:
 
 * *The requested Topic is already subscribed by another uE running on the same device:*
   ** The last published event has already been stored in the uTwin instance for the device, and as a result, can simply be returned when requested by `GetLastEvent()`
