@@ -1,0 +1,24 @@
+name: Verify AsciiDoc Links
+
+on:
+  push:
+    branches:  main 
+  pull_request:
+    branches:  main 
+
+jobs:
+  verify-links:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install linkchecker
+      run: 
+        sudo apt-get install linkchecker
+        npm install -g asciidoc-link-check
+
+    - name: Verify links
+      run: 
+        find . -name \*.adoc -exec asciidoc-link-check -p {} \;
