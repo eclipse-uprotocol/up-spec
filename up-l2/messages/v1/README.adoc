@@ -321,7 +321,7 @@ The following examples are using the JSON CE format
     "id": "5b9fe861-8c1c-4899-9b07-ad1cde652e10",
     "source": "up://VCU.VIN.veh.up.gm.com/body.access/1/rpc.UpdateDoor",
     "sink": "up://VCU.VIN.veh.up.gm.com/MyAppp/1/rpc.response",
-    "type": "res.v1",
+    "type": "notif.v1",
     "datacontenttype": "application/x-protobuf",
     "dataschema": "/google.rpc.Status",
     "priority": "CS4",
