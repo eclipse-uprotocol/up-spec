@@ -208,7 +208,7 @@ Table below outlines the database access policies written like network firewall 
 
 ===== uLDS
 * *MUST* allow local uE to read or write its own Node as well as its children Nodes
-* *MUST* allow local uE to read Nodes that it has associated link:../../up-l2/permissions.adoc[permissions] to do so
+* *MUST* allow local uE to read Nodes that it has associated link:../../../up-l2/permissions.adoc[permissions] to do so
 * Fetched Nodes *MUST* be cached per ttl requirements
 
 ===== uDDS
