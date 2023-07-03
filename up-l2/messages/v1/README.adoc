@@ -156,7 +156,7 @@ The dataschema is required only when the data is not of type google.protobuf.Any
 
 |priority
 |String
-|*0*
+|*O*
 a| uProtocol Prioritization classifications per link:../../../basics/qos.adoc[QoS]. When this field is missing, `CS0` is assumed.
 When the message _type_ is `req.v1`:
 
