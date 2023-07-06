@@ -25,7 +25,7 @@ under the License.
 
 == Purpose
 
-In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the uPlatform. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without beingexposed externally).
+In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the uPlatform. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without being exposed externally).
 
 An event published on a uDevice is propagated to all other uDevices that have at least one uE subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEs running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEs in the sense that uE's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uE. <<utwin-overview>> figure below provides a visual description of the context.
 
@@ -33,7 +33,7 @@ An event published on a uDevice is propagated to all other uDevices that have at
 [#utwin-overview]
 image::utwin.drawio.svg[uTwin]
 
-A uE requiring information/state from a uService will therefore subscribe to Topics od interest created by that uService. Consequently, once a uE is _connected_ to uPlatform *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE connecting to uPlatform to receive the "last known state" (published while the uE was not connected to uPlatform) of the uServices it relies on. A uE _connects_ to uPlatform for the following reasons:
+A uE requiring information/state from a uService will therefore subscribe to Topics of interest created by that uService. Consequently, once a uE is _connected_ to uPlatform *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE connecting to uPlatform to receive the "last known state" (published while the uE was not connected to uPlatform) of the uServices it relies on. A uE _connects_ to uPlatform for the following reasons:
 
 * Executed for the first time after installation
 * Connected to a new uService (e.g. cloud uE connecting to a new vehicle that enrolled to the service provided by the cloud uE)
