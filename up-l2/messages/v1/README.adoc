@@ -100,9 +100,6 @@ a|uProtocol CE type
 !*Publish*
 ! `pub.v1`
 
-!*Notification*
-!`notif.v1`
-
 !*Request*
 !`req.v1`
 
@@ -136,7 +133,7 @@ a|Content type of data value. This attribute enables data to carry any type of c
 
 * *MUST* adhere to the format specified in https://tools.ietf.org/html/rfc2046[RFC 2046]
 * *MUST* be application/octet-stream for binary encoded data that is not protobuf
-* *SHALL* be application/protobuf if attribute is missing
+* *SHALL* be application/x-protobuf if attribute is missing
 
 
 |https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md#dataschema[dataschema]
@@ -156,7 +153,7 @@ The dataschema is required only when the data is not of type google.protobuf.Any
 
 |priority
 |String
-|*0*
+|*O*
 a| uProtocol Prioritization classifications per link:../../../basics/qos.adoc[QoS]. When this field is missing, `CS0` is assumed.
 When the message _type_ is `req.v1`:
 
@@ -260,7 +257,7 @@ a|* *MUST* adhere to the https://github.com/cloudevents/spec/blob/v1.0.2/cloudev
 If data is a protobuf message:
 
 * *MUST* be packed as google.protobuf.Any and stored in field proto_data
-* *MAY* set datacontenttype to "application/protobuf"
+* *MAY* set datacontenttype to "application/x-protobuf"
 * *MAY* set dataschema to the URI of the protobuf message, this is optional as this information is already stored in the google.protobuf.Any
 
 If the data is binary and [.underline]#NOT# a protobuf message:
@@ -276,7 +273,7 @@ a|* *MUST* adhere to https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents
 If data is a protobuf message:
 
 * *MUST* be packed as google.protobuf.Any and stored in field data_base64 attribute,
-* *MAY* set datacontenttype to "application/protobuf"
+* *MAY* set datacontenttype to "application/x-protobuf"
 * *MAY* set dataschema to the URI of the protobuf message, this is optional as this information is already stored in the google.protobuf.Any
 
 If the data is binary and [.underline]#NOT# a protobuf message:
@@ -297,71 +294,53 @@ The following are additional recommendations when implementing the protocol:
 == Examples
 The following examples are using the JSON CE format
 
-=== Publish Message
+=== Publish
 [source]
 ----
 {
     "specversion": "1.0",
-    "id" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
+    "id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
     "source": "up://VCU.VIN.veh.up.gm.com/body.access/1/door.front_left#Door",
     "type": "pub.v1",
-    "datacontenttype" : "application/protobuf",
+    "datacontenttype": "application/x-protobuf",
     "dataschema": "/org.eclipse.uprotocol.vehicle.body.access.v1.Door",
-    "priority" : "CS1",
-    "ttl" : 10000,
+    "priority": "CS1",
+    "ttl": 10000,
     "data": /* Protobuf serialized Door Message*/
 }
 ----
 
-=== Notification Message
+=== Request
 [source]
 ----
 {
     "specversion": "1.0",
-    "id" : "5b9fe861-8c1c-4899-9b07-ad1cde652e10",
-    "source": "up://VCU.VIN.veh.up.gm.com/body.access/1/rpc.UpdateDoor",
-    "sink": "up://VCU.VIN.veh.up.gm.com/MyAppp/1/rpc.response",
-    "type": "res.v1",
-    "datacontenttype" : "application/protobuf",
-    "dataschema": "/google.rpc.Status",
-    "priority" : "CS4",
-    "reqid" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
-    "ttl" : 50000,
-    "data": /* Protobuf serialized google.rpc.Status Message*/
-}
-----
-
-=== Request Message
-[source]
-----
-{
-    "specversion": "1.0",
-    "id" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
+    "id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
     "source": "up://VCU.VIN.veh.up.gm.com/MyAppp/1/rpc.response",
     "sink": "up://VCU.VIN.veh.up.gm.com/body.access/1/rpc.UpdateDoor",
     "type": "req.v1",
-    "datacontenttype" : "application/protobuf",
+    "datacontenttype": "application/x-protobuf",
     "dataschema": "/org.eclipse.uprotocol.vehicle.body.access.v1.UpdateDoorRequest",
-    "priority" : "CS4",
-    "ttl" : 50000,
+    "priority": "CS4",
+    "ttl": 50000,
     "data": /* Protobuf serialized UpdateDoorRequest Message*/
 }
 ----
 
-=== Response Message
+=== Response
 [source]
 ----
 {
     "specversion": "1.0",
-    "id" : "5b9fe861-8c1c-4899-9b07-ad1cde652e10",
+    "id": "5b9fe861-8c1c-4899-9b07-ad1cde652e10",
     "source": "up://VCU.VIN.veh.up.gm.com/body.access/1/rpc.UpdateDoor",
     "sink": "up://VCU.VIN.veh.up.gm.com/MyAppp/1/rpc.response",
     "type": "res.v1",
-    "datacontenttype" : "application/protobuf",
+    "datacontenttype": "application/x-protobuf",
     "dataschema": "/google.rpc.Status",
-    "priority" : "CS4",
-    "reqid" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
-    "ttl" : 50000,
+    "priority": "CS4",
+    "reqid": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
+    "ttl": 50000,
     "data": /* Protobuf serialized google.rpc.Status Message*/
 }
 ----

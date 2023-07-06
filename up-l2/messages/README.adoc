@@ -38,10 +38,6 @@ Table <<message-types>> below list the defined event types with links to their v
 | link:v1/README.adoc[v1]
 |Publication of events (1:many)
 
-|*Notification*
-| link:v1/README.adoc[v1]
-|Published event to a specific destination (1:1)
-
 |*Request*
 | link:v1/README.adoc[v1]
 |RPC Request message
