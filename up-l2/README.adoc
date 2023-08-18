@@ -7,6 +7,5 @@ The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*
 
 Communication layer is contains the following sections:
 
-* link:messages/README.adoc[*Messages*]
 * link:dispatchers/README.adoc[*Dispatchers*]
 * link:permissions.adoc[*Permissions*]

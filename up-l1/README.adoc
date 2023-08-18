@@ -24,102 +24,555 @@ under the License.
 ----
 
 
-== Overview
-Transport & Session Layer is responsible for connecting uEs together for bidirectional point-2-point communication.
+Transport & Session Layer is responsible for bidirectional point-2-point communication between uEs. What gets sent between uEs vary considerably depending on the type of payload (Safety, Security, fire & forget, etc...) as well as the deployment environment where the uEs are located (Android, Linux, MCU, etc...). 
 
-Specifications are organized by the transport types where each transport shall define the following requirements:
+The Purpose of this layer of the protocol is to define a common ubiquitous language for sending and receiving a messages in a common way across transports, heterogeneous system the uEs are deployed on, or the programming language used. 
 
-* *Session & Transport Binding*
-** How connections are established and managed between uEs (over the transport)
-* *uP-L2 Protocol Binding*
-** How uP-L2 messages (CloudEvents) are carried over the various transports
+This specification shall define the data models (types) and interfaces.  . 
+uProtocol programming language specific libraries (SDKs) declare the transport layer interfaces and define the data model, while transport technologies (ex. Binder, MQTT, Zenoh, SOME/IP, DDS, HTTP, etc...) implement said interfaces per language. 
 
+NOTE: We will define the various interfaces in this specification using pseudo code in lieu of a particular IDL such as protobuf as we expect the implementations of this spec to vary slightly between languages. 
 
-NOTE: Not all transports are the same, some map CE headers into their transport headers while others place the entire CE into  transport's payload.
+We will use the following terminology during this document:
 
-* *CloudEvent Format*
-** Encoding (format) of both the CloudEvent and payload for a given transport
-
-NOTE: Some protocols/implementations require a specific content type while others are flexible (i.e. there is a _data content type_ attribute in the transport's header). See link:../up-l2/messages/README.adoc#_formats[CloudEvent Format vs Data Format] for more information
-
-== Transport Protocols
-
-Table below provides a breakdown of the various transport specific specifications with links to their detailed specifications.
-
-.Transport Layers
+.API Definition Terminology
+[width="80%",cols="20%,80%"]
 |===
-| Protocol |Description |Format(s) |Examples
+|Term | Description
 
-|link:binder/[*Binder*]
-|Androids IPC & RPC communication transport, used for uprotocol-android uE-2-uE transport
-|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf]
-|https://github.com/eclipse-uprotocol/uprotocol-android[uprotocol-android]
-
-|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[*MQTT*]
-|Device-2-Cloud & Cloud-2-Device Communication
-|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON]
-|https://github.com/eclipse-uprotocol/uprotocol-android[uprotocol-android]
-
-|https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[*HTTP/2*]
-|Cloud intra-Device uE-2-uE transport
-| https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON] or
-https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf]
-|_Coming soon_
-
-|link:someip/README.adoc[*SOME/IP*]
-|uDevice to mDevice communication to bridge uProtocol to SOME/IP
-|SOME/IP message format (translated from CloudEvents)
-|_Coming soon_
+| `IN` | Input parameter
+| `OUT`| Output parameter
+| `IN/OUT` | Input/output parameter
+| `&` | Parameter passed by reference
+| `Future` | Language specific mechanism to access the result of asynchronous operations, ex. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java, etc...
 
 |===
 
+ * All APIs that return `Status` *MUST* follow link:../../basics/error_model.adoc[uProtocol Status Codes]
 
-== uLink API
 
-uLink is the uProtocol transport layer API responsible for point-2-point communication. The interface provides basic functionality to  `connect()` &  `disconnect()` to the other uE as well as `send()` & `receive()` of CEs between software components.
 
-* All transports *MUST* implement the APIs declared below
-* Additional APIs *MAY* be added to simplify sending and receiving of messages (ex. `InvokeMethod()` to handle correlation between request and response messages)
+== Data Model
 
-NOTE: Given implementation of uLink is language and transport specific, we describe the interface in <<ulink-api>> below in lieu of in an IDL.
+Data model specifies the various types that are to be declared the SDKs and used by uTransport interface.
+These specifications define the ubiquitous language so that they are consistent across languages and transport implementations. 
+
+*NOTE:* Unless otherwise stated, the classification or category for various types (ex. enums vs templates vs classes vs structs vs records, etc..) is not specified and left up to the SDK authors.
+
+* Object oriented programming languages *MUST* use object based types (ex. classes) to represent the types defined in this section unless otherwise stated below
+
+* Variable length types such as C++ `std::string` or Java's `byte[]` *MAY* be replaced for fixed types (ex. `char[]`) where applicable
+
+
+=== UUri
+
+`UUri` type implements the link:../../basics/uri.adoc[uProtocol URI Specifications] and comprises of <<UAuthority>>, <<UEntity>>, and <<UResource>>.
+
+ * Type name *MUST* be `UUri`
+ * *MUST* have-a <<UAuthority>>, <<UEntity>>, and <<UResource>> types 
+ * *MUST* have methods to build `UUri` from either a string or any combination of <<UAuthority>>, <<UEntity>>, and <<UResource>> types based on the URI specifications
+ * *MUST* have a method to build the an RPC URI passing `<<UAuthority>> and <<UEntity>> where <<UResource>> is set to `"rpc.response"`.
+ * *MUST* have a method to convert to and from string
+ * *MUST* support URI with and without scheme defined (in the string)
+
+=== UAuthority
+`UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
+
+ * Type name *MUST* be `UAuthority`
+ * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods to fetch each
+ * *MUST* be able to construct a `UAuthority` from a string
+ * *MUST* support detection of local vs remote URIs from `UAuthority`
+
+if the authority is an IP address:
+
+ * IP address *MUST* be stored in `device` member variable 
+
+=== UEntity
+`UEntity` type contains the uE name and version portion of the uProtocol URI.
+ * Type name *MUST* be `UEntity`
+ * *MUST* contain `name` and `version` member variables of type `std::string`, with accessor methods to fetch each
+ * *MUST* be able to construct a `UAuthority` from a string
+
+=== UResource
+`UResource` contains the resource name, instance, and message portion of the uProtocol uRI.
+
+ * Type name *MUST* be `UResource`
+ * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods to fetch each
+ * *MUST* be able to construct a `UResource` from:
+  - String representation of `UResource` per the URI specifications
+  - `name` and `instance` only
+  - `name` only
+
+
+=== UAttributes
+
+UAttributes hold the metadata for <<UPayload>> as well as the uP-L2 routing information. 
+
+NOTE: uProtocol (uTransport) versioning is managed by the <<MessageType>>  
+
+ * Type name *MUST* be `UAttributes`
+ * *MUST* contain `<<MessageType>>, <<ID>>, and <<Priority>>,
+ * *MUST* adhere to the additional <<messagetype-requirements>>
+ * *MAY* contain <<Sink>>, and <<Time-to-Live (TTL)>> 
+
+.Message Type Specific Requirements
+[#messagetype-requirements,width="100%",cols="30%,70%"] 
+|===
+| <<MessageType>> | Requirements
+
+| `REQUEST`
+a| 
+ * *MUST* contain <<Sink>>, and <<Time-to-live (TTL)>>
+ * *SHOULD* contain <<Permission Level>>
+ * *MAY* contain <<Token>>
+
+| `RESPONSE`
+a|
+ * *MUST* contain <<Sink>> attributes
+ * *MUST* contain the <<Correlation ID>>
+ * *MAY* contain <<Communication Status>>
+
+|===
+
+
+=== MessageType
+Enumeration used to represent the type of uProtocol message. 
+
+ * *MUST* have the attribute name `MessageType`
+ * *MUST* be an enumeration
+ * *MUST* use nomenclature definitions from  <<message-type>>
+ * *SHOULD* be an enum
 
 .uP-L1 API Definition
-[#ulink-api]
-[width="100%",cols="40%,60%"]
-|===
-|Method |Description
-
-| `connect(String clientUri, in Any clientToken, in IEventListener listener);`
-|Create a point-2-point connection with an event dispatcher uE (ex. uBus, uStreamer, etc...). Passed parameters are the clients uProtocol URI, a deployment specific identity token (used to confirm the identity of the connecting client), and an event listener if the event delivery is link:../basics/delivery.adoc#_event_delivery_methods[push method] (ex. Android Binder)
-
-| `disconnect()`
-|Terminate the connection to the dispatcher
-
-|`send(CloudEvent message)`
-|Send a link:../up-l2/README.adoc[uP-L2 Message] to the dispatcher
-
-|`CloudEvent pull(String uri, int count)`
-|Fetch the latest message from the dispatcher, used for link:../basics/delivery.adoc#_event_delivery_methods[pull event method]
+[#message-type,width="100%",cols="15%,15%,15%,55%"]
 
 |===
+| Type | String | Integer | Description
+
+| *PUBLISH*
+| `pub.v1`
+|0
+|Send a multicast publication (1:many) or 1:1 notification to a topic
+
+| *REQUEST*
+| `req.v1`
+|1
+|Send a request to a topic
+
+| *RESPONSE*
+| `res.v1`
+|2
+|Send a response to a request
+
+|===
 
 
-== Message Delivery
+=== ID
 
-=== Policy
+The ID is used to correlate request and response messages as well as provide timestamp information for message sent or received. The ID is generated by the sender and *MUST* be unique for each message.
 
-* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver
+* *MUST* adhere to link:../../basics/uuid.adoc[uProtocol UUID requirements]
+* Variable name *MUST* be `id`
+
+
+=== Priority
+Type used to define link:../../basics/qos.adoc[uProtocol Prioritization classifications]. 
+
+ * Type name *MUST* be `Priority`
+ * *MUST* use nomenclature definitions from  <<priority-levels>>
+ * *SHOULD* be an enum
+
+.Priority Levels
+[#priority-levels,width="100%",cols="30%,10%,10%,50%"]
+|===
+| Type | String | Integer | Description
+
+| *LOW*
+|`CS0`
+|0
+|Low Priority. No bandwidth assurance
+
+| *STANDARD*
+|`CS1`
+|1
+|Standard, undifferentiated application
+
+| *OPERATIONS*
+|`CS2`
+|2
+|Operations, Administration, and Management
+
+| *MULTIMEDIA STREAMING*
+|`CS3`
+|3
+|Multimedia Streaming
+
+| *REALTIME INTERACTIVE*
+|`CS4`
+|4
+|Realtime Interactive
+
+| *SIGNALING*
+|`CS5`
+|5
+|Signaling
+
+| *NETWORK CONTROL*
+|`CS6`
+|6
+|Network Control
+
+|===
+
+
+=== Sink
+
+Sink is the destination <<UUri>> for a message. Sink is used for unicast message types using in notification and RPC patterns.
+
+* Type *MUST* be <<UUri>> 
+* Variable name *MUST* be `sink`
+
+
+=== Time-to-live (TTL)
+
+How long this message should live for after it was generated (in milliseconds). Event expires when:
+
+stem:[t_current > t_{ce_id} + ce_ttl]
+
+* *MUST* be a positive integer value
+* *MUST* fit in a 32-bit integer
+* Variable name *MUST* be `ttl`
+
+
+=== Communication Status
+
+Communication error attribute populated by uP-L2 dispatchers only when an error has occurred in the delivery of RPC request or response events.
+The contents of this attribute, if present, is the unsigned integer representation of https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto[google.rpc.Code]
+
+* *MUST* be a positive integer value
+* *MUST* fit in a 32-bit integer
+* Variable name *MUST* be `commstatus`
+
+
+=== Permission Level
+Source (senders) uE permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
+
+* *MUST* be a positive integer value
+* *MUST* fit in a 32-bit integer
+* Variable name *MUST* be `plevel`
+
+
+=== Correlation ID
+
+The correlation ID is sent in response messages to correlate to the reque*st. 
+
+* *MUST* adhere to link:../../basics/uuid.adoc[uProtocol UUID requirements]
+* Variable name *MUST* be `reqid`
+
+
+=== Token
+Access token as defined in per link:../up-l2/permissions.adoc#_token_based_access_permissionstaps[Token-Based uE Access Permissions (TAPs)]
+
+* Variable name *MUST* be `token` 
+* *MUST* store the raw token data (ex. bytes) and the size
+* *MAY* be of type `byte[]` for Java, or `std::vector<uint8_t>` for C++
+
+
+=== Serialization Hint
+
+Serialization hint is used to indicate the format of the payload. 
+
+ * Type name *MUST* be `SerializationHint`
+ * *MUST* be an enumeration
+ * *MUST* use nomenclature definitions from  <<serialization-hint-types>>
+ * *SHOULD* be an enum
+
+
+.Serialization Hint Types
+[#serialization-hint,width="100%",cols="20%,35%,10%,40%"]
+|===
+| Field Name | String | Integer | Description
+
+|UNKNOWN
+|`"(empty string)"`
+|0
+| The serialization hint was not passed or set
+
+|PROTOBUF
+|`application/x-protobuf`
+|1
+|https://developers.google.com/protocol-buffers[Google Protocol Buffers]
+
+|JSON
+|`application/json`
+|2
+|https://www.json.org/[JSON]
+
+|SOMEIP
+|`application/x-someip`
+|3
+|https://www.autosar.org/fileadmin/user_upload/standards/foundation/1-0/AUTOSAR_PRS_SOMEIPProtocol.pdf[SOME/IP]
+
+|RAW
+|`application/octet-stream`
+|4
+|Raw binary data (not serialized)
+
+|===
+
+
+=== UPayload
+
+UPayload is a container for the uP-L3 application layer data to be transmitted between uEs. The UPayload structure contains only the data and its size. 
+
+If the data is passed by reference (ex. pointer):
+
+* `data` *MUST* contain the pointer to the payload and `size` contains the actual data size
+
+If the data is passed by value (ex. copy):
+
+* `data` *MUST* contains the actual payload
+
+If the programming language `data` type includes the ability to fetch its size (ex. `byte[]`):
+
+* UPayload *MUST NOT* include `size` attributes
+
+
+=== UMessage
+
+The `UMessage` is an envelope that contains <<UPayload>> an*d <<UAttributes>>. Used predominately below <<UTransport Interface>> but still included in uProtocol <<Data Model>> as some implementations of  `UMessage` are shared across multiple transports (ex. link:../cloudevents.adoc[uProtocol CloudEvents]. 
+
+  * Type name *MUST* be `UMessage`
+  * *MUST* contain <<UPayload>> and <<UAttributes>>
+  * *MAY* contain <<UUri>> for the source of the message
+  * *MUST* provide link:../up-l1/cloudevents.adoc[uProtocol CloudEvent] implementation of `UMessage`
+
+
+=== UListener
+
+`UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
+
+  * Type name *MUST* be `UListener`
+  * *MUST* contain the method `Status onReceive(<<UUri>>&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
+
+=== Status
+
+An interface used to return the status of the uTransport API calls.
+
+  * Type name *MUST* be `Status`
+  * *MUST* contain the method `https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto[google.rpc.Code] getCode()` that returns the status code per the link:../../basics/error_model.adoc[uProtocol Error Model]
+  * *MUST* contain the method `string getMessage()` that returns the status message 
+
+
+
+== uTransport Interface
+
+The transport layer API responsible for point-2-point communication. The interface provides common functionality across all transport implementations.
+
+* *MUST* implement all APIs defined in this section
+
+=== Register()
+
+API to register the calling uE with the underlining transport implementation. 
+
+`OUT <<Status>> register(IN <<UEntity>>, IN Token, IN <<UListener>>)`
+
+==== Parameters
+.Register Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| `UEntity`
+| uProtocol UEntity information
+
+| `Token`
+| Deployment specific token used to authenticate the calling uE
+
+|===
+
+ * *MUST* be called before any other API
+ * *MUST* be called only once per uE
+ * *MUST* authenticate client uE identity using the passed token and <<UEntity>>. If the client is not authenticated,  *MUST* return `UNAUTHENTICATED` status code
+
+
+=== Send()
+
+Publish/send <<UPayload>> and <<UAttributes>> to a <<UUri>> (topic). 
+
+Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol <<UAttributes>>. Sending <<UAttributes>> in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
+
+For example, if HartleyTransport can map only <<Priority>> to its PDU header, then HartleyTransport would define a PDU payload type that includes <<UPayload>> and all the other <<UAttributes>> and send that new type in its PDU payload such that the receiver will not loose any metadata. 
+
+The API signature:
+
+`OUT <<Status>> send(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
+
+==== Parameters
+.Send Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| <<UUri>>
+| Destination for the <<UPayload>>
+
+| <<UPayload>>
+a| Data to be sent
+
+ * *MUST* be passed by reference
+
+| <<UAttributes>>
+a| <<UPayload>> metadata
+
+ * *MUST* be passed by reference
+
+|===
+
+ * All <<UAttribute>> metadata *MUST* be preserved during transmission and available to the receiver
+ * *MUST* not manipulate the <<UPayload>> data during transmission
+
+
+=== RegisterListener()
+
+Register a <<UListener>> to receive message(s) for a given <<UUri>> (topic). This API is used to implement the _push_ <<Delivery Method>>.
+
+API Signature: 
+
+`OUT <<Status>> registerListener(IN <<UUri>>, IN <<UListener>>&)`
+
+ * *MUST* support registering more than one listener per topic
+ * *MUST* support registering more than one topic per listener
+
+==== Parameters
+.RegisterListener Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| <<UUri>>
+| Topic to register the listener for
+
+| <<UListener>>
+| Listener to be registered
+
+|===
+
+
+=== UnregisterListener()
+
+API used to unregister a <<UListener>> for a given topic.
+
+API Signature: 
+
+`OUT <<Status>> unregisterListener(IN <<UUri>>, IN <<UListener>>&)`
+
+
+==== Parameters
+.UnregisterListener Parameters
+[width="70%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| <<UUri>>
+| Topic to unregister the listener for
+
+| <<UListener>>
+| Listener to be unregistered
+
+|===
+
+
+=== Receive()
+
+Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given <<UUri>> (topic).
+
+`OUT <<Status>> receive(IN <<UUri>>, OUT <<UPayload>>&, OUT <<UAttributes>>&)`
+
+==== Parameters
+.Receive Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| <<UUri>>
+| Topic to receive the message from
+
+| <<UPayload>>
+a| Data received
+
+ * *MUST* be passed by reference
+
+| <<UAttributes>>
+a| Message metadata
+
+ * *MUST* be passed by reference
+
+|===
+
+ * *MUST* return `NOT_FOUND` if there are no messages for the given topic
+
+
+=== Message Delivery
+
+==== Policy
+
+* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver (through the returned <<Status>>)
 * Transport *MUST* support retransmission of CEs that are no able to be sent
 
 If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
 
 * *MUST* use Transmission Control Protocols (TCP) and *MUST NOT* User Datagram Protocol (UDP) for message delivery
 
-==== Method
+==== Delivery Method
 
-* Transport *MUST* support either push or pull delivery method
-* *MAY* support both push or pull CE delivery methods between uEs
+* Transport *MUST* support either _push_ or _pull_ delivery method
+* *MAY* support both _push_ or _pull_ CE delivery methods between uEs
 * Delivery method *SHOULD* be known by uEs at design time
 * Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
 
 NOTE: Delivery method advertising shall be defined later
+
+
+
+== RpcClient Interface
+
+uProtocol includes support for the RPC architecture pattern where a client invokes a method (sends a request) to a service, then waits for the response from said service. Both client and server, sends and receives request/response messages respectively using the <<uTransport Interface>>.
+
+In order to generate client-side boundary objects for uP-L3 services such as the link:../ip-l3/README.adoc#_core_platform_ues[Core Platform uEs], we need to define a language specific interface for method invocation. 
+
+RpcClient shall be the interface that all SDKs *MUST* implement for the generation of client-side boundary objects.  
+
+=== InvokeMethod()
+
+API to called by the client-side generated code of a  uP-L3 service to invoke a method. The signature for this API is:
+
+`OUT Future<<<<UMessage>>>> invokeMethod(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
+
+  
+==== Parameters
+.InvokeMethod Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| IN <<UUri>>
+| Destination for the <<UPayload>>
+
+| IN <<UPayload>>
+a| Data to be sent
+ * *MUST* be passed by reference
+
+| IN <<UAttributes>>
+a| <<UPayload>> metadata
+ * *MUST* be passed by reference
+
+|===
+
+
+  * *MUST* return a `Future` that is completed successfully when the response is received
+  
+  * *MUST* return a `Future` that is completed with a failure if the response is not received within <<UAttributes>> <<Time-to-live (TTL)>>
+
+  * *MUST* return a `Future` that is completed with a failure if the response is received containing <<Communication Status>> attribute
+
