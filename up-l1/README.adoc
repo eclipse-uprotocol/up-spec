@@ -375,7 +375,7 @@ The transport layer API responsible for point-2-point communication. The interfa
 
 API to register the calling uE with the underlining transport implementation. 
 
-`OUT <<Status>> register(IN <<UEntity>>, IN Token, IN <<UListener>>)`
+`OUT <<Status>> register(IN <<UEntity>>, IN Token)`
 
 ==== Parameters
 .Register Parameters
