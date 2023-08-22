@@ -4,8 +4,37 @@
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
 
-Communication layer is contains the following sections:
+  http://www.apache.org/licenses/LICENSE-2.0
 
-* link:dispatchers/README.adoc[*Dispatchers*]
-* link:permissions.adoc[*Permissions*]
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+uProtocol Communication layer defines message processing, i.e. routing/ dispatching, access control, and corelation between messages (i.e. request response). The specification is broken down into the following sections:
+
+|===
+|Section | Description
+
+| link:dispatchers/README.adoc[*Dispatchers*]
+| uEs that are responsible for dispatching messages between uEs and between uDevices
+
+| link:permissions.adoc[*Permissions*]
+| Protocol security requirements for authentication & authorization 
+
+| link:rpcclient.adoc[*RpcClient*]
+| Interface for the generation of client-side boundary objects for uP-L3 services
+
+|===

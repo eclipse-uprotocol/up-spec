@@ -108,17 +108,17 @@ if the authority is an IP address:
 
 UAttributes hold the metadata for <<UPayload>> as well as the uP-L2 routing information. 
 
-NOTE: uProtocol (uTransport) versioning is managed by the <<MessageType>>  
+NOTE: uProtocol (uTransport) versioning is managed by the <<UMessageType>>  
 
  * Type name *MUST* be `UAttributes`
- * *MUST* contain `<<MessageType>>, <<ID>>, and <<Priority>>,
+ * *MUST* contain `<<UMessageType>>, <<ID>>, and <<UPriority>>,
  * *MUST* adhere to the additional <<messagetype-requirements>>
  * *MAY* contain <<Sink>>, and <<Time-to-Live (TTL)>> 
 
 .Message Type Specific Requirements
 [#messagetype-requirements,width="100%",cols="30%,70%"] 
 |===
-| <<MessageType>> | Requirements
+| <<UMessageType>> | Requirements
 
 | `REQUEST`
 a| 
@@ -135,10 +135,10 @@ a|
 |===
 
 
-=== MessageType
+=== UMessageType
 Enumeration used to represent the type of uProtocol message. 
 
- * *MUST* have the attribute name `MessageType`
+ * *MUST* have the attribute name `UMessageType`
  * *MUST* be an enumeration
  * *MUST* use nomenclature definitions from  <<message-type>>
  * *SHOULD* be an enum
@@ -175,14 +175,14 @@ The ID is used to correlate request and response messages as well as provide tim
 * Variable name *MUST* be `id`
 
 
-=== Priority
+=== UPriority
 Type used to define link:../basics/qos.adoc[uProtocol Prioritization classifications]. 
 
- * Type name *MUST* be `Priority`
+ * Type name *MUST* be `UPriority`
  * *MUST* use nomenclature definitions from  <<priority-levels>>
  * *SHOULD* be an enum
 
-.Priority Levels
+.UPriority Levels
 [#priority-levels,width="100%",cols="30%,10%,10%,50%"]
 |===
 | Type | String | Integer | Description
@@ -190,7 +190,7 @@ Type used to define link:../basics/qos.adoc[uProtocol Prioritization classificat
 | *LOW*
 |`CS0`
 |0
-|Low Priority. No bandwidth assurance
+|Low UPriority. No bandwidth assurance
 
 | *STANDARD*
 |`CS1`
@@ -275,14 +275,14 @@ Access token as defined in per link:../up-l2/permissions.adoc#_token_based_acces
 
 * Variable name *MUST* be `token` 
 * *MUST* store the raw token data (ex. bytes) and the size
-* *MAY* be of type `byte[]` for Java, or `std::vector<uint8_t>` for C++
+* *MAY* be of type `String` for Java, or `std::vector<uint8_t>` for C++
 
 
 === Serialization Hint
 
 Serialization hint is used to indicate the format of the payload. 
 
- * Type name *MUST* be `SerializationHint`
+ * Type name *MUST* be `USerializationHint`
  * *MUST* be an enumeration
  * *MUST* use nomenclature definitions from  <<serialization-hint-types>>
  * *SHOULD* be an enum
@@ -336,16 +336,6 @@ If the data is passed by value (ex. copy):
 If the programming language `data` type includes the ability to fetch its size (ex. `byte[]`):
 
 * UPayload *MUST NOT* include `size` attributes
-
-
-=== UMessage
-
-The `UMessage` is an envelope that contains <<UPayload>> an*d <<UAttributes>>. Used predominately below <<UTransport Interface>> but still included in uProtocol <<Data Model>> as some implementations of  `UMessage` are shared across multiple transports (ex. link:cloudevents.adoc[uProtocol CloudEvents]. 
-
-  * Type name *MUST* be `UMessage`
-  * *MUST* contain <<UPayload>> and <<UAttributes>>
-  * *MAY* contain <<UUri>> for the source of the message
-  * *MUST* provide link:cloudevents.adoc[uProtocol CloudEvent] implementation of `UMessage`
 
 
 === UListener
@@ -402,7 +392,7 @@ Publish/send <<UPayload>> and <<UAttributes>> to a <<UUri>> (topic).
 
 Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol <<UAttributes>>. Sending <<UAttributes>> in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
-For example, if HartleyTransport can map only <<Priority>> to its PDU header, then HartleyTransport would define a PDU payload type that includes <<UPayload>> and all the other <<UAttributes>> and send that new type in its PDU payload such that the receiver will not loose any metadata. 
+For example, if HartleyTransport can map only <<UPriority>> to its PDU header, then HartleyTransport would define a PDU payload type that includes <<UPayload>> and all the other <<UAttributes>> and send that new type in its PDU payload such that the receiver will not loose any metadata. 
 
 The API signature:
 
@@ -532,47 +522,3 @@ If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OS
 * Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
 
 NOTE: Delivery method advertising shall be defined later
-
-
-
-== RpcClient Interface
-
-uProtocol includes support for the RPC architecture pattern where a client invokes a method (sends a request) to a service, then waits for the response from said service. Both client and server, sends and receives request/response messages respectively using the <<uTransport Interface>>.
-
-In order to generate client-side boundary objects for uP-L3 services such as the link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs], we need to define a language specific interface for method invocation. 
-
-RpcClient shall be the interface that all SDKs *MUST* implement for the generation of client-side boundary objects.  
-
-=== InvokeMethod()
-
-API to called by the client-side generated code of a  uP-L3 service to invoke a method. The signature for this API is:
-
-`OUT Future<<<<UMessage>>>> invokeMethod(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
-
-  
-==== Parameters
-.InvokeMethod Parameters
-[width="100%",cols="20%,80%"]
-|===
-|Parameter | Description
-
-| IN <<UUri>>
-| Destination for the <<UPayload>>
-
-| IN <<UPayload>>
-a| Data to be sent
- * *MUST* be passed by reference
-
-| IN <<UAttributes>>
-a| <<UPayload>> metadata
- * *MUST* be passed by reference
-
-|===
-
-
-  * *MUST* return a `Future` that is completed successfully when the response is received
-  
-  * *MUST* return a `Future` that is completed with a failure if the response is not received within <<UAttributes>> <<Time-to-live (TTL)>>
-
-  * *MUST* return a `Future` that is completed with a failure if the response is received containing <<Communication Status>> attribute
-

@@ -1,0 +1,68 @@
+= RpcClient
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+== Overview
+
+uProtocol includes support for the RPC architecture pattern where a client invokes a method (sends a request) to a service, then waits for the response from said service. Both client and server, sends and receives request/response messages respectively using the link:../up-l1/README.adoc#_utransport_interface[uTransport Interface].
+
+In order to generate client-side boundary objects for uP-L3 services such as the link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs], we need to define a language specific interface for method invocation. 
+
+RpcClient shall be the interface that all SDKs *MUST* implement for the generation of client-side boundary objects.  
+
+== Interface
+
+=== InvokeMethod()
+
+API to called by the client-side generated code of a  uP-L3 service to invoke a method. The signature for this API is:
+
+`OUT Future<<link:../up-l1/README.adoc#_upayload[UPayload]>> invokeMethod(IN <<link:../up-l1/README.adoc#uuri[UUri]>>, IN <<link:../up-l1/README.adoc#_upayload[UPayload]>>&, IN <<link:../up-l1/README.adoc#_uattributes_[UAttributes]>>&)`
+
+  
+==== Parameters
+.InvokeMethod Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| link:../up-l1/README.adoc#uuri[UUri]
+| Destination for the link:../up-l1/README.adoc#_upayload[UPayload]
+
+| link:../up-l1/README.adoc#_upayload[UPayload]
+a| Data to be sent
+ * *MUST* be passed by reference
+
+| link:../up-l1/README.adoc#_uattributes_[UAttributes]
+a| link:../up-l1/README.adoc#_upayload[UPayload] metadata
+ * *MUST* be passed by reference
+
+|===
+
+
+  * *MUST* return a `Future` that is completed successfully when the response is received
+  
+  * *MUST* return a `Future` that is completed with a failure if the response is not received within link:../up-l1/README.adoc#_uattributes[UAttributes] link:../up-l1/README.adoc#_time_to_live_ttl[Time-to-live (TTL)]
+
+  * *MUST* return a `Future` that is completed with a failure if the response is received containing link:../up-l1/README.adoc#_communication_status[Communication Status] attribute
+
+
