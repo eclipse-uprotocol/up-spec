@@ -353,13 +353,13 @@ The `UMessage` is an envelope that contains <<UPayload>> an*d <<UAttributes>>. U
 `UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
 
   * Type name *MUST* be `UListener`
-  * *MUST* contain the method `Status onReceive(<<UUri>>&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
+  * *MUST* contain the method `UStatus onReceive(<<UUri>>&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
 
-=== Status
+=== UStatus
 
 An interface used to return the status of the uTransport API calls.
 
-  * Type name *MUST* be `Status`
+  * Type name *MUST* be `UStatus`
   * *MUST* contain the method `https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto[google.rpc.Code] getCode()` that returns the status code per the link:../basics/error_model.adoc[uProtocol Error Model]
   * *MUST* contain the method `string getMessage()` that returns the status message 
 
@@ -375,7 +375,7 @@ The transport layer API responsible for point-2-point communication. The interfa
 
 API to register the calling uE with the underlining transport implementation. 
 
-`OUT <<Status>> register(IN <<UEntity>>, IN Token)`
+`OUT <<UStatus>> register(IN <<UEntity>>, IN Token)`
 
 ==== Parameters
 .Register Parameters
@@ -406,7 +406,7 @@ For example, if HartleyTransport can map only <<Priority>> to its PDU header, th
 
 The API signature:
 
-`OUT <<Status>> send(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
+`OUT <<UStatus>> send(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
 
 ==== Parameters
 .Send Parameters
@@ -439,7 +439,7 @@ Register a <<UListener>> to receive message(s) for a given <<UUri>> (topic). Thi
 
 API Signature: 
 
-`OUT <<Status>> registerListener(IN <<UUri>>, IN <<UListener>>&)`
+`OUT <<UStatus>> registerListener(IN <<UUri>>, IN <<UListener>>&)`
 
  * *MUST* support registering more than one listener per topic
  * *MUST* support registering more than one topic per listener
@@ -465,7 +465,7 @@ API used to unregister a <<UListener>> for a given topic.
 
 API Signature: 
 
-`OUT <<Status>> unregisterListener(IN <<UUri>>, IN <<UListener>>&)`
+`OUT <<UStatus>> unregisterListener(IN <<UUri>>, IN <<UListener>>&)`
 
 
 ==== Parameters
@@ -487,7 +487,7 @@ API Signature:
 
 Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given <<UUri>> (topic).
 
-`OUT <<Status>> receive(IN <<UUri>>, OUT <<UPayload>>&, OUT <<UAttributes>>&)`
+`OUT <<UStatus>> receive(IN <<UUri>>, OUT <<UPayload>>&, OUT <<UAttributes>>&)`
 
 ==== Parameters
 .Receive Parameters
@@ -517,7 +517,7 @@ a| Message metadata
 
 ==== Policy
 
-* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver (through the returned <<Status>>)
+* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver (through the returned <<UStatus>>)
 * Transport *MUST* support retransmission of CEs that are no able to be sent
 
 If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
