@@ -361,11 +361,11 @@ The transport layer API responsible for point-2-point communication. The interfa
 
 * *MUST* implement all APIs defined in this section
 
-=== Register()
+=== Authenticate()
 
-API to register the calling uE with the underlining transport implementation. 
+API used to verify the identity of the calling uE by confirming that the passed <<UEntity>> matches that of the transport layer specific identity required for link:../up-l2/permissions.adoc[Code-Based Access Permissions (CAPs)]. 
 
-`OUT <<UStatus>> register(IN <<UEntity>>, IN Token)`
+`OUT <<UStatus>> authenticate(IN <<UEntity>>)`
 
 ==== Parameters
 .Register Parameters
@@ -374,16 +374,14 @@ API to register the calling uE with the underlining transport implementation.
 |Parameter | Description
 
 | `UEntity`
-| uProtocol UEntity information
-
-| `Token`
-| Deployment specific token used to authenticate the calling uE
+| uProtocol UEntity name and version used for identification verification
 
 |===
 
- * *MUST* be called before any other API
- * *MUST* be called only once per uE
- * *MUST* authenticate client uE identity using the passed token and <<UEntity>>. If the client is not authenticated,  *MUST* return `UNAUTHENTICATED` status code
+ * *MUST* be called before any other uTransport APIs
+ * *MUST* be called only once per uE, subsequent calls *MUST* return `ALREADY_EXISTS` status code
+ * *MUST* authenticate client uE identity by ensuring that the <<UEntity>> matches the transport specific identity mechanism. 
+ * Non authenticated uEs *MUST* be returned `UNAUTHENTICATED` status code
 
 
 === Send()
@@ -433,6 +431,8 @@ API Signature:
 
  * *MUST* support registering more than one listener per topic
  * *MUST* support registering more than one topic per listener
+ * Transport implementations *MUST* declare the maximum number of listeners per topic that it can support. If the maximum number of listeners is reached, the transport *MUST* return `RESOURCE_EXHAUSTED` status code
+
 
 ==== Parameters
 .RegisterListener Parameters

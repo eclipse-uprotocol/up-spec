@@ -34,7 +34,7 @@ uProtocol Communication layer defines message processing, i.e. routing/ dispatch
 | link:permissions.adoc[*Permissions*]
 | Protocol security requirements for authentication & authorization 
 
-| link:rpcclient.adoc[*RpcClient*]
+| *RpcClient*
 | Interface for the generation of client-side boundary objects for uP-L3 services
 
 |===
