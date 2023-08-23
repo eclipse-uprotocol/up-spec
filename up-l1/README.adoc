@@ -379,7 +379,7 @@ API used to verify the identity of the calling uE by confirming that the passed 
 |===
 
  * *MUST* be called before any other uTransport APIs
- * *MUST* be called only once per uE, subsequent calls *MUST* return `ALREADY_EXISTS` status code
+ * *MUST* be idempotent, subsequent calls to the API return the same value
  * *MUST* authenticate client uE identity by ensuring that the <<UEntity>> matches the transport specific identity mechanism. 
  * Non authenticated uEs *MUST* be returned `UNAUTHENTICATED` status code
 
