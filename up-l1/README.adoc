@@ -242,6 +242,7 @@ stem:[t_current > t_{ce_id} + ce_ttl]
 * *MUST* be a positive integer value
 * *MUST* fit in a 32-bit integer
 * Variable name *MUST* be `ttl`
+* When not present, or value is 0, message *MUST NOT* time out
 
 
 === Communication Status
