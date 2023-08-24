@@ -350,7 +350,7 @@ If the programming language `data` type includes the ability to fetch its size (
 An interface used to return the status of the uTransport API calls.
 
   * Type name *MUST* be `UStatus`
-  * *MUST* contain the method `https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto[google.rpc.Code] getCode()` that returns the status code per the link:../basics/error_model.adoc[uProtocol Error Model]
+  * *MUST* contain the method `int getCode()` that returns the status code per the link:../basics/error_model.adoc[uProtocol Error Model]
   * *MUST* contain the method `string getMessage()` that returns the status message 
 
 
