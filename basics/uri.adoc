@@ -159,15 +159,27 @@ a| Method or topic Id from the protobuf file
 
 
 === Micro URIs
-Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance.
+Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are three formats for micro URIs, local (missing the Address), IPv4, and IPv6. The following sections will describe each format.
 
-.IPv4 Micro URI
+.Local
+[#local-micro-uri,java]
+----
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|        UENTITY_ID             |VER_MAJOR|     VER_MINOR       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+----
+
+.IPv4
 [#ipv4-micro-uri,java]
 ----
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |IPV|    UNUSED |           URESOURCE_ID        |
+|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                     UAUTHORITY_ADDRESS                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -175,13 +187,13 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
-.IPv6 Micro URI
+.IPv6
 [#ipv6-micro-uri,java]     
 ----
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |IPV|    UNUSED |           URESOURCE_ID        |
+|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                     UAUTHORITY_ADDRESS                        |
@@ -202,13 +214,14 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 |`UP_VERSION` |Current version of this specification | *MUST* be 0x01
 
-|`IPV` | IP type  a| *MUST* be one of the following values:
+|`TYPE` | Type of Micro Uri   a| *MUST* be one of the following values:
 
 !===
 !*Value* !*Description*
-!b'00' !IPv4
-!b'01' !IPv6
-!b'1x' !Reserved for future use
+!b'000' !Local
+!b'001' !IPv4
+!b'010' !IPv6
+!others !Reserved for future use
 !===
 
 |`UNUSED` |Reserved for future use | *MUST* be 0x00
