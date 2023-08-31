@@ -1,12 +1,13 @@
-= URIs
+= uProtocol URI (UUri)
 :toc:
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
-URI is used as a method to uniquely identify uthings (devices, software entities, topics, methods, etc...). Defining a common URI for the system allows uEs to publish and discover each other as well as maintain a database/repository of microservices in the various vehicles.
+== Overview 
+URIs are used to uniquely identify (or address) stuff such as devices, software entities, topics, methods, etc...). A common URI definition allows _stuff_ to be addressable anywhere on any heterogeneous system.
 
-== RFC3986
+=== RFC3986
 
 The standard URI format is defined in https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] and illustrated in the figure below.
 
@@ -27,12 +28,69 @@ The following is taken from https://datatracker.ietf.org/doc/html/rfc3986#append
  reserved = gen-delims / sub-delims
 ----
 
-== uProtocol URI
+<<uuri-specification>> diagram below provides an overview of the specifications that we will elaborate in this document. 
 
 .URI Specification
+[#uuri-specification]
 image::uri.drawio.svg[uProtocol URI Specification]
 
-=== Long Form
+
+== Data Model
+
+`UUri` type is used to represent the URI. It is composed of `UAuthority`, `UEntity`, and `UResource` types.
+
+ * Type name *MUST* be `UUri`
+ * *MUST* have-a <<UAuthority>>, <<UEntity>>, and <<UResource>> types 
+ * *MUST* have methods to build `UUri` from either a string or any combination of <<UAuthority>>, <<UEntity>>, and <<UResource>> types based on the URI specifications
+ * *MUST* have a method to build the an RPC URI passing `<<UAuthority>> and <<UEntity>> where <<UResource>> is set to `"rpc.response"`.
+ * *MUST* have a method to convert to and from string
+ * *MUST* support URI with and without scheme defined (in the string)
+
+ 
+NOTE: the term *_Fully Qualified URI_* refers to a long or short form URI that contains all the items (UAuthority, UEntity, and UResource)
+
+
+=== UAuthority
+`UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
+
+ * Type name *MUST* be `UAuthority`
+ * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods to fetch each
+ * *MUST* be able to construct a `UAuthority` from a string
+ * *MUST* support detection of local vs remote URIs from `UAuthority`
+
+if the authority is an IP address:
+
+ * IP address *MUST* be stored in `device` member variable 
+
+=== UEntity
+`UEntity` type contains the uE id, name, and version portion of the uProtocol URI.
+ * Type name *MUST* be `UEntity`
+ * *MUST* contain `name` and `version` member variables of type `std::string`, with accessor methods to fetch each
+ * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method to fetch it
+ * *MUST* be able to construct a `UAuthority` from a string
+
+=== UResource
+`UResource` contains the resource id, name, instance, and message portion of the uProtocol uRI.
+
+ * Type name *MUST* be `UResource`
+ * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods to fetch each
+ * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method to fetch it
+ * *MUST* be able to construct a `UResource` from:
+  - String representation of `UResource` per the URI specifications
+  - `name` and `instance` only
+  - `name` only
+
+=== id
+the UUri ID is used by some transports to map the UUri (long/short/micro format (described below) to a transport specific ID. the parameter allows for optimizations at the transport layer that use IDs in lieu of uProtocols long/short/micro uris. 
+
+ * Type name *MUST* be `id`
+ * *MUST* be be a 32 bit integer with accessor method to fetch it
+
+
+== Uri Formats
+UUri's may be expressed in different formats depending if the URI is required to be human readable or not. the following section will explain each format and its use.
+
+=== Long URIs
 
 .Long Form URI Description
 [#long-form-uri]
@@ -71,7 +129,8 @@ If a segment in the path is empty:
 * The path *MUST NOT* start with "//"
 * Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
 
-=== Short Form
+
+=== Short Uris
 Short form URIs are used to represent various portions of the URI using IDs in lieu of strings. IDs in are declared in as metadata (Custom Options) in service protobufs.
 
 .Short Form URI Descriptions
@@ -98,11 +157,83 @@ a| Method or topic Id from the protobuf file
 
 |===
 
-=== Fully Qualified URI
-A URI long or short form URI containing all the items listed in either <<long-form-uri>> or <<short-form-uri>> tables depending on the URI format.
+
+=== Micro URIs
+Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance.
+
+.IPv4 Micro URI
+[#ipv4-micro-uri,java]
+----
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  UP_VERSION   |IPV|    UNUSED |           URESOURCE_ID        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     UAUTHORITY_ADDRESS                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|        UENTITY_ID             |VER_MAJOR|     VER_MINOR       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+----
+
+.IPv6 Micro URI
+[#ipv6-micro-uri,java]     
+----
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  UP_VERSION   |IPV|    UNUSED |           URESOURCE_ID        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                     UAUTHORITY_ADDRESS                        |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|        UENTITY_ID             |VER_MAJOR|     VER_MINOR       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+----    
+
+* All fields *MUST* be populated
+* Fields are Big-Endian unless otherwise specified
+
+.Micro Uri Fields
+[#micro-uri-fields,width="100%",cols="20%,30%,50%",options="header"]
+|===
+|Field |Description | Requirements
+
+|`UP_VERSION` |Current version of this specification | *MUST* be 0x01
+
+|`IPV` | IP type  a| *MUST* be one of the following values:
+
+!===
+!*Value* !*Description*
+!b'00' !IPv4
+!b'01' !IPv6
+!b'1x' !Reserved for future use
+!===
+
+|`UNUSED` |Reserved for future use | *MUST* be 0x00
+
+|`URESOURCE_ID` | The ID assigned to the topic in the proto (unique per uE) | 
+
+|`UAUTHORITY_ADDRESS` | UAuthority IP Address | *MUST* be a valid IP address
+
+|`UENTITY_ID` | UE Identifiers |
+
+|`VER_MAJOR` | UEntity MAJOR version (1-31) | *MUST* be a valid MAJOR version number (1 to 31)
+
+|`VER_MINOR` | UEntity MINOR version | *MUST* be a valid MINOR version number (0-1023)
+
+
+|===
 
 == Wildcards
-The wildcard character `*` is used in certain circumstances in lieu of an item in the URI for matching any character or sequence of characters in a search.
+wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). 
+ 
+ * *SHOULD* support wildcards in the authority, entity, resource, and message portions of the URI
+ * Wildcards *MUST* be `*` (asterisk) for long and short form URIs
+ * Wildcard *MUST* be the max value for Micro URI (i.e. 0xFF for 8 bit item)
+
+NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatform and uE documentation for more information.
 
 == Example URIs
 

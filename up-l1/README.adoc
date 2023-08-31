@@ -64,46 +64,6 @@ These specifications define the ubiquitous language so that they are consistent 
 * Variable length types such as C++ `std::string` or Java's `byte[]` *MAY* be replaced for fixed types (ex. `char[]`) where applicable
 
 
-=== UUri
-
-`UUri` type implements the link:../basics/uri.adoc[uProtocol URI Specifications] and comprises of <<UAuthority>>, <<UEntity>>, and <<UResource>>.
-
- * Type name *MUST* be `UUri`
- * *MUST* have-a <<UAuthority>>, <<UEntity>>, and <<UResource>> types 
- * *MUST* have methods to build `UUri` from either a string or any combination of <<UAuthority>>, <<UEntity>>, and <<UResource>> types based on the URI specifications
- * *MUST* have a method to build the an RPC URI passing `<<UAuthority>> and <<UEntity>> where <<UResource>> is set to `"rpc.response"`.
- * *MUST* have a method to convert to and from string
- * *MUST* support URI with and without scheme defined (in the string)
-
-=== UAuthority
-`UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
-
- * Type name *MUST* be `UAuthority`
- * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods to fetch each
- * *MUST* be able to construct a `UAuthority` from a string
- * *MUST* support detection of local vs remote URIs from `UAuthority`
-
-if the authority is an IP address:
-
- * IP address *MUST* be stored in `device` member variable 
-
-=== UEntity
-`UEntity` type contains the uE name and version portion of the uProtocol URI.
- * Type name *MUST* be `UEntity`
- * *MUST* contain `name` and `version` member variables of type `std::string`, with accessor methods to fetch each
- * *MUST* be able to construct a `UAuthority` from a string
-
-=== UResource
-`UResource` contains the resource name, instance, and message portion of the uProtocol uRI.
-
- * Type name *MUST* be `UResource`
- * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods to fetch each
- * *MUST* be able to construct a `UResource` from:
-  - String representation of `UResource` per the URI specifications
-  - `name` and `instance` only
-  - `name` only
-
-
 === UAttributes
 
 UAttributes hold the metadata for <<UPayload>> as well as the uP-L2 routing information. 
@@ -227,9 +187,9 @@ Type used to define link:../basics/qos.adoc[uProtocol Prioritization classificat
 
 === Sink
 
-Sink is the destination <<UUri>> for a message. Sink is used for unicast message types using in notification and RPC patterns.
+Sink is the destination link:../basics/uri.adoc[UUri] for a message. Sink is used for unicast message types using in notification and RPC patterns.
 
-* Type *MUST* be <<UUri>> 
+* Type *MUST* be link:../basics/uri.adoc[UUri] 
 * Variable name *MUST* be `sink`
 
 
@@ -344,7 +304,7 @@ If the programming language `data` type includes the ability to fetch its size (
 `UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
 
   * Type name *MUST* be `UListener`
-  * *MUST* contain the method `UStatus onReceive(<<UUri>>&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
+  * *MUST* contain the method `UStatus onReceive(link:../basics/uri.adoc[UUri]&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
 
 === UStatus
 
@@ -387,7 +347,8 @@ API used to verify the identity of the calling uE by confirming that the passed 
 
 === Send()
 
-Publish/send <<UPayload>> and <<UAttributes>> to a <<UUri>> (topic). 
+Publish/send <<UPayload>> and <<UAttributes>> to a link:../basics/uri.adoc[UUri] (topic). 
+
 
 Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol <<UAttributes>>. Sending <<UAttributes>> in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
@@ -395,7 +356,7 @@ For example, if HartleyTransport can map only <<UPriority>> to its PDU header, t
 
 The API signature:
 
-`OUT <<UStatus>> send(IN <<UUri>>, IN <<UPayload>>&, IN <<UAttributes>>&)`
+`OUT <<UStatus>> send(IN/OUT link:../basics/uri.adoc[UUri&], IN <<UPayload>>&, IN <<UAttributes>>&)`
 
 ==== Parameters
 .Send Parameters
@@ -403,7 +364,8 @@ The API signature:
 |===
 |Parameter | Description
 
-| <<UUri>>
+| link:../basics/uri.adoc[UUri]
+
 | Destination for the <<UPayload>>
 
 | <<UPayload>>
@@ -420,15 +382,16 @@ a| <<UPayload>> metadata
 
  * All <<UAttribute>> metadata *MUST* be preserved during transmission and available to the receiver
  * *MUST* not manipulate the <<UPayload>> data during transmission
-
+ * Transport *MAY* modify the link:../basics/uri.adoc[UUri&] to set the transportId 
 
 === RegisterListener()
 
-Register a <<UListener>> to receive message(s) for a given <<UUri>> (topic). This API is used to implement the _push_ <<Delivery Method>>.
+Register a <<UListener>> to receive message(s) for a given link:../basics/uri.adoc[UUri] (topic). This API is used to implement the _push_ <<Delivery Method>>.
 
 API Signature: 
 
-`OUT <<UStatus>> registerListener(IN <<UUri>>, IN <<UListener>>&)`
+`OUT <<UStatus>> registerListener(IN link:../basics/uri.adoc[UUri], IN <<UListener>>&)`
+
 
  * *MUST* support registering more than one listener per topic
  * *MUST* support registering more than one topic per listener
@@ -441,7 +404,7 @@ API Signature:
 |===
 |Parameter | Description
 
-| <<UUri>>
+| link:../basics/uri.adoc[UUri]
 | Topic to register the listener for
 
 | <<UListener>>
@@ -456,8 +419,7 @@ API used to unregister a <<UListener>> for a given topic.
 
 API Signature: 
 
-`OUT <<UStatus>> unregisterListener(IN <<UUri>>, IN <<UListener>>&)`
-
+`OUT <<UStatus>> unregisterListener(IN link:../basics/uri.adoc[UUri], IN <<UListener>>&)`
 
 ==== Parameters
 .UnregisterListener Parameters
@@ -465,7 +427,7 @@ API Signature:
 |===
 |Parameter | Description
 
-| <<UUri>>
+| link:../basics/uri.adoc[UUri]
 | Topic to unregister the listener for
 
 | <<UListener>>
@@ -476,9 +438,9 @@ API Signature:
 
 === Receive()
 
-Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given <<UUri>> (topic).
+Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given link:../basics/uri.adoc[UUri] (topic).
 
-`OUT <<UStatus>> receive(IN <<UUri>>, OUT <<UPayload>>&, OUT <<UAttributes>>&)`
+`OUT <<UStatus>> receive(IN link:../basics/uri.adoc[UUri], OUT <<UPayload>>&, OUT <<UAttributes>>&)`
 
 ==== Parameters
 .Receive Parameters
@@ -486,7 +448,7 @@ Implements the _pull_ <<Delivery Method>> to fetch a message from the transport 
 |===
 |Parameter | Description
 
-| <<UUri>>
+| link:../basics/uri.adoc[UUri]
 | Topic to receive the message from
 
 | <<UPayload>>
