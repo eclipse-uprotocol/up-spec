@@ -167,7 +167,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
+|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        UENTITY_ID             |VER_MAJOR|     VER_MINOR       |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -179,7 +179,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
+|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                     UAUTHORITY_ADDRESS                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -193,7 +193,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |TYPE |  UNUSED |           URESOURCE_ID        |
+|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                     UAUTHORITY_ADDRESS                        |
@@ -218,9 +218,9 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 !===
 !*Value* !*Description*
-!b'000' !Local
-!b'001' !IPv4
-!b'010' !IPv6
+!0x00 !Local
+!0x1 !IPv4
+!0x2 !IPv6
 !others !Reserved for future use
 !===
 
