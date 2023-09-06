@@ -87,6 +87,7 @@ the UUri ID is used by some transports to map the UUri (long/short/micro format 
  * *MUST* fit within a 64 bit (long) with accessor method to fetch it
  * *MAY* be a 32 bit integer
 
+
 == Uri Formats
 UUri's may be expressed in different formats depending if the URI is required to be human readable or not. the following section will explain each format and its use.
 
@@ -284,3 +285,48 @@ NOTE: Local URIs do not contain the authority (and begin with `/`)
 
 
 NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for more examples of version strings
+
+
+== Best Practices
+
+A UUri contain UAuthority, UEntity, and UResource. <<Uri Formats>> defined earlier meanrly define how UAuthority, UEntity, and UResource are expressed (long string names, short-form string, or encoded byte array). Some formats are human readable, wile others are not.
+
+uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or  IP addresses. 
+
+UEntity name to id, and UResource name+instance+message to id, are declared in the protos and compiled into language specific code using  https://protobuf.dev/programming-guides/proto2/#options[Options]. Application layer (uP-L3) uEs (client and servers) then have available the all the metadata needed to populate UUri with both the ids and names for UEntity and UResource as well the application layer code can also convert to/from the name-based (long Uri Format) to ID based (Short or Micro Uri Formats) locally (no dynamic lookup required). uEs are then able to send to the link:../up-l1/README.adoc[uP-L1 uTransport layer] The fully populated UUri objects.
+
+link:../up-l2/README.adoc[Dispatchers] however do not have the id mapping metadata as they are not aware of the service definitions in the protos. As a result, dispatchers can only work with the URI information provided (names or ids). If a dispatcher is required to convert the Uri format, it must dynamically lookup (resolve through discovery) the name/ids. 
+
+UAuthority attributes are resolved through DNS lookups either to a local cache and/or to recursive DNS servers. Not all devices are globally addressable (through a recursive DNS servers). (ex. mobile devices behind a firewall). 
+
+Given the above descriptions, below are the best practices for URI usage:
+
+=== UAuthority
+* Local communication (within the same device) *SHOULD* use local URIs (empty authority)
+* Remote communication (between devices) *MUST* contain at least the device name
+* Intra-domain name/address resolution *MUST* be locally resolvable (i.e. does not require global recursive dns resolution)
+
+
+=== UEntity & UResource
+
+==== uTransports (uP-L1)
+
+* *MUST* declare if they shall use long, short, or micro Uri format such that passing a UUri with missing information to construct the format will result in an `INVALID_PARAMETER` returned error
+* *SHOULD* use Micro Uris when at all possible
+
+==== Streamers (uP-L2)
+Streamers are dispatchers that bridge from one transport technology to the next (ex. from HTTP to MQTT). Given that the UUri format is dependent on the transport: 
+
+* *MUST* ensure that the Uri is converted to the correct destination uTransport format 
+
+==== Application Layer (uP-L3) uEs
+* *SHOULD* populate both the name and ids portion of UEntity & UResource objects
+
+If the uE uses a uTransport that requires ids (short or micro URIs):
+
+*  *MUST* include the UEntity id and UResource id
+
+
+
+
+
