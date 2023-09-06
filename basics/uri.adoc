@@ -84,8 +84,8 @@ if the authority is an IP address:
 the UUri ID is used by some transports to map the UUri (long/short/micro format (described below) to a transport specific ID. the parameter allows for optimizations at the transport layer that use IDs in lieu of uProtocols long/short/micro uris. 
 
  * Type name *MUST* be `id`
- * *MUST* be be a 32 bit integer with accessor method to fetch it
-
+ * *MUST* fit within a 64 bit (long) with accessor method to fetch it
+ * *MAY* be a 32 bit integer
 
 == Uri Formats
 UUri's may be expressed in different formats depending if the URI is required to be human readable or not. the following section will explain each format and its use.
