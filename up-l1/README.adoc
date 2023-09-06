@@ -239,6 +239,23 @@ Access token as defined in per link:../up-l2/permissions.adoc#_token_based_acces
 * *MAY* be of type `String` for Java, or `std::vector<uint8_t>` for C++
 
 
+=== UPayload
+
+UPayload is a container for the uP-L3 application layer data to be transmitted between uEs. The UPayload structure contains only the data, its size, and an optional hint to the serialization format. 
+
+If the data is passed by reference (ex. pointer):
+
+* `data` *MUST* contain the pointer to the payload and `size` contains the actual data size
+
+If the data is passed by value (ex. copy):
+
+* `data` *MUST* contains the actual payload
+
+If the programming language `data` type includes the ability to fetch its size (ex. `byte[]`):
+
+* UPayload *MUST NOT* include `size` attributes
+
+
 === Serialization Hint
 
 Serialization hint is used to indicate the format of the payload. 
@@ -280,23 +297,6 @@ Serialization hint is used to indicate the format of the payload.
 |Raw binary data (not serialized)
 
 |===
-
-
-=== UPayload
-
-UPayload is a container for the uP-L3 application layer data to be transmitted between uEs. The UPayload structure contains only the data and its size. 
-
-If the data is passed by reference (ex. pointer):
-
-* `data` *MUST* contain the pointer to the payload and `size` contains the actual data size
-
-If the data is passed by value (ex. copy):
-
-* `data` *MUST* contains the actual payload
-
-If the programming language `data` type includes the ability to fetch its size (ex. `byte[]`):
-
-* UPayload *MUST NOT* include `size` attributes
 
 
 === UListener
