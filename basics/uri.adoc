@@ -54,7 +54,7 @@ NOTE: the term *_Fully Qualified URI_* refers to a long or short form URI that c
 `UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
 
  * Type name *MUST* be `UAuthority`
- * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods to fetch each
+ * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods of the same name to fetch each
  * *MUST* be able to construct a `UAuthority` from a string
  * *MUST* support detection of local vs remote URIs from `UAuthority`
 
@@ -65,16 +65,16 @@ if the authority is an IP address:
 === UEntity
 `UEntity` type contains the uE id, name, and version portion of the uProtocol URI.
  * Type name *MUST* be `UEntity`
- * *MUST* contain `name` and `version` member variables of type `std::string`, with accessor methods to fetch each
- * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method to fetch it
+ * *MUST* contain `name` and `version` member variables of type `std::string`, with accessor methods of the same name to fetch each
+ * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method of the same name to fetch it
  * *MUST* be able to construct a `UAuthority` from a string
 
 === UResource
 `UResource` contains the resource id, name, instance, and message portion of the uProtocol uRI.
 
  * Type name *MUST* be `UResource`
- * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods to fetch each
- * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method to fetch it
+ * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods of the same name to fetch each
+ * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method of the same name to fetch it
  * *MUST* be able to construct a `UResource` from:
   - String representation of `UResource` per the URI specifications
   - `name` and `instance` only
@@ -84,7 +84,7 @@ if the authority is an IP address:
 the UUri ID is used by some transports to map the UUri (long/short/micro format (described below) to a transport specific ID. the parameter allows for optimizations at the transport layer that use IDs in lieu of uProtocols long/short/micro uris. 
 
  * Type name *MUST* be `id`
- * *MUST* fit within a 64 bit (long) with accessor method to fetch it
+ * *MUST* fit within a 64 bit (long) with accessor method of the same name to fetch it
  * *MAY* be a 32 bit integer
 
 
@@ -209,13 +209,13 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 * Fields are Big-Endian unless otherwise specified
 
 .Micro Uri Fields
-[#micro-uri-fields,width="100%",cols="20%,30%,50%",options="header"]
+[#micro-uri-fields,width="100%",cols="20%,10%,30%,40%",options="header"]
 |===
-|Field |Description | Requirements
+|Field |Size |Description | Requirements
 
-|`UP_VERSION` |Current version of this specification | *MUST* be 0x01
+|`UP_VERSION` |8 |Current version of this specification | *MUST* be 0x01
 
-|`TYPE` | Type of Micro Uri   a| *MUST* be one of the following values:
+|`TYPE` | 8 |Type of Micro Uri   a| *MUST* be one of the following values:
 
 !===
 !*Value* !*Description*
@@ -225,17 +225,16 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 !others !Reserved for future use
 !===
 
-|`UNUSED` |Reserved for future use | *MUST* be 0x00
 
-|`URESOURCE_ID` | The ID assigned to the topic in the proto (unique per uE) | 
+|`URESOURCE_ID` |16 |The ID assigned to the topic in the proto (unique per uE) | 
 
-|`UAUTHORITY_ADDRESS` | UAuthority IP Address | *MUST* be a valid IP address
+|`UAUTHORITY_ADDRESS` |32 or 128 |UAuthority IP Address | *MUST* be a valid IP address
 
-|`UENTITY_ID` | UE Identifiers |
+|`UENTITY_ID` | 16 |UE Identifiers |
 
-|`VER_MAJOR` | UEntity MAJOR version (1-31) | *MUST* be a valid MAJOR version number (1 to 31)
+|`VER_MAJOR` | 5 |UEntity MAJOR version (1-31) | *MUST* be a valid MAJOR version number (1 to 31)
 
-|`VER_MINOR` | UEntity MINOR version | *MUST* be a valid MINOR version number (0-1023)
+|`VER_MINOR` | 11 |UEntity MINOR version | *MUST* be a valid MINOR version number (0-1023)
 
 
 |===
@@ -245,7 +244,7 @@ wildcard are used to replace portions of the URI to perform pattern matching (i.
  
  * *SHOULD* support wildcards in the authority, entity, resource, and message portions of the URI
  * Wildcards *MUST* be `*` (asterisk) for long and short form URIs
- * Wildcard *MUST* be the max value for Micro URI (i.e. 0xFF for 8 bit item)
+ * Wildcard *MUST* be the 0 for micro VER_MAJOR and VER_MINOR
 
 NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatform and uE documentation for more information.
 
@@ -253,24 +252,63 @@ NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatfor
 
 The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
 
-When the authority is missing from the URI, it is considered a local URI.
+NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/usubscription/v2/usubscription.proto[usubscription.proto]. 
 
-.Example URIs
+NOTE: Remote examples below shall assumed the device names have already been resolved to IP addresses
+
+NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
+
+
+=== Local URI
+.Local Examples
+[width="70%",cols="20%,80%",options="header"]
 |===
-|Use Case |Long Form |Short Form
+|Type | Example
 
-|*publish* (source attribute)
-|up://VCU.4Y1SL65848Z411439.veh.example.com/body.access/1/doors.front_left#Door
-|up://192.168.1.100/4/1
+| Long
+|`"/core.usubscription/2/rpc.Subscribe"`
 
-|*request* (sink attribute)
-|up://VCU.4Y1SL65848Z411439.veh.example.com/core.usubscription/2/rpc.Subscribe
-|up://2001:cb0:fc::abc/0/
+|Short 
+|`"/0/2/1"`
+|Micro
+|`[1, 0, 0, 1, 0, 0, 16, 0]`
 |===
 
-NOTE: Local URIs do not contain the authority (and begin with `/`)
+=== Remote (IPv4)
+.Remote IPv4 Examples
+[width="70%",cols="20%,80%",options="header"]
+|===
+|Type | Example
+|Long
+|`"//192.168.1.100/core.usubscription/2/rpc.Subscribe"`
+| Short
+|`"//192.168.1.100/0/2/1"`
+|Micro
+|`[1, 1, 0, 1, -64, -88, 1, 100, 0, 0, 16, 0]` 
+|===
 
+
+=== Remote (IPv6)
+.Remote IPv6 Examples
+[width="70%",cols="20%,80%",options="header"]
+|===
+|Type | Example
+
+|Long
+|`"//2001:db8:85a3:0:0:8a2e:370:7334/core.usubscription/2/rpc.Subscribe"`
+
+|Short
+|`"//2001:db8:85a3:0:0:8a2e:370:7334/0/2/1"`
+
+|Micro
+| `[1, 2, 0, 1, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52, 0, 0, 16, 0]` 
+
+|===
+
+
+=== Wildcard Examples
 .Query URIs
+[width="100%",cols="30%,70%",options="header"]
 |===
 | URI | Description
 
@@ -289,9 +327,9 @@ NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for mo
 
 == Best Practices
 
-A UUri contain UAuthority, UEntity, and UResource. <<Uri Formats>> defined earlier meanrly define how UAuthority, UEntity, and UResource are expressed (long string names, short-form string, or encoded byte array). Some formats are human readable, wile others are not.
+A UUri contain UAuthority, UEntity, and UResource. <<Uri Formats>> defined earlier merely define how UAuthority, UEntity, and UResource are expressed (long string names, short-form string, or encoded byte array). Some formats are human readable, while others are not.
 
-uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or  IP addresses. 
+uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or IP addresses. 
 
 UEntity name to id, and UResource name+instance+message to id, are declared in the protos and compiled into language specific code using  https://protobuf.dev/programming-guides/proto2/#options[Options]. Application layer (uP-L3) uEs (client and servers) then have available the all the metadata needed to populate UUri with both the ids and names for UEntity and UResource as well the application layer code can also convert to/from the name-based (long Uri Format) to ID based (Short or Micro Uri Formats) locally (no dynamic lookup required). uEs are then able to send to the link:../up-l1/README.adoc[uP-L1 uTransport layer] The fully populated UUri objects.
 
@@ -299,7 +337,9 @@ link:../up-l2/README.adoc[Dispatchers] however do not have the id mapping metada
 
 UAuthority attributes are resolved through DNS lookups either to a local cache and/or to recursive DNS servers. Not all devices are globally addressable (through a recursive DNS servers). (ex. mobile devices behind a firewall). 
 
-Given the above descriptions, below are the best practices for URI usage:
+IMPORTANT: If a uE has any specific Uri format requirements, they *MUST* be documented in their respective APIs. Please see link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs] for more specific requirements for core services.
+
+The next sections shall provide best practices for populating and using URIs in uProtocol.
 
 === UAuthority
 * Local communication (within the same device) *SHOULD* use local URIs (empty authority)
