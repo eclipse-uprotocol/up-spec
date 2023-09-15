@@ -45,18 +45,48 @@ We shall elaborate on each format in this specification.
 
 == UUri Data Model
 
-TODO: Add all the specific details about the objects in these requirements based on Java SDK implementation
+UUri is a language specific representation of the uProtocol URI. This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<UUri Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
 
-UUri is a language specific representation of the uProtocol URI. This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages.
+. UUri Data Model
+[#uuri-data-model]
+image:uuri.drawio.svg[UUri Data Model]
 
- * Type name *MUST* be `UUri`
- * *MUST* have-a <<UAuthority>>, <<UEntity>>, and <<UResource>> types 
- * *MUST* have methods to build `UUri` using <<UAuthority>>, <<UEntity>>, and <<UResource>>
+ * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
+
+=== Uri Interface
+
+Uri Interface defines the common APIs that all objects *MUST* implement. APIs are described in the table below.
+
+.Uri Interface
+[width="100%",cols="30%,70%",options="header"]
+|===
+|API |Description
+
+| `toString(): String`
+| Returns a string that represents the object used for validation
+
+| `equals(Object): boolean`
+| Returns true if the object is equal to the other object
+
+| `isLongFormat(): boolean`
+| Returns true if the object contains names such that it can be serialize to <<Long Format>>
+
+| `isEmpty(): boolean`
+| Returns true if the object contains no information
+
+| `isResolved(): boolean`
+| Returns true if the object contains both names and numbers such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
+
+| `hashCode(): int`
+| Returns the hashcode of the object
+
+|===
+  
+  
   * *MUST* have an api called `boolean isResolved()` that returns true if the UUri contains information to be able to serialize to <<Long Format>> or <<Micro Format>> 
  * *MUST* contain helper functions to build well known UUris
  
 NOTE: the term *_Fully Qualified URI_* refers to a long or short form URI that contains all the items (UAuthority, UEntity, and UResource)
-
 
 === UAuthority
 `UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
@@ -93,17 +123,13 @@ if the authority is an IP address:
   - `name` and `instance` only
   - `name` only
 
-=== id
-the UUri ID is used by some transports to map the UUri (long/short/micro format (described below) to a transport specific ID. the parameter allows for optimizations at the transport layer that use IDs in lieu of uProtocols long/short/micro uris. 
-
- * Type name *MUST* be `id`
- * *MUST* fit within a 64 bit (long) with accessor method of the same name to fetch it
- * *MAY* be a 32 bit integer
-
+=== UriSerializer
+`UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
+There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
 
 == Long Uris
 
-Long URIs are UUris that have been serialized to a string and contains human readable names.
+Long URIs are UUris that have been serialized to a string containing human readable names.
 
 .Long Form URI Description
 [#long-form-uri]
