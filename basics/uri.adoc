@@ -47,29 +47,23 @@ We shall elaborate on each format in this specification.
 
 UUri is a language specific representation of the uProtocol URI. This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<UUri Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
 
-. UUri Data Model
+.UUri Data Model
 [#uuri-data-model]
 image:uuri.drawio.svg[UUri Data Model]
 
  * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
 
-=== Uri Interface
+=== Uri Format
 
-Uri Interface defines the common APIs that all objects *MUST* implement. APIs are described in the table below.
+UriFormat is an interface that provide hints for what kind of information is in the belly of the Uri part or UUri itself such that the object can be serialized (represented) in long form, micro format, or both (resolved).
 
-.Uri Interface
+.UriFormat
 [width="100%",cols="30%,70%",options="header"]
 |===
 |API |Description
 
-| `toString(): String`
-| Returns a string that represents the object used for validation
-
-| `equals(Object): boolean`
-| Returns true if the object is equal to the other object
-
-| `isLongFormat(): boolean`
-| Returns true if the object contains names such that it can be serialize to <<Long Format>>
+| `isLongForm(): boolean`
+| Returns true if the Uri part contains names so that it can be serialized to <<Long Format>>
 
 | `isEmpty(): boolean`
 | Returns true if the object contains no information
@@ -77,16 +71,11 @@ Uri Interface defines the common APIs that all objects *MUST* implement. APIs ar
 | `isResolved(): boolean`
 | Returns true if the object contains both names and numbers such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
 
-| `hashCode(): int`
-| Returns the hashcode of the object
+| `isMicroForm(): boolean`
+| Returns true if the Uri part contains the id's which will allow the Uri part to be serialized into <<Micro Formats>>
 
 |===
   
-  
-  * *MUST* have an api called `boolean isResolved()` that returns true if the UUri contains information to be able to serialize to <<Long Format>> or <<Micro Format>> 
- * *MUST* contain helper functions to build well known UUris
- 
-NOTE: the term *_Fully Qualified URI_* refers to a long or short form URI that contains all the items (UAuthority, UEntity, and UResource)
 
 === UAuthority
 `UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
@@ -222,7 +211,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 .Micro Uri Fields
 [#micro-uri-fields,width="100%",cols="20%,10%,30%,40%",options="header"]
 |===
-|Field |Size |Description | Requirements
+|Field |Size(Bytes) |Description | Requirements
 
 |`UP_VERSION` |8 |Current version of this specification | *MUST* be 0x01
 

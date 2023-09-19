@@ -197,7 +197,7 @@ Sink is the destination link:../basics/uri.adoc[UUri] for a message. Sink is use
 
 How long this message should live for after it was generated (in milliseconds). Event expires when:
 
-stem:[t_current > t_{ce_id} + ce_ttl]
+stem:[t_current > t_{id} + ttl]
 
 * *MUST* be a positive integer value
 * *MUST* fit in a 32-bit integer
