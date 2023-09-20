@@ -1,0 +1,113 @@
+= uProtocol SDK Requirements
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+== Overview
+The purpose of uProtocol language specific SDKs are to provide the consistent mental model across all programming languages (Java, C++, Rust, Python, etc...) for core uP-L1 & L2 specifications, interfaces, and data models. The SDK is core to all uProtocol software as it is used to implements uEs (apps & services), transports, and platforms 
+
+The following specification shall cover the requirements that all implementations of the uProtocol SDK *MUST* adhere to.
+
+NOTE: SDKs *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project.
+
+
+== Source 
+The following section will elaborate on the source code requirements of the SDK that includes the content (modules) and the folder and namespace structures.
+
+* The root namespace (package name) *MUST* be `org.eclipse.uprotocol`
+* Modules defined in <<content>> below *MUST* be implemented in their own folder (namespace)
+* Each module *MUST* divide the implementation of the specification as defined in <<folders>> below
+
+
+.Module Folders/Namespace
+[#folders,width="80%",cols="20%,80%",options="header"]
+|===
+| Folder | Description
+
+| `datamodel`
+| Data model (types) definitions
+
+| `validators`
+| static methods to validate the data model
+
+| `serializer`
+| Any code that is repsonsible to Serialize and deserialize the data model
+
+| `factory`
+| Factory methods to build the data model per business logic (i.e. to build CloudEvents, UUIDs, etc..)
+
+|===
+
+
+=== Modules
+
+Modules are packages (folders) that reside under the sdk's `src` director. <<content>> table below lists the required modules.
+
+.SDK Modules
+[#content,width="100%",cols="20%,20%,60%",options="header"]
+|===
+| Folder | Specification |Description
+
+| `uri`
+| link:basics/uri.adoc[UUri]
+| How things are addressed in uProtocol
+
+| `uuid`
+| link:basics/uuid.adoc[UUID]
+| Unique ID & timestamp specification 
+
+| `cloudevents`
+| link:up-l1/cloudevents.adoc[CloudEvents]
+| Specification of how uProtocol data models can be expressed using CloudEvents data model
+
+| `utransport`
+| link:up-l1/README.adoc[uTransport]
+| uP-L1 uTransport interface & data model definitions used to build language specific transports implementations (i.e. zenoh, SOME/IP, MQTT, etc..) that run on a given uPlatform.
+
+| `rpcclient`
+| link:up-l2/rpcclient.adoc[uP-L2 RPC Client]
+| API used by uP-L3 code generators to generate the client-side boundary objects for uServices. The interface wrap method invocation (uP-L2) such that generated client-side code does not have to be platform (or transport) specific, only language specific. Ex. We use this interface to build a client stub if uDiscovery, there will be one per SDK language that will talk to any uDiscovery service running on all uPlatforms. 
+
+|===
+
+
+== Test
+
+ * *MUST* include a test suite under the folder `test`
+ * *MUST* be able to run the tes test suite the command line (i.e. `mvn test`) such that it can be added to a workflow of the SDK for each commit
+ * *MUST* cover 100% of all code and specifications defined in <<Source>>
+
+
+== Build
+
+ * *MUST* be easily built in both a Windows and Linux development environment. Any build requirements (i.e. package dependencies) need to be properly documented in the README
+* *MUST* be able to be imported to any wellknown IDE (Eclipse, IntelliJ, VSCode, etc..) and include self contained build system to build the code and dependencies(ex. maven, gradle, clang, soong, etc...).
+* *MUST* fetch external dependency libraries as handle build dependencies, *MUST NOT* copy external dependencies inside of the SDK
+* *MUST NOT* depend on external copyright or copyleft libraries/modules, only permissive licenses such as Apache 2.0, MIT, shall be accepted etc..
+* *MUST* publish release (built) artifacts to https://maven.pkg.github.com/ per https://github.com/marketplace/actions/java-maven-release[GitHub Maven Release Action]
+
+
+== Documentation
+
+ * *MUST* include a main README.adoc file that explains how to build and use the SDK. 
+ * Each module *MUST* also have a README.adoc that gives well known examples of using the SDK and the specific module
