@@ -51,9 +51,9 @@ The following section will elaborate on the source code requirements of the SDK 
 | static methods to validate the data model
 
 | `serializer`
-| Any code that is repsonsible to Serialize and deserialize the data model
+| Any code that is responsible to Serialize and deserialize the data model
 
-| `factory`
+| `factory` (or `builder`)
 | Factory methods to build the data model per business logic (i.e. to build CloudEvents, UUIDs, etc..)
 
 |===
@@ -80,7 +80,7 @@ Modules are packages (folders) that reside under the sdk's `src` director. <<con
 | link:up-l1/cloudevents.adoc[CloudEvents]
 | Specification of how uProtocol data models can be expressed using CloudEvents data model
 
-| `utransport`
+| `transport`
 | link:up-l1/README.adoc[uTransport]
 | uP-L1 uTransport interface & data model definitions used to build language specific transports implementations (i.e. zenoh, SOME/IP, MQTT, etc..) that run on a given uPlatform.
 
@@ -93,7 +93,7 @@ Modules are packages (folders) that reside under the sdk's `src` director. <<con
 
 == Test
 
- * *MUST* include a test suite under the folder `test`
+ * *SHOULD* include a test suite under the folder `test`
  * *MUST* be able to run the tes test suite the command line (i.e. `mvn test`) such that it can be added to a workflow of the SDK for each commit
  * *MUST* cover 100% of all code and specifications defined in <<Source>>
 
@@ -104,7 +104,6 @@ Modules are packages (folders) that reside under the sdk's `src` director. <<con
 * *MUST* be able to be imported to any wellknown IDE (Eclipse, IntelliJ, VSCode, etc..) and include self contained build system to build the code and dependencies(ex. maven, gradle, clang, soong, etc...).
 * *MUST* fetch external dependency libraries as handle build dependencies, *MUST NOT* copy external dependencies inside of the SDK
 * *MUST NOT* depend on external copyright or copyleft libraries/modules, only permissive licenses such as Apache 2.0, MIT, shall be accepted etc..
-* *MUST* publish release (built) artifacts to https://maven.pkg.github.com/ per https://github.com/marketplace/actions/java-maven-release[GitHub Maven Release Action]
 
 
 == Documentation
