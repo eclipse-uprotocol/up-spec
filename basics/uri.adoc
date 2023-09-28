@@ -86,10 +86,6 @@ UriFormat is an interface that provide hints for what kind of information is in 
  * *MUST* be able to construct a `UAuthority` from a string
  * *MUST* support detection of local vs remote URIs from `UAuthority`
  * *MUST* contain helper functions to build well known UAuthority items (local, remote, etc...)
- 
-if the authority is an IP address:
-
- * IP address *MUST* be stored in `device` member variable 
 
 === UEntity
 
@@ -116,7 +112,9 @@ if the authority is an IP address:
 `UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
 There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
 
-== Long Uris
+== Serialized URIs
+
+=== Long Uris
 
 Long URIs are UUris that have been serialized to a string containing human readable names.
 
@@ -126,7 +124,7 @@ Long URIs are UUris that have been serialized to a string containing human reada
 |===
 |Item |Value |Description
 
-|`*up:*` |up: |Scheme (protocol name)
+|*SCHEME* |`up:` |Scheme (protocol name)
 |*USERINFO* |pchar |User information
 |*UDEVICE* |unreserved |Canonical hostname or IP address of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
 |*UDOMAIN* | |Canonical domain name of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
@@ -148,7 +146,7 @@ If the URI is part of a topic:
 *Additional URI Protocol Rules:*
 
 * *MAY* contain schema
-* A segment in the path (UE_NAME, UE_VERSION, RESOURCE, METHOD) *MAY* be empty, resulting in two consecutive slashes (//) in the path component
+* A segment in the path (UE_NAME, UE_VERSION, RESOURCE, METHOD) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
 * Schema and authority *MUST* be case-insensitive per RFC3986
 * Path, query, and message *MUST* be case-sensitive
 
@@ -159,7 +157,53 @@ If a segment in the path is empty:
 
 NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
-== Micro Uris
+ 
+=== Short Uris
+
+Short URIs are built using named authority (uAuthority’s device & domain names) and uEntity & uResource ids and represented as a string so that it is smaller in size than a long URI but still larger than a micro URI. 
+
+Short URIs are used as an alternative for micro to communicate with  devices that not addressable by IP (v4 or v6). Example use cases are cloud-2-device and device-2-cloud transports where edge devices IP address are temporal or hidden behind a firewall.
+
+
+.Short Form URI Description
+[#short-form-uri]
+[width="100%",cols="23%,18%,59%",options="header"]
+|===
+|Item |Value |Description
+
+|*SCHEME* |`u:``  | Scheme (protocol name)
+|*UDEVICE* |unreserved |Canonical hostname or IP address of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
+|*UDOMAIN* |unreserved |Canonical domain name of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
+
+|*UE_ID* |uint |The uE id as a short
+|*UE_VERSION* |uint  a|
+uE version  section.
+
+* *MUST* only contain the MAJOR version number
+
+|*METHOD_ID | RESOURCE_ID* |pchar |*R* a|
+uService rpc method id or resource id as defined in the service proto.
+
+|===
+
+
+*Additional URI Protocol Rules:*
+
+* scheme *MUST* be present, this is to differentiate the long from the short UR
+
+* A segment in the path (UE_ID, UE_VERSION, RESOURCE_ID or METHOD_ID) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
+* Schema and authority *MUST* be case-insensitive per RFC3986
+* Path, query, and message *MUST* be case-sensitive
+
+If a segment in the path is empty:
+
+* The path *MUST NOT* start with "//"
+* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
+
+NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
+
+
+=== Micro Uris
 Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are three formats for micro URIs, local (missing the Address), IPv4, and IPv6. The following sections will describe each format.
 
 .Local
@@ -239,15 +283,12 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 |===
 
-== Wildcards
-wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). 
- 
- * *SHOULD* support wildcards in the authority, entity, resource, and message portions of the URI
- * Wildcards *MUST* be `*` (asterisk) for long URIs
- * Wildcard *MUST* be the 0 for micro URIs
 
+== Wildcards
+wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard is is represented in a long or short URI only when the segment is blank.
 
 NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatform and uE documentation for more information.
+
 
 == Example URIs
 
