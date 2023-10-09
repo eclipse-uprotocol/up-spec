@@ -108,8 +108,9 @@ uTwin instances act as a distributed networks of caches that can communicate to 
 === uTwin Cache Management
 
 uTwin will initialize its cache on startup with the following scenarios:
-* *when running without persistent storage, the cache will be initialized to an empty condition*
-* *when running with persistent storage (future option), the cache can be initialized to the last saved state for each Topic*
+
+* when running without persistent storage, the cache will be initialized to an empty condition
+* when running with persistent storage (future option), the cache can be initialized to the last saved state for each Topic
 
 uTwin MUST indicate when its capacity is exhausted and it is unable to accept a new / updated SetLastValue command.
 
