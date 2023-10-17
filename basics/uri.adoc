@@ -157,54 +157,48 @@ If a segment in the path is empty:
 
 NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
- 
-=== Short Uris
-
-Short URIs are built using named authority (uAuthority’s device & domain names) and uEntity & uResource ids and represented as a string so that it is smaller in size than a long URI but still larger than a micro URI. 
-
-Short URIs are used as an alternative for micro to communicate with  devices that not addressable by IP (v4 or v6). Example use cases are cloud-2-device and device-2-cloud transports where edge devices IP address are temporal or hidden behind a firewall.
-
-
-.Short Form URI Description
-[#short-form-uri]
-[width="100%",cols="23%,18%,59%",options="header"]
-|===
-|Item |Value |Description
-
-|*SCHEME* |`u:``  | Scheme (protocol name)
-|*UDEVICE* |unreserved |Canonical hostname or IP address of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
-|*UDOMAIN* |unreserved |Canonical domain name of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
-
-|*UE_ID* |uint |The uE id as a short
-|*UE_VERSION* |uint  a|
-uE version  section.
-
-* *MUST* only contain the MAJOR version number
-
-|*METHOD_ID | RESOURCE_ID* |pchar |*R* a|
-uService rpc method id or resource id as defined in the service proto.
-
-|===
-
-
-*Additional URI Protocol Rules:*
-
-* scheme *MUST* be present, this is to differentiate the long from the short UR
-
-* A segment in the path (UE_ID, UE_VERSION, RESOURCE_ID or METHOD_ID) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
-* Schema and authority *MUST* be case-insensitive per RFC3986
-* Path, query, and message *MUST* be case-sensitive
-
-If a segment in the path is empty:
-
-* The path *MUST NOT* start with "//"
-* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
-
-NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
 
 === Micro Uris
-Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are three formats for micro URIs, local (missing the Address), IPv4, and IPv6. The following sections will describe each format.
+Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or VIN) and local is without an address (refer to some uThing that is local to the device).
+
+* All fields of micro UUri *MUST* be populated
+* Fields are Big-Endian unless otherwise specified
+
+.Micro Uri Fields
+[#micro-uri-fields,width="100%",cols="20%,10%,30%,40%",options="header"]
+|===
+|Field |Size(Bits) |Description | Requirements
+
+|`UP_VERSION` |8 |Current version of this specification | *MUST* be 0x01
+
+|`TYPE` | 8 |Type of Micro Uri   a| *MUST* be one of the following values:
+
+!===
+!*Value* !*Description*
+!`0` !Local authority
+!`1` !Remote authority using IPv4 address
+!`2` !Remote authority using IPv6 address
+!`3` !Remote authority using VIN
+!===
+
+
+|`URESOURCE_ID` |16 |The ID assigned to the topic in the proto (unique per uE) | 
+
+|`UAUTHORITY_ADDRESS` |32 or 128 |UAuthority IP Address | *MUST* be a valid IPv4 or IPv6 address
+
+|`VIN` |136 |UAuthority VIN | *MUST* be a valid vehicle VIN (17 bytes)
+
+|`UENTITY_ID` | 16 |UE Identifiers |
+
+|`UE_VERSION` | 8 |UEntity MAJOR version | *MUST* be a valid MAJOR version
+
+|`UNUSED` | 8 | Unused bits | *MUST* be 0x00
+
+|===
+
+
+==== Local Micro Uri
 
 .Local
 [#local-micro-uri,java]
@@ -218,7 +212,10 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
-.IPv4
+
+==== Remote Micro Uris
+
+.IPv4 Remote Micro URI
 [#ipv4-micro-uri,java]
 ----
  0                   1                   2                   3
@@ -232,7 +229,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
-.IPv6
+.IPv6 Remote Micro URI
 [#ipv6-micro-uri,java]     
 ----
  0                   1                   2                   3
@@ -247,41 +244,25 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-----    
+----
 
-* All fields *MUST* be populated
-* Fields are Big-Endian unless otherwise specified
+.VIN Remote Micro URI
+[#vin-micro-uri,java]     
+----
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                           VIN                                 |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    VIN        |        UENTITY_ID             |  UE_VERSION   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+----
 
-.Micro Uri Fields
-[#micro-uri-fields,width="100%",cols="20%,10%,30%,40%",options="header"]
-|===
-|Field |Size(Bytes) |Description | Requirements
-
-|`UP_VERSION` |8 |Current version of this specification | *MUST* be 0x01
-
-|`TYPE` | 8 |Type of Micro Uri   a| *MUST* be one of the following values:
-
-!===
-!*Value* !*Description*
-!0x00 !Local
-!0x1 !IPv4
-!0x2 !IPv6
-!others !Reserved for future use
-!===
-
-
-|`URESOURCE_ID` |16 |The ID assigned to the topic in the proto (unique per uE) | 
-
-|`UAUTHORITY_ADDRESS` |32 or 128 |UAuthority IP Address | *MUST* be a valid IPv4 or IPv6 address
-
-|`UENTITY_ID` | 16 |UE Identifiers |
-
-|`UE_VERSION` | 8 |UEntity MAJOR version | *MUST* be a valid MAJOR version
-
-|`UNUSED` | 8 | Unused bits | *MUST* be 0x00
-
-
-|===
 
 
 == Wildcards
@@ -341,7 +322,7 @@ NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for mo
 
 == Best Practices
 
-As mentioned above, UUri is the datamodel that represents the uProtocol URI in object form per programming language where as Long and Short Uris are serialized representations of the UUri object to be used (sent) between uEs, devices, etc... 
+As mentioned above, UUri is the datamodel that represents the uProtocol URI in object form per programming language where as Long and Micro Uris are serialized representations of the UUri object to be used (sent) between uEs, devices, etc... 
 
 uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or IP addresses. 
 

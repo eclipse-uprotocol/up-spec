@@ -264,7 +264,7 @@ Serialization hint is used to indicate the format of the payload.
 | Field Name | String | Integer | Description
 
 |UNKNOWN
-|`"(empty string)"`
+|`""` (empty string)
 |0
 | The serialization hint was not passed or set
 
@@ -286,8 +286,19 @@ Serialization hint is used to indicate the format of the payload.
 |RAW
 |`application/octet-stream`
 |4
-|Raw binary data (not serialized)
+|Raw binary data (not serialized) and passed by value
 
+|TEXT
+|`text/plain;charset=UTF-8`
+|5
+| UTF-8 Text data
+
+|POINTER
+|`application/octet-stream`
+|6
+a|Raw binary data (not serialized) passed by reference (i.e. pointer) used for shared memory transports
+
+ * MUST be supported by Languages that support shared memory copies (ex. C++ & Rust)
 |===
 
 
