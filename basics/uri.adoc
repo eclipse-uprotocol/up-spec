@@ -160,7 +160,7 @@ NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
 
 === Micro Uris
-Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or VIN) and local is without an address (refer to some uThing that is local to the device).
+Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
 
 * All fields of micro UUri *MUST* be populated
 * Fields are Big-Endian unless otherwise specified
@@ -179,7 +179,7 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 !`0` !Local authority
 !`1` !Remote authority using IPv4 address
 !`2` !Remote authority using IPv6 address
-!`3` !Remote authority using VIN
+!`3` !Remote authority using a variable length ID
 !===
 
 
@@ -187,9 +187,11 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 |`UAUTHORITY_ADDRESS` |32 or 128 |UAuthority IP Address | *MUST* be a valid IPv4 or IPv6 address
 
-|`VIN` |136 |UAuthority VIN | *MUST* be a valid vehicle VIN (17 bytes)
+|`UAUTHORITY_ID` |8-2040 |UAuthority ID | *MAY* be a valid vehicle VIN (17 MSB)
 
-|`UENTITY_ID` | 16 |UE Identifiers |
+|`ID_LEN` |8  |Length of bytes for the UAuthority ID | *MUST* be greater than 0
+
+|`UENTITY_ID` | 16 |UE Identifiers | 
 
 |`UE_VERSION` | 8 |UEntity MAJOR version | *MUST* be a valid MAJOR version
 
@@ -223,9 +225,9 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     UAUTHORITY_ADDRESS                        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|              UAUTHORITY_ADDRESS (IPv4 32bits)                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
@@ -237,16 +239,16 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                     UAUTHORITY_ADDRESS                        |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|              UAUTHORITY_ADDRESS (IPv6 128bits)                |
+|                                                               |
+|                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
-.VIN Remote Micro URI
+.ID Remote Micro URI
 [#vin-micro-uri,java]     
 ----
  0                   1                   2                   3
@@ -254,12 +256,10 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                           VIN                                 |
-|                                                               |
-|                                                               |
+|        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    VIN        |        UENTITY_ID             |  UE_VERSION   |
+|    ID_LEN     |        UAUTHORITY_ID (1=256 bytes)  ...       |
+|                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
@@ -324,38 +324,34 @@ NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for mo
 
 As mentioned above, UUri is the datamodel that represents the uProtocol URI in object form per programming language where as Long and Micro Uris are serialized representations of the UUri object to be used (sent) between uEs, devices, etc... 
 
-uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or IP addresses. 
+uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or addresses. 
 
-A resolved UUri is one that contains both the Long and Micro Uri information meaning both the names and IDs such that the UUri can be serialized to either a string (long) or byte[] (micro) format. When a UUri is not resolved (only contain either names or ids), the only way to resolve the UUri is to lookup in uDiscovery the missing information. UEntity & UResource resolved information is encoded into the service definitions (proto files) using  https://protobuf.dev/programming-guides/proto2/#options[Options], this means that Application layer (uP-L3) uEs (client and servers) have available the ability to populate fully resolved UUris. 
+A resolved UUri is one that contains both the Long and Micro Uri information meaning both the names and IDs such that the UUri can be serialized to either a string (long) or byte[] (micro) format. When a UUri is not resolved (only contain either names or ids), the only way to resolve the UUri is to lookup in uDiscovery the missing information. UEntity names and numbers are embedded encoded into the service definitions (proto files) using  https://protobuf.dev/programming-guides/proto2/#options[Options], and the UResource information is included in https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors], this means that Application layer (uP-L3) uEs (client and servers) have available the ability to populate fully resolved UUris (at least UEntity & UResource). 
 
-link:../up-l2/README.adoc[Dispatchers] however do not have the id mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
+link:../up-l2/README.adoc[Dispatchers] however do not have the name-to-number mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
 
-UAuthority portion of the URI comply with IETF DNS RFCs meaning that resaolving the authority portion of the Uri is done using standard dns resolvers. Not all devices are globally addressable (through a recursive DNS servers). (ex. mobile devices behind a firewall) so care must be taken when resolving Uris). 
 
 IMPORTANT: If a uE has a specific Uri format requirements (Long vs Micro), they *MUST* document them in their respective APIs specifications. Please see link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs] for more specific requirements for uProtocol core services.
 
 The next sections shall provide best practices for populating and using URIs in uProtocol.
 
-=== UAuthority
-* Local communication (within the same device) *SHOULD* use local URIs (empty authority)
-* Remote communication (between devices) *MUST* contain at least the device name
-* Intra-domain name/address resolution *MUST* be locally resolvable (i.e. does not require global recursive dns resolution)
+=== Application Layer (uP-L3) uEs
+* *MUST* populate both the name and numbers in UEntity & UResource portion of the UUri
 
+If the UUri points to a remote uThing:
+* *MUST* contain Resolved UAuthority (domain and address). Where the address could be either IP or a VIN
 
-=== UEntity & UResource
+=== Communication Layer (uP-L2)
+* Streamers MUST populate/res
+=== uTransports (uP-L1)
 
-==== uTransports (uP-L1)
+* Applications that call uTransport::send() *MUST* be passed resolved UUris if either names or numbers are missing, uTransport must return INVALID_PARAMETER
+* Returned UUris from uTransport *MAY* contain only numbers (or names) and as such the application *MAY* resolve the missing information using a resolve() API provided by the language specific SDKs
+* *MUST* use the Miro Uri serialization format "on the wire"
+* *MAY* send fully resolved UUris (names and numbers) 
 
-* *MUST* declare which type of URIs it requires; long, micro or resolved. Passing a UUri that is of the wrong format result in an `INVALID_PARAMETER` returned error
 * *SHOULD* use Micro Uris when at all possible
 
-==== Streamers (uP-L2)
-Streamers are dispatchers that bridge from one transport technology to the next (ex. from HTTP to MQTT). Given that the UUri format is dependent on the transport: 
-
-* *MUST* ensure that the Uri is converted to the target transports format (i.e. deserialized to UUri, resolved, then serialized to the correct long or micro format) 
-
-==== Application Layer (uP-L3) uEs
-* *MUST* populate both the name and ids portion of UEntity & UResource objects
 
 
 
