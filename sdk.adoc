@@ -38,14 +38,13 @@ The following section will elaborate on the source code requirements of the SDK 
 * Modules defined in <<content>> below *MUST* be implemented in their own folder (namespace)
 * Each module *MUST* divide the implementation of the specification as defined in <<folders>> below
 
+* The uProtocol data model *MUST* be declared in protos and each SDK imports the artifacts from the proto library
+
 
 .Module Folders/Namespace
 [#folders,width="80%",cols="20%,80%",options="header"]
 |===
 | Folder | Description
-
-| `datamodel`
-| Data model (types) definitions
 
 | `validators`
 | static methods to validate the data model
