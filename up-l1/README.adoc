@@ -28,7 +28,8 @@ Transport & Session Layer is responsible for bidirectional point-2-point communi
 
 The Purpose of this layer of the protocol is to define a common ubiquitous language for sending and receiving a messages in a common way across transports, heterogeneous system the uEs are deployed on, or the programming language used. 
 
-This specification shall define the data models (types) and interfaces.  . 
+This specification shall define the data models (types) and interfaces.
+
 uProtocol programming language specific libraries (SDKs) declare the transport layer interfaces and define the data model, while transport technologies (ex. Binder, MQTT, Zenoh, SOME/IP, DDS, HTTP, etc...) implement said interfaces per language. 
 
 NOTE: We will define the various interfaces in this specification using pseudo code in lieu of a particular IDL such as protobuf as we expect the implementations of this spec to vary slightly between languages. 
@@ -51,10 +52,11 @@ We will use the following terminology during this document:
  * All APIs that return `Status` *MUST* follow link:../basics/error_model.adoc[uProtocol Error Model]
 
 
+NOTE: uProtocol data model used by the uTransport interface are declared in https://github.com/eclipse-uprotocol/uprotocol-core-api[uprotocol-core-api]
 
 == Data Model
 
-Data model specifies the various types that are to be declared the SDKs and used by uTransport interface.
+Data model specifies the various types declared in protobuf in the SDKs and used by uTransport interface.
 These specifications define the ubiquitous language so that they are consistent across languages and transport implementations. 
 
 *NOTE:* Unless otherwise stated, the classification or category for various types (ex. enums vs templates vs classes vs structs vs records, etc..) is not specified and left up to the SDK authors.
@@ -292,11 +294,6 @@ Serialization hint is used to indicate the format of the payload.
 |`text/plain;charset=UTF-8`
 |5
 | UTF-8 Text data
-
-|POINTER
-|`application/octet-stream`
-|6
-a|Raw binary data (not serialized) passed by reference (i.e. pointer) used for shared memory transports
 
  * MUST be supported by Languages that support shared memory copies (ex. C++ & Rust)
 |===
