@@ -36,16 +36,19 @@ image::uri.drawio.svg[uProtocol URI Specification]
 
 A uProtocol URI can be represented in three formats:
 
-1. <<UUri Data Model>>: A Language specific representation of a URI (i.e. class, structures, etc..)
+1. <<UUri Data Model>>: Object format (declared in protobuf)
 2. <<Long Uris>>: UUri object serialized to a string containing names (i.e. human readable)
 3. <<Micro Uris>>: UUri serialized to a byte array (i.e. machine readable). 
-
-We shall elaborate on each format in this specification.
 
 
 == UUri Data Model
 
-UUri is a language specific representation of the uProtocol URI. This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<UUri Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
+This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<UUri Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
+
+NOTE: The term _resolved UUri_ shall be used to refer to a UUri object that contains both names and numbers (ids) so that the UUri can be serialized to both  Long and Micro format (explained further below).
+
+
+* *MUST* be declared in protobuf such that the definitions can be shared across all programming languages
 
 .UUri Data Model
 [#uuri-data-model]
@@ -53,31 +56,7 @@ image:uuri.drawio.svg[UUri Data Model]
 
  * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
 
-=== Uri Format
-
-UriFormat is an interface that provide hints for what kind of information is in the belly of the Uri part or UUri itself such that the object can be serialized (represented) in long form, micro format, or both (resolved).
-
-.UriFormat
-[width="100%",cols="30%,70%",options="header"]
-|===
-|API |Description
-
-| `isLongForm(): boolean`
-| Returns true if the Uri part contains names so that it can be serialized to <<Long Format>>
-
-| `isEmpty(): boolean`
-| Returns true if the object contains no information
-
-| `isResolved(): boolean`
-| Returns true if the object contains both names and numbers such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
-
-| `isMicroForm(): boolean`
-| Returns true if the Uri part contains the id's which will allow the Uri part to be serialized into <<Micro Formats>>
-
-|===
-  
-
-=== UAuthority
+== UAuthority
 `UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
 
  * Type name *MUST* be `UAuthority`
@@ -108,9 +87,67 @@ UriFormat is an interface that provide hints for what kind of information is in 
   - `name` and `instance` only
   - `name` only
 
+
+== SDK 
+
+The following section will elaborate on the per-language SDK requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
+
+.UUri SDK Classes
+[#uuri-sdk-classes]
+image:uri_sdk.drawio.svg[UUri SDK Classes]
+
+=== UriValidator
+
+UriValidator is an interface with static methods to validate the <<UUri Data Model>> and check properties of the UUri such as if it contains the information to serialize to Long form or micro form, etc...
+
+.UriValidator
+[width="100%",cols="30%,70%",options="header"]
+|===
+|API |Description
+
+| `validate(UUri): UStatus`
+a| Validates the UUri object and return `UStatus` with the result of the validation. 
+
+* *MUST* return `UStatus::Failed` if the `UUri` is empty
+* *MUST* return `UStatus::Failed` if the `UUri.entity.name` is blank
+
+| `validateRpcMethod(UUri): UStatus`
+a| Validate that the `UUri` is a valid RPC method UUri
+
+* *MUST*  return `UStatus::Failed` if  `validate(UUri)` fails
+* *MUST* return `UStatus::Failed` if the `UUri.resource.name != "rpc" \|\| `UUri.resource.id > [METHOD_ID_RANGE]` is out of range for Rpc methods
+
+| `validateRpcResponse(UUri): UStatus`
+a| Validate that the `UUri` is a valid RPC Response UUri 
+
+* *MUST*  return `UStatus::Failed` if  `validate(UUri)` or `validateRpcMethod(UUri)` fails
+* *MUST* return `UStatus::Failed` if the `UUri.resource.name != "rpc" \|\| UUri.resource.instance != "response" \|\| UUri.resource.id != 0`
+
+| `isLongForm(UUri): boolean`
+a| Returns true if the Uri part contains names so that it can be serialized to <<Long Format>>. 
+
+| `isEmpty(UUri): boolean`
+| Returns true if the object contains no information
+
+| `isResolved(UUri): boolean`
+| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
+
+| `isMicroForm(UUri): boolean`
+| Returns true if the Uri part contains the required ids to serialized to <<Micro Formats>>
+
+| `isRpcMethod(UUri): boolean`
+| Returns true if the Uri is of type RPC (request or response)
+
+| `isRpcResponse(UUri): boolean`
+| Returns true if the Uri is of type RPC response
+
+|===
+  
+
 === UriSerializer
 `UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
 There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
+
 
 == Serialized URIs
 
@@ -202,6 +239,8 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 ==== Local Micro Uri
 
+Local UUris do not contain authority and *SHOULD* be used at all times when addressing uThings within the same uDevice. 
+
 .Local
 [#local-micro-uri,java]
 ----
@@ -216,6 +255,10 @@ Micro URIs are used to represent various portions of the URI in byte array forma
 
 
 ==== Remote Micro Uris
+
+Remote UUris mean that the uThing is running on a different device and we need to address the uThing using the device name, IP address, or an arbitrary length id (1-255 bytes). 
+
+* Remote UUris *MUST* contain the UAuthority address (IP or ID) and *MAY* contain the UAuthority name.
 
 .IPv4 Remote Micro URI
 [#ipv4-micro-uri,java]
@@ -277,8 +320,6 @@ The section will give a few example URIs and their use in uProtocol. Service and
 
 NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/usubscription/v2/usubscription.proto[usubscription.proto]. 
 
-NOTE: Remote examples below shall assumed the device names have already been resolved to IP addresses
-
 
 . Serialized Uri Examples
 [width="100%",cols="20%,60%,20%",options="header"]
@@ -322,13 +363,9 @@ NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for mo
 
 == Best Practices
 
-As mentioned above, UUri is the datamodel that represents the uProtocol URI in object form per programming language where as Long and Micro Uris are serialized representations of the UUri object to be used (sent) between uEs, devices, etc... 
-
-uProtocol URI specifications complies with of https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] that builds https://datatracker.ietf.org/doc/html/rfc1034[DNS concepts and facilities] to allow representation of UAuthorty as names or addresses. 
-
-A resolved UUri is one that contains both the Long and Micro Uri information meaning both the names and IDs such that the UUri can be serialized to either a string (long) or byte[] (micro) format. When a UUri is not resolved (only contain either names or ids), the only way to resolve the UUri is to lookup in uDiscovery the missing information. UEntity names and numbers are embedded encoded into the service definitions (proto files) using  https://protobuf.dev/programming-guides/proto2/#options[Options], and the UResource information is included in https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors], this means that Application layer (uP-L3) uEs (client and servers) have available the ability to populate fully resolved UUris (at least UEntity & UResource). 
-
-link:../up-l2/README.adoc[Dispatchers] however do not have the name-to-number mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
+When a UUri is not resolved (only contain either names or ids), the only way to resolve the UUri is to lookup in uDiscovery the missing information. UEntity name and numbers are declared in the uService's protos by adding the service metadata attributes using   https://protobuf.dev/programming-guides/proto2/#options[Protobuf Options]. This information for the uE is then exposed through the uService generated stubs. 
+ 
+UResource portion of the UUri is also encoded in the uService protos and can be fetched by application developers using https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors]. Application developers are then able to easily construct resolved UUris using the above mentioned generated code. link:../up-l2/README.adoc[Dispatchers] however do not have the name-to-number mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
 
 
 IMPORTANT: If a uE has a specific Uri format requirements (Long vs Micro), they *MUST* document them in their respective APIs specifications. Please see link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs] for more specific requirements for uProtocol core services.
@@ -339,13 +376,11 @@ The next sections shall provide best practices for populating and using URIs in 
 * *MUST* populate both the name and numbers in UEntity & UResource portion of the UUri
 
 If the UUri points to a remote uThing:
-* *MUST* contain Resolved UAuthority (domain and address). Where the address could be either IP or a VIN
+* *MUST* contain Resolved UAuthority (domain and address). Where the address could be either IP or a ID
 
-=== Communication Layer (uP-L2)
-* Streamers MUST populate/res
 === uTransports (uP-L1)
 
-* Applications that call uTransport::send() *MUST* be passed resolved UUris if either names or numbers are missing, uTransport must return INVALID_PARAMETER
+* Applications that call uTransport::send() *MUST* be passed resolved UUris. If either names or numbers are missing, uTransport *MUST* return `INVALID_PARAMETER`
 * Returned UUris from uTransport *MAY* contain only numbers (or names) and as such the application *MAY* resolve the missing information using a resolve() API provided by the language specific SDKs
 * *MUST* use the Miro Uri serialization format "on the wire"
 * *MAY* send fully resolved UUris (names and numbers) 
