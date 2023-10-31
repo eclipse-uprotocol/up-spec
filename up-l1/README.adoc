@@ -480,7 +480,7 @@ If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OS
 ==== Delivery Method
 
 * Transport *MUST* support either _push_ or _pull_ delivery method
-* *MAY* support both _push_ or _pull_ CE delivery methods between uEs
+* *MAY* support both _push_ or _pull_ delivery methods between uEs
 * Delivery method *SHOULD* be known by uEs at design time
 * Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
 

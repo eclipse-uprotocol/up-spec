@@ -41,9 +41,9 @@ A uProtocol URI can be represented in three formats:
 3. <<Micro Uris>>: UUri serialized to a byte array (i.e. machine readable). 
 
 
-== UUri Data Model
+== Data Model
 
-This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<UUri Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
+This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
 
 NOTE: The term _resolved UUri_ shall be used to refer to a UUri object that contains both names and numbers (ids) so that the UUri can be serialized to both  Long and Micro format (explained further below).
 
@@ -56,7 +56,7 @@ image:uuri.drawio.svg[UUri Data Model]
 
  * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
 
-== UAuthority
+=== UAuthority
 `UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
 
  * Type name *MUST* be `UAuthority`
@@ -88,15 +88,10 @@ image:uuri.drawio.svg[UUri Data Model]
   - `name` only
 
 
-== SDK 
+In the next section we shall define the per-language requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
 
-The following section will elaborate on the per-language SDK requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
 
-.UUri SDK Classes
-[#uuri-sdk-classes]
-image:uri_sdk.drawio.svg[UUri SDK Classes]
-
-=== UriValidator
+== UriValidator
 
 UriValidator is an interface with static methods to validate the <<UUri Data Model>> and check properties of the UUri such as if it contains the information to serialize to Long form or micro form, etc...
 
@@ -144,12 +139,10 @@ a| Returns true if the Uri part contains names so that it can be serialized to <
 |===
   
 
-=== UriSerializer
+== UriSerializer
 `UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
 There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
 
-
-== Serialized URIs
 
 === Long Uris
 

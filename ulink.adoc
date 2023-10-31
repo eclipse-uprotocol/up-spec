@@ -34,9 +34,6 @@ uLink refers to a library and boundary object used by all uEs (apps, services, c
 * *MUST* contain a boundary object called `ULink`
 * *MUST* be language specific (one library per language)
 
-.uLink Library
-[#ulink]
-image:ulink.drawio.svg[uLink Library & Boundary Object,width=640]
 
 === Boundary Object
 
