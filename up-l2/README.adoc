@@ -25,6 +25,8 @@ under the License.
 
 uProtocol Communication layer defines message processing, i.e. routing/ dispatching, access control, and corelation between messages (i.e. request response). The specification is broken down into the following sections:
 
+.uP-L2 Sections
+[width="80%",cols="20%,80%",options="header"]
 |===
 |Section | Description
 
@@ -34,7 +36,7 @@ uProtocol Communication layer defines message processing, i.e. routing/ dispatch
 | link:permissions.adoc[*Permissions*]
 | Protocol security requirements for authentication & authorization 
 
-| *RpcClient*
+| link:rpcclient.adoc[*RpcClient*]
 | Interface for the generation of client-side boundary objects for uP-L3 services
 
 |===

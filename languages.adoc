@@ -1,0 +1,111 @@
+= Language Specific Library
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+== Overview
+The language specific uProtocol libraries (_the library_) shall package the various interface and data models that are used by software developers and other uProtocol libraries. 
+
+NOTE: *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project.
+
+
+== Source 
+The following section will shall elaborate on the contents and structure of these libraries.
+
+* The root namespace (package name) *MUST* be `org.eclipse.uprotocol`
+* Modules defined in table <<content>> below *MUST* be implemented in their own folder (namespace)
+* Each module *MUST* divide the implementation of the specification as defined in table <<folders>> below
+
+
+.Module Folders/Namespace
+[#folders,width="80%",cols="20%,80%",options="header"]
+|===
+| Folder | Description
+
+| `validators`
+| static methods to validate the data model
+
+| `serializer`
+| Any code that is responsible to Serialize and deserialize the data model
+
+| `factory` (or `builder`)
+| Factory methods to build the data model per business logic (i.e. to build CloudEvents, UUIDs, etc..)
+
+|===
+
+
+=== Modules
+
+Modules are packages (folders) that reside under the `src` director. <<content>> table below lists the required modules.
+
+.SDK Modules
+[#content,width="100%",cols="20%,20%,60%",options="header"]
+|===
+| Folder | Specification |Description
+
+| `uri`
+| link:basics/uri.adoc[UUri]
+| How things are addressed in uProtocol
+
+| `uuid`
+| link:basics/uuid.adoc[UUID]
+| Unique ID & timestamp specification 
+
+| `cloudevents`
+| link:up-l1/cloudevents.adoc[CloudEvents]
+| Specification of how uProtocol data models can be expressed using CloudEvents data model
+
+| `transport`
+| link:up-l1/README.adoc[uTransport]
+a| uP-L1 Transport Interface & data model.
+
+* *MUST* declare the interface & data model where as link:../ulink.adoc[uLink Libraries] implement the said interface.
+
+| `rpcclient`
+| link:up-l2/rpcclient.adoc[uP-L2 RPC Client]
+a|API used by uP-L3 code generators to generate the client-side boundary objects for uServices. The interface wrap method invocation (uP-L2) such that generated client-side code does not have to be platform (or transport) specific, only language specific. 
+
+*  *MUST* declare the interface & data model where as link:../ulink.adoc[uLink Libraries] implement the said interface.
+
+|===
+
+
+== Test
+
+ * *SHOULD* include a test suite under the folder `test`
+ * *MUST* be able to run the tes test suite the command line (i.e. `mvn test`) such that it can be added to a workflow for each commit
+ * *MUST* cover 100% of all code and specifications defined in <<Source>>
+
+
+== Build
+
+ * *MUST* be easily built in both a Windows and Linux development environment. Any build requirements (i.e. package dependencies) need to be properly documented in the README
+* *MUST* be able to be imported to any wellknown IDE (Eclipse, IntelliJ, VSCode, etc..) and include self contained build system to build the code and dependencies(ex. maven, gradle, clang, soong, etc...).
+* *MUST* fetch external dependency libraries as handle build dependencies, *MUST NOT* copy external dependencies
+* *MUST NOT* depend on external copyright or copyleft libraries/modules, only permissive licenses such as Apache 2.0, MIT, shall be accepted etc..
+
+
+== Documentation
+
+ * *MUST* include a main README.adoc file that explains how to build and use the library. 
+ * Each module *MUST* also have a README.adoc that explains how to use said module

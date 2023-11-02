@@ -337,6 +337,15 @@ DeleteNode() API informs uDiscovery to tag a Node to be inactive. that the Node 
 image:delete_node.svg[Delete Node]
 
 
+==== ResolveUri
+
+`ResolveUri()` is used to lookup names from ids or vice versa meaning to go to/from Long Uri from/to micro Uri. 
+
+For portability between SDKs, Long Form URIs shall be serialized to String and Short form Uris shall be serialized to Bytes per link:../../../basics/uri.adoc[URI Specifications]. 
+
+ * *MUST* be passed either a Long or Short form URI and return both the Micro and Long form URI if successful
+
+
 == Failure Recovery
 
-In the event that the databases between the CDS and LDS becomes out of sync, the duscovery service components (uLDS, uDDS, uCDS) *MAY* fetch the contents using `FindNodes()` API.
+In the event that the databases between the CDS and LDS becomes out of sync, the discovery service components (uLDS, uDDS, uCDS) *MAY* fetch the contents using `FindNodes()` API.
