@@ -6,6 +6,8 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
+Copyright (c) 2023 General Motors GTO LLC
+
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -22,6 +24,10 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
+
+SPDX-FileType: DOCUMENTATION
+SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+SPDX-License-Identifier: Apache-2.0
 ----
 
 == Use Cases
