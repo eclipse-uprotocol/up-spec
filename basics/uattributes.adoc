@@ -1,4 +1,4 @@
-= Basics
+= uProtocol Attributes (uAttributes)
 :toc:
 :sectnums:
 
@@ -29,14 +29,8 @@ SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
-The following are the foundational requirements for uProtocol specifications:
+== Overview 
 
-* *link:namespace.adoc[Naming Conventions]*
-* *link:versioning.adoc[Versioning]*
-* *link:uri.adoc[URI (Addressing)]*
-* *link:error_model.adoc[Error Model]*
-* *link:uuid.adoc[Unique Universal Identifiers (UUIDs)]*
-* *link:qos.adoc[Quality of Service & Priority]*
-* *link:delivery.adoc[Event Delivery]*
-* *link:cloudevents.adoc[CloudEvents & uProtocol]*
+uProtocol Header attributes that are common for all transports. The UAttributes message holds routing and UMessage attributes such as priority, permission, communication status and more
 
+NOTE: Please refer to https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model
