@@ -1,4 +1,4 @@
-= uProtocol Error Model (UStatus)
+= eCAL Transport Protocol
 :toc:
 :sectnums:
 
@@ -29,5 +29,12 @@ SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
+== Overview
 
-uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in uprotocol-core-api project in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/ustatus.proto[`ustatus.proto`] please refer to the proto for details about UStatus and UCode.
+Eclipse eCAL™ (enhanced Communication Abstraction Layer) provides a middleware that enables scalable, high performance interprocess communication on a single computer node or between different nodes in a computer network. Eclipse eCAL uses a publish-subscribe pattern to automatically connect different nodes in the network.
+
+For more information please visit: https://projects.eclipse.org/projects/automotive.ecal
+
+== Specifications
+
+_Coming Soon_

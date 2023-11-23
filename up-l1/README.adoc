@@ -1,4 +1,4 @@
-= Transport & Session Layer (uP-L1)
+= Transport & Session Layer (uP-L1) Specifications
 :toc:
 :sectnums:
 
@@ -55,55 +55,17 @@ We will use the following terminology during this document:
 
 |===
 
- * All APIs that return `Status` *MUST* follow link:../basics/error_model.adoc[uProtocol Error Model]
+ * <<UStatus>> is defined in link:../basics/error_model.adoc[uProtocol Error Model]
 
 
 NOTE: uProtocol data model used by the uTransport interface are declared in https://github.com/eclipse-uprotocol/uprotocol-core-api[uprotocol-core-api]
 
-== Data Model
-
-Data model specifies the various types declared in protobuf in the SDKs and used by uTransport interface.
-These specifications define the ubiquitous language so that they are consistent across languages and transport implementations. 
-
-*NOTE:* Unless otherwise stated, the classification or category for various types (ex. enums vs templates vs classes vs structs vs records, etc..) is not specified and left up to the SDK authors.
-
-* Object oriented programming languages *MUST* use object based types (ex. classes) to represent the types defined in this section unless otherwise stated below
-
-* Variable length types such as C++ `std::string` or Java's `byte[]` *MAY* be replaced for fixed types (ex. `char[]`) where applicable
-
-
-=== UAttributes
-
-NOTE: Please refer to https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uattributes.proto] for the data model definition of the UAttributes type.
-
-=== UPayload
-
-UPayload is a container for the uP-L3 application layer data to be transmitted between uEs. The UPayload structure contains the data itself (either a reference or value), the size of the data, and a hint to indicate the serialization format (if any) of the data. 
-
- * `data` *MUST* contain the address to the payload and `size` contains the actual data size
-
-If `data` primitive object includes size parameter then the `size` attribute can be ommitted from the UPayload type (ex. `byte[]` for Java):
-
-
-==== UPayloadFormat
-
-NOTE: Please refer to https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/upayload.proto[upayload.proto] for definition of UPayloadFormat.
-
-=== UListener
+== UListener
 
 `UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
 
   * Type name *MUST* be `UListener`
-  * *MUST* contain the method `UStatus onReceive(link:../basics/uri.adoc[UUri]&, <<UPayload>>&, <<UAttributes>>&)` that is called by the Transport to notify (callback) the client
-
-=== UStatus
-
-An interface used to return the status of the uTransport API calls.
-
-  * Type name *MUST* be `UStatus`
-  * *MUST* contain the method `int getCode()` that returns the status code per the link:../basics/error_model.adoc[uProtocol Error Model]
-  * *MUST* contain the method `string getMessage()` that returns the status message 
-
+  * *MUST* contain the method `UStatus onReceive(UUri&, UPayload&, UAttributes&)` that is called by the Transport to notify (callback) the client
 
 
 == uTransport Interface
@@ -116,7 +78,7 @@ The transport layer API responsible for point-2-point communication. The interfa
 
 API used to verify the identity of the calling uE by confirming that the passed <<UEntity>> matches that of the transport layer specific identity required for link:../up-l2/permissions.adoc[Code-Based Access Permissions (CAPs)]. 
 
-`OUT <<UStatus>> authenticate(IN <<UEntity>>)`
+`OUT UStatus authenticate(IN UEntity)`
 
 ==== Parameters
 .Register Parameters
@@ -131,22 +93,22 @@ API used to verify the identity of the calling uE by confirming that the passed 
 
  * *MUST* be called before any other uTransport APIs
  * *MUST* be idempotent, subsequent calls to the API return the same value
- * *MUST* authenticate client uE identity by ensuring that the <<UEntity>> matches the transport specific identity mechanism. 
+ * *MUST* authenticate client uE identity by ensuring that the UEntity matches the transport specific identity mechanism. 
  * Non authenticated uEs *MUST* be returned `UNAUTHENTICATED` status code
 
 
 === Send()
 
-Publish/send <<UPayload>> and <<UAttributes>> to a link:../basics/uri.adoc[UUri] (topic). 
+Publish/send UPayload and UAttributes to a UUri (topic). 
 
 
-Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol <<UAttributes>>. Sending <<UAttributes>> in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
+Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
-For example, if HartleyTransport can map only <<UPriority>> to its PDU header, then HartleyTransport would define a PDU payload type that includes <<UPayload>> and all the other <<UAttributes>> and send that new type in its PDU payload such that the receiver will not loose any metadata. 
+For example, if HartleyTransport can map only UPriority to its PDU header, then HartleyTransport would define a PDU payload type that includes UPayload and all the other UAttributes and send that new type in its PDU payload such that the receiver will not loose any metadata. 
 
 The API signature:
 
-`OUT <<UStatus>> send(IN/OUT link:../basics/uri.adoc[UUri&], IN <<UPayload>>&, IN <<UAttributes>>&)`
+`OUT UStatus send(UUri&, IN UPayload&, IN UAttributes&)`
 
 ==== Parameters
 .Send Parameters
@@ -154,33 +116,33 @@ The API signature:
 |===
 |Parameter | Description
 
-| link:../basics/uri.adoc[UUri]
+| UUri
 
-| Destination for the <<UPayload>>
+| Destination for the UPayload
 
-| <<UPayload>>
-a| Data to be sent
+| UPayload
+a| Data and metadata to be sent
 
  * *MUST* be passed by reference
 
-| <<UAttributes>>
-a| <<UPayload>> metadata
+| UAttributes
+a| Communication protocol attributes
 
  * *MUST* be passed by reference
 
 |===
 
- * All <<UAttribute>> metadata *MUST* be preserved during transmission and available to the receiver
- * *MUST* not manipulate the <<UPayload>> data during transmission
- * Transport *MAY* modify the link:../basics/uri.adoc[UUri&] to set the transportId 
+ * All UAttribute metadata *MUST* be preserved during transmission and available to the receiver
+ * *MUST* not manipulate the UPayload data during transmission
+ * Transport *MAY* modify the UUri& to set the transportId 
 
 === RegisterListener()
 
-Register a <<UListener>> to receive message(s) for a given link:../basics/uri.adoc[UUri] (topic). This API is used to implement the _push_ <<Delivery Method>>.
+Register a UListener to receive message(s) for a given UUri (topic). This API is used to implement the _push_ <<Delivery Method>>.
 
 API Signature: 
 
-`OUT <<UStatus>> registerListener(IN link:../basics/uri.adoc[UUri], IN <<UListener>>&)`
+`OUT UStatus registerListener(IN UUri, IN UListener&)`
 
 
  * *MUST* support registering more than one listener per topic
@@ -194,7 +156,7 @@ API Signature:
 |===
 |Parameter | Description
 
-| link:../basics/uri.adoc[UUri]
+| UUri
 | Topic to register the listener for
 
 | <<UListener>>
@@ -209,7 +171,7 @@ API used to unregister a <<UListener>> for a given topic.
 
 API Signature: 
 
-`OUT <<UStatus>> unregisterListener(IN link:../basics/uri.adoc[UUri], IN <<UListener>>&)`
+`OUT <<UStatus>> unregisterListener(IN UUri, IN <<UListener>>&)`
 
 ==== Parameters
 .UnregisterListener Parameters
@@ -217,7 +179,7 @@ API Signature:
 |===
 |Parameter | Description
 
-| link:../basics/uri.adoc[UUri]
+| UUri
 | Topic to unregister the listener for
 
 | <<UListener>>
@@ -228,9 +190,9 @@ API Signature:
 
 === Receive()
 
-Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given link:../basics/uri.adoc[UUri] (topic).
+Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given UUri (topic).
 
-`OUT <<UStatus>> receive(IN link:../basics/uri.adoc[UUri], OUT <<UPayload>>&, OUT <<UAttributes>>&)`
+`OUT <<UStatus>> receive(IN UUri, OUT UPayload&, OUT UAttributes&)`
 
 ==== Parameters
 .Receive Parameters
@@ -238,15 +200,15 @@ Implements the _pull_ <<Delivery Method>> to fetch a message from the transport 
 |===
 |Parameter | Description
 
-| link:../basics/uri.adoc[UUri]
+| UUri
 | Topic to receive the message from
 
-| <<UPayload>>
-a| Data received
+| UPayload
+a| Data and metadata received
 
  * *MUST* be passed by reference
 
-| <<UAttributes>>
+| UAttributes
 a| Message metadata
 
  * *MUST* be passed by reference
@@ -275,3 +237,16 @@ If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OS
 * Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
 
 NOTE: Delivery method advertising shall be defined later
+
+
+== Transport Specifics
+
+Below is an non-exhausted list of transport specific requirements to ensure consistency across implementations of the same or different languages:
+
+* link:sommr.adoc[*SommR*]
+* link:binder.adoc[*Android Binder*]
+* link:zenoh.adoc[*Zenoh*]
+* link:ecal.adoc[*ECAL*]
+* link:p3comm.adoc[*P3Comm*]
+* link:mqtt.adoc[*MQTT*]
+* link:https.adoc[*HTTP*] 

@@ -1,4 +1,4 @@
-= uProtocol Error Model (UStatus)
+= p3comm Transport Protocol
 :toc:
 :sectnums:
 
@@ -30,4 +30,13 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 
-uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in uprotocol-core-api project in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/ustatus.proto[`ustatus.proto`] please refer to the proto for details about UStatus and UCode.
+== Overview
+
+Eclipse p3com enables arbitrary communication interfaces through a convenient and modern high level API while exploiting full HW capabilities.
+It is pluggable because it provides a modular transport layer architecture and integrates transparently into existing middleware projects using the Eclipse iceoryx API which is already well established and incorporated into multiple libraries such as Eclipse Cyclone DDS.
+
+For more information please visit: https://projects.eclipse.org/projects/automotive.p3com
+
+== Specifications
+
+_Coming Soon_
