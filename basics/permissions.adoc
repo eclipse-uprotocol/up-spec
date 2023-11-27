@@ -1,4 +1,4 @@
-= Permissions
+= uPermissions
 :toc:
 :sectnums:
 
@@ -30,10 +30,154 @@ SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
+== Overview
+
+The following specification shall elaborate on the policies governing access to specific topics,methods, and services used by uProtocol, they are:
+* *Code-based Permissions (CAPs):* Based on identity of the code requesting such access 
+
+* Token-based Access Permissions (TAP): Based on identity of the person or device (typically represented by a system account and based on the information in said account) requesting such access 
+
+Throughout this document we will use the <<perm-terms>> below:
+
+.Permissions Terms
+[#perm-terms,width="100%",cols="35%,65%"]
+|===
+| Term | Description
+
+|*Permission Artifact (uPA)*
+|A resource or service that is accessible via uProtocol  identified by a URI.
+
+|*Permission Level (uPL)*
+|An integer value of 0 to N, the latter being the most permissive, reflecting the expected level of trust associated with the code claiming permissions. Used by <<Code-Based Access Permissions (CAPs)>>.
+
+|===
+
 
 == Code-Based Access Permissions (CAPs)
-_coming soon_
+
+Access to each uService, as well as their methods or topics, all collectively referred to as uPerm artifacts (uPA), is governed by permissions granted to client entities (applications and services) using the service.
+
+Permissions are explicitly requested by client entities in their platform specific deployment manifests (i.e. Android package manifests), the requests represented by customary uProtocol URIs. A CAP is applicable to every uPA to which the corresponding URI (including generic ones) can be resolved.
+
+* Permission *MUST* be granted to a client _if and only if_ its uPL is less or equal the uPL set for the uPA
+* *MUST* be enforced at runtime when an uPA are accessed.
+
+Examples:
+1. Client has uPL of 2 and the uPA that it wants to access has a uPL of 3, the client is permitted to access the uPA
+2. Client has uPL of 2 but the uPA that it want to access is 1, the client is denied access and returned the error `PERMISSION_DENIED`
+
+uPLs are also considered during the client entity’s installation, which will fail if for any of the uPAs declared by the entity its level is less that that of the entity itself. Permission claims not resolved to any specific uPA are logged, but otherwise ignored by the uPlatforms.
+
+For pre-installed client entities only runtime enforcement is applied.
+
+* The runtime enforcement of CAPs *MUST* be done by uSubscription service (for subscriptions to topics) or by the uPlatform dispatchers (ex. uBus) in case of RPCs.
+
+CAP assumes that the link:../up-l1/README.adoc[uTransport] implementation allows for secure determination of the client’s operational context to verify its identity and claimed uPL.
+
+NOTE: The importance of permissions will vary between uPlatforms. The key initially will be a robust solution for CAPs covering clients residing in-vehicle devices (i.e. Android & Linux uPlatforms). We do not expect CAPs to be applicable to less dynamic and more controlled environments such as mechatronic, Mobile or Cloud uPlatforms.
+
+
+=== CAPs vs Android AOSP Permissions
+
+While inspired by Android’s permission, CAPs under the current proposal are different in several aspects. The differences include:
+
+* Android permissions are always explicitly defined. uPerms are associated with uPA Uris, thus derived implicitly from service definitions
+
+* In Android permissions use declarations are specific to a particular resource. uProtocol clients declare their claimed CAPs whose URIs can be generic, thus describing multiple uPAs at once
+
+* Android does not support explicit permission levels. Its concept of meta-attributed (normal, dangerous, signature etc) is also somewhat hierarchical, so can be considered as being similar to that of levels to some extent. But it is also much more elaborate, reflecting the challenges and complexities of a completely open, un-curated programmatic ecosystem
+
+* In Android application of permissions can be affected by specifics of client’s and server’s signatures. No such consideration is proposed for uPerms at this point in time
+
+
+=== Service Declaration of uPLs
+
+Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in  https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uprotocol_options.proto[uprotocol_options.proto] and their purpose is defined in <<cap-options>> below. 
+
+* uPL value *MUST* be an integer, 0 to N, where N is the most permissive level. The default value is 0.
+
+.uProtocol options for CAPs
+[#cap-options]
+|===
+| google.protobuf Extension |Description
+
+| `permission_level`
+| uPL for the service
+
+| `method_permission_level`
+| Service's method uPL
+
+| `topic_permission_level`
+| Service's topic uPL
+
+|===
+
+NOTE: *MUST* assumes the most permissive level, N, if the the declarations above are missing for the service, method, or topic in the service protos.
+
+
+=== Client Declaration of uPLs
+Claimed level of a uE is also handled by link:../up-l1/README.adoc[uTransport]. uPlatforms will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the link:../up-l1/README.adoc[uTransport] implementation.
+
+When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uAttributes `permission_level`].
+
+uEs that do not have proto defintions (i.e. applications),  claimed uPLs using a uPlatform specific manor like Android's manifest file. See <<Example using Android>> for an example.
+
+==== Example using Android
+
+For Android we will use the AOSP-standard manifest extension mechanism of <meta-data> to describe the permission level. We’ll use the name of `uprotocol.permissionLevel` and the value of the actual level, 0 to 5. The default value of 5 will be assigned implicitly when `uprotocol.entity.permissionLevel`` is not declared.
+
+Another metadata element with the name of `uprotocol.entity.permissions` will explicitly list (claim) all used uPAs with levels equal or less than 2 (explicit claim threshold), to improve visibility of sensitive claims. The resource attribute of this element points to an array of strings listing the URIs of the uPAs.
+
+The entities enforcing the permissions (uBus, uSub and uTwin) will allow access to a uPA if:
+
+The client’s claimed level is equal or less than that of the uPA;
+For uPAs of levels equal or less than explicit claim threshold, URI of that uPA is present in the array referred by `uprotocol.entity.permissions` element.
+An example of a manifest fragment for an app accessing the BodyAccess service could look as follows:
+
+[code,xml]
+```
+<application android:label="@string/app_name" ...>
+  <meta-data
+    android:name="uprotocol.entity.permissionLevel"
+    android:value="1" />
+  <meta-data
+    android:name="uprotocol.entity.permissions"
+    android:resource="@array/uPerms"
+</application>
+```
+
+In the string resources directory of the APK we may then have a file with the following content:
+
+[code,xml]
+```
+<resources>
+  <string-array name="uPerm">
+    <item>/body.access/1/rpc.ExecuteSunroofCommand</item>
+    <item>/body.access/1/rpc.ExecuteWindowCommand</item>
+  </string-array>
+</resources>
+```
+
+Such entries in the manifest will allow the client access to any topics of the BodyAccess service and two methods explicitly specified, as they are both level 1, thus requiring an explicit claim.
+
+
 
 == Token Based Access Permissions(TAPs)
-_coming soon_
+
+Token-based access permissions (TAPs) are policies governing access to specific methods, topics, and services, based on identity of the person or vehicle (domain), typically represented by a system account and based on the information in said account.
+TAP is generally more restrictive than CAPs as the scope of TAP is larger (user/domain vs single uE level).
+
+Implementations of TAP are generally platform/vendor specific, as such the following is not specified:
+
+* *Token Format:* How the token is structured
+* *Issuer & Token Procurement:* Who issues tokens and how they are shared with the user/domain/device
+* *Verification:* How the platform (and/or services) verifies the validity of said token (i.e. signature verification, etc...)
+
+=== Scope
+Scope is the list of artifacts that the caller (who has the token) are allowed to access. The scope is a list of uPA URIs.
+
+=== Sending Tokens
+
+Tokens are passed by the called to the transport (and then carried throughout the network) by populating the https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[`token`] uAttributes header field.
+
 
