@@ -61,19 +61,13 @@ Permissions for sensitive topics are explicitly requested by client entities in 
 
 NOTE: Definition of sensitive topic vs non-sensitive topic along with uPLs are not covered in this specification and are platform/ecosystem specific.
 
-* Permission *MUST* be granted to a client _if and only if_ its uPL is less or equal the uPL set for the uPA for sensitive topics
-* *MUST* be enforced at runtime when an uPA are accessed.
-
-Examples:
-1. Client has uPL of 2 and the uPA that it wants to access has a uPL of 3, the client is permitted to access the uPA
-2. Client has uPL of 2 but the uPA that it want to access is 1, the client is denied access and returned the error `PERMISSION_DENIED`
-
 
 uPLs are also considered during the client entity’s installation, which will fail if for any of the uPAs declared by the entity its level is less that that of the entity itself. Permission claims not resolved to any specific uPA are logged, but otherwise ignored by the uPlatforms.
 
 For pre-installed client entities only runtime enforcement is applied.
 
-The runtime enforcement of CAPs is uPlatform specific and not covered by this specifications.
+
+IMPORTANT: The runtime enforcement of CAPs is uPlatform specific and not covered by this specifications.
 
 CAP assumes that the link:../up-l1/README.adoc[uTransport] implementation provides a means to determine client’s uPL.
 
