@@ -218,7 +218,9 @@ image::unsub_local.svg[Unsubscribe Local Flow]
 .Remote Unsubscribe Flow
 image::unsub_remote.svg[Unsubscribe Remote Flow]
 
-* uSubscription *MUST* change the subscriber to itself (core.usubscription) when unsubscribing to remote topics 
+* uSubscription *MUST* change the subscriber to itself (core.usubscription) when unsubscribing to remote topics
+
+* Updates to SubscribeAttributes (ex. changes to `max_frequency`) *MUST* be sent as Update notification to the remote device
 
 === Topic Deprecation
 
