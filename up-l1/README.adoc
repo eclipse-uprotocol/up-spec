@@ -29,6 +29,8 @@ SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
+IMPORTANT: This specification is a work in progress and needs to be updated to uProtocol 1.5 (uAttributes, uPayload, , etc...)
+
 
 Transport & Session Layer is responsible for bidirectional point-2-point communication between uEs. What gets sent between uEs vary considerably depending on the type of payload (Safety, Security, fire & forget, etc...) as well as the deployment environment where the uEs are located (Android, Linux, MCU, etc...). 
 

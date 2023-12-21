@@ -1,0 +1,95 @@
+/'
+ Copyright (c) 2023 General Motors GTO LLC.
+
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+'/
+@startuml subscribe_u_2_m
+autonumber
+box uDevice #white
+	actor uE #red
+	entity uSubscription as SM1 #brown
+	entity SOMEIPBridge as Bridge #orange
+end box
+box mDevice #white
+	entity SOMEIPSD as SM2 #orange
+end box
+
+uE -> SM1: Subscribe(SubscriptionRequest)
+note right
+ 	<size:12>**SubscriptionRequest:**</size> 
+	""topic:"" { ""uri"": ""//topic//"" }  
+	""subscriber"": { ""uri"": "up://uDevice/uE/" }
+	""attributes"": { //Subscription Attributes// }
+end note
+SM1 --> uE: SubscriptionResponse
+note right
+	<size:12>**SubscriptionResponse:**</size> 
+	""status:"" { 
+		\t""state"": ""SUBSCRIBE_PENDING"",
+		\t""code"": ""OK""
+	}
+	""config:"" { //Platform specific config// }
+end note
+|||
+opt 1st Subscription
+	SM1 -> Bridge: Subscribe(SubscriptionRequest)
+	note right
+		<size:12>**SubscriptionRequest:**</size> 
+		""topic:"" { ""uri"": ""//topic//"" }  
+		""subscriber"": { ""uri"": "up://uDevice/core.usubscription/" }
+		""attributes"": { //Subscription Attributes// }
+	end note
+
+	Bridge -> Bridge: Translate
+ 	note right
+		<size:12>**Translation:**</size> 
+		Create SubscribeEventGroup &
+		save req.v2 id & SubscriptionRequest (used for correlation)
+	end note
+ 
+	Bridge -[#orange]> SM2: SubscribeEventgroup()
+	SM2 -[#orange]-> Bridge: SubscribeEventgroupAck|Nack()
+	Bridge -> Bridge: Translate
+	note right
+		<size:12>**Translation:**</size> 
+		Create SubscriptionResponse using
+		saved req.v2
+	end note
+ 
+	Bridge --> SM1: SubscriptionResponse
+	note right
+		<size:12>**SubscriptionResponse:**</size> 
+		""status:"" {
+				\t""state"": ""SUBSCRIBED"", 
+			\t""code"": ""OK""
+		}
+	""config:"" { //Platform specific config// }
+	end note
+ 		SM1 -[#0000FF]-\ uE: <font color=blue>Update</font>
+		note right
+		<size:12>**Update:**</size>
+		""topic:"" { ""uri"": ""//topic//"" }
+		""subscriber"": { ""uri"": "up://uDevice/uE/" }
+		""status:"" {
+			\t""state"": ""SUBSCRIBED"",
+			\t""code"": ""OK""
+		}
+		""attributes"": { //Subscription Attributes// } 
+	end note
+end opt
+@enduml
