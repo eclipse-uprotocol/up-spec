@@ -46,7 +46,7 @@ RpcClient defines a common, language specific, interface for method invocation t
 
 |===
 
-NOTE: For more details about the data model used in this interface, please refer to link:../ip-l1/README.adoc:_data_model[uP-L1 Data Model].
+NOTE: For more details about the data model used in this interface, please refer to link:../up-l1/README.adoc:_data_model[uP-L1 Data Model].
 
 == Interface
 
@@ -55,7 +55,7 @@ The following are the interface definition and requirements that *MUST* be imple
  * Interface *MUST* be called `RpcClient`
  * *MUST* contain the method:
 
-`OUT Futurelink:../ip-l1/README.adoc#_upayload[<UPayload>] invokeMethod(IN link:../basic/uuri.adoc[UUri], IN link:../ip-l1/README.adoc#_upayload[UPayload], IN link:../ip-l1/README.adoc#_uattributes[<UAttributes>])`
+`OUT Futurelink:../up-l1/README.adoc#_upayload[<UPayload>] invokeMethod(IN link:../basic/uuri.adoc[UUri], IN link:../up-l1/README.adoc#_upayload[UPayload], IN link:../up-l1/README.adoc#_uattributes[<UAttributes>])`
 
 
 == Implementation
@@ -64,7 +64,7 @@ RpcClient interface is implemented by each platform APIs, i.e. in the library th
 
  * Every uPlatform client library *MUST* implement the interface.
 
-Implementations communicate to their underlining transport through the link:../ip-l1/README.adoc#_utransport[uTransport Interface].
+Implementations communicate to their underlining transport through the link:../up-l1/README.adoc#_utransport[uTransport Interface].
 
  * The `UUri` and `UAttributes` passed to `invokeMethod()` *MUST* be cached non-persistent memory per call, this is to be able to complete the `Future` when the response is received from the server.
 
