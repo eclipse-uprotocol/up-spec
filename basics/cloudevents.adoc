@@ -218,6 +218,11 @@ otherwise:
 * Attribute *MAY* be present
 * When not present, or value is 0, message *MUST NOT* time out
 
+|`traceparent`
+|`traceparent`
+|String
+|*O*
+| Contains a version, trace ID, span ID, and trace options as defined in https://w3c.github.io/trace-context/#traceparent-header[section 3.2].  Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md[CloudEvents distributed tracing extension].
 
 |===
 
