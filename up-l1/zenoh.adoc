@@ -40,4 +40,18 @@ for more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 == Specifications
 
-_Coming Soon_
+=== Zenoh Config
+
+TODO: How to add Zenoh config
+
+=== Attribute Mapping
+
+TODO: Use user attachment
+
+=== URI Mapping
+
+TODO: Use micro-form for UURI
+
+=== UPayload
+
+TODO: Do not use serialization and send it directly
