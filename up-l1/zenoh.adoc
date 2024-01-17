@@ -46,7 +46,38 @@ TODO: How to add Zenoh config
 
 === Attribute Mapping
 
-TODO: Use user attachment
+Zenoh supports user attachment.
+We can send additional information with the mechanism, for example, UAttribute.
+This can reduce the unnecessary serialization on payload, which mostly takes time.
+
+User attachment supports key-value pairs, and the following table is the key-value pairs using now.
+
+[cols="1,1"]
+|===
+| key | value
+
+| "uattributes"
+| UAttribute object encoded into protobuf
+|===
+
+Besides the user attachment, some features in the uAttribute can be mapped into Zenoh transport settings.
+
+==== Priority Mapping (uProtocol to Zenoh):
+
+[cols="1,1"]
+|===
+| uProtocol priority | Zenoh Priority
+
+| CS0 | BACKGROUND
+| CS1 | DATA_LOW
+| CS2 | DATA
+| CS3 | DATA_HIGH
+| CS4 | INTERACTIVE_LOW
+| CS5 | INTERACTIVE_HIGH
+| CS6 | REAL_TIME
+|===
+
+Note that the priority in Zenoh only works for publisher.
 
 === URI Mapping
 
@@ -54,4 +85,18 @@ TODO: Use micro-form for UURI
 
 === UPayload
 
-TODO: Do not use serialization and send it directly
+Although UPayload can be encoded into protobuf, it can save a lot of time without encoding.
+UPayload consists of three parts: length, format, data.
+
+* Length should only work with shared memory, and we ignore it temporarily.
+* Format can be sent with Zenoh encoding. Zenoh supports `Encoding::WithSuffix`. The type here should be `KnownEncoding::AppCustom` and the int32 format is transformed into the string.
+
+[source, rust]
+----
+Encoding::WithSuffix(
+    KnownEncoding::AppCustom,
+    payload.format.to_string().into(),
+)
+----
+
+* Zenoh takes data as a buffer simply and sends it directly. Ignore the shared memory (reference) temporarily.
