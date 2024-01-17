@@ -81,7 +81,10 @@ Note that the priority in Zenoh only works for publisher.
 
 === URI Mapping
 
-TODO: Use micro-form for UURI
+UUri created by users should include ID, so Zenoh uLink library can serialized it into micro form.
+The mapping from micro-from UUri to Zenoh key is `Vec<u8>` to lower hex string.
+
+For example, if the UUri is `[0x01, 0x00, 0x16, 0x2e, ...]`` to Zenoh key will be `0100162e...`.
 
 === UPayload
 
