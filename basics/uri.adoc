@@ -81,42 +81,12 @@ image:uuri.drawio.svg[UUri Data Model]
 
  * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
 
-=== UAuthority
-`UAuthority` type is responsible for storing the uDevice and uDomain portion of the uProtocol URI.
-
- * Type name *MUST* be `UAuthority`
- * *MUST* contain `domain` and `device` member variables of type `std::string` with accessor methods of the same name to fetch each
- * *MUST* contain `address` member variable of type `InetAddress` with accessor method of the same name to fetch it
- * *MUST* be able to construct a `UAuthority` from a string
- * *MUST* support detection of local vs remote URIs from `UAuthority`
- * *MUST* contain helper functions to build well known UAuthority items (local, remote, etc...)
-
-=== UEntity
-
-`UEntity` type contains the uE id, name, and version portion of the uProtocol URI.
-
- * Type name *MUST* be `UEntity`
- * *MUST* contain `name` variable of type `std::string`, with accessor method of the same name to fetch the value
-  * *MUST* contain `version` variable of type integer, with accessor method of the same name to fetch the value
- * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method of the same name to fetch it
- * *MUST* be able to construct a `UAuthority` from a string
-
-=== UResource
-`UResource` contains the resource id, name, instance, and message portion of the uProtocol uRI.
-
- * Type name *MUST* be `UResource`
- * *MUST* contain `name`, `instance`, and `message` member variables of type `std::string` with accessor methods of the same name to fetch each
- * *MUST* contain `id` member variable of type `uint16_t` (short) with accessor method of the same name to fetch it
- * *MUST* be able to construct a `UResource` from:
-  - String representation of `UResource` per the URI specifications
-  - `name` and `instance` only
-  - `name` only
+NOTE: please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uri.proto for the data model definitions
 
 
 In the next section we shall define the per-language requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
 
-
-== UriValidator
+== Validators
 
 UriValidator is an interface with static methods to validate the <<UUri Data Model>> and check properties of the UUri such as if it contains the information to serialize to Long form or micro form, etc...
 
@@ -164,7 +134,7 @@ a| Returns true if the Uri part contains names so that it can be serialized to <
 |===
   
 
-== UriSerializer
+== Serializers
 `UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
 There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
 
@@ -329,14 +299,14 @@ Remote UUris mean that the uThing is running on a different device and we need t
 == Wildcards
 wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard is is represented in a long or short URI only when the segment is blank.
 
-NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatform and uE documentation for more information.
+NOTE: Not all implementations and uEs support wildcards, please refer to the implementation and uE documentation for more information.
 
 
 == Example URIs
 
 The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
 
-NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/usubscription/v2/usubscription.proto[usubscription.proto]. 
+NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]. 
 
 
 . Serialized Uri Examples
@@ -345,16 +315,16 @@ NOTE: To illustrate the different URI formats, we will use uSubscription service
 |Example | Long (Serialized to String) | Micro (Serialized to byte[])
 
 | Local
-|`"/core.usubscription/2/rpc.Subscribe"`
+|`"/core.usubscription/3/rpc.Subscribe"`
 |`[1, 0, 0, 1, 0, 0, 16, 0]`
 
 |Remote (IPv4)
-|`"//192.168.1.100/core.usubscription/2/rpc.Subscribe"`
+|`"//192.168.1.100/core.usubscription/3/rpc.Subscribe"`
 |`[1, 1, 0, 1, -64, -88, 1, 100, 0, 0, 16, 0]` 
 
 
 |Remote (IPv6)
-|`"//2001:db8:85a3:0:0:8a2e:370:7334/core.usubscription/2/rpc.Subscribe"`
+|`"//2001:db8:85a3:0:0:8a2e:370:7334/core.usubscription/3/rpc.Subscribe"`
 | `[1, 2, 0, 1, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52, 0, 0, 16, 0]` 
 
 |===
@@ -385,28 +355,4 @@ When a UUri is not resolved (only contain either names or ids), the only way to 
  
 UResource portion of the UUri is also encoded in the uService protos and can be fetched by application developers using https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors]. Application developers are then able to easily construct resolved UUris using the above mentioned generated code. link:../up-l2/README.adoc[Dispatchers] however do not have the name-to-number mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
 
-
-IMPORTANT: If a uE has a specific Uri format requirements (Long vs Micro), they *MUST* document them in their respective APIs specifications. Please see link:../up-l3/README.adoc#_core_platform_ues[Core Platform uEs] for more specific requirements for uProtocol core services.
-
-The next sections shall provide best practices for populating and using URIs in uProtocol.
-
-=== Application Layer (uP-L3) uEs
-* *MUST* populate both the name and numbers in UEntity & UResource portion of the UUri
-
-If the UUri points to a remote uThing:
-* *MUST* contain Resolved UAuthority (domain and address). Where the address could be either IP or a ID
-
-=== uTransports (uP-L1)
-
-* Applications that call uTransport::send() *MUST* be passed resolved UUris. If either names or numbers are missing, uTransport *MUST* return `INVALID_PARAMETER`
-* Returned UUris from uTransport *MAY* contain only numbers (or names) and as such the application *MAY* resolve the missing information using a resolve() API provided by the language specific SDKs
-* *MUST* use the Miro Uri serialization format "on the wire"
-* *MAY* send fully resolved UUris (names and numbers) 
-
-* *SHOULD* use Micro Uris when at all possible
-
-
-
-
-
-
+IMPORTANT: If a uE has a specific Uri format requirements (Long vs Micro), they *MUST* document them in their respective APIs specifications. Please see link:../up-l3/README.adoc#_core_platform_ues[Core uProtocol uEs] for more specific requirements for uProtocol core services.

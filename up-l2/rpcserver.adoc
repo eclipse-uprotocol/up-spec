@@ -1,4 +1,4 @@
-= RpcClient Interface
+= RpcServer Interface
 :toc:
 :sectnums:
 
@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-RpcClient defines a common, language specific, interface for method invocation to allow the auto-generation of client-side & server-side code per-language (SDK) in lieu of per platform. 
+RpcServer is the server-side interface for method invocation meaning to provide the ability to register listeners for incoming requests such that they can be handled by services then responded to. The RpcServer interface defines the API that is declared by the various programming languages and implemented by the uPClient libraries.  
 
 .API Definition Terminology
 [width="80%",cols="20%,80%"]
@@ -46,39 +46,64 @@ RpcClient defines a common, language specific, interface for method invocation t
 
 |===
 
+NOTE: For more details about the data model used in this interface, please refer to link:../up-l1/README.adoc:_data_model[uP-L1 Data Model].
 
 == Interface
 
 The following are the interface definition and requirements that *MUST* be implemented by all SDKs.
 
- * Interface *MUST* be called `RpcClient`
- * *MUST* contain the method:
+ * Interface *MUST* be called `RpcServer`
 
-`OUT Futurelink:../up-l1/README.adoc#_upayload[UPayload] invokeMethod(IN link:../basics/uri.adoc[UUri], IN link:../up-l1/README.adoc#_upayload[UPayload], IN link:../up-l1/README.adoc#_uattributes[UAttributes])`
+=== RegisterRpcListener()
+
+Register a listener for a particular method URI to be notified when requests are sent against said method
+
+API Signature: 
+
+`OUT UStatus registerRpcListener(IN UUri&, IN URpcListener&)`
 
 
-== Implementation
+ * *MUST* support registering only one listener per method URI
+ * *MUST* support registering more than one topic per listener
+ 
 
-RpcClient interface is implemented by each platform APIs, i.e. in the library that also implements uTransport interface. 
+==== Parameters
+.RegisterListener Parameters
+[width="100%",cols="20%,80%"]
+|===
+|Parameter | Description
 
- * Every  client library *MUST* implement the interface.
+| UUri
+| Topic to register the listener for
 
-Implementations communicate to their underlining transport through the link:../up-l1/README.adoc#_utransport[uTransport Interface].
+| URpcListener
+| Listener to be registered
 
- * The `UUri` and `UAttributes` passed to `invokeMethod()` *MUST* be cached non-persistent memory per call, this is to be able to complete the `Future` when the response is received from the server.
+|===
 
- * Method invocation that fails, *MUST* return exceptionally per link:../basics/error_model.adoc[uProtocol Error Model].
 
- * Cached requests must be completed exceptionally with  `DEADLINE_EXCEEDED` when the `UAttributes.isExpired()` is true. This notifies the calling context that the request has expired.
+=== UnregisterRpcListener()
 
- * *MUST* return `INVALID_PARAMETER` for the following errors:
-  ** `UUri` is null or empty
-  ** `UAttributes.type() != UMessageType.REQUEST`
-  `UAttributesValidator.validate()` fails (i.e. one of the UAttributes is invalid per UAttributesValidator).
+Unregister an RPC listener for a given method Uri. Messages arriving on this topic will no longer be processed by this listener.
 
-* *MUST* return `ALREADY_EXISTS` if the same request already exists (i.e. same `UUri` and `UAttributes`). This is to prevent duplicate requests.
+API Signature: 
 
-* *MUST* complete future successfully when the response is received from the server.
+`OUT UStatus unregisterListener(IN UUri, IN URpcListener&)`
+
+==== Parameters
+.UnregisterListener Parameters
+[width="70%",cols="20%,80%"]
+|===
+|Parameter | Description
+
+| UUri
+| Topic to unregister the listener for
+
+| URpcListener
+| Listener to be unregistered
+
+|===
+
 
 
 

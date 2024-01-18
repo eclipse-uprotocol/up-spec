@@ -65,7 +65,7 @@ NOTE: Additional formats and transports not covered by https://cloudevents.io/[C
 
 
 == uProtocol CloudEvents
-The following section we shall elaborate how map link:uattrbutes.adoc[uProtocol Header Attributes (uAttributes)] to CloudEvents attributes.
+The following section we shall elaborate how map link:uattributes.adoc[uProtocol Header Attributes (uAttributes)] to CloudEvents attributes.
 
 
 === Common Attributes
@@ -76,7 +76,7 @@ Common attributes apply to all message types.
 [#common-message-attributes]
 |===
 |CE Attribute
-|https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uProtocol Attribute]
+|uProtocol Attribute
 |CE Type
 |RFC2119
 |Description
@@ -174,7 +174,7 @@ a|URI pointing to the method to be invoked
 ** *MUST NOT* include PATCH
 
 |https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md#datacontenttype[datacontenttype]
-|https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/upayload.proto[UPayloadFormat] (not part of UAttributes)
+|https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/upayload.proto[UPayloadFormat] (not part of UAttributes)
 |String
 |*O*
 a|Content type of data value. This attribute enables data to carry any type of content, whereby format and encoding might differ from that of the chosen event format
@@ -232,7 +232,7 @@ NOTE: RPC response RESOURCE portion of a topic is: `rpc.response`
 [width="100%",cols="12%,18%,8%,8%,53%",options="header",]
 |===
 |CE Attribute
-|https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uProtocol Attribute]
+|https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[uProtocol Attribute]
 |CE Type
 |RFC2119
 |Description
@@ -258,7 +258,7 @@ a|Access token per link:../up-l2/permissions.adoc#_token_based_access_permission
 [width="100%",cols="13%,10%,13%,8%,25%,32%",options="header",]
 |===
 |CE Attribute
-|https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/uattributes.proto[uProtocol Attribute]
+|https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[uProtocol Attribute]
 | CE Type
 |RFC 2119
 |Description
