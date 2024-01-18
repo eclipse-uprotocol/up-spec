@@ -111,9 +111,12 @@ a| Communication protocol attributes
 
 |===
 
- * All UAttribute metadata *MUST* be preserved during transmission and available to the receiver
- * *MUST* not manipulate the UPayload data during transmission
- * Transport *MAY* modify the UUri& to set the transportId 
+* All UAttribute metadata *MUST* be preserved during transmission and available to the receiver
+* *MUST* not manipulate the UPayload data during transmission
+* *SHOULD* pass resolved UUris (contains both names and numbers)
+* *SHOULD* use the Miro Uri serialization format
+
+
 
 === RegisterListener()
 

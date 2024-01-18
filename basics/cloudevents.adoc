@@ -65,7 +65,7 @@ NOTE: Additional formats and transports not covered by https://cloudevents.io/[C
 
 
 == uProtocol CloudEvents
-The following section we shall elaborate how map link:uattrbutes.adoc[uProtocol Header Attributes (uAttributes)] to CloudEvents attributes.
+The following section we shall elaborate how map link:uattributes.adoc[uProtocol Header Attributes (uAttributes)] to CloudEvents attributes.
 
 
 === Common Attributes
@@ -76,7 +76,7 @@ Common attributes apply to all message types.
 [#common-message-attributes]
 |===
 |CE Attribute
-|https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[uProtocol Attribute]
+|uProtocol Attribute
 |CE Type
 |RFC2119
 |Description

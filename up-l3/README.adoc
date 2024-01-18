@@ -54,7 +54,7 @@ uProtocol supports the architecture patterns defined in the table below to imple
 |===
 
 
-== Core Platform uEs
+== Core uProtocol uEs
 
 This special purpose built uEs are required to implement uProtocol and must be present on each uDevice. 
 
