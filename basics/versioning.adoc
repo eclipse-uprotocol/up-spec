@@ -63,10 +63,4 @@ If the uE declares an interface in proto:
 
 === Distribution
 
-Distribution is the collection of software entities (uEs) for a given deployment.
-
-* MAJOR *SHOULD* be the calendar year of the SW release, ex. 24 for 2024
-* MINOR *SHOULD* be the quarterly release number for the calendar year, ex. "1" for first quarter
-* PATCH *MAY* be the release number for the quarterly release starting with 0
-* uEs *MUST* be able to be updated separately from the distribution version
-* Additional version information **MAY **be present after the `MAJOR.MINOR.PATCH`
+_Section removed as this is implementation specific and not part of the protocol_

@@ -37,12 +37,12 @@ Off the shelf broker and broker-less solutions, rely on specific Internet protoc
 uSubscriptions purpose is to explain _how_ the distributed publisher-subscriber architecture pattern can be implemented through a ubiquitous language and communication protocol across the distributed devices. We will define the interfaces, sequences, and state machines to be able to support the use cases mentioned above.
 
 
-NOTE: uSubscription interface is defined https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto] and follows link:../../basics/README.adoc#_error_model[uProtocol Error Model] for return codes. Please refer to link:../../../../README.md[README] for how to build the proto (and stubs) for the various languages
+NOTE: uSubscription interface is defined https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto] and follows link:../../../basics/error_model.adoc[uProtocol Error Model] for return codes.
 
 
 == Topics
 
-A topic describes what the calling applications (subscribers) wants to subscribe too. Topic are expressed in link:../../basics/README.adoc#_uprotocol_uri[uProtocol URIs] format. Topics used in uSubscription APIs have the additional requirements of:
+A topic describes what the calling applications (subscribers) wants to subscribe too. Topic are expressed in link:../../../basics/README.adoc#_uprotocol_uri[uProtocol URIs] format. Topics used in uSubscription APIs have the additional requirements of:
 
 * *MUST* contain `UE_NAME`, `UE_VERSION`, `RESOURCE`, and `MESSAGE`
 * `UE_VERSION` *MUST* contain the `MAJOR`, *MUST NOT* contain the `MINOR` or `PATCH`
@@ -131,7 +131,7 @@ Changing the topic state happens through the APIs CreateTopic() and DeprecateTop
 
 == Subscription Change Notifications
 
-The uSubscription service notifies observers when there is a change in a subscription states by publishing notification events to the topic `up:/core.usubscription/2/subscriptions#Update`.  Below are the specific nuances about the subscription change notification based on the observer type.
+The uSubscription service notifies observers when there is a change in a subscription states by publishing notification events to the topic `up:/core.usubscription/3/subscriptions#Update`.  Below are the specific nuances about the subscription change notification based on the observer type.
 
 ===  Subscribers
 

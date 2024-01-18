@@ -39,10 +39,10 @@ uProtocol Communication layer defines message processing, i.e. routing/ dispatch
 | link:dispatchers/README.adoc[*Dispatchers*]
 | uEs that are responsible for dispatching messages between uEs and between uDevices
 
-| link:permissions.adoc[*Permissions*]
-| Protocol security requirements for authentication & authorization 
-
 | link:rpcclient.adoc[*RpcClient*]
 | Interface for the generation of client-side boundary objects for uP-L3 services
+
+| link:rpcserver.adoc[*RpcServer*]
+| Interface for registering request handlers for a uP-L3 service
 
 |===

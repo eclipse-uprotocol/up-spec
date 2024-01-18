@@ -46,7 +46,6 @@ RpcClient defines a common, language specific, interface for method invocation t
 
 |===
 
-NOTE: For more details about the data model used in this interface, please refer to link:../up-l1/README.adoc:_data_model[uP-L1 Data Model].
 
 == Interface
 
@@ -55,7 +54,7 @@ The following are the interface definition and requirements that *MUST* be imple
  * Interface *MUST* be called `RpcClient`
  * *MUST* contain the method:
 
-`OUT Futurelink:../up-l1/README.adoc#_upayload[<UPayload>] invokeMethod(IN link:../basic/uuri.adoc[UUri], IN link:../up-l1/README.adoc#_upayload[UPayload], IN link:../up-l1/README.adoc#_uattributes[<UAttributes>])`
+`OUT Futurelink:../up-l1/README.adoc#_upayload[UPayload] invokeMethod(IN link:../basics/uri.adoc[UUri], IN link:../up-l1/README.adoc#_upayload[UPayload], IN link:../up-l1/README.adoc#_uattributes[UAttributes])`
 
 
 == Implementation
@@ -73,8 +72,8 @@ Implementations communicate to their underlining transport through the link:../u
  * Cached requests must be completed exceptionally with  `DEADLINE_EXCEEDED` when the `UAttributes.isExpired()` is true. This notifies the calling context that the request has expired.
 
  * *MUST* return `INVALID_PARAMETER` for the following errors:
-  * `UUri` is null or empty
-  * `UAttributes.type() != UMessageType.REQUEST`
+  ** `UUri` is null or empty
+  ** `UAttributes.type() != UMessageType.REQUEST`
   `UAttributesValidator.validate()` fails (i.e. one of the UAttributes is invalid per UAttributesValidator).
 
 * *MUST* return `ALREADY_EXISTS` if the same request already exists (i.e. same `UUri` and `UAttributes`). This is to prevent duplicate requests.

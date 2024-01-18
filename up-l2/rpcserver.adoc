@@ -76,7 +76,7 @@ API Signature:
 | UUri
 | Topic to register the listener for
 
-| <<UListener>>
+| URpcListener
 | Listener to be registered
 
 |===
@@ -88,7 +88,7 @@ Unregister an RPC listener for a given method Uri. Messages arriving on this top
 
 API Signature: 
 
-`OUT <<UStatus>> unregisterListener(IN UUri, IN <<UListener>>&)`
+`OUT UStatus unregisterListener(IN UUri, IN URpcListener&)`
 
 ==== Parameters
 .UnregisterListener Parameters
@@ -99,7 +99,7 @@ API Signature:
 | UUri
 | Topic to unregister the listener for
 
-| <<UListener>>
+| URpcListener
 | Listener to be unregistered
 
 |===
