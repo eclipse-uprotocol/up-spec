@@ -68,7 +68,7 @@ uProtocol consists of three layers as depicted in <<img-layers>> above, they are
 
 1. link:up-l1/[*Transport & Session Layer (uP-L1):*] Bidirectional point-2-point communication between uEs (how messages are sent and received between uEs).
 
-2. link:up-l2/[*Communication (Messaging) Layer (uP-L2):*] Defines the message types, headers, format, and delivery semantics. uProtocol builds upon https://cloudevents.io/[CNCF CloudEvent] specifications as a way to describe the messages in a common way
+2. link:up-l2/[*Communication (Messaging) Layer (uP-L2):*] Defines the message types, headers, format, and delivery semantics
 
 3. link:up-l3/[*Application Layer (uP-L3):*] Also known as the business logic layer, responsible for declaration and definition of interfaces between clients and servers (ex. subscription management, discovery, etc...)
 
