@@ -1,4 +1,4 @@
-= Language Specific Library
+= uProtocol Language Library
 :toc:
 :sectnums:
 
@@ -30,9 +30,10 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-The language specific uProtocol libraries (_the library_) shall package the various interface and data models that are used by software developers and other uProtocol libraries. 
+Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport, RpcClient, and RpcServer. 
 
-NOTE: *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project.
+
+NOTE: All projects/libraries *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project and **MUST** also depend only on other permissive license libraries.
 
 
 == Source 
@@ -40,7 +41,7 @@ The following section will shall elaborate on the contents and structure of thes
 
 * The root namespace (package name) *MUST* be `org.eclipse.uprotocol`
 * Modules defined in table <<content>> below *MUST* be implemented in their own folder (namespace)
-* Each module *MUST* divide the implementation of the specification as defined in table <<folders>> below
+* Each module *SHOULD* separate the implementation of the specification as defined in table <<folders>> below.
 
 
 .Module Folders/Namespace
@@ -85,13 +86,11 @@ Modules are packages (folders) that reside under the `src` director. <<content>>
 | link:up-l1/README.adoc[uTransport]
 a| uP-L1 Transport Interface & data model.
 
-* *MUST* declare the interface & data model where as link:../ulink.adoc[uLink Libraries] implement the said interface.
+* *MUST* declare the interface & data model where as link:../upclient.adoc[uProtocol Client Library] implement the said interface.
 
-| `rpcclient`
-| link:up-l2/rpcclient.adoc[uP-L2 RPC Client]
-a|API used by uP-L3 code generators to generate the client-side boundary objects for uServices. The interface wrap method invocation (uP-L2) such that generated client-side code does not have to be platform (or transport) specific, only language specific. 
-
-*  *MUST* declare the interface & data model where as link:../ulink.adoc[uLink Libraries] implement the said interface.
+| `rpc`
+| link:up-l2/rpcclient.adoc[uP-L2 RPC Client] & link:up-l2/rpcserver.adoc[uP-L2 RPC Server]
+a|APIs used to invokemethods() (for clients) and register RpcRequest Listeners (servers) to simplify implementation of the RPC design pattern. 
 
 |===
 
@@ -99,8 +98,8 @@ a|API used by uP-L3 code generators to generate the client-side boundary objects
 == Test
 
  * *SHOULD* include a test suite under the folder `test`
- * *MUST* be able to run the tes test suite the command line (i.e. `mvn test`) such that it can be added to a workflow for each commit
- * *MUST* cover 100% of all code and specifications defined in <<Source>>
+ * *MUST* be able to run the test suite such that merge requests (commits) cannot be merged till tests are passed
+  * *SHOULD* cover 100% of all code and specifications defined in <<Source>>
 
 
 == Build

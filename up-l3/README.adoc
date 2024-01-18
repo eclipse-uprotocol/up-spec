@@ -64,11 +64,11 @@ This special purpose built uEs are required to implement uProtocol and must be p
 |uE |Ver |Description
 
 |*uSubscription*
-|link:usubscription/v2/README.adoc[*v2*]
+|link:usubscription/v3/README.adoc[*v2*]
 |Subscription management service that is responsible for managing subscriptions between uEs to realize the publisher/subscriber design pattern.
 
 |*uDiscovery*
-|link:udiscovery/v2/README.adoc[*v2*]
+|link:udiscovery/v3/README.adoc[*v2*]
 |Discovery of uThings locally, within a domain, and throughout the network. Supports URI resolution (to find where something is located)
 
 |*uTwin*

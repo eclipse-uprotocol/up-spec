@@ -94,7 +94,7 @@ uEs in this category are essential for dispatching/routing of messages between u
 |link:up-l2/dispatchers/README.adoc[*Dispatchers*]
 |Message dispatches sending CEs between uEs, between devices, etc...
 
-|link:up-l3/usubscription/v2/README.adoc[*uSubscription*]
+|link:up-l3/usubscription/v3/README.adoc[*uSubscription*]
 |Implement the publisher/subscriber architecture pattern within and between devices. Used by dispatchers to multicast messages to subscribers
 
 |===
@@ -107,7 +107,7 @@ Core uEs are business layer logic to perform a specific function of the protocol
 |===
 |uE Name |Description
 
-|link:up-l3/udiscovery/v2/README.adoc[*uDiscovery*]
+|link:up-l3/udiscovery/v3/README.adoc[*uDiscovery*]
 |Discovery (services, devices, topics, methods, properties, etc...)
 
 |link:up-l3/utwin/v1/README.adoc[*uTwin*]

@@ -329,14 +329,14 @@ Remote UUris mean that the uThing is running on a different device and we need t
 == Wildcards
 wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard is is represented in a long or short URI only when the segment is blank.
 
-NOTE: Not all uPlatforms and uEs support wildcards, please refer to the uPlatform and uE documentation for more information.
+NOTE: Not all implementations and uEs support wildcards, please refer to the implementation and uE documentation for more information.
 
 
 == Example URIs
 
 The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
 
-NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/usubscription/v2/usubscription.proto[usubscription.proto]. 
+NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]. 
 
 
 . Serialized Uri Examples

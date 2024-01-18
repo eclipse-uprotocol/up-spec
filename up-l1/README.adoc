@@ -60,7 +60,7 @@ We will use the following terminology during this document:
  * <<UStatus>> is defined in link:../basics/error_model.adoc[uProtocol Error Model]
 
 
-NOTE: uProtocol data model used by the uTransport interface are declared in https://github.com/eclipse-uprotocol/uprotocol-core-api[uprotocol-core-api]
+NOTE: uProtocol data model used by the uTransport interface are declared in https://github.com/eclipse-uprotocol/up-core-api[up-core-api]
 
 == UListener
 

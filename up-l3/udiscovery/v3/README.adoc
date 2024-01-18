@@ -53,12 +53,12 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 
 == Overview
 
-uThing discovery is the process of a uEs looking up in a local database, information about either local or remote information. The database schema is defined using the structures Node and NodeProperty that are described in link:../../README.adoc[uProtocol] and declared in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto]. Node is a representation of a uThing which NodeProperty could be any attributes of the Node (ex. version, permission, etc...). Figure below below illustrates the overall uThing discovery architecture.
+uThing discovery is the process of a uEs looking up in a local database, information about either local or remote information. The database schema is defined using the structures Node and NodeProperty that are described in link:../../README.adoc[uProtocol] and declared in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]. Node is a representation of a uThing which NodeProperty could be any attributes of the Node (ex. version, permission, etc...). Figure below below illustrates the overall uThing discovery architecture.
 
 .uProtocol Discovery Architecture
 image::overview.drawio.svg[Overview]
 
-NOTE: Components described in <<udiscovery-ues>> below all implement https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto]
+NOTE: Components described in <<udiscovery-ues>> below all implement https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
 
 .uDiscovery Software Entities
@@ -103,7 +103,7 @@ image::hierarchical.drawio.svg[Classification]
 
 ==== Node
 
-Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto], the snippet is below:
+Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto], the snippet is below:
 
 
 .Node & Property Definitions
@@ -249,7 +249,7 @@ API requirements related to Node metadata shall be covered in the subsequent sec
 
 == Interface
 
-In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../../src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto].
+In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../../src/main/proto/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
 
 === Notifications
 

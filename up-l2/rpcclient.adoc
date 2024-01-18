@@ -62,7 +62,7 @@ The following are the interface definition and requirements that *MUST* be imple
 
 RpcClient interface is implemented by each platform APIs, i.e. in the library that also implements uTransport interface. 
 
- * Every uPlatform client library *MUST* implement the interface.
+ * Every  client library *MUST* implement the interface.
 
 Implementations communicate to their underlining transport through the link:../up-l1/README.adoc#_utransport[uTransport Interface].
 
