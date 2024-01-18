@@ -70,34 +70,11 @@ NOTE: uProtocol data model used by the uTransport interface are declared in http
   * *MUST* contain the method `UStatus onReceive(UUri&, UPayload&, UAttributes&)` that is called by the Transport to notify (callback) the client
 
 
-== uTransport Interface
+== uTransport
 
 The transport layer API responsible for point-2-point communication. The interface provides common functionality across all transport implementations.
 
 * *MUST* implement all APIs defined in this section
-
-=== Authenticate()
-
-API used to verify the identity of the calling uE by confirming that the passed <<UEntity>> matches that of the transport layer specific identity required for link:../up-l2/permissions.adoc[Code-Based Access Permissions (CAPs)]. 
-
-`OUT UStatus authenticate(IN UEntity)`
-
-==== Parameters
-.Register Parameters
-[width="100%",cols="20%,80%"]
-|===
-|Parameter | Description
-
-| `UEntity`
-| uProtocol UEntity name and version used for identification verification
-
-|===
-
- * *MUST* be called before any other uTransport APIs
- * *MUST* be idempotent, subsequent calls to the API return the same value
- * *MUST* authenticate client uE identity by ensuring that the UEntity matches the transport specific identity mechanism. 
- * Non authenticated uEs *MUST* be returned `UNAUTHENTICATED` status code
-
 
 === Send()
 

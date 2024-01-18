@@ -99,14 +99,13 @@ Something that can be manipulated/controlled/exposed by a service. Resources are
 |*uBus* |Message bus that dispatches CEs between uEs over a common transport. It provides multicast and forwarding functionality (works like a network switch) 
 |*uStreamer* |Device-2-Device event dispatcher to enable seamless communication between uEs on different devices whom might talk different transport layer protocols. Performs various additional functionality such as file transfer, event buffering and more. i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router) 
 |*uDiscovery* |Provides a means for uEs to discover each other, their location (address), properties, and more.
-|*Topic* |What applications subscribe to and services publish to. It is made up of service, resource, and message in uProtocol URI format]
+|*Topic* |What applications subscribe to and services publish to. It is represented as a uProtocol URI containing authority, sw entity, and resource information
 |*uApplication* |A uE that performs the role of consumer
 |*uService* |A uE that performs the role of producer whos interfaces are defined with a protobuf IDL
 |*uThing* |URI addressable stuff that can be accessed by the uProtocol. Examples of uThings are devices, domains, service, and resources.
 
 |*Cloud Gateway* |Component that lives in the cloud that devices connect with to communicate with the Back-office domain/device
 |*uE* |Pronounced "_You-We_" is a piece of software that communicates to another uEs using uProtocol
-|*Platform uE* |Special purpose built uE that is required per the protocol be present either in each uDevice, domain
 |*uP-L1* |uProtocol Transport & Session Layer
 |*uP-L2* |uProtocol Communication Layer
 |*uP-L3* |uProtocol Application Layer
