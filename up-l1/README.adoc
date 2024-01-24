@@ -204,12 +204,12 @@ a| Message metadata
 
 ==== Policy
 
-* Transport *MUST* support https://www.cloudcomputingpatterns.org/at_least_once_delivery/[*At-least-once delivery policy*], this means that a sender *MUST* have a way to guarantee that the CE was successfully received by the Receiver (through the returned <<UStatus>>)
-* Transport *MUST* support retransmission of CEs that are no able to be sent
+* uTransport `send()` API *MUST* support , meaning the caller of this API is guaranteed the message was successfully delivered to the next-hop only. End-2-end delivery, when messages are sent across multiple transports, is *not* guaranteed by the transport layer
+* Transport *MUST* support retransmission of messages that are no able to be delivered to the next-hop
 
 If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
 
-* *MUST* use Transmission Control Protocols (TCP) and *MUST NOT* User Datagram Protocol (UDP) for message delivery
+* *MUST* use Transmission Control Protocols (TCP) and *SHOULD NOT* User Datagram Protocol (UDP) for message delivery, this is to ensure https://www.cloudcomputingpatterns.org/at_least_once_delivery/[At-least-once delivery] of messages
 
 ==== Delivery Method
 
