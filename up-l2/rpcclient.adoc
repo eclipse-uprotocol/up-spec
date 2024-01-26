@@ -54,7 +54,7 @@ The following are the interface definition and requirements that *MUST* be imple
  * Interface *MUST* be called `RpcClient`
  * *MUST* contain the method:
 
-`OUT Futurelink:../up-l1/README.adoc#_upayload[UPayload] invokeMethod(IN link:../basics/uri.adoc[UUri], IN link:../up-l1/README.adoc#_upayload[UPayload], IN link:../up-l1/README.adoc#_uattributes[UAttributes])`
+`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload, IN link:../basics/uattributes.adoc[UAttributes])`
 
 
 == Implementation
