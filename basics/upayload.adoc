@@ -1,11 +1,11 @@
-= Basics
+= uProtocol Payload (uPayload)
 :toc:
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+Copyright (c) 2024 General Motors GTO LLC
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,22 +25,11 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+SPDX-FileCopyrightText: 2024 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
-The following are the foundational requirements for uProtocol specifications:
+== Overview 
+UPayload contains the actual message payload (either by value or reference) as well as metadata such as the format, size, etc... 
 
-* *link:namespace.adoc[Naming Conventions]*
-* *link:versioning.adoc[Versioning]*
-* *link:uri.adoc[Addressing (UUri)]*
-* *link:error_model.adoc[Error Model (UStatus, UCode)]*
-* *link:uuid.adoc[Unique Universal Identifier (UUID)]*
-* *link:qos.adoc[Quality of Service & Priority (UPriority)]*
-* *link:uattributes.adoc[uProtocol Attributes (UAttributes)]*
-* *link:umessage.adoc[uProtocol Message (UMessage)]*
-* *link:upayload.adoc[uProtocol Payload (UPayload)]*
-* *link:delivery.adoc[Event Delivery]*
-* *link:cloudevents.adoc[CloudEvents]*
-* *link:permissions.adoc[Permissions]*
-
+NOTE: Please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/upayload.proto[upayload.proto] for more details
