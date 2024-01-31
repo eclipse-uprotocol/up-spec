@@ -117,8 +117,19 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 |There is a serious error has occurred not described by error codes mentioned above
 !===
 
-<<rpc-error-flow>> figure below illustrates the sequence of messages for RPC flows and the role dispatchers play in error handling.
+== Streamers
+TODO: Fill in this section with more informational details
 
-.RPC Error Flow
-[#rpc-error-flow]
-image::rpc_flow.png[RPC Error Handling]
+.Legend
+image::legend.png[#legend]
+
+=== Building uStreamers using uTransport APIs
+<<streamer-flow>> diagram below illustrates how the uTransport APIs are used to build a uStreamer. The uTransport APIs are used to send/receive UMessages over the underlining communication middleware. The uStreamer is responsible for routing the UMessages to the appropriate uE based on the UMessage header attributes.
+
+.Streamer Flows using uTransport
+image:streamer_flow.png[#streamer_flow]
+
+=== RPC Flows
+<<rpc-flow>> diagram below illustrates how the uPClient RpcClient & RpcServer interfaces are then connected to the uTransport such that a transport can send/receive the UMessages over the underlining communication middleware 
+.Rpc Flows
+image:rpc_flow.png[#rpc_flow]

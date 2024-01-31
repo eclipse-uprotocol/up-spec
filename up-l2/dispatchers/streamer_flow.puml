@@ -1,0 +1,86 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+skinparam BoxPadding 40
+
+autonumber
+title RPC Flow Through a Gateway
+
+box uP-Foo (UAuthority="Device1") #white
+	entity uStreamer as uS1 #green
+	boundary uPClientBaz as upc3 #black
+end box
+
+box uP-Baz (Gateway)
+	boundary uPClientBaz as upc4 #black
+	entity DPR #green
+end box
+
+box uP-Bar (UAuthority="Device2") #white
+	boundary uPClientBaz as upc5 #black
+	entity uStreamer as uS2 #green
+	boundary uPClientBar as upc6 #black
+end box
+
+== Setup uTransport Listeners ==
+uS1 -[#green]>upc3: registerListener(\nUUri, UListener)
+note right
+	UUri = "//Device2/*"
+end note
+upc3 -[#green]->uS1: UStatus
+
+
+DPR -[#green]>upc4: registerListener(\nUUri, UListener)
+note right
+	UUri = "//*"
+end note
+upc4 -[#green]->DPR: UStatus
+
+
+uS2 -[#green]>upc5: registerListener(\nUUri, UListener)
+note right
+	UUri = "//Device1*"
+end note
+upc5 -[#green]->uS2: UStatus
+uS2 -[#green]>upc6: registerListener(\nUUri, UListener)
+note right
+	UUri = "//Device2/*"
+end note
+upc6 -[#green]->uS2: UStatus
+
+== MSG1 tx (Device1 to Device 2) ==
+ -[#blue]> upc3: Foo Protocol
+upc3 -[#green]>uS1: OnReceive(msg1)
+uS1 -[#green]> upc3: send(msg1)
+upc3 <-[#blue]> upc4: Baz Protocol
+upc3 -[#green]-> uS1: UStatus
+
+upc4 -[#green]> DPR: onReceive(msg1)
+DPR ->DPR: Process &\n Route Request
+
+DPR -[#green]> upc4: send(msg1)
+upc4 <-[#blue]> upc5: Baz Protocol
+upc4 -[#green]-> DPR: UStatus
+
+upc5 -[#green]> uS2: onReceive(msg1)
+uS2 -[#green]> upc6: send(msg1)
+upc6 -[#blue]> : Bar Protocol
+
+== MSG2 rx (Device 2 to Device1) ==
+upc6 <[#blue]-: Bar Protocol
+upc6 -[#green]> uS2: onReceive(msg2)
+uS2 -[#green]>upc5: send(msg2)
+upc5 <-[#blue]> upc4: Bax Protocol
+upc5 -[#green]->uS2: UStatus
+
+
+upc4 -[#green]> DPR: onReceive(msg2)
+DPR ->DPR: Process &\n Route Response
+upc5 <-[#blue]> upc4: Bax Protocol
+DPR -[#green]>upc4: send(msg2)
+upc4 <-[#blue]> upc3: Bax Protocol
+upc4 -[#green]->DPR: UStatus
+
+upc3 -[#green]> uS1: onReceive(msg2)
+<[#blue]- upc3: Foo Protocol
+@enduml
