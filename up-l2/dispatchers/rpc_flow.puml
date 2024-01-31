@@ -1,59 +1,108 @@
 @startuml
 'https://plantuml.com/sequence-diagram
 
+
 autonumber
 
-actor uApp #red
-collections dispatchers as UB
-entity uService as US #blue
+title Direct RPC Flow (not through Gateway/DPR)
 
-uApp --\ UB: req.v1
+box uP-Foo (UAuthority="Device1") #white
+	actor uApp #red
+	boundary uPClientFoo as upc1 #black
+	boundary uPClientFoo as upc2 #black
+	entity uStreamer as uS1 #green
+	boundary uPClientBar as upc3 #black
+end box
+
+box uP-Bar (UAuthority="Device2") #white
+	boundary uPClientBar as upc4 #black
+	entity uService #blue
+end box
+
+
+== Setup uTransport Listeners ==
+uS1 -[#green]>upc2: registerListener(\n\tUUri,\n\tUListener)
 note right
-	<size:12>**req.v1:**</size>
-    "id" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
-    "source": "up://Device1/uApp/1/rpc.response"
-    "sink": "up://Device1/uService/1/rpc.Method
-    "specversion": "1.0"
-    "type": "req.v1"
-    "dataschema": //url of Method schema//
-    "data": //Protobuf serialized Request Message//
+	UUri = "//Device2/*"
+end note
+upc2 -[#green]->uS1: UStatus
+
+uS1 -[#green]>upc3: registerListener(\n\tUUri,\n\tUListener)
+note right
+	UUri = "//Device1/*"
+end note
+upc3 -[#green]->uS1: UStatus
+uService -> upc4: registerRpcListener(\n\tUUri,\n\tURpcListener)
+note left
+	UUri = "/uService/rpc.myMethod"
+end note
+upc4 --> uService: UStatus
+
+== Request ==
+uApp -> upc1 : invokeMethod(\n\tUUri, \n\tUPayload, \n\tCallOptions)
+note right
+	<size:12>**UUri:**</size> 
+	authority:{name: "Device2", ip: "192.168.1.100"}
+	entity:   {name: "uService", version_major: 1, id: 99}
+	resource: {name: "rpc", instance: "myMethod", id: 1}
+	
+end note
+upc1 -> upc1: Build request
+note right
+	<size:12>**Request UMessage:**</size>
+	source: {
+		\tauthority:{name: "Device1", ip: "192.168.1.101"}
+		\tentity:   {name: "uApp", version_major: 1, id: 300}
+		\tresource: {name: "rpc", instance: "response", id: 0}
+	}
+	payload: { /* Request Payload */ }
+	attributes: { 
+		\tid: /* UUID */,
+		\ttype: UMESSAGE_TYPE_REQUEST
+		\tpriority: UPRIORITY_CS4
+		\tttl: 10000
+		\tsink: {
+			\t\tauthority:{name: "Device2", ip: "192.168.1.100"}
+			\t\tentity:   {name: "uService", version_major: 1, id: 99}
+			\t\tresource: {name: "rpc", instance: "myMethod", id: 1}
+		\t}
+	 }
+end note
+upc1 -[#green]> upc1:send(request)
+upc1 <-[#blue]> upc2: Foo
+upc1 --> uApp: Future
+
+upc2 -[#green]> uS1: onReceive(request)
+uS1 -> uS1: Queuing & routing
+uS1 -[#green]> upc3:send(request)
+upc3 <-[#blue]> upc4: Bar
+
+upc4 -[#green]> upc4: onReceive(request)
+upc4 ->uService: onReceive(request)
+
+
+== Response ==
+uService -> uService: Process req,\nbuild res
+note left
+	<size:12>**Response UMessage:**</size>
+	source: //Device2/uService/rpc.myMethod"" }
+	""payload: { /* Request Payload */ }
+	""attributes: { 
+		\tid: /* UUID */,
+		\ttype: UMESSAGE_TYPE_RESPONSE
+		\tpriority: UPRIORITY_CS4
+		\tttl: 10000
+		\tsink: //Device1/uApp/1/rpc.response
+		\treqid: /* Request attributes.id */
+	 }
 end note
 
-alt Delivery Error
-	UB -> UB: Create res.v1
-	note right
- 		<size:12>**res.v1:**</size>
-    	"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
-	    "source": "up://Device1/dispatcher/1/rpc.Method
-    	"sink": "up://Device1/uApp/1/rpc.response"
-	    "specversion": "1.0"
-    	"type": "res.v1"
-	    "request_id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
-		"commstatus":  /* google.rpc.Code for the error */
-	end note
-else Delivery Success
- 	UB --\ US: req.v1
- 	US -> US: Process req.v1
- 	note right
-		<size:12>**res.v1:**</size>
-    	"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
-	    "source": "up://Device1/dispatcher/1/rpc.Method
-   		"sink": "up://Device1/uApp/1/rpc.response"
-	    "specversion": "1.0"
-   		"type": "res.v1"
-    	"request_id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
-		"dataschema": //url of Method Response Message//
-		"data": // Protobuf serialized Response Message//
-	end note
-	US --/ UB: res.v1
-end alt
-UB --/ uApp: res.v1
-uApp -> uApp: Process res.v1
-note right
-	<size:12>**Process res.v1:**</size>
-   	if (commstatus)
-		// Process L2 Error//
-	else
-		//handle returned L3 message//
-end note
+uService -[#green]> upc4:send(response)
+upc4 <-[#blue]> upc3: Bar
+upc3 -[#green]> uS1: onReceive(response)
+uS1 -[#green]>upc2:send(response)
+upc2 <-[#blue]> upc1: Foo
+upc2 -[#green]->uS1: UStatus
+upc1 --\uApp: Future<response>\n\t.complete()
+
 @enduml

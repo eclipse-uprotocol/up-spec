@@ -1,0 +1,14 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Legend
+
+participant foo
+participant bar
+
+
+foo <-->bar: RpcClient & RpcServer APIs
+foo <-[#green]->bar: <font color=green>UTransport & UListener APIs (uT)</font>
+foo <-[#blue]> bar: <font color=blue>Communication Middleware</font>
+
+@enduml
