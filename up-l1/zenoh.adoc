@@ -35,16 +35,15 @@ Zero Overhead Network Protocol.
 
 Zenoh /zeno/ is a pub/sub/query protocol unifying data in motion, data at rest and computations. It elegantly blends traditional pub/sub with geo distributed storage, queries and computations, while retaining a level of time and space efficiency that is well beyond any of the mainstream stacks.
 
-
-for more information, please visit https://projects.eclipse.org/projects/iot.zenoh or https://zenoh.io/
+For more information, please visit https://projects.eclipse.org/projects/iot.zenoh or https://zenoh.io/
 
 == Specifications
 
 === Zenoh Config
 
-TODO: How to add Zenoh config
+While constructing the UPClientZenoh object, the Zenoh config needs to be assigned.
 
-=== Attribute Mapping
+=== UAttribute Mapping
 
 Zenoh supports user attachment.
 We can send additional information with the mechanism, for example, UAttribute.
@@ -60,7 +59,7 @@ User attachment supports key-value pairs, and the following table is the key-val
 | UAttribute object encoded into protobuf
 |===
 
-Besides the user attachment, some features in the uAttribute can be mapped into Zenoh transport settings.
+Besides the user attachment, some features in the UAttribute can be mapped into Zenoh transport settings.
 
 ==== Priority Mapping (uProtocol to Zenoh):
 
@@ -81,7 +80,7 @@ Note that the priority in Zenoh only works for publisher.
 
 === URI Mapping
 
-UUri created by users should include ID, so Zenoh uLink library can serialized it into micro form.
+UUri created by users should include ID, so Zenoh up-client library can serialized it into micro form.
 The mapping from micro-from UUri to Zenoh key is `Vec<u8>` to lower hex string.
 
 For example, if the UUri is `[0x01, 0x00, 0x16, 0x2e, ...]`` to Zenoh key will be `0100162e...`.
