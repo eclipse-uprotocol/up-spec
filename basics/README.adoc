@@ -35,9 +35,11 @@ The following are the foundational requirements for uProtocol specifications:
 * *link:versioning.adoc[Versioning]*
 * *link:uri.adoc[Addressing (UUri)]*
 * *link:error_model.adoc[Error Model (UStatus, UCode)]*
-* *link:uuid.adoc[Unique Universal Identifiers (UUIDs)]*
+* *link:uuid.adoc[Unique Universal Identifier (UUID)]*
 * *link:qos.adoc[Quality of Service & Priority (UPriority)]*
 * *link:uattributes.adoc[uProtocol Attributes (UAttributes)]*
+* *link:umessage.adoc[uProtocol Message (UMessage)]*
+* *link:upayload.adoc[uProtocol Payload (UPayload)]*
 * *link:delivery.adoc[Event Delivery]*
 * *link:cloudevents.adoc[CloudEvents]*
 * *link:permissions.adoc[Permissions]*

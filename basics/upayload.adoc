@@ -1,11 +1,11 @@
-= Communication Layer (uP-L2)
+= uProtocol Payload (uPayload)
 :toc:
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+Copyright (c) 2024 General Motors GTO LLC
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,24 +25,11 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+SPDX-FileCopyrightText: 2024 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
-uProtocol Communication layer defines message processing, i.e. routing/ dispatching, access control, and corelation between messages (i.e. request response). The specification is broken down into the following sections:
+== Overview 
+UPayload contains the actual message payload (either by value or reference) as well as metadata such as the format, size, etc... 
 
-.uP-L2 Sections
-[width="80%",cols="20%,80%",options="header"]
-|===
-|Section | Description
-
-| link:dispatchers/README.adoc[*Dispatchers*]
-| uEs that are responsible for dispatching messages between uEs and between uDevices
-
-| link:rpcclient.adoc[*RpcClient*]
-| Interface for the generation of client-side boundary objects for uP-L3 services
-
-| link:rpcserver.adoc[*RpcServer*]
-| Interface for registering request handlers for a uP-L3 service
-
-|===
+NOTE: Please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/upayload.proto[upayload.proto] for more details

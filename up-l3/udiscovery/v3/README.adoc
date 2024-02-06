@@ -53,12 +53,14 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 
 == Overview
 
-uThing discovery is the process of a uEs looking up in a local database, information about either local or remote information. The database schema is defined using the structures Node and NodeProperty that are described in link:../../README.adoc[uProtocol] and declared in https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto]. Node is a representation of a uThing which NodeProperty could be any attributes of the Node (ex. version, permission, etc...). Figure below below illustrates the overall uThing discovery architecture.
+uDiscovery provides the ability to discovery stuff that is addressable using UUri notation (devices, services, topics/methods) as well as properties of said stuff. 
+
+NOTE: Data model and interface is described in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
 .uProtocol Discovery Architecture
 image::overview.drawio.svg[Overview]
 
-NOTE: Components described in <<udiscovery-ues>> below all implement https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto]
+NOTE: Components described in <<udiscovery-ues>> below all implement https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
 
 .uDiscovery Software Entities
@@ -103,7 +105,7 @@ image::hierarchical.drawio.svg[Classification]
 
 ==== Node
 
-Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the https://github.com/eclipse-uprotocol/uprotocol-core-api/blob/main/src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto], the snippet is below:
+Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto], the snippet is below:
 
 
 .Node & Property Definitions
@@ -192,9 +194,10 @@ NOTE: Please see https://protobuf.dev/programming-guides/style/[Protobuf Style G
 
 ==== Properties
 
-A property is a name-value pair of information associated with an uThing.
+A property is a name-value pair of information that is declared using Protobuf Options. There are two types of properties:
 
-* Reserved property names (required for the protocol) *MUST* be added to link:../../../../src/main/proto/options.proto[options.proto]
+1. *uProtocol Properties:* Required properties that all services must set, these are defined https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uprotocol_options.proto[uprotocol-options.proto]
+2. *uService Specific Properties:* Properties that are declared in their respective service proto. 
 
 Services can declare any non-reserved identifier in their own proto files.
 
@@ -213,6 +216,7 @@ Table below outlines the database access policies written like network firewall 
 * *MUST* block access by default
 
 ===== uLDS
+
 * *MUST* allow local uE to read or write its own Node as well as its children Nodes
 * *MUST* allow local uE to read Nodes that it has associated link:../../../up-l2/permissions.adoc[permissions] to do so
 * Fetched Nodes *MUST* be cached per ttl requirements
@@ -232,8 +236,6 @@ Table below outlines the database access policies written like network firewall 
 
 Node metadata are stored outside the Node structure and describe the Node itself (freshness, etc...).
 
-NOTE: How the metadata is stored in the database is implementation dependent, we will merely explain the metadata attributes and their purpose in this section
-
 
 .Node Metadata Definition
 |===
@@ -247,9 +249,10 @@ NOTE: How the metadata is stored in the database is implementation dependent, we
 
 API requirements related to Node metadata shall be covered in the subsequent section.
 
-== Interface
 
-In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../../src/main/proto/core/udiscovery/v2/udiscovery.proto[udiscovery.proto].
+== uDiscovery Interface
+
+In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
 
 === Notifications
 
@@ -263,7 +266,7 @@ Notifications are used for replicating information between uLDS, uDDS, and uCDS,
 In order for uEs to receive notifications, the uE calls the uDiscovery API `RegisterForNotifications()` passing `NotificationsRequest` message that includes the list of URIs that it would like to be notified of changes, and a value of how deep in the tree should the change notification be sent. When the depth field is set to -1 or not present, the notifications shall be sent for changes to all children nodes. Below are a few high level requirements for uDiscovery notifications:
 
 * uE *MUST* be permitted to receive the notification (access the node). Permission is granted if the node is public or per [Appendix: Code-Based uE Access Permissions (CAPs)]
-* Notifications *MUST* be sent on the topic `/core.udiscovery/2/nodes#Notification`
+* Notifications *MUST* be sent on the topic `/core.udiscovery/3/nodes#Notification`
 
 * uCDS *MUST* only allow notification registration from uDDS, and uDDS registration from uLDS
 

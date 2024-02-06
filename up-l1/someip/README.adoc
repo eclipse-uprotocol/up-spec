@@ -34,8 +34,8 @@ underlining automotive or Internet protocols. uProtocol provides a
 common messaging framework to support RPC, notification, and pub/sub
 architecture patterns between software entities (uEs). uProtocol
 includes application layer core services
-link:../../up-l3/usubscription/v2/README[uSubscription] and
-link:../../up-l3/udiscovery/v2/README[uDiscovery]
+link:../../up-l3/usubscription/v3/README[uSubscription] and
+link:../../up-l3/udiscovery/v3/README[uDiscovery]
 that help provide the ability for subscription management and discovery
 of uEs respectively.
 
@@ -380,7 +380,7 @@ by querying the uLDS
 
 ==== Subscription Translation
 
-In the following section we expand on the link:../../up-l3/usubscription/v2/README.adoc[uSubscription
+In the following section we expand on the link:../../up-l3/usubscription/v3/README.adoc[uSubscription
 Flows] between devices for both Subscribe() and unsubscribe()
 operations. In summary, subscribing to
 mDevice topics will follow the same design pattern as subscribing to

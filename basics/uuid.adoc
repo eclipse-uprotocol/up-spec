@@ -35,12 +35,12 @@ Universal Unique Identifier (UUID) are used to uniquely identify a "thing". UUID
 UUIDv1 through 4 are defined in https://datatracker.ietf.org/doc/html/rfc4122[RFC4122] and have been deployed throughout the Internet and in applications for many years. A new RFC draft
 https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis] proposes three new types of RFCs, UUIDv6, v7, and v8.
 
-uProtocol shall define its own format of UUID (using UUIDv8 specification)  so that:
+uProtocol shall define its own format of UUID (using UUIDv8 specification) so that:
 
 * ID is sortable
 * Timestamp is based on the reliable (and widely used) Unix Epoch
 * Large random number to ensure the UUIDs retain the required level of unguessability through underlying entropy
-* Support for <1ms precision without
+* Support for <1ms precision
 * ID generation is efficient
 
 == Specification
@@ -48,15 +48,15 @@ uProtocol shall define its own format of UUID (using UUIDv8 specification)  so t
 The following will elaborate on the uProtocol UUIDv8 bit allocations:
 
      0                   1                   2                   3
-     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 +
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ +
-    |                         unix_ts_ms                            | +
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ +
-    |           unix_ts_ms          |  ver  |         counter       | +
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ +
-    |var|                          rand_b                           | +
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ +
-    |                           rand_b                              | +
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                         unix_ts_ms                            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |           unix_ts_ms          |  ver  |         counter       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |var|                          rand_b                           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                           rand_b                              |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
 
 .UUIDv8 Field Description
@@ -68,7 +68,7 @@ The following will elaborate on the uProtocol UUIDv8 bit allocations:
 * *MUST* be the 48 bit big-endian unsigned number of Unix epoch timestamp in milliseconds as per Section 6.1 of https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis] 
 
 |*ver* a|
-* *MUST* be the 4 bit version for UUIDv8 1000b per https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
+* *MUST* be the 4 bit version for UUIDv8 `1000b` per https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
 
 |*counter* a|
 * *MUST* be a 12 bit counter, reset at each unix_ts_ms tick
@@ -76,7 +76,7 @@ The following will elaborate on the uProtocol UUIDv8 bit allocations:
 * *MUST* be frozen when counter reaches maximum value 4095
 
 |*var* a|
-* *MUST* be the 2 bit variant 10b per Section 4.1 of https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
+* *MUST* be the 2 bit variant `10b` per Section 4.1 of https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
 
 |*rand_b* a|
 * *MUST* be a 62 bits pseudo-random number generated per uE

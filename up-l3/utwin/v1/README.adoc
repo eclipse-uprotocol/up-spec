@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Purpose
 
-In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the uPlatform. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without being exposed externally).
+In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the implementations of uProtocol. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without being exposed externally).
 
 An event published on a uDevice is propagated to all other uDevices that have at least one uE subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEs running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEs in the sense that uE's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uE. <<utwin-overview>> figure below provides a visual description of the context.
 
@@ -39,7 +39,7 @@ An event published on a uDevice is propagated to all other uDevices that have at
 [#utwin-overview]
 image::utwin.drawio.svg[uTwin]
 
-A uE requiring information/state from a uService will therefore subscribe to Topics of interest created by that uService. Consequently, once a uE is _connected_ to uPlatform *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE connecting to uPlatform to receive the "last known state" (published while the uE was not connected to uPlatform) of the uServices it relies on. A uE _connects_ to uPlatform for the following reasons:
+A uE requiring information/state from a uService will therefore subscribe to Topics of interest created by that uService. Consequently, once a uE is _connected_ *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE to receive the "last known state" (published while the uE was not connected) of the uServices it relies on. A uE _connects_ for the following reasons:
 
 * Executed for the first time after installation
 * Connected to a new uService (e.g. cloud uE connecting to a new vehicle that enrolled to the service provided by the cloud uE)
@@ -85,7 +85,7 @@ So, for example, if a cloud application MyApp subscribes to the tire pressure of
 <<utwin-sequence-diagram>> below illustrates the overall mechanism, with special focus on the following properties:
 
 * Implicit (automatically inferred) digital twin model: no need for manual definition of the dig twin model
-* Dynamic model creation, based on events that flow through the distributed communication framework  (named uPlatform in the diagram) and storage of device states (represented by the collection of service topics of a device)
+* Dynamic model creation, based on events that flow through the distributed communication framework  (named uProtocol Implementation in the diagram) and storage of device states (represented by the collection of service topics of a device)
 * uTwin of each device received all events flowing through the device, therefore creating a local dig twin accessible by all apps local to this device
 * Only events that must be transferred due to existing subscribers are transmitted, and therefore stored in a remote device (therefore minimizing communication overhead related to utwin management)
 
@@ -132,7 +132,7 @@ The implementation of `GetLastEvent()` *MUST* enforce permissions associated wit
 
 This function enables an "external" component to set the last event of a given Topic.
 
-WARNING: Usage of this function *MUST* be restricted to uPlatform components, specifically the uBus
+WARNING: Usage of this function *MUST* be restricted to uProtocol core components, specifically the uBus
 
 The implementation of SetLastEvent MUST enforce permissions associated with the Topic being requested. Either checking permission for each request, or if calling this API is structurally embedded inside uBus
 
@@ -142,7 +142,7 @@ A uTwin instance *MUST* run on each uDevice. Each uTwin instance *MUST* store th
 
 With this mechanism, all devices with at least 1 subscriber of a given Topic will receive, and keep the last event on the Topic.
 
-While uTwin is a standalone functional entity, for implementation purposes it *MAY* be bundled with other uPlatform components for optimization purposes. Whatever the implementation choice, the uTwin service *MUST* be exposed as a core service available on each uDevice
+While uTwin is a standalone functional entity, for implementation purposes it *MAY* be bundled with other core uProtocol components for optimization purposes. Whatever the implementation choice, the uTwin service *MUST* be exposed as a core service available on each uDevice
 
 == Implementation Principle
 
