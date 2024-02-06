@@ -61,6 +61,20 @@ User attachment supports key-value pairs, and the following table is the key-val
 
 Besides the user attachment, some features in the UAttribute can be mapped into Zenoh transport settings.
 
+==== Message Type
+
+There are 3 kinds of message types in uProtocol (publish, request, response).
+Different Zenoh operations should use the corresponding message types.
+
+[cols="1,1"]
+|===
+| uProtocol message type | Zenoh operations
+
+| publish | put
+| request | get (query)
+| response | reply (queryable)
+|===
+
 ==== Priority Mapping (uProtocol to Zenoh):
 
 [cols="1,1"]
@@ -77,6 +91,23 @@ Besides the user attachment, some features in the UAttribute can be mapped into 
 |===
 
 Note that the priority in Zenoh only works for publisher.
+
+==== TTL
+
+TTL only takes effect while sending Zenoh query.
+It should be mapped to the timeout of query.
+
+==== Permission Level 
+
+TODO
+
+==== Communication Stutus
+
+TODO
+
+==== Token
+
+TODO
 
 === URI Mapping
 
