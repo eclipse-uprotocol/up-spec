@@ -97,7 +97,7 @@ The API signature:
 
 | UUri
 
-| Destination for the UPayload
+| The source address for the message, (ex. publish topic, the return address for rpc-request, or the rpc method for rpc response)
 
 | UPayload
 a| Data and metadata to be sent
