@@ -67,7 +67,7 @@ NOTE: uProtocol data model used by the uTransport interface are declared in http
 `UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
 
   * Type name *MUST* be `UListener`
-  * *MUST* contain the method `UStatus onReceive(UUri&, UPayload&, UAttributes&)` that is called by the Transport to notify (callback) the client
+  * *MUST* contain the method `UStatus onReceive(UMessage&)` that is called by the Transport to notify (callback) the client
 
 
 == uTransport
@@ -78,7 +78,7 @@ The transport layer API responsible for point-2-point communication. The interfa
 
 === Send()
 
-Publish/send UPayload and UAttributes to a UUri (topic). 
+Transmit a UMessage.  
 
 
 Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
@@ -87,7 +87,7 @@ For example, if HartleyTransport can map only UPriority to its PDU header, then 
 
 The API signature:
 
-`OUT UStatus send(UUri&, IN UPayload&, IN UAttributes&)`
+`OUT UStatus send(UMessage&)`
 
 ==== Parameters
 .Send Parameters
@@ -95,24 +95,16 @@ The API signature:
 |===
 |Parameter | Description
 
-| UUri
+| UMessage
 
-| The source address for the message, (ex. publish topic, the return address for rpc-request, or the rpc method for rpc response)
-
-| UPayload
-a| Data and metadata to be sent
-
- * *MUST* be passed by reference
-
-| UAttributes
-a| Communication protocol attributes
+| UProtocol message containing the header (UAttributes) and payload (UPayload)
 
  * *MUST* be passed by reference
 
 |===
 
-* All UAttribute metadata *MUST* be preserved during transmission and available to the receiver
-* *MUST* not manipulate the UPayload data during transmission
+* All UMessage attributes metadata *MUST* be preserved during transmission and available to the receiver
+* *MUST* not manipulate the UMessage payload during transmission
 * *SHOULD* pass resolved UUris (contains both names and numbers)
 * *SHOULD* use the Miro Uri serialization format
 
