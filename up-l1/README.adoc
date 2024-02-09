@@ -67,7 +67,7 @@ NOTE: uProtocol data model used by the uTransport interface are declared in http
 `UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
 
   * Type name *MUST* be `UListener`
-  * *MUST* contain the method `UStatus onReceive(UMessage&)` that is called by the Transport to notify (callback) the client
+  * *MUST* contain the method `void onReceive(UMessage&)` that is called by the Transport to notify (callback) the client
 
 
 == uTransport
