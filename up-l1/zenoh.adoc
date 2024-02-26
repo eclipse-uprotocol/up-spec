@@ -55,7 +55,7 @@ User attachment supports key-value pairs, and the following table is the key-val
 |===
 | key | value
 
-| "uattributes"
+| "uattr"
 | UAttribute object encoded into protobuf
 |===
 
@@ -92,29 +92,21 @@ Different Zenoh operations should use the corresponding message types.
 
 Note that the priority in Zenoh only works for publisher.
 
-==== TTL
-
-TTL only takes effect while sending Zenoh query.
-It should be mapped to the timeout of query.
-
-==== Permission Level 
-
-TODO
-
-==== Communication Stutus
-
-TODO
-
-==== Token
-
-TODO
-
 === URI Mapping
 
-UUri created by users should include ID, so Zenoh up-client library can serialized it into micro form.
+UUri should be able to be serialized it into micro form.
 The mapping from micro-from UUri to Zenoh key is `Vec<u8>` to lower hex string.
 
-For example, if the UUri is `[0x01, 0x00, 0x16, 0x2e, ...]`` to Zenoh key will be `0100162e...`.
+Zenoh key for uProtocol MUST start with `up/`.
+If UAuthority is defined in UUri, it should be put in the following part.
+Then the rest of the UUri can be put in the last part.
+
+* UUri without UAthourity: `up/[byte representation of the UUri]`
+* UUri with UAthourity: `up/[byte representation of the UAuthority]/[byte representation of the rest of the UUri]`
+
+Note that if the UUri only contains UAthority with the empty UEntity and UResource,
+it's defined as a special form of Zenoh key `up/[byte representation of UAuthority]/**`.
+This is only used by uStreamer.
 
 === UPayload
 
