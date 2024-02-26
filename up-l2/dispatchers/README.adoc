@@ -76,6 +76,7 @@ NOTE: These communication layer requirements are still for point-2-point uE comm
   ** DLT *MUST* include at least the CE header, SHOULD contain the full CE
   ** DLT *MUST* include the reason for the failed delivery attempt using  error codes defined in google.rpc.Code
   ** uEs MUST be able to subscribe to the DLT to be notified of message deliver failures
+* *MUST* forward attributes from the CE header
 
 If the uP-L1 delivery method is push:
 
