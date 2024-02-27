@@ -90,23 +90,71 @@ Different Zenoh operations should use the corresponding message types.
 | CS6 | REAL_TIME
 |===
 
-Note that the priority in Zenoh only works for publisher.
-
 === URI Mapping
 
-UUri should be able to be serialized it into micro form.
-The mapping from micro-from UUri to Zenoh key is `Vec<u8>` to lower hex string.
+UUri should be able to be serialized into link:../basics/uri.adoc#42-micro-uris[micro form].
+Then we can transform the micro-form UUri, which should be `u8` array, into string in lowercase hexadecimal representation.
 
-Zenoh key for uProtocol MUST start with `up/`.
-If UAuthority is defined in UUri, it should be put in the following part.
+Zenoh key for uProtocol consists of three parts and they are separated by `/`.
+Zenoh key **MUST** start with `up/`.
+If UAuthority is defined in UUri, it should be put in the second part.
 Then the rest of the UUri can be put in the last part.
+
+To be more specific:
 
 * UUri without UAthourity: `up/[byte representation of the UUri]`
 * UUri with UAthourity: `up/[byte representation of the UAuthority]/[byte representation of the rest of the UUri]`
 
-Note that if the UUri only contains UAthority with the empty UEntity and UResource,
+Note that there is a special case. If the UUri only contains UAthority with empty UEntity and UResource,
 it's defined as a special form of Zenoh key `up/[byte representation of UAuthority]/**`.
 This is only used by uStreamer.
+
+Some examples:
+
+* UUri without UAthourity:
+
+[source]
+----
+UUri {
+  authority: empty,
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+
+There is no UAuthority, so we can ignore the second part.
+Only ID in UEntity and UResource matters while serializing into link:../basics/uri.adoc#421-local-micro-uri[micro-form Uri].
+Then transform it into lowercase hexadecimal representation.
+The Zenoh key should be `up/0100162e04d20100`.
+
+* UUri with UAthourity
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: UAuthName,
+    number: Id({01, 02, 03, 10, 11, 12})
+  },
+  entity: empty,
+  resource: empty,
+}
+----
+
+The UAuthority should be serialized into mirco form.
+It should be length + serialized UUri in lowercase hexadecimal representation, which is `06` + `0102030a0b0c`.
+There is no UEntity and UResource, so it is the special form UUri.
+The third part should be `+++**+++`.
+Therefore, the Zenoh key is `up/060102030a0b0c/+++**+++`.
 
 === UPayload
 
@@ -120,7 +168,7 @@ UPayload consists of three parts: length, format, data.
 ----
 Encoding::WithSuffix(
     KnownEncoding::AppCustom,
-    payload.format.to_string().into(),
+    payload.format.value().to_string().into(),
 )
 ----
 
