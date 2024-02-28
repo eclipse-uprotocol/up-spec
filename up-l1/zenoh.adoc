@@ -102,16 +102,16 @@ Then the rest of the UUri can be put in the last part.
 
 To be more specific:
 
-* UUri without UAthourity: `up/[byte representation of the UUri]`
-* UUri with UAthourity: `up/[byte representation of the UAuthority]/[byte representation of the rest of the UUri]`
+* UUri without UAuthority: `up/[byte representation of the UUri]`
+* UUri with UAuthority: `up/[byte representation of the UAuthority]/[byte representation of the rest of the UUri]`
 
-Note that there is a special case. If the UUri only contains UAthority with empty UEntity and UResource,
+Note that there is a special case. If the UUri only contains UAuthority with empty UEntity and UResource,
 it's defined as a special form of Zenoh key `up/[byte representation of UAuthority]/**`.
 This is only used by uStreamer.
 
 Some examples:
 
-* UUri without UAthourity:
+* UUri without UAuthority:
 
 [source]
 ----
@@ -136,7 +136,7 @@ Only ID in UEntity and UResource matters while serializing into link:../basics/u
 Then transform it into lowercase hexadecimal representation.
 The Zenoh key should be `up/0100162e04d20100`.
 
-* UUri with UAthourity
+* UUri with UAuthority
 
 [source]
 ----
