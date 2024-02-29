@@ -45,15 +45,23 @@ Zenoh supports user attachment.
 We **MUST** send additional information with the mechanism, for example, UAttribute.
 This reduces the unnecessary serialization on payload, which mostly takes time.
 
-User attachment supports key-value pairs, and the following table is the key-value pairs using now.
+User attachment supports non-unique key-value pairs, which means one key can include several values.
+In this case, the order of the values matters.
+To decrease the network overhead, we **MUST** keep the key empty and put the value in the order according to the following table.
 
 [cols="1,1"]
 |===
-| key | value
+| order | value
 
-| "uattr"
+| 1
+| UAttribute version (1 byte)
+| 2
 | UAttribute object encoded into protobuf
 |===
+
+We use 1 byte to represent the UAttribute version.
+The version field will keep the flexibility of updating UAttribute in the future.
+Now the version is always 0x01.
 
 Besides the user attachment, some features in the UAttribute **SHOULD** be mapped into Zenoh transport settings.
 
