@@ -63,8 +63,6 @@ We use 1 byte to represent the UAttribute version.
 The version field will keep the flexibility of updating UAttribute in the future.
 Now the version is always 0x01.
 
-Besides the user attachment, some features in the UAttribute **SHOULD** be mapped into Zenoh transport settings.
-
 ==== Message Type
 
 There are 3 kinds of message types in uProtocol (publish, request, response).
@@ -100,22 +98,23 @@ UUri **MUST** be able to be serialized into link:../basics/uri.adoc#42-micro-uri
 Then we can transform the micro-form UUri, which is `u8` array, into string in lowercase hexadecimal representation.
 
 Zenoh key for uProtocol consists of three parts and they are separated by `/`.
-Zenoh key **MUST** start with `up/`.
+Zenoh key **MUST** start with `upl/` or `upr/`.
+While the local UUri maps to `upl/`, the remote UUri maps to `upr/`.
 If UAuthority is defined in UUri, it **MUST** be put in the second part.
 Then the rest of the UUri **MUST** be put in the last part.
 
 To be more specific:
 
-* UUri without UAuthority: `up/[byte representation of the UUri]`
-* UUri with UAuthority: `up/[byte representation of the UAuthority]/[byte representation of the rest of the UUri]`
+* The local UUri without UAuthority: `upl/[hexadecimal representation of the UUri]`
+* The remote UUri with UAuthority: `upr/[hexadecimal representation of the UAuthority]/[hexadecimal representation of the rest of the UUri]`
 
 Note that there is a special case. If the UUri only contains UAuthority with empty UEntity and UResource,
-it's defined as a special form of Zenoh key `up/[byte representation of UAuthority]/**`.
+it's defined as a special form of Zenoh key `upr/[byte hexadecimal of UAuthority]/**`.
 It can listen to all the messages sending to a certain UAuthority.
 
 Some examples:
 
-* UUri without UAuthority:
+* The local UUri without UAuthority:
 
 [source]
 ----
@@ -135,12 +134,13 @@ UUri {
 }
 ----
 
-There is no UAuthority, which means it's a local URI, so we leave the second part blank.
+It's a local UUri, so it starts with `upl`.
+Also, we leave the second part blank since it doesn't have UAuthority.
 Only ID in UEntity and UResource matters while serializing into link:../basics/uri.adoc#421-local-micro-uri[micro-form Uri].
 Then transform it into lowercase hexadecimal representation.
-The Zenoh key is `up/0100162e04d20100`.
+The Zenoh key is `upl/0100162e04d20100`.
 
-* UUri with UAuthority
+* The remote UUri with UAuthority
 
 [source]
 ----
@@ -154,12 +154,13 @@ UUri {
 }
 ----
 
+It's a remote UUri, so it starts with `upr`.
 The UAuthority is serialized into mirco form.
 Given how a UAuthority containing an ID is serialized into micro form as outlined in link:../basics/uri.adoc#422-remote-micro-uris[the spec],
 it is length + serialized UUri in lowercase hexadecimal representation, which is `06` + `0102030a0b0c`.
 The UEntity and UResource are all blank, so it is the special form UUri.
 It means that the third part is `+++**+++`.
-Therefore, the Zenoh key is `up/060102030a0b0c/+++**+++`.
+Therefore, the Zenoh key is `upr/060102030a0b0c/+++**+++`.
 
 === UPayload
 
