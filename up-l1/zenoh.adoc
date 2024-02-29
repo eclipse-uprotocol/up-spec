@@ -5,7 +5,7 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+Copyright (c) 2024 ZettaScale Technology
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,7 +25,6 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
@@ -35,9 +34,147 @@ Zero Overhead Network Protocol.
 
 Zenoh /zeno/ is a pub/sub/query protocol unifying data in motion, data at rest and computations. It elegantly blends traditional pub/sub with geo distributed storage, queries and computations, while retaining a level of time and space efficiency that is well beyond any of the mainstream stacks.
 
-
-for more information, please visit https://projects.eclipse.org/projects/iot.zenoh or https://zenoh.io/
+For more information, please visit https://projects.eclipse.org/projects/iot.zenoh or https://zenoh.io/
 
 == Specifications
 
-_Coming Soon_
+=== UAttribute Mapping
+
+Zenoh supports user attachment.
+We **MUST** send additional information with the mechanism, for example, UAttribute.
+This reduces the unnecessary serialization on payload, which mostly takes time.
+
+User attachment supports non-unique key-value pairs, which means one key can include several values.
+In this case, the order of the values matters.
+To decrease the network overhead, we **MUST** keep the key empty and put the value in the order according to the following table.
+
+[cols="1,1"]
+|===
+| order | value
+
+| 1
+| UAttribute version (1 byte)
+| 2
+| UAttribute object encoded into protobuf
+|===
+
+We use 1 byte to represent the UAttribute version.
+The version field will keep the flexibility of updating UAttribute in the future.
+Now the version is always 0x01.
+
+==== Message Type
+
+There are 3 kinds of message types in uProtocol (publish, request, response).
+Different message types **MUST** use different Zenoh API.
+
+[cols="1,1"]
+|===
+| uProtocol message type | Zenoh API
+
+| publish | put
+| request | get (query)
+| response | reply (queryable)
+|===
+
+==== Priority Mapping (uProtocol to Zenoh):
+
+[cols="1,1"]
+|===
+| uProtocol priority | Zenoh Priority
+
+| CS0 | BACKGROUND
+| CS1 | DATA_LOW
+| CS2 | DATA
+| CS3 | DATA_HIGH
+| CS4 | INTERACTIVE_LOW
+| CS5 | INTERACTIVE_HIGH
+| CS6 | REAL_TIME
+|===
+
+=== URI Mapping
+
+UUri **MUST** be able to be serialized into link:../basics/uri.adoc#42-micro-uris[micro form].
+Then we can transform the micro-form UUri, which is `u8` array, into string in lowercase hexadecimal representation.
+
+Zenoh key for uProtocol consists of three parts and they are separated by `/`.
+Zenoh key **MUST** start with `upl/` or `upr/`.
+While the local UUri maps to `upl/`, the remote UUri maps to `upr/`.
+If UAuthority is defined in UUri, it **MUST** be put in the second part.
+Then the rest of the UUri **MUST** be put in the last part.
+
+To be more specific:
+
+* The local UUri without UAuthority: `upl/[hexadecimal representation of the UUri]`
+* The remote UUri with UAuthority: `upr/[hexadecimal representation of the UAuthority]/[hexadecimal representation of the rest of the UUri]`
+
+Note that there is a special case. If the UUri only contains UAuthority with empty UEntity and UResource,
+it's defined as a special form of Zenoh key `upr/[byte hexadecimal of UAuthority]/**`.
+It can listen to all the messages sending to a certain UAuthority.
+
+Some examples:
+
+* The local UUri without UAuthority:
+
+[source]
+----
+UUri {
+  authority: empty,
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+
+It's a local UUri, so it starts with `upl`.
+Also, we leave the second part blank since it doesn't have UAuthority.
+Only ID in UEntity and UResource matters while serializing into link:../basics/uri.adoc#421-local-micro-uri[micro-form Uri].
+Then transform it into lowercase hexadecimal representation.
+The Zenoh key is `upl/0100162e04d20100`.
+
+* The remote UUri with UAuthority
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: UAuthName,
+    number: Id({01, 02, 03, 10, 11, 12})
+  },
+  entity: empty,
+  resource: empty,
+}
+----
+
+It's a remote UUri, so it starts with `upr`.
+The UAuthority is serialized into mirco form.
+Given how a UAuthority containing an ID is serialized into micro form as outlined in link:../basics/uri.adoc#422-remote-micro-uris[the spec],
+it is length + serialized UUri in lowercase hexadecimal representation, which is `06` + `0102030a0b0c`.
+The UEntity and UResource are all blank, so it is the special form UUri.
+It means that the third part is `+++**+++`.
+Therefore, the Zenoh key is `upr/060102030a0b0c/+++**+++`.
+
+=== UPayload
+
+Although UPayload can be encoded into protobuf, it saves a lot of time without encoding.
+UPayload consists of three parts: length, format, data.
+
+* Length only works with shared memory, and we ignore it temporarily.
+* Format **SHOULD** be sent with Zenoh encoding. Zenoh supports `Encoding::WithSuffix`. The encoding here is `KnownEncoding::AppCustom` and the UPayloadFormat (int32) is transformed into the string.
+
+[source, rust]
+----
+Encoding::WithSuffix(
+    KnownEncoding::AppCustom,
+    payload.format.value().to_string().into(),
+)
+----
+
+* Zenoh takes data as a buffer simply and sends it directly. Ignore the shared memory (reference) temporarily.
