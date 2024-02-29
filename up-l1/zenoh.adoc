@@ -25,7 +25,6 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2024 ZettaScale Technology
 SPDX-License-Identifier: Apache-2.0
 ----
 
