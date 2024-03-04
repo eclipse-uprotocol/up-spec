@@ -35,8 +35,85 @@ MQTT is an OASIS standard messaging protocol for the Internet of Things (IoT). I
 
 For more information, please refer to https://mqtt.org/
 
-
 == Specifications
 
+=== UAttribute Mapping
 
-_Coming Soon_
+MQTT 5 supports custom header fields, and we leverage this to map certain UAttribute values into the MQTT header.
+
+[cols="1,1"]
+|===
+| MQTT Header Property Code | Value (key:value)
+| UserProperty
+| ("upriority","{UAttribute.priority}")
+| CorrelationData
+| "{UAttribute.reqId}"
+| UserProperty
+| ("sink","{UAttribute.sink}") # Should this be serialized to MicroUri?
+|===
+
+The upriority field is needed as mqtt's QoS is very limited, so this will allow listeners to prioritize messages.
+
+The Correlation Data Property Code contains the request correlation id.
+
+The sink field is used to correctly map a message to the correct uE as the topic name may not contain all of the information.
+
+=== URI Mapping
+
+Depending on whether the UURI is local or remote, the MQTT Topic that the message will be published on will be different:
+
+* The remote UUri (with UAuthority): `UUri.UAthority.name`
+* The local UUri (without UAuthority): `UUri.UEntity/UUri.UResource`
+
+Examples:
+
+* The remote UUri (with UAuthority):
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: "Vehicle_1",
+    number: Id({01, 02, 03, 10, 11, 12})
+  },
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+
+Since this is a remote UUri, the MQTT Topic will simply be `Vehicle_1`.
+
+* The local UUri (without UAuthority):
+
+[source]
+----
+UUri {
+  authority: empty,
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+
+Since this is a local UUri, the MQTT Topic will be constructed from the UEnity name and the UResource name `body.access/door`.
+
+=== Payload Encoding
+
+The MQTT payload **MUST** be a UMessage that is represented as a byte array to reduce size.
