@@ -62,8 +62,8 @@ The sink field is used to correctly map a message to the correct uE as the topic
 
 Depending on whether the UURI is local or remote, the MQTT Topic that the message will be published on will be different:
 
-* The remote UUri (with UAuthority): `UUri.UAthority.name`
-* The local UUri (without UAuthority): `UUri.UEntity/UUri.UResource`
+* The remote UUri (with UAuthority): `upr/UUri.UAthority.name`
+* The local UUri (without UAuthority): `upl/UUri.UEntity/UUri.UResource`
 
 Examples:
 
@@ -90,7 +90,7 @@ UUri {
 }
 ----
 
-Since this is a remote UUri, the MQTT Topic will simply be `Vehicle_1`.
+Since this is a remote UUri, the MQTT Topic will simply be `upr/Vehicle_1`.
 
 * The local UUri (without UAuthority):
 
@@ -112,7 +112,7 @@ UUri {
 }
 ----
 
-Since this is a local UUri, the MQTT Topic will be constructed from the UEnity name and the UResource name `body.access/door`.
+Since this is a local UUri, the MQTT Topic will be constructed from the UEnity name and the UResource name `upl/body.access/door`.
 
 === Payload Encoding
 
