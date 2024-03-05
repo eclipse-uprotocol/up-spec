@@ -51,29 +51,41 @@ SPDX-License-Identifier: Apache-2.0
 
 All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the `RpcClient` interface with method:
 
-`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload?, IN link:../basics/uattributes.adoc[UAttributes])` +
+`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload?, IN link:../basics/.adoc[CallOptions])`
+
+.Parameters
+[#parameters, width="80%",cols="30%,70%"]
+|===
+
+| Parameter
+| Description
+
+| `UUri`
+| Method URI that is being invoked
+
+| `CallOptions`
+| Set of attributes that can be sent as part of a method invocation
+
+|===
 
 
 == Implementation
 
-Every link:../upclient.adoc[uPClient library] *MUST* implement the `RpcClient` interface.
-
 Implementations communicate to their underlining transport through the link:../up-l1/README.adoc#_utransport[uTransport Interface].
 
- * The `UUri` and `UAttributes` passed to `invokeMethod()` *MUST* be cached non-persistent memory per call, this is to be able to complete the `Future` when the response is received from the server.
+* Every link:../upclient.adoc[uPClient library] *MUST* implement the `RpcClient` interface.
 
- * The `UPayload` passed to `invokeMethod()` *MAY* be null or empty.
+* The `UUri` and `CallOptions` passed to `invokeMethod()` *MUST* be cached non-persistent memory per call, this is to be able to complete the `Future` when the response is received from the server.
 
- * Method invocation that fails, *MUST* return exceptionally as defined by the link:../basics/error_model.adoc[uProtocol Error Model].
+* The `UPayload` passed to `invokeMethod()` *MAY* be null or empty.
 
- * Cached requests must be completed exceptionally with  `DEADLINE_EXCEEDED` when `UAttributes.isExpired()` is `true`. This notifies the calling context that the request has expired.
+* Method invocation that fails, *MUST* return exceptionally as defined by the link:../basics/error_model.adoc[uProtocol Error Model].
 
- * *MUST* return `INVALID_PARAMETER` for the following errors:
-  ** `UUri` is null or empty
-  ** `UAttributes.type() != UMessageType.REQUEST` or
-  `UAttributesValidator.validate()` fails (i.e. one of the UAttributes is invalid per UAttributesValidator).
+* Cached requests must be completed exceptionally with  `DEADLINE_EXCEEDED` when `UAttributes.isExpired()` is `true`. This notifies the calling context that the request has expired.
 
-* *MUST* return `ALREADY_EXISTS` if the same request already exists (i.e. same `UUri` and `UAttributes`). This is to prevent duplicate requests.
+* *MUST* return `INVALID_PARAMETER` if `UUri` is null or empty or `CallOptions.priority() < CS4`
+
+* *MUST* return `ALREADY_EXISTS` if the same request already exists (i.e. same `UUri` and `CallOptions`). This is to prevent duplicate requests.
 
 * *MUST* complete future successfully when the response is received from the server.
 
