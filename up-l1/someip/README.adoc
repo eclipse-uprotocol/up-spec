@@ -165,10 +165,12 @@ shall assume v2 events are used when communicating with mDevices 
 protocols by the bridge. 
 
 .uProtocol to SOME/IP Translation
-image:up_to_someip.drawio.svg[up-2-someip] 
+[#up-2-someip]
+image:up_to_someip.drawio.svg[width=600] 
 
 .SOME/IP to uProtocol Translation
-image:someip_to_up.drawio.svg[someip-2-up] 
+[#someip-2-up]
+image:someip_to_up.drawio.svg[width=600] 
 
 === Attribute Mapping
 
@@ -186,16 +188,16 @@ not be found.
 [sink-source-uri-mapping]
 |===
 |*URI Portion* |*SOME/IP Field* |*Description*
-|*authority* |IP address & port |IP address & port (destination
+|*`UAuthority::ip`* |IP address & port |IP address & port (destination
 endpoint) of the mDevice
 
-|*UE_ID* |Service ID |Software entity ID that is placed in the upper 16
+|*`UEntity::id`* |Service ID |Software entity ID that is placed in the upper 16
 bits of the SOME/IP Message ID header field
 
-|*METHOD_ID* |Method ID |Identifier of the method/resource placed in the
+|*`UResource::id`* |Method ID |Identifier of the method/resource placed in the
 lower 16 bits of the SOME/IP Message ID header field
 
-|*RESOURCE_ID* |Event ID |
+|*`UResource::id`* |Event ID |
 |===
 
 
@@ -207,11 +209,11 @@ SOME/IP.  The format of IDs per protocol is described in
 <<protocol-ids>> below.
 
 .Protocol IDs
-[protocol-ids]
+[#protocol-ids]
 |===
 |Protocol |Type |Definition
 
-|*uProtocol* |128 bit UUIDv8 |
+|*uProtocol* |128 bit UUIDv8 | link:../../basics/uri.adoc[UUIDv8]
 
 |*SOME/IP* |32 bits: 16 bit Client ID + 16 bit Session ID
 |4.1.2.4
