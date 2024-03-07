@@ -123,7 +123,7 @@ a| Returns true if the Uri part contains names so that it can be serialized to <
 | Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
 
 | `isMicroForm(UUri): boolean`
-| Returns true if the Uri part contains the required ids to serialized to <<Micro Formats>>
+| Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro Formats>>
 
 | `isRpcMethod(UUri): boolean`
 | Returns true if the Uri is of type RPC (request or response)
