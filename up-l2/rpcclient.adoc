@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 
 All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the `RpcClient` interface with method:
 
-`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload?, IN link:../basics/.adoc[CallOptions])`
+`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload?, IN link:../basics/uattributes.adoc[CallOptions])`
 
 .Parameters
 [#parameters, width="80%",cols="30%,70%"]
