@@ -39,4 +39,11 @@ uPClient library is the application facing library that uEs use to communicate t
 * *MUST* implement (client-side) uProtocol uP-L3 core uService interfaces link:up-l3/usubscription/v3/README.adoc[uSubscription], link:up-l3/utwin/v3/README.adoc[uTwin], and link:up-l3/udiscovery/v3/README.adoc[uDiscovery]
 * *MUST* Follow the naming convention `up-client-[IMPLEMENTATION]-[LANGUAGE]` 
 
+== Class Diagram
+<<up-client>> below illustrates how the upClient implements the interfaces that are declared in the language libraries.
+
+.upClient Class Diagram
+[#up-client]
+image:up_libraries.drawio.svg[width=640]
+
 
