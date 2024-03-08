@@ -187,7 +187,7 @@ NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
 [#_micro_uris]
 === Micro Uris
-Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource.Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance.There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
+Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
 
 * All fields of micro UUri *MUST* be populated
 * Fields are Big-Endian unless otherwise specified
