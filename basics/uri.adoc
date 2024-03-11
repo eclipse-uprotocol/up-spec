@@ -63,7 +63,7 @@ A uProtocol URI can be represented in three formats:
 
 1. <<UUri Data Model>>: Object format (declared in protobuf)
 2. <<Long Uris>>: UUri object serialized to a string containing names (i.e. human readable)
-3. <<Micro Uris>>: UUri serialized to a byte array (i.e. machine readable). 
+3. <<Micro Uris>>: UUri serialized to a byte array (i.e. machine readable).
 
 
 == Data Model
@@ -114,16 +114,16 @@ a| Validate that the `UUri` is a valid RPC Response UUri
 * *MUST* return `UStatus::Failed` if the `UUri.resource.name != "rpc" \|\| UUri.resource.instance != "response" \|\| UUri.resource.id != 0`
 
 | `isLongForm(UUri): boolean`
-a| Returns true if the Uri part contains names so that it can be serialized to <<Long Format>>. 
+a| Returns true if the Uri part contains names so that it can be serialized to <<Long Uris>>.
 
 | `isEmpty(UUri): boolean`
 | Returns true if the object contains no information
 
 | `isResolved(UUri): boolean`
-| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long Format>> and <<Micro Formats>> 
+| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long Uris>> and <<Micro Uris>>
 
 | `isMicroForm(UUri): boolean`
-| Returns true if the Uri part contains the required ids to serialized to <<Micro Formats>>
+| Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro Uris>>
 
 | `isRpcMethod(UUri): boolean`
 | Returns true if the Uri is of type RPC (request or response)
@@ -132,13 +132,14 @@ a| Returns true if the Uri part contains names so that it can be serialized to <
 | Returns true if the Uri is of type RPC response
 
 |===
-  
+
 
 == Serializers
 `UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
-There are two implementations of the serializer, they are link:#long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
+There are two implementations of the serializer, they are link:#_long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
 
 
+[#_long_uris]
 === Long Uris
 
 Long URIs are UUris that have been serialized to a string containing human readable names.
@@ -184,6 +185,7 @@ NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
 
 
+[#_micro_uris]
 === Micro Uris
 Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
 
