@@ -112,11 +112,11 @@ The API signature:
 
 === RegisterListener()
 
-Register a UListener to receive message(s) for a given UUri (topic). This API is used to implement the _push_ <<Delivery Method>>.
+Register a UListener to receive message(s) for a given UUri (topic) and `UMessageType`. This API is used to implement the _push_ <<Delivery Method>>.
 
 API Signature: 
 
-`OUT UStatus registerListener(IN UUri, IN UListener&)`
+`OUT UStatus registerListener(IN UUri, IN UListener&, IN UMessageType&)`
 
 
  * *MUST* support registering more than one listener per topic
@@ -135,6 +135,9 @@ API Signature:
 
 | <<UListener>>
 | Listener to be registered
+
+| UMessageType
+| Type of message to register a listener for
 
 |===
 
@@ -158,6 +161,9 @@ API Signature:
 
 | <<UListener>>
 | Listener to be unregistered
+
+| UMessageType
+| Type of message to unregister a listener for
 
 |===
 
