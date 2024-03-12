@@ -30,11 +30,11 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 
-Like IP packets, uProtocol messages (CE) have a source attribute (originator of the message) and sink attribute (where should the message be sent to). These attributes are used to route the CEs from one uE to the next if the destination is not the receiving uE.
+Like IP packets, uProtocol messages (UMessage) have a source attribute (originator of the message) and sink attribute (where should the message be sent to). These attributes are used to route the CEs from one uE to the next if the destination is not the receiving uE.
 
 NOTE: Dispatcher and router shall be used For the remainder of this document we will use the term dispatcher and router interchangeably.
 
-The header contains information for routing as well as metadata (of the data). One of the core principles of uProtocol is that the data portion of CE *MUST* be untouched by message routers, this is very similar to how most Internet standards work today. Only the source who generated the CE and the sink who will consume the CE needs to understand/analyze the payload of the CE.
+The header contains information for routing as well as metadata (of the data). One of the core principles of uProtocol is that the data portion of UMessage *MUST* be untouched by message routers, this is very similar to how most Internet standards work today. Only the source who generated the UMessage and the sink who will consume the UMessage needs to understand/analyze the payload of the UMessage.
 
 To be able to forward/dispatch/route CEs through the network, we must define specific purpose built uEs to perform these tasks (ex. Ethernet switches, IP routers, etc...). Platform uEs that are responsible for event dispatching and implementing the communication layer are described in the sections below. We will elaborate on these specific uEs in the Platform uEs section below.
 
@@ -47,7 +47,7 @@ To be able to forward/dispatch/route CEs through the network, we must define spe
 |Message bus that dispatches CEs between uEs over a common transport. It provides multicast and forwarding functionality (works like a network switch)
 
 |*uStreamer*
-|Provides Device-2-Device CE routing either using the same or different transport protocols , i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router)
+|Provides Device-2-Device UMessage routing either using the same or different transport protocols , i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router)
 
 |*Cloud Gateway*
 |A uE that sits at the edge of the cloud to connect non-cloud devices (ex. vehicles, phones, etc...) to the cloud
@@ -64,16 +64,16 @@ In this section we will elaborate on the requirements of the platform Dispatcher
 
 NOTE: These communication layer requirements are still for point-2-point uE communication to and from a dispatcher
 
-* *MUST* support At-least-once delivery policy, this means that the dispatcher will make every attempt to dispatch the CE to the intended Receiver
+* *MUST* support At-least-once delivery policy, this means that the dispatcher will make every attempt to dispatch the UMessage to the intended Receiver
   ** *MUST* queue CEs not successfully acknowledged (transport level at-least-once delivery confirmation described above)
-  ** *MUST* attempt to retry transmission of the CE. Retry policy is specific to the dispatcher implementation
-  ** Dispatcher *MUST NOT* discard CEs unless either CE has expired (CE.ttl), or the egress queue is full. CEs that cannot be delivered are sent to a Dead Letter Office Topic
+  ** *MUST* attempt to retry transmission of the UMessage. Retry policy is specific to the dispatcher implementation
+  ** Dispatcher *MUST NOT* discard CEs unless either UMessage has expired (UMessage.ttl), or the egress queue is full. CEs that cannot be delivered are sent to a Dead Letter Office Topic
 
-* *MAY* support additional CE delivery policies in general or per topic in the future
-* *SHOULD* dispatch in order that it received the CE
+* *MAY* support additional UMessage delivery policies in general or per topic in the future
+* *SHOULD* dispatch in order that it received the UMessage
 * *MAY* batch CEs when delivering to the Receiver
 * CEs that cannot be delivered *MUST* be sent to the Dead Letter topic (DLT)
-  ** DLT *MUST* include at least the CE header, SHOULD contain the full CE
+  ** DLT *MUST* include at least the UMessage header, SHOULD contain the full UMessage
   ** DLT *MUST* include the reason for the failed delivery attempt using  error codes defined in google.rpc.Code
   ** uEs MUST be able to subscribe to the DLT to be notified of message deliver failures
 
@@ -93,10 +93,10 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 |*google.rpc.Code* |*Reason*
 
 |`*UNAVAILABLE*`
-|The req.v1 has expired due to the downstream uE was unavailable (ex. uDevice was disconnected). uE that issued the req.v1 MAY retry with back-off
+|The Request message has expired due to the downstream uE was unavailable (ex. uDevice was disconnected). uE that issued the request *MAY* retry with back-off
 
 |`*DEADLINE_EXCEEDED*`
-|CE has timed out per the ttl attribute specifications defined in req.v1 event
+|UMessage has timed out per the ttl attribute specifications defined in req.v1 event
 
 |`*PERMISSION_DENIED*`
 |source is not permitted to access sink
@@ -108,7 +108,7 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 |The dispatcher ran out of resources (buffer full)
 
 |`*INVALID_ARGUMENT*`
-|Invalid CE header attributes not covered above (ex. any mal-formatted attributes)
+|Invalid UMessage header attributes not covered above (ex. any mal-formatted attributes)
 
 |`*UNKNOWN*`
 |An unknown (but not critical) error has occurred
@@ -117,19 +117,3 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 |There is a serious error has occurred not described by error codes mentioned above
 !===
 
-== Streamers
-TODO: Fill in this section with more informational details
-
-.Legend
-image::legend.png[#legend]
-
-=== Building uStreamers using uTransport APIs
-<<streamer-flow>> diagram below illustrates how the uTransport APIs are used to build a uStreamer. The uTransport APIs are used to send/receive UMessages over the underlining communication middleware. The uStreamer is responsible for routing the UMessages to the appropriate uE based on the UMessage header attributes.
-
-.Streamer Flows using uTransport
-image:streamer_flow.png[#streamer_flow]
-
-=== RPC Flows
-<<rpc-flow>> diagram below illustrates how the uPClient RpcClient & RpcServer interfaces are then connected to the uTransport such that a transport can send/receive the UMessages over the underlining communication middleware 
-.Rpc Flows
-image:rpc_flow.png[#rpc_flow]
