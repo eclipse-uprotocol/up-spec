@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport, and RpcClient. 
+Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport and RpcClient. 
 
 
 NOTE: All projects/libraries *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project and **MUST** also depend only on other permissive license libraries.
