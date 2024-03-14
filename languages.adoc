@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport, RpcClient, and RpcServer. 
+Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport, and RpcClient. 
 
 
 NOTE: All projects/libraries *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project and **MUST** also depend only on other permissive license libraries.
@@ -89,8 +89,8 @@ a| uP-L1 Transport Interface & data model.
 * *MUST* declare the interface & data model where as link:../upclient.adoc[uProtocol Client Library] implement the said interface.
 
 | `rpc`
-| link:up-l2/rpcclient.adoc[uP-L2 RPC Client] & link:up-l2/rpcserver.adoc[uP-L2 RPC Server]
-a|APIs used to invokemethods() (for clients) and register RpcRequest Listeners (servers) to simplify implementation of the RPC design pattern. 
+| link:up-l2/rpcclient.adoc[uP-L2 RPC Client]
+a|APIs used by clients to invoke methods to simplify implementation of the RPC design pattern. 
 
 |===
 
