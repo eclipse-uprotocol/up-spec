@@ -42,7 +42,4 @@ uProtocol Communication layer defines message processing, i.e. routing/ dispatch
 | link:rpcclient.adoc[*RpcClient*]
 | Interface for the generation of client-side boundary objects for uP-L3 services
 
-| link:rpcserver.adoc[*RpcServer*]
-| Interface for registering request handlers for a uP-L3 service
-
 |===
