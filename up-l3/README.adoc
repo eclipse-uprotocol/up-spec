@@ -72,6 +72,6 @@ This special purpose built uEs are required to implement uProtocol and must be p
 |Discovery of uThings locally, within a domain, and throughout the network. Supports URI resolution (to find where something is located)
 
 |*uTwin*
-|link:uTwin/v1/README.adoc[*v1*]
+|link:utwin/v2/README.adoc[*v2*]
 |Local cache of published events
 |===

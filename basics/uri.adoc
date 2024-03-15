@@ -59,18 +59,19 @@ The following is taken from https://datatracker.ietf.org/doc/html/rfc3986#append
 [#uuri-specification]
 image::uri.drawio.svg[uProtocol URI Specification]
 
-A uProtocol URI can be represented in three formats:
+A uProtocol URI can be represented in the following formats:
 
 1. <<UUri Data Model>>: Object format (declared in protobuf)
-2. <<Long Uris>>: UUri object serialized to a string containing names (i.e. human readable)
-3. <<Micro Uris>>: UUri serialized to a byte array (i.e. machine readable).
+2. <<Long URIs>>: UUri object serialized to a string containing names (i.e. human readable)
+3. <<Short URIs>>: UUri object serialized to a string containing numeric ids
+4. <<Micro URIs>>: UUri serialized to a byte array (i.e. machine readable).
 
 
 == Data Model
 
 This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
 
-NOTE: The term _resolved UUri_ shall be used to refer to a UUri object that contains both names and numbers (ids) so that the UUri can be serialized to both  Long and Micro format (explained further below).
+NOTE: _Resolved_ UUri refers to a UUri that contains both names and numbers (ids) meaning the UUri could be serialized to any of the given formats defined in <<Serializers>> below.
 
 
 * *MUST* be declared in protobuf such that the definitions can be shared across all programming languages
@@ -104,45 +105,46 @@ a| Validates the UUri object and return `UStatus` with the result of the validat
 | `validateRpcMethod(UUri): UStatus`
 a| Validate that the `UUri` is a valid RPC method UUri
 
-* *MUST*  return `UStatus::Failed` if  `validate(UUri)` fails
-* *MUST* return `UStatus::Failed` if the `UUri.resource.name != "rpc" \|\| `UUri.resource.id > [METHOD_ID_RANGE]` is out of range for Rpc methods
+* *MUST*  return `UStatus::Failed` if `validate(UUri)` fails or `isRpcMethod()` is false
 
 | `validateRpcResponse(UUri): UStatus`
 a| Validate that the `UUri` is a valid RPC Response UUri 
 
-* *MUST*  return `UStatus::Failed` if  `validate(UUri)` or `validateRpcMethod(UUri)` fails
-* *MUST* return `UStatus::Failed` if the `UUri.resource.name != "rpc" \|\| UUri.resource.instance != "response" \|\| UUri.resource.id != 0`
+* *MUST*  return `UStatus::Failed` if  `validate(UUri)` or `validateRpcMethod(UUri)` fails or `isRpcResponse()` is false
+
+| `isLocal(UUri): boolean`
+| Return true if: `!UUri.hasAuthority()`
 
 | `isLongForm(UUri): boolean`
-a| Returns true if the Uri part contains names so that it can be serialized to <<Long Uris>>.
+a| Returns true if the Uri part contains names so that it can be serialized to <<Long URIs>>.
 
 | `isEmpty(UUri): boolean`
 | Returns true if the object contains no information
 
 | `isResolved(UUri): boolean`
-| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long Uris>> and <<Micro Uris>>
+| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long URis>> and <<Micro URIs>>
 
 | `isMicroForm(UUri): boolean`
-| Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro Uris>>
+| Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro URIs>>
 
-| `isRpcMethod(UUri): boolean`
-| Returns true if the Uri is of type RPC (request or response)
+| `isShortForm(UUri): boolean`
+| Returns true if the Uri contains the required ids to be serialized to <<Short URIs>>.
 
-| `isRpcResponse(UUri): boolean`
-| Returns true if the Uri is of type RPC response
+| `isRpcMethod(UResource): boolean`
+| Returns true if: `id < 0x8000 && name == rpc`
+
+| `isRpcResponse(UResource): boolean`
+| Returns true if: `id==0  && name==rpc && instance==response`
 
 |===
 
 
 == Serializers
-`UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers.
-There are two implementations of the serializer, they are link:#_long_uris[LongUriSerializer] and link:#_micro_uris[MicroUriSerializer] that will be elaborated further in the next section.
+`UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers. We will explain each serialization format in this section. 
 
+=== Long URIs
 
-[#_long_uris]
-=== Long Uris
-
-Long URIs are UUris that have been serialized to a string containing human readable names.
+Long URIs are UUri objects that have been serialized to a string containing human readable name of the UUri.
 
 .Long Form URI Description
 [#long-form-uri]
@@ -150,29 +152,24 @@ Long URIs are UUris that have been serialized to a string containing human reada
 |===
 |Item |Value |Description
 
-|*SCHEME* |`up:` |Scheme (protocol name)
-|*USERINFO* |pchar |User information
-|*UDEVICE* |unreserved |Canonical hostname or IP address of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
-|*UDOMAIN* | |Canonical domain name of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
-|*PORT* |uint |The external port that the device streamer is listening on. Default **MAY **be 443
-|*UE* |pchar |The name of the uE
-|*UE_VERSION* |pchar a|
-uE version  section.
+|*`SCHEME`* |`up:` |Scheme (protocol name)
+|*`UAUTHORITY_NAME`* |unreserved |Canonical hostname of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
 
-If the URI is part of a topic:
+|*`UE_NAME`* |pchar |The uEntity name
 
-* *MUST* only contain the MAJOR version number
+|*`UE_VER_MAJOR`* |pchar | uEntity major version number only.
 
-|*METHOD* |pchar |Service rpc method name as defined in the service proto file, contains the prefix rpc. before the method name
-|*RESOURCE* |pchar |A uThing that can be uniquely identified using a URI and manipulated/controlled by a service. Resources unique scope is when prepended with device and service to become a fully qualified URI. uThings that are not resources may be a service specific features, functionality, capabilities, etc…
-|*MESSAGE* |*( pchar / "/" / "?" ) |Protobuf message name as defined in https://developers.google.com/protocol-buffers/docs/overview.
+|*`URESOURCE_NAME`* |pchar |The name of the resource. For methods, this is fixed to `rpc`.
+
+|*`URESOURCE_MESSAGE`* |*( pchar / "/" / "?" ) |Protobuf message name as defined in https://developers.google.com/protocol-buffers/docs/overview.
+
 |===
 
 
 *Additional URI Protocol Rules:*
 
 * *MAY* contain schema
-* A segment in the path (UE_NAME, UE_VERSION, RESOURCE, METHOD) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
+* A segment in the path (UE_NAME, UE_VER_MAJOR, URESOURCE_NAME) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
 * Schema and authority *MUST* be case-insensitive per RFC3986
 * Path, query, and message *MUST* be case-sensitive
 
@@ -184,9 +181,89 @@ If a segment in the path is empty:
 NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
 
 
+==== Examples
 
-[#_micro_uris]
-=== Micro Uris
+.Long Uri Examples
+[width="80%",cols="30%,70%"]
+|===
+|Type | String
+
+| Local RPC
+|`"/core.usubscription/3/rpc.Subscribe"`
+
+|Remote RPC
+|`"//bo.gm.com/core.usubscription/3/rpc.Subscribe"`
+
+| Local Publish
+|`"/body.access/2/door.front_left#Door"`
+
+|===
+
+
+=== Short URIs
+
+Short URIs are UUri objects that have been serialized to a string containing only numeric values of a UUri.
+
+.Short Form URI Description
+[#short-form-uri]
+[width="00%",cols="23%,18%,59%",options="header"]
+|===
+|Item |Value |Description
+
+|*`SCHEME`* |`up:` |Scheme (protocol name)
+|*`UAUTHORITY_IPV4`* |unreserved |IPv4 address per https://datatracker.ietf.org/doc/html/rfc791[RFC791].
+
+|*`UAUTHORITY_IPV6`* |unreserved |IPv6 address per https://datatracker.ietf.org/doc/html/rfc4291[RFC4291].
+
+|*`UAUTHORITY_ID`* |unreserved a| Identifier
+
+ *MAY* be a valid vehicle VIN (17 MSB)
+ *MUST* be fit within 255 bytes (when used for micro form)
+
+|*`UE_ID`* |pchar |The UEntity identifier
+
+|*`UE_VER_MAJOR`* |pchar | uEntity major version number only.
+
+|*`URESOURCE_ID`* |pchar |The unique identifier for the resource.
+
+|===
+
+
+*Additional URI Protocol Rules:*
+
+* *MAY* contain schema
+* A segment in the path (UE_ID, UE_VER_MAJOR, URESOURCE_ID) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
+* Schema and authority *MUST* be case-insensitive per RFC3986
+* Path, query, and message *MUST* be case-sensitive
+
+If a segment in the path is empty:
+
+* The path *MUST NOT* start with "//"
+* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
+
+NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
+
+
+==== Examples
+
+.Short Uri Examples
+[width="80%",cols="30%,70%"]
+|===
+|Type | String
+
+| Local RPC
+|`"/0/3/1"`
+
+|Remote RPC
+|`"//192.168.1.100/0/3/1"`
+
+| Local Publish
+|`"/10/2/32768"`
+
+|===
+
+
+=== Micro URIs
 Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
 
 * All fields of micro UUri *MUST* be populated
@@ -296,59 +373,29 @@ Remote UUris mean that the uThing is running on a different device and we need t
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
+=== Examples
 
-
-== Wildcards
-wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard is is represented in a long or short URI only when the segment is blank.
-
-NOTE: Not all implementations and uEs support wildcards, please refer to the implementation and uE documentation for more information.
-
-
-== Example URIs
-
-The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
-
-NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]. 
-
-
-. Serialized Uri Examples
-[width="100%",cols="20%,60%,20%",options="header"]
+.Micro Uri Examples
+[width="80%",cols="30%,70%",options="header"]
 |===
-|Example | Long (Serialized to String) | Micro (Serialized to byte[])
+|Type | Micro (as byte[])
 
 | Local
-|`"/core.usubscription/3/rpc.Subscribe"`
 |`[1, 0, 0, 1, 0, 0, 16, 0]`
 
 |Remote (IPv4)
-|`"//192.168.1.100/core.usubscription/3/rpc.Subscribe"`
 |`[1, 1, 0, 1, -64, -88, 1, 100, 0, 0, 16, 0]` 
 
-
 |Remote (IPv6)
-|`"//2001:db8:85a3:0:0:8a2e:370:7334/core.usubscription/3/rpc.Subscribe"`
 | `[1, 2, 0, 1, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52, 0, 0, 16, 0]` 
 
 |===
 
 
-=== Wildcard Examples
-.Query URIs
-[width="100%",cols="30%,70%",options="header"]
-|===
-| URI | Description
+== Wildcards
+Wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard are represented in a long or short URI only when the segment is blank.
 
-|up:/body.access/*/
-|Reference latest version since version information is blank
-
-|up:/body.access/[^1\|1}1.x\|1.*\|~1]
-|Any version between 1.0.0 and 2.0.0
-|up:/body.access/^1
-|Resolve vehicle service from resource
-|===
-
-
-NOTE: Please also refer to https://devhints.io/semver[devhints.io/semver] for more examples of version strings
+NOTE: Not all implementations and uEs support wildcards, please refer to the implementation and uE documentation for more information.
 
 
 == Best Practices
