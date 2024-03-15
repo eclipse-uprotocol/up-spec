@@ -47,9 +47,11 @@ MQTT 5 supports custom header fields, and we leverage this to map certain UAttri
 | UserProperty
 | ("upriority","{UAttribute.priority}")
 | CorrelationData
-| ("reqId", "{UAttribute.reqId}")
+| ("reqid", "{UAttribute.reqId}")
 | UserProperty
 | ("sink","{UAttribute.sink}") # Should this be serialized to MicroUri?
+| UserProperty
+| ("type", "{UAttribute.type}")
 |===
 
 The upriority field is needed as mqtt's QoS is very limited, so this will allow listeners to prioritize messages.
