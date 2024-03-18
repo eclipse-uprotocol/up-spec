@@ -49,7 +49,7 @@ MQTT 5 supports custom header fields, and we leverage this to map certain UAttri
 | CorrelationData
 | ("reqid", "{UAttribute.reqId}")
 | UserProperty
-| ("sink","{UAttribute.sink}") # Should this be serialized to MicroUri?
+| ("sink","{UAttribute.sink}") # Short Form Serialized
 | UserProperty
 | ("type", "{UAttribute.type}")
 |===
@@ -58,25 +58,35 @@ The upriority field is needed as mqtt's QoS is very limited, so this will allow 
 
 The Correlation Data Property Code contains the request correlation id.
 
-The sink field is used to correctly map a message to the correct uE as the topic name may not contain all of the information.
+The sink field is used to correctly map a message to the correct uE as the topic name may not contain all of the information. The sink field **MUST** be a short form serialized UUri.
+
+The type field provides information on the type of message being sent which can be used by a UListener to select messages on the topic.
 
 === URI Mapping
 
-Depending on whether the UURI is local or remote, the MQTT Topic that the message will be published on will be different:
+The URI mapping follows the short form UUri format, with the addition of a location identifier to determine if the message is intended for a local or cloud destination.
 
-* The remote UUri (with UAuthority): `upr/UUri.UAthority.name`
-* The local UUri (without UAuthority): `upl/UUri.UEntity/UUri.UResource`
+* Publish Message
+  - Use source UUri
+  - {location_identifier}/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+
+* Notification, Request or Response Message
+  - Use sink UUri
+  - {location_identifier}/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+
+Location Identifier is one of the following:
+  - d2c - This is to identify remote messages going from a device to the cloud.
+  - c2d - This is to identify remote messages going from the cloud to a device.
+  - upl - This is to identify local messages on the device.
 
 Examples:
-
-* The remote UUri (with UAuthority):
 
 [source]
 ----
 UUri {
   authority: UAuthority {
     name: "Vehicle_1",
-    number: Id({01, 02, 03, 10, 11, 12})
+    number: 192.168.0.0,
   },
   entity: UEntity {
     name: "body.access",
@@ -92,9 +102,10 @@ UUri {
 }
 ----
 
-Since this is a remote UUri, the MQTT Topic will simply be `upr/Vehicle_1`.
+* A Publish Message: `d2c/192.168.0.0/1234/1/5678`
+* A Notification, Request or Response Message: `c2d/192.168.0.0/1234/1/5678`
 
-* The local UUri (without UAuthority):
+Note: The kind of message should be determined using the Type UAttribute in the User Properites of the message.
 
 [source]
 ----
@@ -114,7 +125,9 @@ UUri {
 }
 ----
 
-Since this is a local UUri, the MQTT Topic will be constructed from the UEnity name and the UResource name `upl/body.access/door`.
+* All Message kinds: `upl/1234/1/5678`
+
+Note: The kind of message should be determined using the Type UAttribute in the User Properites of the message.
 
 === Payload Encoding
 
