@@ -122,7 +122,7 @@ a| Returns true if the Uri part contains names so that it can be serialized to <
 | Returns true if the object contains no information
 
 | `isResolved(UUri): boolean`
-| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long URis>> and <<Micro URIs>>
+| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long URIs>> and <<Micro URIs>>
 
 | `isMicroForm(UUri): boolean`
 | Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro URIs>>
@@ -168,7 +168,7 @@ Long URIs are UUri objects that have been serialized to a string containing huma
 
 *Additional URI Protocol Rules:*
 
-* *MAY* contain schema
+* *MAY* contain scheme
 * A segment in the path (UE_NAME, UE_VER_MAJOR, URESOURCE_NAME) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
 * Schema and authority *MUST* be case-insensitive per RFC3986
 * Path, query, and message *MUST* be case-sensitive
@@ -179,25 +179,6 @@ If a segment in the path is empty:
 * Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
 
 NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
-
-
-==== Examples
-
-.Long Uri Examples
-[width="80%",cols="30%,70%"]
-|===
-|Type | String
-
-| Local RPC
-|`"/core.usubscription/3/rpc.Subscribe"`
-
-|Remote RPC
-|`"//bo.gm.com/core.usubscription/3/rpc.Subscribe"`
-
-| Local Publish
-|`"/body.access/2/door.front_left#Door"`
-
-|===
 
 
 === Short URIs
@@ -218,7 +199,7 @@ Short URIs are UUri objects that have been serialized to a string containing onl
 |*`UAUTHORITY_ID`* |unreserved a| Identifier
 
  *MAY* be a valid vehicle VIN (17 MSB)
- *MUST* be fit within 255 bytes (when used for micro form)
+ *MUST* fit within 255 bytes (when used for micro form)
 
 |*`UE_ID`* |pchar |The UEntity identifier
 
@@ -231,7 +212,7 @@ Short URIs are UUri objects that have been serialized to a string containing onl
 
 *Additional URI Protocol Rules:*
 
-* *MAY* contain schema
+* *MAY* contain scheme
 * A segment in the path (UE_ID, UE_VER_MAJOR, URESOURCE_ID) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
 * Schema and authority *MUST* be case-insensitive per RFC3986
 * Path, query, and message *MUST* be case-sensitive
@@ -242,25 +223,6 @@ If a segment in the path is empty:
 * Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
 
 NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
-
-
-==== Examples
-
-.Short Uri Examples
-[width="80%",cols="30%,70%"]
-|===
-|Type | String
-
-| Local RPC
-|`"/0/3/1"`
-
-|Remote RPC
-|`"//192.168.1.100/0/3/1"`
-
-| Local Publish
-|`"/10/2/32768"`
-
-|===
 
 
 === Micro URIs
@@ -373,23 +335,82 @@ Remote UUris mean that the uThing is running on a different device and we need t
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ----
 
-=== Examples
+== URI Examples
 
-.Micro Uri Examples
+The following examples are based off the USubscription notification topic (see usubscription.proto).
+
+
+.Local Uri
 [width="80%",cols="30%,70%",options="header"]
 |===
-|Type | Micro (as byte[])
+|Format | Value
 
-| Local
-|`[1, 0, 0, 1, 0, 0, 16, 0]`
+|Long
+|`/core.usubscription/3/SubscriptionChange#Update`
 
-|Remote (IPv4)
-|`[1, 1, 0, 1, -64, -88, 1, 100, 0, 0, 16, 0]` 
+|Short
+| `/0/3/32768`
 
-|Remote (IPv6)
-| `[1, 2, 0, 1, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52, 0, 0, 16, 0]` 
+|Micro
+|`[1, 0, -128, 0, 0, 0, 3, 0]`
 
 |===
+
+
+=== Remote Uris
+
+
+.Remote IPv4 Uri
+[width="80%",cols="30%,70%",options="header"]
+|===
+|Format | Value
+
+|Long
+|`//vcu.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
+
+|Short
+| `//192.168.1.100/0/3/32768`
+
+|Micro
+|`[1, 1, -128, 0, 0, 0, 3, 0, -64, -88, 1, 100]`
+
+|===
+
+
+.Remote IPv6 Uri
+[width="80%",cols="30%,70%",options="header"]
+|===
+|Format | Value
+
+|Long
+|`//vcu.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
+
+|Short
+| `//2001:db8:85a3:0:0:8a2e:370:7334/0/3/32768`
+
+|Micro
+|`[1, 2, -128, 0, 0, 0, 3, 0, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52]`
+
+|===
+
+
+.Remote ID (VIN) Uri
+[width="80%",cols="30%,70%",options="header"]
+|===
+|Format | Value
+
+|Long
+|`//1G1YZ23J9P5800001.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
+
+|Short
+| `//1G1YZ23J9P5800001/0/3/32768`
+
+|Micro
+|`[1, 3, -128, 0, 0, 0, 3, 0, 17, 49, 71, 49, 89, 90, 50, 51, 74, 57, 80, 53, 56, 48, 48, 48, 48, 49]`
+
+|===
+
+
 
 
 == Wildcards
