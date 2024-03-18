@@ -81,7 +81,7 @@ image:uuri.drawio.svg[UUri Data Model]
 
  * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
 
-NOTE: please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uri.proto for the data model definitions
+NOTE: please refer to link:../../up-core-api/uprotocol/uri.proto for the data model definitions
 
 
 In the next section we shall define the per-language requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
@@ -308,7 +308,7 @@ NOTE: Not all implementations and uEs support wildcards, please refer to the imp
 
 The section will give a few example URIs and their use in uProtocol. Service and resource will be generalized in this section. Example devices used for reference are http://bo.up.gm.com[bo.up.gm.com] representing the back office device, and VIN representing a vehicle.
 
-NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]. 
+NOTE: To illustrate the different URI formats, we will use uSubscription service definitions and IDs found in link:../../up-core-api/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]. 
 
 
 . Serialized Uri Examples

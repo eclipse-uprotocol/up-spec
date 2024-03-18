@@ -30,4 +30,4 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 
-uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in up-core-api project in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/ustatus.proto[`ustatus.proto`] please refer to the proto for details about UStatus and UCode.
+uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in up-core-api project in link:../../up-core-api/uprotocol/ustatus.proto[`ustatus.proto`] please refer to the proto for details about UStatus and UCode.

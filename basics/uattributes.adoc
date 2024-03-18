@@ -33,4 +33,4 @@ SPDX-License-Identifier: Apache-2.0
 
 uProtocol Header attributes that are common for all transports. The UAttributes message holds routing and UMessage attributes such as priority, permission, communication status and more
 
-NOTE: Please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model
+NOTE: Please refer to hlink:../../up-core-api/uprotocol/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model

@@ -1,0 +1,45 @@
+= uProtocol Core Service APIs
+:toc:
+
+----
+Copyright (c) 2023 General Motors GTO LLC
+
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+----
+
+Core uProtocol services interfaces to define:
+
+.Protobuf Files
+|===
+|File |Description
+
+|link:udiscovery/v2/udiscovery.proto[*udiscovery.proto*]
+|Contract for dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+
+|link:usubscription/v2/usubscription.proto[*usubscription.proto*]
+|Contract for publishers and subscribers to subscribe/publish to topics
+
+|link:utwin/v1/utwin.proto[*utwin.proto*]
+a|* Device-to-device Twin:
+** To enable remote Apps to access last published state (and received by the device)
+** To remain accessible even if connectivity is lost
+* In-vehicle Twin:
+** To avoid re-sending (re-publishing) data when apps are launched/subscribed
+
+|===
+
