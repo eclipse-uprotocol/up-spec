@@ -68,16 +68,19 @@ The URI mapping follows the short form UUri format, with the addition of a locat
 
 * Publish Message
   - Use source UUri
-  - {location_identifier}/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+  - {location_identifier}/{UUri.UAuthority.number (remote only)}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
 
 * Notification, Request or Response Message
   - Use sink UUri
-  - {location_identifier}/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+  - {location_identifier}/{UUri.UAuthority.number (remote only)}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+
+* Subscribe to all messages from a UAuthority (remote only)
+  - {location_identifier}/{UUri.UAuthority.number}/+/+/+
 
 Location Identifier is one of the following:
   - d2c - This is to identify remote messages going from a device to the cloud.
   - c2d - This is to identify remote messages going from the cloud to a device.
-  - upl - This is to identify local messages on the device.
+  - upl - This is to identify local messages on the device. (UAuthority.number is not used in this scenario).
 
 Examples:
 
@@ -128,6 +131,23 @@ UUri {
 * All Message kinds: `upl/1234/1/5678`
 
 Note: The kind of message should be determined using the Type UAttribute in the User Properites of the message.
+
+If a UUri is provided with only a UAuthority we should subscribe to all topics under the UAuthority:
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: "Vehicle_1",
+    number: 192.168.0.0,
+  },
+  entity: empty,
+  resource: empty,
+}
+----
+
+* If in cloud, uses wildcard to subscribe to all messages from the UAuthority: `d2c/192.168.0.0/+/+/+`
+* If on device, uses wildcard to subscribe to all messages from the UAuthority: `c2d/192.168.0.0/+/+/+`
 
 === Payload Encoding
 
