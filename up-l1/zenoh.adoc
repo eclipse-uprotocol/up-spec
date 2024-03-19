@@ -40,7 +40,7 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version 0.10.1-rc to ensure different languages interoperability.
+We **MUST** use Zenoh version `0.10.1-rc` to ensure the interoperability in different language bindings.
 
 === UAttribute Mapping
 
