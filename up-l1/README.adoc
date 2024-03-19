@@ -105,8 +105,9 @@ The API signature:
 
 * All UMessage attributes metadata *MUST* be preserved during transmission and available to the receiver
 * *MUST* not manipulate the UMessage payload during transmission
-* *SHOULD* pass resolved UUris (contains both names and numbers)
-* *SHOULD* use the Miro Uri serialization format
+* *MUST* pass UUris which satisfy criteria for <<_micro_uris, Micro Uris>>
+* *SHOULD* pass Resolved UUris (contains both names and numbers)
+* *SHOULD* use the Micro Uri serialization format
 
 
 
