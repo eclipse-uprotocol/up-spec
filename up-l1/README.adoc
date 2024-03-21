@@ -107,7 +107,6 @@ The API signature:
 * *MUST* not manipulate the UMessage payload during transmission
 * *MUST* pass UUris for which `isMicroForm()` return true
 * *SHOULD* pass Resolved UUris (contains both names and numbers)
-* *SHOULD* use the Micro Uri serialization format
 
 
 
