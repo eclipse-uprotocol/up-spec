@@ -105,8 +105,8 @@ The API signature:
 
 * All UMessage attributes metadata *MUST* be preserved during transmission and available to the receiver
 * *MUST* not manipulate the UMessage payload during transmission
-* *SHOULD* pass resolved UUris (contains both names and numbers)
-* *SHOULD* use the Miro Uri serialization format
+* *MUST* pass UUris for which `isMicroForm()` return true
+* *SHOULD* pass Resolved UUris (contains both names and numbers)
 
 
 
@@ -122,6 +122,8 @@ API Signature:
  * *MUST* support registering more than one listener per topic
  * *MUST* support registering more than one topic per listener
  * Transport implementations *MUST* declare the maximum number of listeners per topic that it can support. If the maximum number of listeners is reached, the transport *MUST* return `RESOURCE_EXHAUSTED` status code
+* *MUST* pass a UUri for which `isMicroForm()` returns true
+* *SHOULD* pass a Resolved UUri (contains both names and numbers)
 
 
 ==== Parameters
@@ -160,6 +162,9 @@ API Signature:
 | Listener to be unregistered
 
 |===
+
+* *MUST* pass a UUri for which `isMicroForm()` returns true
+* *SHOULD* pass a Resolved UUri (contains both names and numbers)
 
 
 === Receive()
