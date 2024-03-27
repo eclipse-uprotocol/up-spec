@@ -62,7 +62,7 @@ message UAttributes {
     UUri sink = 4;
 
     // The QoS level that this message should be processed/delivered with. If not specified explicitly, the
-    // https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/qos.adoc#default-priority[default priority level] is assumed.
+    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/qos.adoc#default-priority[default priority level] is assumed.
     //
     // RPC Request messages MUST have this property set to a value of `UPRIORITY_CS4` or higher.
     // RPC Response messages MUST have this property set to the same value as that of the corresponding RPC Request message.
@@ -76,12 +76,12 @@ message UAttributes {
     optional uint32 ttl = 6;
     
     // The service consumer's permission level as defined in
-    // https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/permissions.adoc[Permissions].
+    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
     //
     // Publish, Notification and RPC Response messages MUST NOT have this property set to any value.
     optional uint32 permission_level = 7;
 
-    // A https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/ustatus.proto[code] indicating an error that has occurred
+    // A UCode indicating an error that has occurred
     // during the delivery of either an RPC Request or Response message.
     // A value of `0` or no value indicates that there was no communication error.
     //
@@ -96,7 +96,7 @@ message UAttributes {
     UUID reqid = 9;
 
     // The service consumer's access token as defined in
-    // https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/permissions.adoc[Permissions].
+    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
     //
     // Publish, Notification and RPC Response messages MUST NOT have this property set to any value.
     optional string token = 10;
@@ -121,7 +121,7 @@ message CallOptions {
     uint32 ttl = 2;
     
     // The service consumer's access token as defined in
-    // https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/permissions.adoc[Permissions].
+    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
     optional string token = 3;
 }
 
@@ -154,7 +154,7 @@ enum UMessageType {
 
 
 // uProtocol Priority as defined in 
-// https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/qos.adoc[uProtocol Prioritization]
+// https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/qos.adoc[uProtocol Prioritization]
 enum UPriority {
     // Unspecified priority
     UPRIORITY_UNSPECIFIED = 0;
