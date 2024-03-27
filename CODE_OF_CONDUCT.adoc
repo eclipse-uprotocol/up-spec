@@ -1,0 +1,46 @@
+# Code of Conduct
+
+The Eclipse Foundation has a code of conduct that all projects must adhere to. the standard code of conduct that all Eclipse projects must adhere are defined in the following documents: 
+
+- https://raw.githubusercontent.com/eclipse/.github/master/CODE_OF_CONDUCT.md[Eclipse Code of Conduct]
+- https://www.eclipse.org/projects/handbook/[Eclipse Foundation Handbook]
+- https://www.eclipse.org/legal/committerguidelines.php[Eclipse Committer Due Diligence Guidelines]
+
+We (the committers) aim to run this project in an open and fair manner where contributions are encouraged from all companies and individuals. We aim for high quality, well documented and tested software that can be used in production environments.  
+
+This document shall outline additional roles and responsibilities for committers and project leads to ensure the project is well maintained and supported to be useable in production environments.
+
+## Committers
+https://www.eclipse.org/projects/handbook/#roles-cm[Eclipse-uProtocol Committers] play a vital role to ensure contributions from others (and themselves) follow the vision and mission of the project as well. In this section we will outline how committers are nominated, retired, and their duties while in service. 
+
+### Duties
+
+* Contribute to specifications by providing feedback, code contributions in up-spec, up-core-api repos
+* Ensure all contributors (including themselves) adhere to this code of conduct, the Eclipse Foundation Handbook, and the vision & mission of the project
+* Make _significant_ code contributions to one or more repositories in the Eclipse-uProtocol project
+* Review and provide feedback to pull requests from other contributors
+* _Actively_ participate in weekly/bi-weekly project meetings
+
+### Nomination
+Contributors are nominated by a uProtocol Committer when they meet the https://www.eclipse.org/projects/handbook/#elections-committer[Eclipse Committer Nomination Process] requirements and are actively performing the duties of a committer mentioned above.
+
+### Retirement
+Per https://www.eclipse.org/projects/handbook/#elections-retire-cm[Eclipse Foundation Handbook], Committers may retire for one of the following reasons:
+
+1. Their own volition
+2. By the project lead (with supporting justification)
+
+Non-exhaustive examples for early retirement might be:
+  - Inactivity over extended period of time
+  - Repeated violations of this code of conduct (ex. obstructing progress during discussions/PRs without valid justification, intentional damage of various repos/projects, etc...)
+
+All communication regarding committer nominations and retirement, *SHALL* be sent to the uprotocol-dev@eclipse.org mailing list.
+
+
+## Project Lead
+In addition to the duties mentioned in https://www.eclipse.org/projects/handbook/#roles-pl[Eclipse Contributor Handbook], project leads *MUST* also fulfill the Committer <<Duties>> defined above.
+
+
+'''
+
+NOTE: Violation to this code of conduct should be reported to the https://gitlab.eclipse.org/eclipsefdn/emo-team/emo/-/issues[Eclipse Foundation Management Office (EMO)]

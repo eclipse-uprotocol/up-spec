@@ -6,12 +6,7 @@ This project implements the Eclipse Foundation Security Policy
 
 ## Supported Versions
 
-These versions of Eclipse Dash are currently being supported with security
-updates.
-
-| Version      | Released   | Supported          |
-| ------------ | ---------- | ------------------ |
-| 1.0 Handbook | 2021-10-06 | Yes                |
+TBD
 
 ## Reporting a Vulnerability
 
