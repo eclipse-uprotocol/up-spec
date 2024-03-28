@@ -1,0 +1,31 @@
+image:https://github.com/eclipse-uprotocol/.github/raw/main/logo/uprotocol_logo.png[uProtocol, width=640]
+
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[License,link=https://opensource.org/licenses/Apache-2.0]
+
+*NOTE:* _Please refer to https://github.com/eclipse-uprotocol/uprotocol-spec[] for more information about uProtocol_
+
+== Overview
+
+This project contains the core data models (UUri, UAttributes, etc..) and core services definitions (uDiscovery, uSubscription, uTwin) of uProtocol. This project is used by other uprotocol projects such as the language specific SDKs and uLink library that extend the data model to add validators, serializers, and factory/builder methods.
+
+
+=== How To Build?
+
+The Project uses maven to build the protobuf message. The target to build the code is:
+
+[source,bash]
+----
+mvn verify -f "pom.xml"
+----
+
+=== How To Use?
+To pull the built (java) artifacts from maven central, add the following dependency to your pom.xml file:
+[source]
+----
+<!-- uProtocol Core -->
+<dependency>
+    <groupId>org.eclipse.uprotocol</groupId>
+    <artifactId>uprotocol-core-api</artifactId>
+    <version>1.5.0</version>
+</dependency>
+----

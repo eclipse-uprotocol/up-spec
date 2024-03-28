@@ -1,0 +1,111 @@
+/*
+ * Copyright (c) 2023 General Motors GTO LLC
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+syntax = "proto3";
+
+package uprotocol.v1;
+
+import "google/protobuf/any.proto";
+option java_package = "org.eclipse.uprotocol.v1";
+option java_outer_classname = "UStatusProto";
+option java_multiple_files = true;
+
+// uProtocol Error model for all uProtocol APIs that is loosly based off
+// google.rpc.Status
+message UStatus {
+  // The status code.
+  UCode code = 1;
+
+  // A developer-facing error message, which should be in English. Any
+  // user-facing error message should be localized and sent in the
+  // details field, or localized by the client.
+  optional string message = 2;
+
+  // A list of messages that carry the error details.  There is a common set of
+  // message types for APIs to use.
+  repeated google.protobuf.Any details = 3;
+}
+
+
+// Canonical Error codes for uProtocol APIs
+enum UCode {
+  // Completes successfully
+  OK = 0;
+
+  // Operation has been cancelled by the caller
+  CANCELLED = 1;
+
+  // An unknown (but not critical) error has occurred
+  UNKNOWN = 2;
+
+  // Passed arguments are invalid (ex. improperly formatted)
+  INVALID_ARGUMENT = 3;
+
+  // Operation has expired (timeout)
+  DEADLINE_EXCEEDED = 4;
+
+  // Operation cannot be completed because the requested entity was not
+  // found (ex. database lookup and the data is not found)
+  // Calling uE *MAY* retry the operation with back-off
+  NOT_FOUND = 5;
+
+  // The calling uE requested to add/create something that already exists 
+  // (ex. add to a database something that is already there)
+  ALREADY_EXISTS = 6;
+
+  // The calling uE is authenticated but not permitted to call the API
+  PERMISSION_DENIED = 7;
+
+  // The calling uE does not have valid authentication credentials for the API
+  UNAUTHENTICATED = 16;
+
+  // The resource being accessed has been exhausted (ex. out of disk space, etc...)
+  RESOURCE_EXHAUSTED = 8;
+
+  // The system (service) is in a state that it cannot handle the request
+  // Calling uEs *SHOULD NOT* retry till the system state has been corrected
+  FAILED_PRECONDITION = 9;
+
+  // The operation was aborted, typically due to a concurrency issue such as 
+  // a sequencer check failure or transaction abort
+  // Calling uEs *MAY* retry but at a higher frequency than UNAVAILABLE
+  ABORTED = 10;
+
+  // A caller would typically iterating through the results from said API 
+  // and can is expected to detect the end of the results (out of range)
+  OUT_OF_RANGE = 11;
+
+  // Part or all of the requested operation has not been implemented yet
+  UNIMPLEMENTED = 12;
+
+  // A serious internal error has not described by a known error code
+  INTERNAL = 13;
+
+  // The operation is currently unavailable
+  // Calling uEs *MAY* retry with back-off
+  UNAVAILABLE = 14;
+
+  // When an unrecoverable data loss or corruption has occurred
+  DATA_LOSS = 15;
+}

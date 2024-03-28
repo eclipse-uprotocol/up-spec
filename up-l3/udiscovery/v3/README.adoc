@@ -55,12 +55,12 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 
 uDiscovery provides the ability to discovery stuff that is addressable using UUri notation (devices, services, topics/methods) as well as properties of said stuff. 
 
-NOTE: Data model and interface is described in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
+NOTE: Data model and interface is described in link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
 .uProtocol Discovery Architecture
 image::overview.drawio.svg[Overview]
 
-NOTE: Components described in <<udiscovery-ues>> below all implement https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
+NOTE: Components described in <<udiscovery-ues>> below all implement link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
 
 .uDiscovery Software Entities
@@ -105,7 +105,7 @@ image::hierarchical.drawio.svg[Classification]
 
 ==== Node
 
-Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto], the snippet is below:
+Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto], the snippet is below:
 
 
 .Node & Property Definitions
@@ -252,7 +252,7 @@ API requirements related to Node metadata shall be covered in the subsequent sec
 
 == uDiscovery Interface
 
-In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
+In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
 
 === Notifications
 

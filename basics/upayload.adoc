@@ -32,4 +32,4 @@ SPDX-License-Identifier: Apache-2.0
 == Overview 
 UPayload contains the actual message payload (either by value or reference) as well as metadata such as the format, size, etc... 
 
-NOTE: Please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/upayload.proto[upayload.proto] for more details
+NOTE: Please refer tolink:../../up-core-api/uprotocol/upayload.proto[upayload.proto] for more details

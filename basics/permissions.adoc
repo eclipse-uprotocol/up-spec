@@ -89,7 +89,7 @@ While inspired by Android’s permission, CAPs under the current proposal are di
 
 === Service Declaration of uPLs
 
-Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in  https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uprotocol_options.proto[uprotocol_options.proto] and their purpose is defined in <<cap-options>> below. 
+Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in  link:../../up-core-api/uprotocol/uprotocol_options.proto[uprotocol_options.proto] and their purpose is defined in <<cap-options>> below. 
 
 * uPL value *MUST* be an integer, 0 to N, where N is the most permissive level. The default value is 0.
 
@@ -115,7 +115,7 @@ NOTE: *MUST* assumes the most permissive level, N, if the the declarations above
 === Client Declaration of uPLs
 Claimed level of a uE is also handled by link:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the link:../up-l1/README.adoc[uTransport] implementation.
 
-When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[uAttributes `permission_level`].
+When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../../up-core-api/uprotocol/uattributes.proto[uAttributes `permission_level`].
 
 uEs that do not have proto defintions (i.e. applications),  claimed uPLs using a implementation specific manor like Android's manifest file. See <<Example using Android>> for an example.
 
@@ -175,6 +175,6 @@ Scope is the list of artifacts that the caller (who has the token) are allowed t
 
 === Sending Tokens
 
-Tokens are passed by the called to the transport (and then carried throughout the network) by populating the https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uattributes.proto[`token`] uAttributes header field.
+Tokens are passed by the called to the transport (and then carried throughout the network) by populating the link:../../up-core-api/uprotocol/uattributes.proto[`token`] uAttributes header field.
 
 
