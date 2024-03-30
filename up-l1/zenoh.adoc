@@ -247,22 +247,18 @@ The section provides the details how it works in different message types.
 
 ==== Transfer Response message
 
-1. Service provider (`provider-authority/provider-entity`) creates a message with
-    * source: `up://provider-authority/provider-entity/provider-version/rpc.methodname`
-    * sink: `up://consumer-authority/consumer-entity/consumer-version/rpc.response`
+The way to transfer Response message is different from others, because Zenoh can reply the message with its own mechanism and doesn't need to map the UUri to another Zenoh key.
 
-2. `UTransport.send` maps sink (**destination UUri**) to Zenoh key
-    * local (w/o consumer-authority): `upl/` + `consumer-resource-id(which is 0) + consumer-entity-id + consumer-version`
-    * remote (with consumer-authority): `upr/` + `consumer-authority-id/` + `consumer-resource-id(which is 0) + consumer-entity-id + consumer-version`
+1. Service provider receives a Request message with `Zenoh queryable`, and it can store this query with `UAttributes.id`.
 
-3. Service consumer (consumer-authority/consumer-entity) registers a listener on **destination UUri**
-    * `up://consumer-authority/consumer-entity/consumer-version/rpc.response`
+2. `UTransport.send` will retrieve the specific query by comparing the `UAttributes.reqid`, and then send back the message with that query.
 
-4. which `UTransport.registerListener` maps to Zenoh key
-    * local (w/o consumer-authority): `upl/` + `consumer-resource-id(which is 0) + consumer-entity-id + consumer-version`
-    * remote (with consumer-authority): `upr/` + `consumer-authority-id/` + `consumer-resource-id(which is 0) + consumer-entity-id + consumer-version`
-
-5. Since this is **Response URI**, the listener will be saved inside the `UPClientZenoh` and be called while receiving the response.
+3. There are two ways for service consumer to receive the response message:
+    * Using `invoke_method`:
+        - After sending query with `Zenoh get`, we can receive the reply by using `recv()`.
+    * Using `register_listener`:
+        - Service consumer (consumer-authority/consumer-entity) registers a listener on **Response UUri** (`up://consumer-authority/consumer-entity/consumer-version/rpc.response`)
+        - While the request is sent by `UTransport.send`, the listener will be registered in `Zenoh get` and triggered if receiving the response message.
 
 ==== Message routing
 
