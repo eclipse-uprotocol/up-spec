@@ -39,28 +39,41 @@ For more information, please refer to https://mqtt.org/
 
 === UAttribute Mapping
 
-MQTT 5 supports custom header fields, and we leverage this to map certain UAttribute values into the MQTT header.
+MQTT 5 supports custom header fields, and we leverage this to map the UAttribute values into the MQTT header.
 
 [cols="1,1"]
 |===
 | MQTT Header Property Code | Value (key:value)
 | UserProperty
-| ("upriority","{UAttribute.priority}")
-| CorrelationData
-| ("reqid", "{UAttribute.reqId}")
+| ("id", "{UAttribute.id}")
+| UserProperty
+| ("type", "{UAttribute.type}")
+| UserProperty
+| ("source","{UAttribute.source}") # Short Form Serialized
 | UserProperty
 | ("sink","{UAttribute.sink}") # Short Form Serialized
 | UserProperty
-| ("type", "{UAttribute.type}")
+| ("priority","{UAttribute.priority}")
+| CorrelationData
+| ("reqid", "{UAttribute.reqId}")
+| UserProperty
+| ("ttl", "{UAttribute.ttl}") # Optional
+| UserProperty
+| ("permission_level", "{UAttribute.permissionLevel}") # Optional
+| UserProperty
+| ("commstatus", "{UAttribute.commStatus}") # Optional
+| UserProperty
+| ("token", "{UAttribute.token}") # Optional
+| UserProperty
+| ("traceparent", "{UAttribute.traceParent}") # Optional
 |===
 
-The upriority field is needed as mqtt's QoS is very limited, so this will allow listeners to prioritize messages.
 
-The Correlation Data Property Code contains the request correlation id.
+Most uAttributes are mapped to a MQTT header UserProperty with the exception of the reqId which is mapped to the CorrelationData property.
 
-The sink field is used to correctly map a message to the correct uE as the topic name may not contain all of the information. The sink field **MUST** be a short form serialized UUri.
+The source and sink fields **MUST** be a short form serialized UUri.
 
-The type field provides information on the type of message being sent which can be used by a UListener to select messages on the topic.
+The type field is used by a UListener to select message types on the topic.
 
 === URI Mapping
 
@@ -151,4 +164,4 @@ UUri {
 
 === Payload Encoding
 
-The MQTT payload **MUST** be a UMessage that is represented as a byte array to reduce size.
+The MQTT payload **MUST** be a UPayload that is represented as a byte array to reduce size.
