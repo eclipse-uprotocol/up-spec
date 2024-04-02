@@ -79,21 +79,20 @@ The type field is used by a UListener to select message types on the topic.
 
 The URI mapping follows the short form UUri format, with the addition of a location identifier to determine if the message is intended for a local or cloud destination.
 
-* Publish Message
-  - Use source UUri
-  - {location_identifier}/{UUri.UAuthority.number (remote only)}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
 
-* Notification, Request or Response Message
-  - Use sink UUri
-  - {location_identifier}/{UUri.UAuthority.number (remote only)}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}
+- `up/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}`
 
-* Subscribe to all messages from a UAuthority (remote only)
-  - {location_identifier}/{UUri.UAuthority.number}/+/+/+
+  Note: If the UUri does not contain a UAuthority, add the UAuthority.number for the UAuthority the transport client is running on.
 
-Location Identifier is one of the following:
-  - d2c - This is to identify remote messages going from a device to the cloud.
-  - c2d - This is to identify remote messages going from the cloud to a device.
-  - upl - This is to identify local messages on the device. (UAuthority.number is not used in this scenario).
+Subscribe to all messages to the current Authority
+
+- `up/{UUri.UAuthority.number}/+/+/+` where `UAttributes.type != Publish`
+
+Subscribe to all messages from a different Authority
+
+- `up/{UUri.UAuthority.number}/+/+/+` where `UAttributes.type == Publish`
+
+When sending a message, the source UUri is used for Publish message types and sink UUri is used for all other message types.
 
 Examples:
 
@@ -117,11 +116,8 @@ UUri {
   }
 }
 ----
+topic: `up/192.168.0.0/1234/1/5678`
 
-* A Publish Message: `d2c/192.168.0.0/1234/1/5678`
-* A Notification, Request or Response Message: `c2d/192.168.0.0/1234/1/5678`
-
-Note: The kind of message should be determined using the Type UAttribute in the User Properites of the message.
 
 [source]
 ----
@@ -141,11 +137,10 @@ UUri {
 }
 ----
 
-* All Message kinds: `upl/1234/1/5678`
+topic: `up/{current UAuthority}/1234/1/5678`
 
-Note: The kind of message should be determined using the Type UAttribute in the User Properites of the message.
 
-If a UUri is provided with only a UAuthority we should subscribe to all topics under the UAuthority:
+If a UUri is provided with only a UAuthority we should subscribe to all topics under the UAuthority topic:
 
 [source]
 ----
@@ -159,8 +154,8 @@ UUri {
 }
 ----
 
-* If in cloud, uses wildcard to subscribe to all messages from the UAuthority: `d2c/192.168.0.0/+/+/+`
-* If on device, uses wildcard to subscribe to all messages from the UAuthority: `c2d/192.168.0.0/+/+/+`
+* If UAuthority matches current UAuthority: `up/192.168.0.0/+/+/+` where UAttributes.type != Publish.
+* If UAuthority does not match current UAuthority: `up/192.168.0.0/+/+/+` where UAttributes.type == Publish.`
 
 === Payload Encoding
 
