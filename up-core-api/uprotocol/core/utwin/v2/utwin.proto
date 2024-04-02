@@ -24,14 +24,14 @@
  */
 syntax = "proto3";
 
-package uprotocol.core.utwin.v1;
+package uprotocol.core.utwin.v2;
 
 import "uprotocol_options.proto";
 import "ustatus.proto";
 import "uri.proto";
 import "umessage.proto";
 
-option java_package = "org.eclipse.uprotocol.core.utwin.v1";
+option java_package = "org.eclipse.uprotocol.core.utwin.v2";
 option java_outer_classname = "UTwinProto";
 option java_multiple_files = true;
 
