@@ -1,0 +1,81 @@
+/*
+ * Copyright (c) 2023 General Motors GTO LLC
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
+ * SPDX-License-Identifier: Apache-2.0
+*/
+syntax = "proto3";
+
+package uprotocol.v1;
+
+import "uprotocol_options.proto";
+
+option java_package = "org.eclipse.uprotocol.v1";
+option java_outer_classname = "UPayloadProto";
+option java_multiple_files = true;
+
+
+// UPayload Message <br>
+// UPayload is the data model for storing the data and metadata for what is being sent
+// between uEs. Data can be passed either by reference or value. If data is passed by
+// reference, the data is stored in the uE's data store and the reference field contains
+// the pointer address to the data. If data is passed by value, the data is stored in the
+// value field. The length field is required if data is passed by reference. The format
+message UPayload {
+    oneof data {
+        fixed64 reference = 1; // Data is passed by reference so this is the pointer address
+        bytes value = 2;        // Data is passed by value so value contains a copy of the data
+    }
+
+    // Length of the data in bytes, required if data is passed by reference only
+    optional int32 length = 3;
+
+    // Serialization format of the data
+    UPayloadFormat format = 4;
+}
+
+// The Serialization format for the data stored in uPayload.
+enum UPayloadFormat {
+    // Payload format was not is not set,
+    // per specification, assumption is UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
+    UPAYLOAD_FORMAT_UNSPECIFIED = 0;
+    
+    // Payload is an Any protobuf message that contains the packed payload
+    UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
+
+    // Protobuf serialization format
+    UPAYLOAD_FORMAT_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
+
+    // JSON serialization format
+    UPAYLOAD_FORMAT_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
+
+    // Basic SOME/IP serialization format
+    UPAYLOAD_FORMAT_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
+
+    // SOME/IP TLV format
+    UPAYLOAD_FORMAT_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
+
+    // RAW (binary) format
+    UPAYLOAD_FORMAT_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
+
+    // Text format
+    UPAYLOAD_FORMAT_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
+}

@@ -33,4 +33,4 @@ SPDX-License-Identifier: Apache-2.0
 
 UMessage is the top-level message type for the uProtocol. It contains a link:uri.adoc[UUri] (source address), link:uattributes.adoc[UAttributes] (uProtocol header), and link:upayload.adoc[UPayload] (the message payload). UMessage is the common way to represent messages sent between uEs over any communication protocol/middleware.
 
-NOTE: Please refer to https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/umessage.proto[umessage.proto] for more details.
+NOTE: Please refer to link:../../up-core-api/uprotocol/umessage.proto[umessage.proto] for more details.

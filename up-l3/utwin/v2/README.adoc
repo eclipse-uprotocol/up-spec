@@ -67,7 +67,7 @@ Main justification for the need of digital twin are described below:
 
 This document suggests approaches to implement a digital twin concept for uProtocol.
 
-NOTE: The uTwin interface is link:../../../../src/main/proto/core/utwin/v1/utwin.proto[utwin.proto]
+NOTE: The uTwin interface is link:../../../up-core-api/uprotocol/core/utwin/v2/utwin.proto[utwin.proto]
 
 
 == Proposal

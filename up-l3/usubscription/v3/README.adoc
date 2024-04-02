@@ -37,7 +37,7 @@ Off the shelf broker and broker-less solutions, rely on specific Internet protoc
 uSubscriptions purpose is to explain _how_ the distributed publisher-subscriber architecture pattern can be implemented through a ubiquitous language and communication protocol across the distributed devices. We will define the interfaces, sequences, and state machines to be able to support the use cases mentioned above.
 
 
-NOTE: uSubscription interface is defined https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto] and follows link:../../../basics/error_model.adoc[uProtocol Error Model] for return codes.
+NOTE: uSubscription interface is defined link:../../../up-core-api/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto] and follows link:../../../basics/error_model.adoc[uProtocol Error Model] for return codes.
 
 
 == Topics
