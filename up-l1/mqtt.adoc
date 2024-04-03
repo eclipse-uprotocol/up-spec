@@ -45,31 +45,30 @@ MQTT 5 supports custom header fields, and we leverage this to map the UAttribute
 |===
 | MQTT Header Property Code | Value (key:value)
 | UserProperty
-| ("id", "{UAttribute.id}")
+| ("1", "{UAttribute.id}") # UUID id
 | UserProperty
-| ("type", "{UAttribute.type}")
+| ("2", "{UAttribute.type}") # UMessageType
 | UserProperty
-| ("source","{UAttribute.source}") # Short Form Serialized
+| ("3","{UAttribute.source}") # Short Form Serialized Source UURI
 | UserProperty
-| ("sink","{UAttribute.sink}") # Short Form Serialized
+| ("4","{UAttribute.sink}") # Short Form Serialized Sink UURI
 | UserProperty
-| ("priority","{UAttribute.priority}")
-| CorrelationData
-| ("reqid", "{UAttribute.reqId}")
+| ("5","{UAttribute.priority}") # UPriority
 | UserProperty
-| ("ttl", "{UAttribute.ttl}") # Optional
+| ("6", "{UAttribute.ttl}") # Optional ttl
 | UserProperty
-| ("permission_level", "{UAttribute.permissionLevel}") # Optional
+| ("7", "{UAttribute.permissionLevel}") # Optional permission level
 | UserProperty
-| ("commstatus", "{UAttribute.commStatus}") # Optional
+| ("8", "{UAttribute.commStatus}") # Optional UCode commstatus
 | UserProperty
-| ("token", "{UAttribute.token}") # Optional
+| ("9", "{UAttribute.reqId}") # UUID reqid
 | UserProperty
-| ("traceparent", "{UAttribute.traceParent}") # Optional
+| ("10", "{UAttribute.token}") # Optional token
+| UserProperty
+| ("11", "{UAttribute.traceParent}") # Optional traceparent
 |===
 
-
-Most uAttributes are mapped to a MQTT header UserProperty with the exception of the reqId which is mapped to the CorrelationData property.
+All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number.
 
 The source and sink fields **MUST** be a short form serialized UUri.
 
@@ -79,18 +78,17 @@ The type field is used by a UListener to select message types on the topic.
 
 The URI mapping follows the short form UUri format, with the addition of a location identifier to determine if the message is intended for a local or cloud destination.
 
-
-- `up/{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}`
+- `{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}`
 
   Note: If the UUri does not contain a UAuthority, add the UAuthority.number for the UAuthority the transport client is running on.
 
 Subscribe to all messages to the current Authority
 
-- `up/{UUri.UAuthority.number}/+/+/+` where `UAttributes.type != Publish`
+- `{UUri.UAuthority.number}/+/+/+` where `UAttributes.type != Publish`
 
 Subscribe to all messages from a different Authority
 
-- `up/{UUri.UAuthority.number}/+/+/+` where `UAttributes.type == Publish`
+- `{UUri.UAuthority.number}/+/+/+` where `UAttributes.type == Publish`
 
 When sending a message, the source UUri is used for Publish message types and sink UUri is used for all other message types.
 
@@ -116,7 +114,7 @@ UUri {
   }
 }
 ----
-topic: `up/192.168.0.0/1234/1/5678`
+topic: `192.168.0.0/1234/1/5678`
 
 
 [source]
@@ -137,7 +135,7 @@ UUri {
 }
 ----
 
-topic: `up/{current UAuthority}/1234/1/5678`
+topic: `{current UAuthority}/1234/1/5678`
 
 
 If a UUri is provided with only a UAuthority we should subscribe to all topics under the UAuthority topic:
@@ -154,8 +152,8 @@ UUri {
 }
 ----
 
-* If UAuthority matches current UAuthority: `up/192.168.0.0/+/+/+` where UAttributes.type != Publish.
-* If UAuthority does not match current UAuthority: `up/192.168.0.0/+/+/+` where UAttributes.type == Publish.`
+* If UAuthority matches current UAuthority: `192.168.0.0/+/+/+` where UAttributes.type != Publish.
+* If UAuthority does not match current UAuthority: `192.168.0.0/+/+/+` where UAttributes.type == Publish.`
 
 === Payload Encoding
 
