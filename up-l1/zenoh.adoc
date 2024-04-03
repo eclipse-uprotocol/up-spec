@@ -38,6 +38,10 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 == Specifications
 
+=== Zenoh Version
+
+We **MUST** use Zenoh version `0.10.1-rc` to ensure the interoperability in different language bindings.
+
 === UAttribute Mapping
 
 Zenoh supports user attachment.
@@ -64,7 +68,7 @@ Now the version is always 0x01.
 
 ==== Message Type
 
-There are 3 kinds of message types in uProtocol (publish, request, response).
+There are 4 kinds of message types in uProtocol (publish, notification, request, response).
 Different message types **MUST** use different Zenoh API.
 
 [cols="1,1"]
@@ -72,6 +76,7 @@ Different message types **MUST** use different Zenoh API.
 | uProtocol message type | Zenoh API
 
 | publish | put
+| notification | put
 | request | get (query)
 | response | reply (queryable)
 |===
@@ -178,3 +183,87 @@ Encoding::WithSuffix(
 ----
 
 * Zenoh takes data as a buffer simply and sends it directly. Ignore the shared memory (reference) temporarily.
+
+=== Work Flow
+
+The section provides the details how it works in different message types.
+
+==== Transfer Publish message
+
+1. A uEntity (`origin-authority/origin-entity`) creates a message with
+    * source: `up://origin-authority/origin-entity/origin-version/origin-resource.instance#message`
+    * sink: `-`
+
+2. `UTransport.send` maps source (**origin UUri**) to Zenoh key
+    * local (w/o origin-authority): `upl/` + `origin-resource-id + origin-entity-id + origin-version`
+    * remote (with origin-authority): `upr/` + `origin-authority-id/` + `origin-resource-id + origin-entity-id + origin-version`
+
+3. Subscriber registers a listener on **origin UUri**
+    * `up://origin-authority/origin-entity/origin-version/origin-resource.instance#message`
+
+4. which `UTransport.registerListener` maps to Zenoh key
+    * local (w/o origin-authority): `upl/` + `origin-resource-id + origin-entity-id + origin-version`
+    * remote (with origin-authority): `upr/` + `origin-authority-id/` + `origin-resource-id + origin-entity-id + origin-version`
+
+5. Since this is **Publish URI**, `Zenoh subscriber` will be used to bind the `registerListener`
+
+==== Transfer Notification message
+
+1. A uEntity (`origin-authority/origin-entity`) creates a message with
+    * source: `up://origin-authority/origin-entity/origin-version/origin-resource.instance`
+    * sink: `up://dest-authority/dest-entity/dest-version/dest-resource.instance`
+
+2. `UTransport.send` maps sink (**destination UUri**) to Zenoh key
+    * local (w/o dest-authority): `upl/` + `dest-resource-id + dest-entity-id + dest-version`
+    * remote (with dest-authority): `upr/` + `dest-authority-id/` + `dest-resource-id + dest-entity-id + dest-version`
+
+3. Receiver (dest-authority/dest-entity) registers a listener on **destination UUri**
+    * `up://dest-authority/dest-entity/dest-version/dest-resource.instance`
+
+4. which `UTransport.registerListener` maps to Zenoh key
+    * local (w/o dest-authority): `upl/` + `dest-resource-id + dest-entity-id + dest-version`
+    * remote (with dest-authority): `upr/` + `dest-authority-id/` + `dest-resource-id + dest-entity-id + dest-version`
+
+5. Since this is **Notification URI**, `Zenoh subscriber` will be used to bind the `registerListener`
+
+==== Transfer Request message
+
+1. Service consumer (`consumer-authority/consumer-entity`) creates a message with
+    * source: `up://consumer-authority/consumer-entity/consumer-version/rpc.response`
+    * sink: `up://provider-authority/provider-entity/provider-version/rpc.methodname`
+
+2. `UTransport.send` maps sink (**destination UUri**) to Zenoh key
+    * local (w/o provider-authority): `upl/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
+    * remote (with provider-authority): `upr/` + `provider-authority-id/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
+
+3. Service provider (provider-authority/provider-entity) registers a listener on **destination UUri**
+    * `up://provider-authority/provider-entity/provider-version/rpc.methodname`
+
+4. which `UTransport.registerListener` maps to Zenoh key
+    * local (w/o provider-authority): `upl/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
+    * remote (with provider-authority): `upr/` + `provider-authority-id/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
+
+5. Since this is **Request URI**, `Zenoh queryable` will be used to bind the `registerListener`
+
+==== Transfer Response message
+
+The way to transfer Response message is different from others, because Zenoh can reply the message with its own mechanism and doesn't need to map the UUri to another Zenoh key.
+
+1. Service provider receives a Request message with `Zenoh queryable`, and it can store this query with `UAttributes.id`.
+
+2. `UTransport.send` will retrieve the specific query by comparing the `UAttributes.reqid`, and then send back the message with that query.
+
+3. There are two ways for service consumer to receive the response message:
+    * Using `invoke_method`:
+        - After sending query with `Zenoh get`, we can receive the reply by using `recv()`.
+    * Using `register_listener`:
+        - Service consumer (consumer-authority/consumer-entity) registers a listener on **Response UUri** (`up://consumer-authority/consumer-entity/consumer-version/rpc.response`)
+        - While the request is sent by `UTransport.send`, the listener will be registered in `Zenoh get` and triggered if receiving the response message.
+
+==== Message routing
+
+1. A streamer that is interested in all incoming messages for dest-authority registers a listener for
+    * `up://dest-authority////`
+
+2. which `UTransport.registerListener` maps to Zenoh key
+    * `upr/` + `dest-authority-id/` + `**`
