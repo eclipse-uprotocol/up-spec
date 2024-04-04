@@ -64,7 +64,7 @@ Pull requests *MUST* contain the following:
 * *Documentation:* Interfaces must be properly documented with functional hyperlinks
 * *Test Coverage:* Code *MUST* have associated test coverage 
 
-NOTE: Reviewers comments/suggestions *MUST* be acknowledged by either accepting, rejecting (with explanation), or filing a separate issue, linking the new issue to the pull request 
+NOTE: Reviewers comments/suggestions *MUST* be acknowledged by either accepting, rejecting (with explanation), or filing a separate issue, linking the new issue to the pull request, prior to merging the pull request.
 
 
 === Repositories
