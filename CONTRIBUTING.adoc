@@ -45,7 +45,7 @@ If the project is _not_ intended to be used for production:
 === Code Reviews
 Code reviews *MUST* be performed by at least one committer before a pull request can be merged.
 
-Reviewers *SHOULD* make suggestions in lieu of just comments, for issues found in pull request following github's guidelines https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[here]
+Reviewers *SHOULD* make suggestions in lieu of comments, for issues found in a pull request following github's guidelines https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[here]
 
 
 === Commits & Pull Requests
