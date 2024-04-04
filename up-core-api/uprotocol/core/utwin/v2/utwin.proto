@@ -44,18 +44,18 @@ service uTwin {
 
   // A uE calls this API to retrieve the last uMessages for a given set of topics.<br>
   // What is returned is a list of MessageResponse with the status for message retreival
-  // and the event itself if uTwin was able to fetch it. uTwin will also return 
-  // status for those messages that it was unable to fetch (i.e. due to NOT_FOUND 
+  // and the event itself if uTwin was able to fetch it. uTwin will also return
+  // status for those messages that it was unable to fetch (i.e. due to NOT_FOUND
   // or PERMISSION_DENIED.<br>
   rpc GetLastMessages(uprotocol.v1.UUriBatch) returns (GetLastMessagesResponse) {
     option (method_id) = 1;
   }
 
-  // A call to SetLasMessage (typically from uBus) to update the uTwin internal cache 
-  // with a message for a given topic (UMessage.source). 
+  // A call to SetLasMessage (typically from uBus) to update the uTwin internal cache
+  // with a message for a given topic (UMessage.source).
   // Return value status.Code is one of:
   // - OK if UMessage was successfully stored in uTwin
-  // - INVALID argument if uTwin encountered an issue with UMessage content (source field in particular) 
+  // - INVALID argument if uTwin encountered an issue with UMessage content (source field in particular)
   // - PERMISSION_DENIED if requesting uE does not have permission to access the Topic
   // - RESOURCE_EXHAUSTED if uTwin has no more memory available to store new UMessages
   rpc SetLastMessage(uprotocol.v1.UMessage) returns (uprotocol.v1.UStatus) {

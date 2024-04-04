@@ -22,18 +22,18 @@
  * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- syntax = "proto3";
+syntax = "proto3";
 
- package uprotocol.v1;
+package uprotocol.v1;
 
- import "uri.proto";
- import "uuid.proto";
- import "ustatus.proto";
- import "uprotocol_options.proto";
+import "uri.proto";
+import "uuid.proto";
+import "ustatus.proto";
+import "uprotocol_options.proto";
 
- option java_package = "org.eclipse.uprotocol.v1";
- option java_outer_classname = "UAttributesProto";
- option java_multiple_files = true;
+option java_package = "org.eclipse.uprotocol.v1";
+option java_outer_classname = "UAttributesProto";
+option java_multiple_files = true;
 
 // Metadata describing a particular message's purpose, content and processing requirements.
 // Each type of message is described by a set of mandatory and optional attributes.
@@ -74,7 +74,7 @@ message UAttributes {
     //
     // RPC Request messages MUST have this property set to a value > 0.
     optional uint32 ttl = 6;
-    
+
     // The service consumer's permission level as defined in
     // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
     //
@@ -119,7 +119,7 @@ message CallOptions {
     //
     // MUST be set to a value > 0.
     uint32 ttl = 2;
-    
+
     // The service consumer's access token as defined in
     // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
     optional string token = 3;
@@ -132,16 +132,16 @@ message CallOptions {
 enum UMessageType {
     // Unspecified message type
     UMESSAGE_TYPE_UNSPECIFIED = 0;
-    
+
     // Publish
     // A message that is used to notify all interested consumers of an event that has occurred.
     UMESSAGE_TYPE_PUBLISH = 1 [(uprotocol.ce_name) = "pub.v1"];
-    
+
     // RPC Request
     // A message that is used by a service consumer to invoke one of a service provider's methods with some input data, expecting the service
     // provider to reply with a response message.
     UMESSAGE_TYPE_REQUEST = 2 [(uprotocol.ce_name) = "req.v1"];
-    
+
     // RPC Response
     // A message that is used by a service provider to send the outcome of processing a request message
     // from a servcice consumer.
@@ -153,7 +153,7 @@ enum UMessageType {
 }
 
 
-// uProtocol Priority as defined in 
+// uProtocol Priority as defined in
 // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/qos.adoc[uProtocol Prioritization]
 enum UPriority {
     // Unspecified priority

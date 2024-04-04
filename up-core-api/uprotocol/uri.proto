@@ -32,20 +32,20 @@ option java_multiple_files = true;
 
 
 // Data representation of uProtocol <b>URI</b>.
-// This class will be used to represent the source and sink (destination) parts 
+// This class will be used to represent the source and sink (destination) parts
 // of the Packet, for example in a CloudEvent Packet. <br>
 // UUri is used as a method to uniquely identify devices, services, and resources
 // on the  network.<br>
 // Where software is deployed, what the service is called along with a version and
-// the resources in the service. Defining a common URI for the system allows 
+// the resources in the service. Defining a common URI for the system allows
 // applications and/or services to publish and discover each other.<br>
 message UUri {
   // Authority of the URI (ex. device name, address, id), if not present, UUri is local
   UAuthority authority = 1;
-  
+
   // Software Entity information (ex. name, version, id)
   UEntity entity = 2;
-  
+
   // Service Resource information (methods, topics, etc..)
   UResource resource = 3;
 }
@@ -67,7 +67,7 @@ message UAuthority {
 
 
 // Data representation of an <b> Software Entity - uE</b><br>
-// Software entities are distinguished by using a unique name and id 
+// Software entities are distinguished by using a unique name and id
 // along with the specific version of the software.
 // An Software Entity is a piece of software deployed somewhere on a uDevice.<br>
 // The Software Entity is used in the source and sink parts of communicating software.<br>
@@ -81,7 +81,7 @@ message UEntity {
 }
 
 
-// A service API - defined in the {@link UEntity} - has Resources and Methods. 
+// A service API - defined in the {@link UEntity} - has Resources and Methods.
 // Both of these are represented by the UResource message.
 // A uResource represents a resource from a Service such as "door" and an optional
 // specific instance such as "front_left". In addition, it can optionally contain
@@ -89,7 +89,7 @@ message UEntity {
 // the protobuf service IDL that defines structured data types.
 // An UResource is something that can be manipulated/controlled/exposed by a service.
 // Resources are unique when prepended with UAuthority that represents the device and
-// UEntity that represents the service. 
+// UEntity that represents the service.
 message UResource {
   string name = 1;      // Name of the resource
   optional string instance = 2;  // Instance of the resource

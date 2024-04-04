@@ -21,7 +21,7 @@
  * SPDX-FileType: SOURCE
  * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
-*/
+ */
 syntax = "proto3";
 
 package uprotocol.v1;
@@ -57,7 +57,7 @@ enum UPayloadFormat {
     // Payload format was not is not set,
     // per specification, assumption is UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
     UPAYLOAD_FORMAT_UNSPECIFIED = 0;
-    
+
     // Payload is an Any protobuf message that contains the packed payload
     UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
 
