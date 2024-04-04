@@ -22,19 +22,19 @@
  * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- syntax = "proto3";
+syntax = "proto3";
 
- package uprotocol.v1;
+package uprotocol.v1;
 
- import "uattributes.proto";
- import "upayload.proto";
+import "uattributes.proto";
+import "upayload.proto";
 
- option java_package = "org.eclipse.uprotocol.v1";
- option java_outer_classname = "UMessageProto";
- option java_multiple_files = true;
+option java_package = "org.eclipse.uprotocol.v1";
+option java_outer_classname = "UMessageProto";
+option java_multiple_files = true;
 
 // UMessage is the top-level message type for the uProtocol.
-// It contains a header (UAttributes), and payload (UPayload) and is a way of representing a 
+// It contains a header (UAttributes), and payload (UPayload) and is a way of representing a
 // message that would be sent between two uEs.
 message UMessage {
     // uProtocol mandatory and optional attributes

@@ -22,17 +22,17 @@
  * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
- syntax = "proto3";
+syntax = "proto3";
 
- package uprotocol.v1;
- 
- option java_package = "org.eclipse.uprotocol.v1";
- option java_outer_classname = "UUIDProto";
- option java_multiple_files = true;
+package uprotocol.v1;
+
+option java_package = "org.eclipse.uprotocol.v1";
+option java_outer_classname = "UUIDProto";
+option java_multiple_files = true;
 
 
 // The UUID datamodel per https://datatracker.ietf.org/doc/html/rfc4122[RFC 4122]
- message UUID {
+message UUID {
     fixed64 msb = 1; // Most significant bits
     fixed64 lsb = 2; // Least significant bits
 }

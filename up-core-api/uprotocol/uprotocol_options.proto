@@ -94,7 +94,7 @@ message UServiceTopic {
   // * *MUST* be unique within the uService scope
   // * *MUST* start at 0x8000h
   uint32 id = 1;
-  
+
   // Topic name represented as a string
   string name = 2;
 

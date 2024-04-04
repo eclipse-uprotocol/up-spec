@@ -70,7 +70,7 @@ enum UCode {
   // Calling uE *MAY* retry the operation with back-off
   NOT_FOUND = 5;
 
-  // The calling uE requested to add/create something that already exists 
+  // The calling uE requested to add/create something that already exists
   // (ex. add to a database something that is already there)
   ALREADY_EXISTS = 6;
 
@@ -87,12 +87,12 @@ enum UCode {
   // Calling uEs *SHOULD NOT* retry till the system state has been corrected
   FAILED_PRECONDITION = 9;
 
-  // The operation was aborted, typically due to a concurrency issue such as 
+  // The operation was aborted, typically due to a concurrency issue such as
   // a sequencer check failure or transaction abort
   // Calling uEs *MAY* retry but at a higher frequency than UNAVAILABLE
   ABORTED = 10;
 
-  // A caller would typically iterating through the results from said API 
+  // A caller would typically iterating through the results from said API
   // and can is expected to detect the end of the results (out of range)
   OUT_OF_RANGE = 11;
 
