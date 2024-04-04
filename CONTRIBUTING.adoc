@@ -4,39 +4,31 @@ Thanks for your interest in this project. Contributions are welcome!
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
+== Getting Started
 
-== Developer Resources
+=== Eclipse Account
+First thing you need to do before contributing is to create an account on the Eclipse Foundation. You can create an account by visiting https://accounts.eclipse.org/user/register[here]. Once your account is created, you will need to sign the Eclipse Contributor Agreement (ECA) which can be found at http://www.eclipse.org/legal/ECA.php[here]. 
+Lastly, you will need to create a GitHub account if you do not already have one and then link your GitHub account to your Eclipse Foundation account.
 
-Best information about the project: 
+=== Getting Engaged with uProtocol Development
 
-* https://projects.eclipse.org/projects/automotive.uprotocol
-* https://github.com/eclipse-uprotocol
+Best way to get engaged and contribute are to: 
 
-We use the Eclipse-SDV Slack workspace for day-2-day discussions in the developer community. Sign up is easy by clicking https://join.slack.com/t/sdvworkinggroup/shared_invite/zt-27dk1cref-XeS_dCe6h0918q~k6qU_CQ[here]. Once you're in the workspace, the channels you'll want to subscribe to are #uprotocol to start.
+* Subscribe to the https://accounts.eclipse.org/mailing-list/uprotocol-dev[uprotocol-dev] mailing list
+* Join the https://join.slack.com/t/sdvworkinggroup/shared_invite/zt-27dk1cref-XeS_dCe6h0918q~k6qU_CQ[Eclipse-SDV Slack workspace] and  subscribe to the #uprotocol channel
+* Subscribe to the https://calendar.google.com/calendar/u/0?cid=Y18yYW1waTJibW9rYTNxdGVyNGRjZWFwMWQ1Z0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t[Eclipse-SDV Community Calendar]
+* Attend our <<Weekly Zoom Meeting>>
+* Read https://projects.eclipse.org/projects/automotive.uprotocol[project page]
+* Checkout https://github.com/eclipse-uprotocol[overview page]
 
-We hold a weekly sync up meeting every Thursday at 2pm CET (8AM EST), zoom details are below: 
+==== Weekly Zoom Meeting
+Weekly zoom meetings are every Thursday at 2pm CET (8AM EST) with the development community to talk about roadmap, milestones, specification updates, and more. 
 
 *Join Zoom Meeting*
 https://eclipse.zoom.us/j/87919934501?pwd=7CI4VuAIRNq4pstQbFtHhb8mM0XwQR.1
 Meeting ID: 879 1993 4501
 Passcode: 640538
 
-
-== Eclipse Contributor Agreement
-
-Before your contribution can be accepted by the project team contributors must
-electronically sign the Eclipse Contributor Agreement (ECA).
-
-* http://www.eclipse.org/legal/ECA.php
-
-Commits that are provided by non-committers must have a Signed-off-by field in
-the footer indicating that the author is aware of the terms by which the
-contribution has been provided to the project. The non-committer must
-additionally have an Eclipse Foundation account and must have a signed Eclipse
-Contributor Agreement (ECA) on file.
-
-For more information, please see the Eclipse Committer Handbook:
-https://www.eclipse.org/projects/handbook/#resources-commit
 
 
 == Best Current Practices (BCPs)
@@ -56,15 +48,16 @@ Code reviews *MUST* be performed by at least one committer before a pull request
 Reviewers *SHOULD* make suggestions in lieu of just comments, for issues found in pull request following github's guidelines https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[here]
 
 
-=== Pull Requests
-Pull requests *MUST* contain the following:
+=== Commits & Pull Requests
+Below are the requirements for a commit (or set of commits) to be merged into the main branch:
 
-* *Commit Description:* Properly formatted subject for the commit including a detailed description of the change. The subject line is pulled into the automatic release generation
-* *GitHub Issue:* Commits for adding new features/functions *SHOULD* have an associated github issue
-* *Documentation:* Interfaces must be properly documented with functional hyperlinks
-* *Test Coverage:* Code *MUST* have associated test coverage 
-
-NOTE: Reviewers comments/suggestions *MUST* be acknowledged by either accepting, rejecting (with explanation), or filing a separate issue, linking the new issue to the pull request, prior to merging the pull request.
+* Commit messages and pull request descriptions, *MUST* contain a well described summary description followed by detailed description of the change
+* New features/functions *SHOULD* have an associated github issue linked in the pull request
+* Developer facing API, *MUST* have full descriptive documentation
+* Non-developer facing APIs, *SHOULD* have full descriptive documentation
+* All code *MUST* have 100% test coverage and a means to measure code coverage
+* Any changes to build or library usage *MUST* be documented in the README.adoc
+* Pull Requests *MUST NOT* be merged till all reviewer's comments and/or suggestions have been acknowledged by the commit author or reviewer, either by the accepting, rejecting (with explanation), or filing a separate issue for unresolved comment and/or suggestion
 
 
 === Repositories
@@ -87,8 +80,8 @@ branch_protection_rules: [
 
 * Initial commit *MUST* include the following legal documents:
 ** `LICENSE` *MUST* be Apache 2.0 or Eclipse Public License 2.0 (_see why below_)
-** `CONTRIBUTING.adoc` *MUST* link to this document
-** `CODE_OF_CONDUCT.adoc` *MUST* link to https://github.com/eclipse-uprotocol/.github/CODE_OF_CONDUCT.adoc
+** `CONTRIBUTING.adoc` *MUST* link to https://github.com/eclipse-uprotocol/up-spec/CONTRIBUTING.adoc
+** `CODE_OF_CONDUCT.adoc` *MUST* link to https://github.com/eclipse-uprotocol/up-spec/CODE_OF_CONDUCT.adoc
 ** `README.adoc` *MUST* Clearly document how to build and use your software
 ** `SECURITY.adoc` *MUST* link to https://github.com/eclipse-uprotocol/.github/SECURITY.adoc
 
