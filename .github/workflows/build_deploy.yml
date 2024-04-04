@@ -1,0 +1,35 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'up-core-api/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Apache Maven Central
+      uses: actions/setup-java@v3
+      with: # configure settings.xml
+        distribution: 'temurin'
+        java-version: '11'
+        server-id: ossrh
+        server-username: OSSRH_USER
+        server-password: OSSRH_PASSWORD
+        gpg-private-key: ${{ secrets.ORG_GPG_PRIVATE_KEY }}
+        gpg-passphrase: GPG_PASSPHRASE
+
+    - name: Build and Publish to Apache Maven Central
+      run: mvn clean deploy --file up-core-api/pom.xml
+      env:
+        OSSRH_USER: ${{ secrets.ORG_OSSRH_USERNAME }}
+        OSSRH_PASSWORD: ${{ secrets.ORG_OSSRH_PASSWORD }}
+        GPG_PASSPHRASE: ${{ secrets.ORG_GPG_PASSPHRASE }}
