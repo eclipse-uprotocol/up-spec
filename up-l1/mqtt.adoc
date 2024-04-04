@@ -70,7 +70,7 @@ MQTT 5 supports custom header fields, and we leverage this to map the UAttribute
 
 All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number.
 
-The source and sink fields **MUST** be a short form serialized UUri.
+The source and sink fields **MUST** be link:../basics/uri.adoc[Short URI Format].
 
 The type field is used by a UListener to select message types on the topic.
 
