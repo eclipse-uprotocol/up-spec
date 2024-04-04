@@ -7,14 +7,14 @@ The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*
 == Getting Started
 
 === Eclipse Account
-First thing you need to do before contributing is to create an account on the Eclipse Foundation. You can create an account by visiting https://accounts.eclipse.org/user/register[here]. Once your account is created, you will need to sign the Eclipse Contributor Agreement (ECA) which can be found at http://www.eclipse.org/legal/ECA.php[here]. 
+First thing you need to do before contributing is to https://accounts.eclipse.org/user/register[create an account with the Eclipse Foundation]. Once your account is created, you will need to http://www.eclipse.org/legal/ECA.php[sign the Eclipse Contributor Agreement (ECA)].```
 Lastly, you will need to create a GitHub account if you do not already have one and then link your GitHub account to your Eclipse Foundation account.
 
 === Getting Engaged with uProtocol Development
 
 Best way to get engaged and contribute are to: 
 
-* Subscribe to the https://accounts.eclipse.org/mailing-list/uprotocol-dev[uprotocol-dev] mailing list
+* Subscribe to the https://accounts.eclipse.org/mailing-list/uprotocol-dev[uprotocol-dev mailing list]
 * Join the https://join.slack.com/t/sdvworkinggroup/shared_invite/zt-27dk1cref-XeS_dCe6h0918q~k6qU_CQ[Eclipse-SDV Slack workspace] and  subscribe to the #uprotocol channel
 * Subscribe to the https://calendar.google.com/calendar/u/0?cid=Y18yYW1waTJibW9rYTNxdGVyNGRjZWFwMWQ1Z0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t[Eclipse-SDV Community Calendar]
 * Attend our <<Weekly Zoom Meeting>>
@@ -22,7 +22,7 @@ Best way to get engaged and contribute are to:
 * Checkout https://github.com/eclipse-uprotocol[overview page]
 
 ==== Weekly Zoom Meeting
-Weekly zoom meetings are every Thursday at 2pm CET (8AM EST) with the development community to talk about roadmap, milestones, specification updates, and more. 
+The uProtocol community meets regularly on Zoom calls covering different focus areas. Please refer to the https://calendar.google.com/calendar/u/0?cid=Y18yYW1waTJibW9rYTNxdGVyNGRjZWFwMWQ1Z0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t[Eclipse-SDV Community Calendar] for details.
 
 *Join Zoom Meeting*
 https://eclipse.zoom.us/j/87919934501?pwd=7CI4VuAIRNq4pstQbFtHhb8mM0XwQR.1
@@ -45,19 +45,19 @@ If the project is _not_ intended to be used for production:
 === Code Reviews
 Code reviews *MUST* be performed by at least one committer before a pull request can be merged.
 
-Reviewers *SHOULD* make suggestions in lieu of comments, for issues found in a pull request following github's guidelines https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[here]
+Reviewers *SHOULD* make suggestions in lieu of comments, for issues found in a pull request following https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[GitHub's guidelines].
 
 
 === Commits & Pull Requests
 Below are the requirements for a commit (or set of commits) to be merged into the main branch:
 
 * Commit messages and pull request descriptions, *MUST* contain a well described summary description followed by detailed description of the change
-* New features/functions *SHOULD* have an associated github issue linked in the pull request
-* Developer facing API, *MUST* have full descriptive documentation
+* New features/functions *SHOULD* have an associated GitHub issue linked in the pull request
+* Developer facing API *MUST* have full descriptive documentation
 * Non-developer facing APIs, *SHOULD* have full descriptive documentation
 * All code *MUST* have 100% test coverage and a means to measure code coverage
 * Any changes to build or library usage *MUST* be documented in the README.adoc
-* Pull Requests *MUST NOT* be merged till all reviewer's comments and/or suggestions have been acknowledged by the commit author or reviewer, either by the accepting, rejecting (with explanation), or filing a separate issue for unresolved comment and/or suggestion
+* Pull Requests *MUST NOT* be merged till all reviewer's comments and/or suggestions have been acknowledged by the commit author or reviewer, either by accepting, rejecting (with explanation), or filing a separate issue for unresolved comments and/or suggestions.
 
 
 === Repositories
