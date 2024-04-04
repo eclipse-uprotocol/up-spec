@@ -50,14 +50,22 @@ If the project is _not_ intended to be used for production:
 * *MUST* clearly labeled in your repos README.adoc as `NOT INTENDED FOR PRODUCTION USE`
 
 
+=== Code Reviews
+Code reviews *MUST* be performed by at least one committer before a pull request can be merged.
 
-=== Code Contributions
-Contribution pull requests *MUST* contain the following:
+Reviewers *SHOULD* make suggestions in lieu of just comments, for issues found in pull request following github's guidelines https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request[here]
 
-* *Commit Description:* Properly formatted subject for the commit including a detailed description of the change. the subject line is pulled into the automatic release generation
+
+=== Pull Requests
+Pull requests *MUST* contain the following:
+
+* *Commit Description:* Properly formatted subject for the commit including a detailed description of the change. The subject line is pulled into the automatic release generation
 * *GitHub Issue:* Commits for adding new features/functions *SHOULD* have an associated github issue
 * *Documentation:* Interfaces must be properly documented with functional hyperlinks
 * *Test Coverage:* Code *MUST* have associated test coverage 
+
+NOTE: Reviewers comments/suggestions *MUST* be acknowledged by either accepting, rejecting (with explanation), or filing a separate issue, linking the new issue to the pull request 
+
 
 === Repositories
 The following are BCPs for newly created repositories under the Eclipse-uProtocol project:
