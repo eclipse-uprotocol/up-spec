@@ -1,31 +1,17 @@
-image:https://github.com/eclipse-uprotocol/.github/raw/main/logo/uprotocol_logo.png[uProtocol, width=640]
+= uProtocol Core API
 
-image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[License,link=https://opensource.org/licenses/Apache-2.0]
+This folder contains the uProtocol data model (UUri, UAttributes, UMessage, UUID, etc..), and core services definitions (uDiscovery, uSubscription, uTwin), common to all programming languages supported by uProtocol. 
 
-*NOTE:* _Please refer to https://github.com/eclipse-uprotocol/uprotocol-spec[] for more information about uProtocol_
+The language specific libraries pull these protos into their respective projects to build and add validators, serializers, and factory/builder functionality specific to their programming language. 
 
-== Overview
+For more information about the generated code and extensions to the generated code, please refer to:
 
-This project contains the core data models (UUri, UAttributes, etc..) and core services definitions (uDiscovery, uSubscription, uTwin) of uProtocol. This project is used by other uprotocol projects such as the language specific SDKs and uLink library that extend the data model to add validators, serializers, and factory/builder methods.
+* https://github.com/eclipse-uprotocol/up-java[up-java]
+* https://github.com/eclipse-uprotocol/up-rust[up-rust]
+* https://github.com/eclipse-uprotocol/up-cpp[up-cpp]
+* https://github.com/eclipse-uprotocol/up-python[up-python]
+* https://github.com/eclipse-uprotocol/up-kotlin[up-kotlin]
 
 
-=== How To Build?
+If you want to validate a change to a proto, simply run the command `mvn verify -f "pom.xml"`
 
-The Project uses maven to build the protobuf message. The target to build the code is:
-
-[source,bash]
-----
-mvn verify -f "pom.xml"
-----
-
-=== How To Use?
-To pull the built (java) artifacts from maven central, add the following dependency to your pom.xml file:
-[source]
-----
-<!-- uProtocol Core -->
-<dependency>
-    <groupId>org.eclipse.uprotocol</groupId>
-    <artifactId>uprotocol-core-api</artifactId>
-    <version>1.5.0</version>
-</dependency>
-----
