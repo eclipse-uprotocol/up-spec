@@ -106,7 +106,7 @@ Subscribers are automatically registered to receive subscription change notifica
 
 === Publishers
 
-* *MUST* *NOT* be permitted to call `RegisterForNotifications()` for topics they do not produce (i.e. `UEntity` of the producer is not equal to the `UEntity` in the passed `UUri`)
+* *MUST* *NOT* be permitted to call `RegisterForNotifications()` for topics they do not produce, i.e. the uEntity sending the request is not equal to the `UEntity` of the request message's `UUri` parameter.
 * Subscription change notifications *MUST* be sent for changes to `SubscriptionState` for any subscriber that is subscribed to the topic
 
 === Dispatchers
@@ -115,13 +115,13 @@ Dispatchers are also permitted to register for subscription change notifications
 
 == Event Delivery
 
-uSubscription service, also provides a means to notify subscribers of how they shall consume the published events though the  `EventDeliveryConfig` returned in the `SubscriptionResponse` message. For example if the subscriber has to consume from a different topic or from different message infrastructure, this message will store those delivery semantics.
+The uSubscription service also allows to indicate to subscribers how they shall consume published events by means of the `EventDeliveryConfig` returned in the `SubscriptionResponse` message. For example, if the subscriber has to consume from a different topic or from different messaging infrastructure, this message will store the corresponding delivery semantics.
 
 NOTE: Delivery semantics (if any) are deployment specific and not covered in this specification
 
 == uSubscription Sequences
 
-In the following section, we will elaborate on the various subscription flows for local and remote topics. When a consumer subscribes to a remote topic, it is the responsibility of the Subscription Service to relay the subscription request to the remote Subscription Service as can be seen in the sequence diagrams below.
+In the following section, we will elaborate on the various subscription flows for local and remote topics. When a consumer subscribes to a remote topic, it is the responsibility of the (local) uSubscription service to relay the subscription request to the remote uSubscription service as can be seen in the sequence diagrams below.
 
 NOTE: Throughout this section we will use the sample topic `//Device1/uexample/1/resource#Event` to illustrate the various sequences. The above-mentioned topic will be replaced with `_topic_` in the diagrams
 
