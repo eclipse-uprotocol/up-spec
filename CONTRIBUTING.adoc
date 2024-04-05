@@ -7,7 +7,7 @@ The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*
 == Getting Started
 
 === Eclipse Account
-First thing you need to do before contributing is to https://accounts.eclipse.org/user/register[create an account with the Eclipse Foundation]. Once your account is created, you will need to http://www.eclipse.org/legal/ECA.php[sign the Eclipse Contributor Agreement (ECA)].```
+First thing you need to do before contributing is to https://accounts.eclipse.org/user/register[create an account with the Eclipse Foundation]. Once your account is created, you will need to http://www.eclipse.org/legal/ECA.php[sign the Eclipse Contributor Agreement (ECA)].
 Lastly, you will need to create a GitHub account if you do not already have one and then link your GitHub account to your Eclipse Foundation account.
 
 === Getting Engaged with uProtocol Development
