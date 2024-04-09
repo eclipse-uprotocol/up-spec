@@ -1,1 +1,0 @@
-Please refer to https://raw.githubusercontent.com/eclipse/.github/master/CODE_OF_CONDUCT.md[CODE_OF_CONDUCT]
