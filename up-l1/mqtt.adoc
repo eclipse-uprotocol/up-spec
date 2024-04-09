@@ -35,8 +35,126 @@ MQTT is an OASIS standard messaging protocol for the Internet of Things (IoT). I
 
 For more information, please refer to https://mqtt.org/
 
-
 == Specifications
 
+=== UAttribute Mapping
 
-_Coming Soon_
+MQTT 5 supports custom header fields, and we leverage this to map the UAttribute values into the MQTT header.
+
+[cols="1,1"]
+|===
+| MQTT Header Property Code | Value (key:value)
+| UserProperty
+| ("1", "{UAttribute.id}") # UUID id
+| UserProperty
+| ("2", "{UAttribute.type}") # UMessageType
+| UserProperty
+| ("3","{UAttribute.source}") # Short Form Serialized Source UURI
+| UserProperty
+| ("4","{UAttribute.sink}") # Short Form Serialized Sink UURI
+| UserProperty
+| ("5","{UAttribute.priority}") # UPriority
+| UserProperty
+| ("6", "{UAttribute.ttl}") # Optional ttl
+| UserProperty
+| ("7", "{UAttribute.permissionLevel}") # Optional permission level
+| UserProperty
+| ("8", "{UAttribute.commStatus}") # Optional UCode commstatus
+| UserProperty
+| ("9", "{UAttribute.reqId}") # UUID reqid
+| UserProperty
+| ("10", "{UAttribute.token}") # Optional token
+| UserProperty
+| ("11", "{UAttribute.traceParent}") # Optional traceparent
+|===
+
+All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number.
+
+The source and sink fields **MUST** be link:../basics/uri.adoc[Short URI Format].
+
+The type field is used by a UListener to select message types on the topic.
+
+=== URI Mapping
+
+The URI mapping follows the short form UUri format, with the addition of a location identifier to determine if the message is intended for a local or cloud destination.
+
+- `{UUri.UAuthority.number}/{UUri.UEntity.id}/{UUri.UEntity.version_major}/{UUri.UResource.id}`
+
+  Note: If the UUri does not contain a UAuthority, add the UAuthority.number for the UAuthority the transport client is running on.
+
+Subscribe to all messages to the current Authority
+
+- `{UUri.UAuthority.number}/+/+/+` where `UAttributes.type != Publish`
+
+Subscribe to all messages from a different Authority
+
+- `{UUri.UAuthority.number}/+/+/+` where `UAttributes.type == Publish`
+
+When sending a message, the source UUri is used for Publish message types and sink UUri is used for all other message types.
+
+Examples:
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: "Vehicle_1",
+    number: 192.168.0.0,
+  },
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+topic: `192.168.0.0/1234/1/5678`
+
+
+[source]
+----
+UUri {
+  authority: empty,
+  entity: UEntity {
+    name: "body.access",
+    version_major: 1,
+    id: 1234,
+  }
+  resource: UResource {
+    name: "door",
+    instance: "front_left",
+    message: "Door",
+    id: 5678,
+  }
+}
+----
+
+topic: `{current UAuthority}/1234/1/5678`
+
+
+If a UUri is provided with only a UAuthority we should subscribe to all topics under the UAuthority topic:
+
+[source]
+----
+UUri {
+  authority: UAuthority {
+    name: "Vehicle_1",
+    number: 192.168.0.0,
+  },
+  entity: empty,
+  resource: empty,
+}
+----
+
+* If UAuthority matches current UAuthority: `192.168.0.0/+/+/+` where UAttributes.type != Publish.
+* If UAuthority does not match current UAuthority: `192.168.0.0/+/+/+` where UAttributes.type == Publish.`
+
+=== Payload Encoding
+
+The MQTT payload **MUST** be a UPayload that is represented as a byte array to reduce size.
