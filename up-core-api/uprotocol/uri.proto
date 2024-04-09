@@ -74,8 +74,8 @@ message UAuthority {
 // A uE that publishes events is a <b>Service</b> role.<br>
 // A uE that consumes events is an <b>Application</b> role.
 message UEntity {
-  string name = 1;    // Name of the entity
-  optional uint32 id = 2;      // The numeric ID for the uEntity assigned from the name/number registry
+  optional string name = 1;          // Name of the entity
+  optional uint32 id = 2;            // The numeric ID for the uEntity assigned from the name/number registry
   optional uint32 version_major = 3; // optional major version of the uEntity
   optional uint32 version_minor = 4; // optional minor version of the uEntity
 }
@@ -91,7 +91,7 @@ message UEntity {
 // Resources are unique when prepended with UAuthority that represents the device and
 // UEntity that represents the service.
 message UResource {
-  string name = 1;      // Name of the resource
+  optional string name = 1;      // Name of the resource
   optional string instance = 2;  // Instance of the resource
   optional string message = 3;   // Message type for the resource
   optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
