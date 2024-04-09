@@ -75,19 +75,6 @@ service uSubscription {
   }
 
 
-  //  API called by producers to register a topic. This API
-  // informs the Subscription Service that to create the topic and it is ready to publish.
-  rpc CreateTopic(CreateTopicRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 4;
-  }
-
-  // Request deprecation of a topic. Producers call this to inform the uSubscription
-  // that it will no longer produce to said topic. The topic is flagged as deprcated
-  // which
-  rpc DeprecateTopic(DeprecateTopicRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 5;
-  }
-
   // Register to receive subscription change notifications that are published on the
   // 'up:/core.usubscription/3/subscriptions#Update'
   rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
@@ -314,19 +301,6 @@ message NotificationsRequest {
   SubscriberInfo subscriber = 2;
 }
 
-
-// Message passed to CreateTopic()
-message CreateTopicRequest {
-  // uProtocol Topic
-  v1.UUri topic = 1;
-}
-
-
-// Message passed to DeprecateTopic()
-message DeprecateTopicRequest {
-  // uProtocol Topic
-  v1.UUri topic = 1;
-}
 
 
 // Subscription Update Message.
