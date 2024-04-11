@@ -5,7 +5,7 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2024 General Motors GTO LLC
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,12 +25,11 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2024 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview 
 
-UMessage is the top-level message type for the uProtocol. It contains a link:uri.adoc[UUri] (source address), link:uattributes.adoc[UAttributes] (uProtocol header), and link:upayload.adoc[UPayload] (the message payload). UMessage is the common way to represent messages sent between uEs over any communication protocol/middleware.
+UMessage is the top-level message type for the uProtocol. It consists of link:uattributes.adoc[message metadata] and (optional) link:upayload.adoc[payload]. UMessage is the common way to represent messages sent between uEntities over any communication protocol/middleware.
 
-NOTE: Please refer to link:../../up-core-api/uprotocol/umessage.proto[umessage.proto] for more details.
+NOTE: Please refer to link:../up-core-api/uprotocol/umessage.proto[umessage.proto] for more details.

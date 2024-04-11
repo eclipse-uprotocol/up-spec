@@ -1,11 +1,12 @@
 = uProtocol Attributes (uAttributes)
 :toc:
 :sectnums:
+:stem: latexmath
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,12 +26,190 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview 
 
-uProtocol Header attributes that are common for all transports. The UAttributes message holds routing and UMessage attributes such as priority, permission, communication status and more
+UAttributes contain metadata describing a particular message's purpose, content and processing requirements.
 
-NOTE: Please refer to hlink:../../up-core-api/uprotocol/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model
+NOTE: Please refer to link:../up-core-api/uprotocol/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model.
+
+uProtocol defines four types of messages:
+
+[%autowidth]
+|===
+|Type |Description
+
+|Publish
+|A message that is used to notify all interested consumers about an event that has occurred.
+
+|Notification
+|A message that is used to inform a specific consumer about an event that has occurred.
+
+|RPC Request
+|A message that is used by a service consumer to invoke one of a service provider's methods with some input data, expecting the service provider to reply with a response message.
+
+|RPC Response
+|A message that is used by a service provider to send the outcome of processing a request message
+from a servcice consumer.
+|===
+
+Each type of message is described by a set of mandatory and optional attributes.
+
+[#common-attributes]
+== Common Message Attributes
+
+The following table defines attributes that are used for all message types:
+
+[%autowidth]
+|===
+|Name |Type |Mandatory |Description
+
+|`id`
+|link:uuid.adoc[UUID]
+|yes
+|A unique message identifier. The timestamp contained in the UUID is used as the message's creation time.
+
+|`priority`
+|link:qos.adoc[UPriority]
+|no
+|The QoS level that this message should be processed/delivered with. If not specified explicitly, the link:qos.adoc#default-priority[default priority level] is assumed.
+
+|`ttl`
+|`unsigned integer`
+|no
+|The amount of time (in milliseconds) after which this message MUST no longer be delivered/processed. The message is considered expired if this attribute is set to a positive value and
+
+stem:[t_{current} > t_{id} + ttl]
+
+|`traceparent`
+|https://w3c.github.io/trace-context/#traceparent-header[W3C Trace Context Level 3, traceparent]
+|no
+|A tracing identifier to use for correlating messages across the system. Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md[CloudEvents distributed tracing extension].
+
+|===
+
+[#publish-attributes]
+== Publish Message Attributes
+
+The following table defines attributes that are used for publish messages in addition to the common attributes:
+
+[%autowidth]
+|===
+|Attribute |Mandatory |Description
+
+|`type`
+|yes
+|MUST be set to `UMESSAGE_TYPE_PUBLISH`.
+
+|`source`
+|yes
+|A link:uri.adoc[UUri] representing the topic that this message is published to.
+
+|===
+
+[#notification-attributes]
+== Notification Message Attributes
+
+The following table defines attributes that are used for notification messages in addition to the common attributes:
+
+[%autowidth]
+|===
+|Attribute |Mandatory |Description
+
+|`type`
+|yes
+|MUST be set to `UMESSAGE_TYPE_NOTIFICATION`.
+
+|`source`
+|yes
+|A link:uri.adoc[UUri] representing the component that this notification originates from.
+
+|`sink`
+|yes
+|A link:uri.adoc[UUri] representing the receiver of this notification.
+
+|===
+
+[#request-attributes]
+== RPC Request Message Attributes
+
+The following table defines attributes that are used for RPC request messages in addition to the common attributes:
+
+[%autowidth]
+|===
+|Attribute |Mandatory |Description
+
+|`type`
+|yes
+|MUST be set to `UMESSAGE_TYPE_REQUEST`.
+
+|`source`
+|yes
+|The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
+
+|`sink`
+|yes
+|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
+
+|`priority`
+|yes
+a|The link:qos.adoc[QoS] level that this message should be processed/delivered with.
+
+* MUST be set to `UPRIORITY_CS4` or higher.
+
+|`ttl`
+|yes
+a|The amount of time (in milliseconds) after which this request message should no longer be delivered to or processed by a service provider.
+
+* MUST be set to a value > 0
+
+
+|`permission_level`
+|no
+|The service consumer's permission level as defined in link:permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)].
+
+|`token`
+|no
+|The service consumer's access token as defined in link:permissions.adoc#_token_based_access_permissionstaps[Token-Based uE Access Permissions (TAPs)].
+|===
+
+[#response-attributes]
+== RPC Response Message Attributes
+
+The following table defines attributes that are used for RPC response messages in addition to the common attributes:
+
+[%autowidth]
+|===
+|Attribute |Mandatory |Description
+
+|`type`
+|yes
+|MUST be set to `UMESSAGE_TYPE_RESPONSE`.
+
+|`source`
+|yes
+|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
+
+|`sink`
+|yes
+|The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
+
+|`reqid`
+|yes
+|The `id` property value of the request message that this is the response to.
+
+|`priority`
+|yes
+|The link:qos.adoc[QoS] level that this message should be processed/delivered with. MUST be the same value as that of the corresponding request message's `priority` attribute.
+
+|`ttl`
+|no
+|The amount of time after which this response message should no longer be delivered to or processed by the service consumer.
+
+|`commstatus`
+|no
+|A link:../up-core-api/uprotocol/ustatus.proto[UCode] indicating an error that has occurred during the delivery of either the RPC request or response message. A value of `0` or no value indicates that no communication error has occurred.
+
+|===
