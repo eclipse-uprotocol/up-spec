@@ -5,7 +5,7 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,28 +25,33 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
-Prioritization is used to control QoS at uP-L1 between devices. This document will follow https://datatracker.ietf.org/doc/html/rfc4594[RFC4594] _Configuration Guidelines for DiffServ Service Classes_.
+uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocol therefore supports priority based message processing at the link:../up-l1/README.adoc[Transport] and link:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
 
-* All messages *MUST* be assigned a priority
-* Every topic *MUST* have a priority code associated with it.
-* Default priority when not assigned *MUST* be CS1
+For this purpose, each link:umessage.adoc[UMessage] is assigned to one of the following service classes:
 
 .QoS Classifications
 [width="100%",cols="8%,49%,43%",options="header",]
 |===
-|Class |Description |Use Case
+|Class |Description |Typical Use Case
 
 |*CS0* |Low Priority. No bandwidth assurance |File Transfer
 |*CS1* |Standard, undifferentiated application |General (unclassified)
 |*CS2* |Operations, Administration, and Management |Streamer messages (sub, connect, etc…)
 |*CS3* |Multimedia streaming |Video Streaming
-|*CS4* |Real-time interactive |High priority (rpc events)
+|*CS4* |Real-time interactive |High priority (RPC events)
 |*CS5* |Signaling |Important
 |*CS6* |Network control |Safety Critical
 |===
 
-NOTE: Please see link:../up-l2/README.adoc[uP-L2 Specifications] for values used per message type.
+These classes are represented by the values of the link:../up-core-api/uprotocol/uattributes.proto[UPriority protobuf enum].
+
+* A UMessage *MAY* be assigned _explicitly_ to a service class by setting its `attributes.priority` property to the desired value.
+[#default-priority]
+* A UMessage *MUST* be considered to belong to class `CS1`, if its priority is not set explicitly.
+* Every topic *MUST* have a priority code associated with it.
+* link:../upclient.adoc[uProtocol Client Libraries] *SHOULD* map the message's service class to a corresponding mechanism of the underlying transport protocol, if available.
+* link:../up-l2/dispatchers/README.adoc[uProtocol Dispatchers] *SHOULD* consider the message's service class as part of their message scheduling strategy.
+

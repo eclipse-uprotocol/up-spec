@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 General Motors GTO LLC
+ * SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,7 +19,6 @@
  * under the License.
  *
  * SPDX-FileType: SOURCE
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 syntax = "proto3";
@@ -38,70 +37,39 @@ option java_multiple_files = true;
 // Metadata describing a particular message's purpose, content and processing requirements.
 // Each type of message is described by a set of mandatory and optional attributes.
 message UAttributes {
-    // A unique message identifier as defined by https://github.com/eclipse-uprotocol/uprotocol-spec/blob/main/basics/uuid.adoc[uProtocol UUID].
-    // The timestamp contained in the UUID indicates the message's creation time.
+    // A unique message identifier.
     UUID id = 1;
 
     // This message's type which also indicates its purpose and determines contraints on the other properties.
     UMessageType type = 2;
 
     // The origin (address) of this message.
-    //
-    // Publish messages MUST have this property set to a URI representing the topic that this message is published to.
-    // Notification messages MUST have this property set to a URI representing the component that this notification originates from.
-    // RPC Request messages MUST have this property set to the URI that the service consumer expects to receive the response message at.
-    // RPC Response messages MUST have this property set to a URI identifying the method that has been invoked and which this message is the outcome of.
     UUri source = 3;
 
     // The destination (address) of this message.
-    //
-    // Publish messages MUST NOT have this property set to any value.
-    // Notification messages MUST have this property set to a URI representing the receiver of this notification.
-    // RPC Request messages MUST have this property set to a URI identifying the service provider's method to invoke.
-    // RPC Response messages MUST have this property set to the URI that the service consumer expects to receive this response message at.
     UUri sink = 4;
 
-    // The QoS level that this message should be processed/delivered with. If not specified explicitly, the
-    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/qos.adoc#default-priority[default priority level] is assumed.
-    //
-    // RPC Request messages MUST have this property set to a value of `UPRIORITY_CS4` or higher.
-    // RPC Response messages MUST have this property set to the same value as that of the corresponding RPC Request message.
+    // The QoS level that this message should be processed/delivered with.
     UPriority priority = 5;
 
     // The amount of time (in milliseconds) after which this message MUST NOT be delivered/processed anymore.
-    // A message MUST be considered expired, if this attribute is set to a positive value and
-    // \$t_{current} > t_{id} + ttl\$
-    //
-    // RPC Request messages MUST have this property set to a value > 0.
     optional uint32 ttl = 6;
 
-    // The service consumer's permission level as defined in
-    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
-    //
-    // Publish, Notification and RPC Response messages MUST NOT have this property set to any value.
+    // The service consumer's permission level.
     optional uint32 permission_level = 7;
 
     // A UCode indicating an error that has occurred
     // during the delivery of either an RPC Request or Response message.
-    // A value of `0` or no value indicates that there was no communication error.
-    //
-    // Publish, Notification and RPC Request messages MUST NOT have this property set to any value.
     optional UCode commstatus = 8;
 
     // The identifier that a service consumer can use to correlate an RPC Repsonse message with its RPC Request.
-    //
-    // RPC Response messages MUST have this property set to the value of the `id` property of the request message
-    // that this is the response to.
-    // Publish, Notification and RPC Request messages MUST NOT have this property set to any value.
     UUID reqid = 9;
 
-    // The service consumer's access token as defined in
-    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
-    //
-    // Publish, Notification and RPC Response messages MUST NOT have this property set to any value.
+    // The service consumer's access token.
     optional string token = 10;
 
-    // A tracing identifier to be used for correlating messages across the system.
+    // A tracing identifier to use for correlating messages across the system.
+    // Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md
     optional string traceparent = 11;
 }
 
@@ -109,19 +77,12 @@ message UAttributes {
 // A subset of UAttributes used for RPC method invocation.
 message CallOptions {
     // The QoS level that this request should be processed/delivered with.
-    //
-    // MUST be set to a value of `UPRIORITY_CS4` or higher.
     UPriority priority = 1;
 
     // The amount of time (in milliseconds) after which this request MUST NOT be delivered/processed anymore.
-    // A request MUST be considered expired, if this attribute is set to a positive value and
-    // \$t_{current} > t_{id} + ttl\$
-    //
-    // MUST be set to a value > 0.
     uint32 ttl = 2;
 
-    // The service consumer's access token as defined in
-    // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/permissions.adoc[Permissions].
+    // The service consumer's access token.
     optional string token = 3;
 }
 

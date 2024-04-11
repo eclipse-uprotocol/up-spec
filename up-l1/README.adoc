@@ -5,7 +5,7 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2023 General Motors GTO LLC
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,7 +25,6 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2023 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
@@ -70,7 +69,7 @@ NOTE: uProtocol data model used by the uTransport interface are declared in http
   * *MUST* contain the method `void onReceive(UMessage&)` that is called by the Transport to notify (callback) the client
 
 
-== uTransport
+== UTransport
 
 The transport layer API responsible for point-2-point communication. The interface provides common functionality across all transport implementations.
 
@@ -220,12 +219,16 @@ NOTE: Delivery method advertising shall be defined later
 
 == Transport Specifics
 
-Below is an non-exhausted list of transport specific requirements to ensure consistency across implementations of the same or different languages:
+Below is an non-exhaustive list of transport specific requirements to ensure consistency across implementations of the same or different languages:
 
-* link:sommr.adoc[*SommR*]
 * link:binder.adoc[*Android Binder*]
-* link:zenoh.adoc[*Zenoh*]
-* link:ecal.adoc[*ECAL*]
-* link:p3comm.adoc[*P3Comm*]
+* link:zenoh.adoc[*Eclipse Zenoh*]
+* link:ecal.adoc[*Eclipse ECAL*]
+* link:p3comm.adoc[*Eclipse P3Comm*]
 * link:mqtt.adoc[*MQTT*]
-* link:https.adoc[*HTTP*] 
+* link:http.adoc[*HTTP*]
+* link:someip/README.adoc[*SOME/IP*]
+
+Implementers of `UTransport` *MAY* choose to employ link:https://cloudevents.io/[CloudEvents] as a means to map UMessages to the underlying transport's Packet Data Unit (PDU). In order to provide for consistency across implementations, such transport implementations *MUST* adhere to
+
+* link:cloudevents.adoc[*UMessage mapping to CloudEvents*]

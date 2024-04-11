@@ -5,7 +5,7 @@
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
-Copyright (c) 2024 General Motors GTO LLC
+SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
 
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -25,11 +25,49 @@ specific language governing permissions and limitations
 under the License.
 
 SPDX-FileType: DOCUMENTATION
-SPDX-FileCopyrightText: 2024 General Motors GTO LLC
 SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview 
-UPayload contains the actual message payload (either by value or reference) as well as metadata such as the format, size, etc... 
 
-NOTE: Please refer to link:../../up-core-api/uprotocol/upayload.proto[upayload.proto] for more details
+UPayload is a wrapper around a message's payload data, either by value or reference, as well as some metadata describing the payload like format, size, etc.
+
+NOTE: Please refer to link:../up-core-api/uprotocol/upayload.proto[upayload.proto] for more details
+
+== Payload Format
+
+The following table provides an overview of the payload formats supported by uProtocol.
+
+[%autowidth]
+|===
+|UPayloadFormat |MIME Type |Payload encoding
+
+|`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
+|`application/x-protobuf`
+|The message payload *MUST* be the network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload. 
+
+|`UPAYLOAD_FORMAT_PROTOBUF`
+|`application/protobuf`
+|The message payload *MUST* be the network byte order serialization of the protobuf structure representing the payload data.
+
+|`UPAYLOAD_FORMAT_JSON`
+|`application/json`
+|The message payload *MUST* be the network byte order UTF-8 encoding of a JSON structure representing the payload data.
+
+|`UPAYLOAD_FORMAT_SOMEIP`
+|`application/x-someip`
+|The message payload *MUST* be the network byte order serialization of SOME/IP payload data.
+
+|`UPAYLOAD_FORMAT_SOMEIP_TLV`
+|`application/x-someip_tlv`
+|The message payload *MUST* be the network byte order serialization of SOME/IP TLV payload data.
+
+|`UPAYLOAD_FORMAT_RAW`
+|`application/octet-stream`
+|The message payload *MUST* be a byte array representing the payload data.
+
+|`UPAYLOAD_FORMAT_TEXT`
+|`text/plain`
+|The message payload *MUST* be the network byte order UTF-8 encoding of a unicode string representing the payload data.
+
+|===
