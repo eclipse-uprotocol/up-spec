@@ -79,7 +79,7 @@ The following table defines attributes that are used for all message types:
 |`ttl`
 |`unsigned integer`
 |no
-|The amount of time (in milliseconds) after which this message MUST no longer be delivered/processed. The message is considered expired if this attribute is set to a positive value and
+|The amount of time (in milliseconds) after which this message *MUST* no longer be delivered/processed. The message is considered expired if this attribute is set to a positive value and
 
 stem:[t_{current} > t_{id} + ttl]
 
@@ -101,7 +101,7 @@ The following table defines attributes that are used for publish messages in add
 
 |`type`
 |yes
-|MUST be set to `UMESSAGE_TYPE_PUBLISH`.
+|*MUST* be set to `UMESSAGE_TYPE_PUBLISH`.
 
 |`source`
 |yes
@@ -120,7 +120,7 @@ The following table defines attributes that are used for notification messages i
 
 |`type`
 |yes
-|MUST be set to `UMESSAGE_TYPE_NOTIFICATION`.
+|*MUST* be set to `UMESSAGE_TYPE_NOTIFICATION`.
 
 |`source`
 |yes
@@ -143,7 +143,7 @@ The following table defines attributes that are used for RPC request messages in
 
 |`type`
 |yes
-|MUST be set to `UMESSAGE_TYPE_REQUEST`.
+|*MUST* be set to `UMESSAGE_TYPE_REQUEST`.
 
 |`source`
 |yes
@@ -157,13 +157,13 @@ The following table defines attributes that are used for RPC request messages in
 |yes
 a|The link:qos.adoc[QoS] level that this message should be processed/delivered with.
 
-* MUST be set to `UPRIORITY_CS4` or higher.
+* *MUST* be set to `UPRIORITY_CS4` or higher.
 
 |`ttl`
 |yes
 a|The amount of time (in milliseconds) after which this request message should no longer be delivered to or processed by a service provider.
 
-* MUST be set to a value > 0
+* *MUST* be set to a value > 0
 
 
 |`permission_level`
@@ -186,7 +186,7 @@ The following table defines attributes that are used for RPC response messages i
 
 |`type`
 |yes
-|MUST be set to `UMESSAGE_TYPE_RESPONSE`.
+|*MUST* be set to `UMESSAGE_TYPE_RESPONSE`.
 
 |`source`
 |yes
@@ -202,7 +202,7 @@ The following table defines attributes that are used for RPC response messages i
 
 |`priority`
 |yes
-|The link:qos.adoc[QoS] level that this message should be processed/delivered with. MUST be the same value as that of the corresponding request message's `priority` attribute.
+|The link:qos.adoc[QoS] level that this message should be processed/delivered with. *MUST* be the same value as that of the corresponding request message's `priority` attribute.
 
 |`ttl`
 |no

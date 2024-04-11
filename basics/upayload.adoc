@@ -44,30 +44,30 @@ The following table provides an overview of the payload formats supported by uPr
 
 |`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
 |`application/x-protobuf`
-|The message payload MUST be the network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload. 
+|The message payload *MUST* be the network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload. 
 
 |`UPAYLOAD_FORMAT_PROTOBUF`
 |`application/protobuf`
-|The message payload MUST be the network byte order serialization of the protobuf structure representing the payload data.
+|The message payload *MUST* be the network byte order serialization of the protobuf structure representing the payload data.
 
 |`UPAYLOAD_FORMAT_JSON`
 |`application/json`
-|The message payload MUST be the network byte order UTF-8 encoding of a JSON structure representing the payload data.
+|The message payload *MUST* be the network byte order UTF-8 encoding of a JSON structure representing the payload data.
 
 |`UPAYLOAD_FORMAT_SOMEIP`
 |`application/x-someip`
-|The message payload MUST be the network byte order serialization of SOME/IP payload data.
+|The message payload *MUST* be the network byte order serialization of SOME/IP payload data.
 
 |`UPAYLOAD_FORMAT_SOMEIP_TLV`
 |`application/x-someip_tlv`
-|The message payload MUST be the network byte order serialization of SOME/IP TLV payload data.
+|The message payload *MUST* be the network byte order serialization of SOME/IP TLV payload data.
 
 |`UPAYLOAD_FORMAT_RAW`
 |`application/octet-stream`
-|The message payload MUST be a byte array representing the payload data.
+|The message payload *MUST* be a byte array representing the payload data.
 
 |`UPAYLOAD_FORMAT_TEXT`
 |`text/plain`
-|The message payload MUST be the network byte order UTF-8 encoding of a unicode string representing the payload data.
+|The message payload *MUST* be the network byte order UTF-8 encoding of a unicode string representing the payload data.
 
 |===

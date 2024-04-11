@@ -28,7 +28,7 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocl therefore supports priority based message processing at the link:../up-l1/README.adoc[Transport] and link:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
+uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocol therefore supports priority based message processing at the link:../up-l1/README.adoc[Transport] and link:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
 
 For this purpose, each link:umessage.adoc[UMessage] is assigned to one of the following service classes:
 
@@ -48,10 +48,10 @@ For this purpose, each link:umessage.adoc[UMessage] is assigned to one of the fo
 
 These classes are represented by the values of the link:../up-core-api/uprotocol/uattributes.proto[UPriority protobuf enum].
 
-* A UMessage MAY be assigned _explicitly_ to a service class by setting its `attributes.priority` property to the desired value.
+* A UMessage *MAY* be assigned _explicitly_ to a service class by setting its `attributes.priority` property to the desired value.
 [#default-priority]
-* A UMessage MUST be considered to belong to class `CS1`, if its priority is not set explicitly.
-* Every topic MUST have a priority code associated with it.
-* link:../upclient.adoc[uProtocol Client Libraries] SHOULD map the message's service class to a corresponding mechanism of the underlying transport protocol, if available.
-* link:../up-l2/dispatchers/README.adoc[uProtocol Dispatchers] SHOULD consider the message's service class as part of their message scheduling strategy.
+* A UMessage *MUST* be considered to belong to class `CS1`, if its priority is not set explicitly.
+* Every topic *MUST* have a priority code associated with it.
+* link:../upclient.adoc[uProtocol Client Libraries] *SHOULD* map the message's service class to a corresponding mechanism of the underlying transport protocol, if available.
+* link:../up-l2/dispatchers/README.adoc[uProtocol Dispatchers] *SHOULD* consider the message's service class as part of their message scheduling strategy.
 
