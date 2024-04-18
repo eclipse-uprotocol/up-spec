@@ -34,12 +34,12 @@ end box
 entity CDS #orange
 
 group Local uDevice Query
-	uEs -> LDS: FindNodes(FindNodesRequest)
+	uEs -> LDS: FinduE(FinduERequest)
   	note right
-	<size:12>**FindNodesRequest:**</size>
-		""uri"":  "up://Device1/uService"
-		""depth"": -1
+			<size:14>**UriRequest:**</size>
+			""uri"": ""//topic//""
 	end note
+	
 	alt Found
 		LDS --> uEs: FindNodesResponse
 		note right

@@ -1,7 +1,6 @@
 = uDiscovery
 :toc:
 :sectnums:
-
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
@@ -31,9 +30,9 @@ SPDX-License-Identifier: Apache-2.0
 
 == Purpose
 
-uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these dynamically deployed uE's to be able to know about what is available on their own device or on other devices, we need the ability to discover not only uEs but also what uEs serve (resources, methods, messages, etc...) as well as properties about devices. There exists today a number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and of services running on said devices. the goal is to reuse as much as possible, existing Internet standards for discovering of uThings as well.
+uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these dynamically deployed uE's to be able to know about what is available on their own device or on other devices, we need the ability to discover uEs and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering of uThings as well.
 
-The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish.
 
 
 == Background
@@ -46,14 +45,14 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 |DNS |Domain Name System covered in various IETF RFCs
 |CDS |Central Discovery Service implementation of uDiscovery
 |LDS |Local (to a device) implementation of uDiscovery
-|Local Node |Node who is local to the device (local information)
-|Remote Node |Node that is fetched from the CDS and cached in the LDS
+|Local Entity |Entity  who is local to the device (local information)
+|Remote Entity |Entity which is hosted on a different device. This is fetched from CDS and cached in the LDS
 |===
 
 
 == Overview
 
-uDiscovery provides the ability to discovery stuff that is addressable using UUri notation (devices, services, topics/methods) as well as properties of said stuff. 
+uDiscovery provides the ability to discover stuff that is addressable using UUri notation (devices, services, topics/methods). 
 
 NOTE: Data model and interface is described in link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
@@ -70,17 +69,17 @@ NOTE: Components described in <<udiscovery-ues>> below all implement link:../../
 |Component |Description |Requirements
 
 |*Local uDiscovery Service (LDS)*
-|Service to provide discovery of uThings per device. Every LDS has-a database that stores all of its local Nodes as well as caches node information for remote devices.
+|Service to provide discovery of uThings per device. Every LDS has-a database that stores information of all local entities. In addition, it caches information for uEs on other devices.
 a|* Every uDevice *MUST* have LDS
 
 | *Domain uDiscovery Service (uDDS)*
-| Storage for discovery information for all devices within its domain
+| Service to provide discovery of all uThings per domain.
 a|
-* uDDS *MUST* store `Nodes` for all the devices under a given domain hierarchy
+* uDDS *MUST* store `uEs` for all the devices under a given domain hierarchy
 * *MUST* be only one uDDS within a domain
-* A uLDS *MAY* be also function as uDDS and a uCDS for a uDomain or network
+* A uLDS *MAY* also function as uDDS and/or a uCDS for a uDomain or network
 * uDDS *MUST* support queries from uLDSs that are within its domain
-* uDDS *MUST* relay quires from uLDS to the uCDS and then cache the results per the TTL requirements from query API response
+* uDDS *MUST* relay queries from uLDS to the uCDS and then cache the results per the TTL requirements from query API response
 * uDDS *SHOULD* be located in the always-on uDevices
 
 |*Central uDiscovery Service (CDS)*
@@ -278,13 +277,6 @@ NOTE: uCDS or uDDS MAY allow local notification registration when it is also act
 
 NOTE: Dynamic discovery of the CDS is out of scope at the time of writing of this specification and as such the CDS authority is known to the LDS. The CDS does not need to call `RegisterForNotifications()`, the LDS simply sends the notification event to the CDS.
 
-==== Registration
-
-When a uE wants to be notified of changes to Nodes for either local or remote devices, the uE calls RegisterForNotifications() passing the list of URIs of said nodes. Figure below illustrates the usage of the notification registration API.
-
-.Registration for Notifications
-image:notifications.svg[Notifications]
-
 ===  Read/Query APIs
 
 Query APIs are used to lookup content in the database, either to resolve URIs (to be used by applications) or to fetch content of a database.
@@ -294,67 +286,21 @@ Query APIs are used to lookup content in the database, either to resolve URIs (t
 * Remote Nodes that have `expired` *MUST* be refreshed to the CDS
 * Locally `expired` Nodes *MUST NOT* be returned in a query
 
-==== URI Resolution: LookupUri()
+==== Find UE
 
-Used by any uEs to find service instance location, and its current version. What is returned is a list of Uri strings of fully qualified uris. The lookup searches the node database to find instances that match the search criteria.
+Figure below illustrates the flows for performing a query to the LDS. Uri details for requested uE are returned if found in uLDS first, else the query is sent to uDDS and in turn to uCDS if required.
+* *MUST* update `last_accessed` Node attribute when API is called
 
-.Lookup URI
-image:lookup_uri.svg[LookupURI]
+image:FindUE.svg[FinduE]
 
-==== Find Node
+==== Get UE Topics
 
-Figure below illustrates the flows for performing a query to the LDS. An _empty node_, shown in the figure below, is a node with only the URI populated and is returned from LDS and CDS when the node is not found. The _empty node_ is used by the LDS to know that a node does not exist in the CDS and we do not need to keep querying the same node.
+Get uE Topics is used to fetch the list of topics published by a uE. 
 
 * *MUST* update `last_accessed` Node attribute when API is called
 
-.Find Node
-image:find_node.svg[FindNode]
-
-=== Write APIs
-
-uDiscovery includes a set of APIs that allows uEs to change the content of the database. We will explain each APIs functions in the following section.
-
-* *MUST* only allow uEs to update their own Node
-* When `ttl` is not specified, *MUST* assume -1 (live forever)
-* *MUST* verify caller has write permission to update, add, or delete a Node
-* *MUST* verify caller has write permission the parent node when adding or deleting a Node
-* *MUST* set the Node's `last_updated` to the current time when a write API is called
-
-Additional CDS Requirements:
-
-* LDS *SHALL* ONLY be permitted to update Node information for which the uDevice that the LDS runs on is in the list of ancestors of the Node.
-
-==== Updating a Node
-
-Below is the sequence when a change happens in the database
-.Updating Nodes
-image:update_nodes.svg["Update Nodes"]
-
-==== Adding Node(s)
-
-Below we shall give an example of a service called `uOTA` that will install a new service called `uService` to `Device1` illustrating how the `AddNodes()` API could be used. We will also show how the Update notification is sent to two observers; local uApp and the CDS (a remote observer).
-
-.Add Nodes
-image:add_nodes.svg[Add Nodes]
-
-
-==== Deleting Node(s)
-
-DeleteNode() API informs uDiscovery to tag a Node to be inactive. that the Node is no longer active Below shall provide an example of a service called `uOTA` that shall remove a service called `uService` from `Device1` illustrating how the `DeleteNode()` API can be used to remove a uE. We will also show how the Update notification is sent to two observers; a local uApp and the CDS (remote observer).
-
-.Delete Node
-image:delete_node.svg[Delete Node]
-
-
-==== ResolveUri
-
-`ResolveUri()` is used to lookup names from ids or vice versa meaning to go to/from Long Uri from/to micro Uri. 
-
-For portability between SDKs, Long Form URIs shall be serialized to String and Short form Uris shall be serialized to Bytes per link:../../../basics/uri.adoc[URI Specifications]. 
-
- * *MUST* be passed either a Long or Short form URI and return both the Micro and Long form URI if successful
 
 
 == Failure Recovery
 
-In the event that the databases between the CDS and LDS becomes out of sync, the discovery service components (uLDS, uDDS, uCDS) *MAY* fetch the contents using `FindNodes()` API.
+In the event that the databases between the CDS and LDS becomes out of sync, the discovery service components (uLDS, uDDS, uCDS) *MAY* fetch the contents using read APIs.

@@ -41,15 +41,6 @@ service uDiscovery {
   option (version_minor) = 0;
   option (id) = 1;
 
-  // uDiscovery Node Change Notification that sends the Update message
-  option (notification_topic) = {
-    id: 0x8000,
-      name: "NodeChange",
-      message: "Notification"
-  };
-
-    
-
   // Used by any uProtocol application or service to find service instances
   // locations. The passed UUri contains valid UEntity, UResource, and UAuthority information
   // for a query.
@@ -58,74 +49,27 @@ service uDiscovery {
   // 2. code.NOT_FOUND: No matching UUris were found
   // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
   // 4. code.PERMISSION_DENIED: The caller does not have permission to perform the query
-  rpc LookupUri(v1.UUri) returns (LookupUriResponse) {
+  rpc FinduE(FinduERequest) returns (FinduEResponse) {
     option (method_id) = 1;
   }
 
-  // Update a node in the database.
-  // What is returned is the status of the API request as uprotocol.v1.UStatus.
-  // **NOTE:** You MUST have write permission to the node in the database
-  rpc UpdateNode(UpdateNodeRequest) returns (uprotocol.v1.UStatus) {
+  // Retrieve the list of topics for a given uE
+  rpc GetuETopics(GetuETopicsRequests) returns (GetuETopicsResponse){
     option (method_id) = 2;
   }
 
-  // Query the database to find Node(s). What is passed is the search criterial in
-  // the FindNodeRequest message. the returned FindNodeResponse contains the
-  // resulting query node(s) and their child nodes, as well as the
-  // uprotocol.v1.UStatus for the query. Below are some example queries:
-  // 1. uDomain: `//*.device/`
-  // 2. uDevice: `//device`
-  // 3. uService: `//device.domain/body.access/`
-  // 4. uResource: `//device.domain/body.access//door.door_front_left`
-  // **NOTE:** You MUST have read permission to the node in the database
-  rpc FindNodes(FindNodesRequest) returns (FindNodesResponse) {
-    option (method_id) = 3;
-  }
-
-  // Query the database to fetch a list of 1 or more properties for a given node.
-  rpc FindNodeProperties(FindNodePropertiesRequest) returns (FindNodePropertiesResponse) {
+  // Retrieve the list of uEs under a device. 
+  // Input argument : Valid device URI
+  // Output : List of all uEs under that device and appropriate status message
+  rpc GetuEList(GetuEListRequest) returns (GetuEListResponse){
     option (method_id) = 4;
   }
 
-  // Remove one or more nodes (and all its children nodes) in the database.
-  // What is returned is the status of the API request as uprotocol.v1.UStatus.
-  // **NOTE:** You MUST have write permission to the deleted all the nodes passed,
-  // all the children nodes, as well as write permission to the parent otherwise
-  // you will get PERMISSION_DENIED and no nodes will be deleted.
-  rpc DeleteNodes(DeleteNodesRequest) returns (uprotocol.v1.UStatus) {
+  rpc GetDeviceList(GetDeviceListRequest) returns (GetDeviceListResponse){
     option (method_id) = 5;
   }
 
 
-  // Add one of more nodes to a parent node. If one of the nodes already exists, this API will return
-  // ALREADY_EXISTS and none of the nodes shall be added to the parent.
-  // **NOTE:** You MUST have write permission to the parent node
-  rpc AddNodes(AddNodesRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 6;
-  }
-
-
-  // Update a property in a node
-  // **NOTE:** You MUST have write permission to the node who's property you
-  // are updating
-  rpc UpdateProperty(UpdatePropertyRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 7;
-  }
-
-
-  // Register to receive Notifications to changes to one of more Nodes. The changes
-  // are published on the notification topic: '/core.udiscovery/3/nodes#Notification'
-  rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 8;
-  }
-  
-
-  // Unregister for Node change notifications
-  rpc UnregisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 9;
-  }
-
-  
   // Resolve a UUri filling in the missing names/numbers from the Discovery database.
   // If the resolution was successful, the resolved UUri containing names and numbers
   // is returned along with the following status.code values:
@@ -139,200 +83,68 @@ service uDiscovery {
 }
 
 
-// Typedef for a node properties. A node property can be any one of the uProtocol ("u_") types
-// defined below
-message PropertyValue {
-  oneof attr {
-    bool u_boolean = 1;       // Boolean
-    int32 u_integer = 2;      // Integer
-    string u_string = 3;      // String
-    bytes u_bytes = 4;        // Raw Bytes
-    string u_uri = 5;         // A URI
-    google.protobuf.Timestamp u_timestamp = 6;  // Timestamp
-    double u_double = 7;      // Double
-    int64 u_integer_64 = 8;   // 64 bit Integer
-  }
-}
-
-
-// Node can be domain, device, service, resource, method, etc...
-message Node {
-  // uProtocol long form URI pointing to this node
-  string uri = 1;
-
-  // List of child nodes under this node
-  repeated Node nodes = 2;
-
-  // List of node properties
-  map <string, PropertyValue>  properties = 3;
-
-  // The node type
-  Type type = 4;
-
-
-  // What is the uThing (stored in Node) type. This is used to more easily
-  // identify the Node rather than parsing from uri and inferring the type
-  enum Type {
-    UNSPECIFIED  = 0; // Unspecified node type
-    DOMAIN = 1;       // uDomain
-    DEVICE = 2;       // uDevice
-    ENTITY = 3;       // uEntity (uE)
-    VERSION = 9;      // uEntity version
-    TOPIC = 4;        // uE Topic
-    METHOD = 5;       // uE Method
-    MESSAGE = 6;      // uE Message
-    RESOURCE = 7;     // uE Resource
-    USER = 8;         // User Information
-  }
-}
-
-
-// Message passed to the UpdateNode() RPC call
-message UpdateNodeRequest {
-  // Node to be updated in the database
-  Node node = 1;
-
-  // Time-to-live: How long (ms) the information should be live for in the database.
-  // -1 means lives forever
-  optional int32 ttl = 3;
-}
-
-
-// Delete one or more nodes request
-message DeleteNodesRequest {
-  repeated string uris = 1;   // uProtocol formatted URI
-}
-
-
-// FindNodesRequest passed to FindNodes()
-message FindNodesRequest {
-  // uProtocol formatted URI for the node to search, ex. '//vcu.VIN/core.app.hartley'
-  // shall return the 'core.app.hartley' node
-  string uri = 1;
-
-  // How deep in the node tree should the results return. A value of -1 or
-  // the field is not present means all child nodes are returned, value of 0
-  // returns only the parent node, any other value is the depth of child nodes
-  optional int32 depth = 2;
-}
-
-
-// FindNodesResponse that is returned from the FindNodes() API
-message FindNodesResponse {
-  // List of node information
-  repeated Node nodes = 1;
-
-  // Return code for the rpc call
-  uprotocol.v1.UStatus status = 2;
-
-  // Time-to-live: How long (ms) the information should be live for in the database.
-  // -1 means lives forever
-  optional int32 ttl = 3;
-}
-
-
-// Find 1 or more properties for a given node passed to FindNodeProperties()
-message FindNodePropertiesRequest {
-  // the uri for the node in the database
-  string uri = 1;
-
-  // List of 1 or more properties names to fetch from the database
-  // **NOTE:** When this is not populated with any property name, all properties are returned
-  repeated string properties = 2;
-}
-
-
-// Returned from FindNodeProperties()
-message FindNodePropertiesResponse {
-  // a list of property name/value pairs
-  map <string, PropertyValue>  properties = 1;
-
-  // Return code for the rpc call
-  uprotocol.v1.UStatus status = 2;
-}
-
-
-// Passed to AddNodes() API containing the parent node URI and a list of nodes
-message AddNodesRequest {
-  // the URI of the parent node that you would like to add nodes to
-  string parent_uri = 1;
-
-  // One or more nodes that you would like to add to the parent node.
-  // **NOTE:** The node uri field MAY be unqualified meaning it does not include the parent_uri
-  // authority & path). Support for unqualified URIs allows for the same node to be inserted into
-  // multiple parent nodes (ex. installing a uE node to multiple uDevice parent nodes)
-  repeated Node nodes = 2;
-}
-
-
-// Message passed to UpdateProperty() to update a property in a Node
-message UpdatePropertyRequest {
-  // the uri for the node whos property will be updated
-  string uri = 1;
-
-  // The name of the property that is to be updated
-  string property = 2;
-
-  // The value to set in the property
-  PropertyValue value = 3;
-}
-
-
-// Node Change Notification Message.
-// When uEs call RegisterForNotifications(), a Notification message is sent when the node either
-// changes, added, or removed.
-message Notification {
-  // The URI to the node that has changed
-  string uri = 1;
-
-  // the URI of the parent node (if it was affected)
-  optional string parent_uri = 2;
-
-  // The operation performed on said Node
-  Operation operation = 3;
-
-  // Operation
-  enum Operation {
-    INVALID = 0;    // Invalid
-    UPDATE = 1;     // Updated
-    ADD = 2;        // Added to the parent
-    REMOVE = 3;     // Removed
-  }
-
-  // Time-to-live: How long (ms) the information should be live for in the database.
-  // A value of -1 means lives forever.
-  optional  int32 ttl = 4;
-
-  // uDiscovery resource that it serves (per SDV-202 definition): database
-  enum Resources { nodes = 0; }
-}
-
-
-// Observer Identification Information
-message ObserverInfo {
-  // Fully qualified URI for the Observer who is registering to receive the
-  // notifications from uDiscovery ex. `//vcu.VIN/com.gm.app.hartley`
+message FinduERequest {
   string uri = 1;
 }
 
-
-// Passed to the RegisterForNotifications() and UnregisterForNotifications()
-// APIs this message includes the list of one or more node addresses we would like
-// to receive updates for as well as information about the caller so the notification
-// can be routed to the right destination.
-message NotificationsRequest {
-  // A list of one or more Node URIs to receive notifications for
-  repeated string uris = 1;
-
-  // Observer's identification information
-  ObserverInfo observer = 2;
-
-  // How deep in the node tree should the notifications be sent for. A value of -1 or if
-  // the field is not present in the message, signifies that changes to any child nodes will trigger
-  // a Notification event. A value of 0 returns only the parent node. Any other value specified is
-  // the depth of child nodes to receive notifications for.
-  optional int32 depth = 3;
+// Return value from FinduE() API that contains the batch of Uris for the 
+// lookup and status from the API call
+message FinduEResponse {
+  v1.UUriBatch uris = 1;           // Batch of Uris
+  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
+
+
+
+message GetuETopicsRequest {
+  v1.UUri UE = 1;
+}
+
+
+// Response data for GetUEtopics. 
+// Possible return values in status are:
+// 1. code.OK: Query lookup was successful
+// 2. code.NOT_FOUND: No matching UUris were found
+// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
+message GetuETopicsResponse {
+
+  repeated v1.UUri topicList = 1;
+  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
+}
+
+message GetUEListRequest{
+
+  v1.UUri UDevice = 1;
+}
+
+// Response data for GetUEtopics. 
+// Possible return values in status are:
+// 1. code.OK: Query lookup was successful
+// 2. code.NOT_FOUND: No matching UUris were found
+// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
+message GetuEListResponse {
+
+  repeated v1.UUri UEList = 1;
+  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
+}
+
+
+message GetDeviceListRequest{
+
+  v1.UUri UDomain = 1;
+}
+
+// Response data for GetUEtopics. 
+// Possible return values in status are:
+// 1. code.OK: Query lookup was successful
+// 2. code.NOT_FOUND: No matching UUris were found
+// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
+message GetuEListResponse {
+
+  repeated v1.UUri deviceList = 1;
+  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
+}
+
 
 // Request message passed to ResolveUri() API to resolve the missing names or numbers.
 message ResolveUriRequest {
@@ -341,31 +153,10 @@ message ResolveUriRequest {
 }
 
 
-// Response message returned from ResolveUri() API containing a UUri and the 
+// Response returned from ResolveUri() API containing a UUri and the 
 // status of the resolution.
 message ResolveUriResponse {
   v1.UUri uri = 1;                 // Resolved UUri  
-  uprotocol.v1.UStatus status = 3; // Return code for the rpc call
-}
-
-
-// Return value from LookupUri() API that contains the batch of Uris for the 
-// lookup and status from the API call
-message LookupUriResponse {
-  v1.UUriBatch uris = 1;           // Batch of Uris
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
 
-
-// Node  Notification Topic
-// Service Meta-data structure used to build the notification topic when there are
-// changes to a Node in the database. This message build the topic:
-// '/core.udiscovery/3/nodes#Notification'.
-// **NODE:** This message definition is ONLY used to autogenerate the Node Change Notification topic.
-message NodeNotificationTopic {
-  // Service meta-data option definition - Topic identity
-  option (base_topic_id) = 1000;
-
-  // Meta flags for generating the YAML
-  Notification.Resources resource_name = 1 [(resource_name_mask) = "*"];
-}
