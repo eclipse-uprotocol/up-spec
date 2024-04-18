@@ -139,7 +139,7 @@ message GetDeviceListRequest{
 // 1. code.OK: Query lookup was successful
 // 2. code.NOT_FOUND: No matching UUris were found
 // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
-message GetuEListResponse {
+message GetDeviceListResponse {
 
   repeated v1.UUri deviceList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call

@@ -32,7 +32,7 @@ SPDX-License-Identifier: Apache-2.0
 
 uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these  uE's to know about what is available on their own device or on other devices, we need the ability to discover uEs, their locations and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering uThings as well.
 
-The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discover uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics are served(publihed) by a uE in another device.
+The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discover uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics are served(published) by a uE in another device.
 
 
 == Background
