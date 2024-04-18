@@ -30,9 +30,9 @@ SPDX-License-Identifier: Apache-2.0
 
 == Purpose
 
-uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these dynamically deployed uE's to be able to know about what is available on their own device or on other devices, we need the ability to discover uEs and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering of uThings as well.
+uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these  uE's to know about what is available on their own device or on other devices, we need the ability to discover uEs, their locations and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering uThings as well.
 
-The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish.
+The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discover uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics are served(publihed) by a uE in another device.
 
 
 == Background
@@ -44,6 +44,7 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 |Term |Definition
 |DNS |Domain Name System covered in various IETF RFCs
 |CDS |Central Discovery Service implementation of uDiscovery
+|DDS | Domain Discovery Service(local to a domain) implemenation of uDiscovery
 |LDS |Local (to a device) implementation of uDiscovery
 |Local Entity |Entity  who is local to the device (local information)
 |Remote Entity |Entity which is hosted on a different device. This is fetched from CDS and cached in the LDS
@@ -52,7 +53,7 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 
 == Overview
 
-uDiscovery provides the ability to discover stuff that is addressable using UUri notation (devices, services, topics/methods). 
+uDiscovery provides the ability to discover things which are addressable using UUri notation (devices, services, topics/methods). 
 
 NOTE: Data model and interface is described in link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
 
@@ -69,7 +70,7 @@ NOTE: Components described in <<udiscovery-ues>> below all implement link:../../
 |Component |Description |Requirements
 
 |*Local uDiscovery Service (LDS)*
-|Service to provide discovery of uThings per device. Every LDS has-a database that stores information of all local entities. In addition, it caches information for uEs on other devices.
+|Service to provide discovery of uThings per device. Every LDS stores information of all local entities. In addition, it caches information for uEs on other devices.
 a|* Every uDevice *MUST* have LDS
 
 | *Domain uDiscovery Service (uDDS)*
@@ -82,17 +83,15 @@ a|
 * uDDS *MUST* relay queries from uLDS to the uCDS and then cache the results per the TTL requirements from query API response
 * uDDS *SHOULD* be located in the always-on uDevices
 
-|*Central uDiscovery Service (CDS)*
+|*Central uDiscovery Service (uCDS)*
 |Central repository storing all deployed uDevice information in the network of connected devices residing in the Cloud. It is a superset of the local uDiscovery database content
 a|
 * *MUST* have one CDS that is globally addressable by the various domain/device LDS
 |===
 
-Function specific requirements shall be covered later in this document.
-
 === Hierarchical Specifications
 
-The following section will elaborate on the uProtocol hierarchy elaborating how information is organized, referenced, and structured. This is the system classification specification used to identify and define "things" along with the storage of information (properties) of the uThings in the registry.
+The following section will elaborate on the uProtocol hierarchy elaborating how information is organized, referenced, and structured. This is the system classification specification used to identify and define "things" .
 
 <<img-hierarchical>> below introduces node and properties that we will define in this section. The diagram illustrates the hierarchy (taxonomy) for things in the network.
 
@@ -205,7 +204,7 @@ NOTE: It is *STRONGLY RECOMMENDED* to scope your property names to avoid namespa
 
 === Database Access
 
-The uDiscovery service, through the query and update APIs, allows any uE to discover or change the contents of the local and central databases. Given that we obviously do not want any uE to access anything in the database, we need to build in safety checks that are validated in both the local and central discovery service.
+The uDiscovery service, through the query APIs, allows any uE to discover the contents from local and central databases. These APIs shall implement appropriate permission model to prevent unauthorized access.
 
 ==== Policy
 
@@ -243,7 +242,6 @@ Node metadata are stored outside the Node structure and describe the Node itself
 |ttl |int32 |*REQUIRED* |Time-to-Live. How long (in milliseconds) the Node is valid for before it is outdated and needs to be refreshed. When the value is -1 the Node is considered to be valid forever. A Node is expired when the following is true:  \begin\{array}\{l}\displaystyle expired = t_\{current} > t_\{last_updated} + ttl\end\{array}
 |last_updated |Timestamp |*REQUIRED* |Last time the content of the Node has changed (been written)
 |last_accessed |Timestamp |*OPTIONAL* |The last time the Node was read (accessed) from a FindNodes() API call
-|inactive |bool |*REQUIRED* |The Node has been tagged as inactive through the DeleteNode() API call
 |===
 
 API requirements related to Node metadata shall be covered in the subsequent section.
@@ -253,37 +251,12 @@ API requirements related to Node metadata shall be covered in the subsequent sec
 
 In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
 
-=== Notifications
-
-Notifications are used for replicating information between uLDS, uDDS, and uCDS, and to notify local uEs if/when the content of the database has changed for various reasons such as:
-
-* Installation of a new service version
-* Change in property values
-* Updates to device configurations
-* etc...
-
-In order for uEs to receive notifications, the uE calls the uDiscovery API `RegisterForNotifications()` passing `NotificationsRequest` message that includes the list of URIs that it would like to be notified of changes, and a value of how deep in the tree should the change notification be sent. When the depth field is set to -1 or not present, the notifications shall be sent for changes to all children nodes. Below are a few high level requirements for uDiscovery notifications:
-
-* uE *MUST* be permitted to receive the notification (access the node). Permission is granted if the node is public or per [Appendix: Code-Based uE Access Permissions (CAPs)]
-* Notifications *MUST* be sent on the topic `/core.udiscovery/3/nodes#Notification`
-
-* uCDS *MUST* only allow notification registration from uDDS, and uDDS registration from uLDS
-
-NOTE: uCDS or uDDS MAY allow local notification registration when it is also acting as a uLDS for the local device
-
-* uLDS *MUST* only accept registration for Node Updates from local uEs or from the CDS and *MUST NOT* accept notification registration from other uDevices uEs
-
-
-
-NOTE: Dynamic discovery of the CDS is out of scope at the time of writing of this specification and as such the CDS authority is known to the LDS. The CDS does not need to call `RegisterForNotifications()`, the LDS simply sends the notification event to the CDS.
-
 ===  Read/Query APIs
 
 Query APIs are used to lookup content in the database, either to resolve URIs (to be used by applications) or to fetch content of a database.
 
 * Any uE *MAY* call the query APIs defined in the sections below
-* *MUST NOT* return Nodes that are flagged as `inactive`
-* Remote Nodes that have `expired` *MUST* be refreshed to the CDS
+* Remote Nodes that are `expired` *MUST* be refreshed to the CDS
 * Locally `expired` Nodes *MUST NOT* be returned in a query
 
 ==== Find UE
