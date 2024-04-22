@@ -29,7 +29,7 @@ under the License.
 
 Scalable service-Oriented MiddlewarE over IP (SOME/IP) is a communication protocol used in the automotive industry for exchanging data between electronic control units (ECUs) in a vehicle. 
 SOME/IP provides a framework for efficient and reliable communication between ECUs over IP networks. It is designed to support real-time and high-bandwidth communication requirements in automotive systems. The protocol allows ECUs to discover and communicate with each other, exchange messages, and provide services in a distributed system.
-SOME/IP is based on the Internet Protocol (IP) and uses UDP (User Datagram Protocol) as the transport layer. It supports various communication patterns, including unicast, multicast, and broadcast. The protocol defines a set of message formats and procedures for encoding and decoding data, handling service discovery, and managing communication sessions.
+SOME/IP is based on the Internet Protocol (IP) and uses UDP or TCP as the transport layer. It supports various communication patterns, including unicast, multicast, and broadcast. The protocol defines a set of message formats and procedures for encoding and decoding data, handling service discovery, and managing communication sessions.
 By using SOME/IP, automotive ECUs can communicate with each other to exchange information related to vehicle functions, such as sensor data, control commands, diagnostics, and software updates. It enables the integration and interoperability of different ECUs from various automotive suppliers within a vehicle's network architecture.
 Overall, SOME/IP plays a crucial role in facilitating efficient and standardized communication between ECUs in modern automotive systems.
 
@@ -67,7 +67,7 @@ endpoint) of the mDevice
 bits of the SOME/IP Message ID header field
 
 |*`UResource::id`* |Method/Event ID |Identifier of the method/resource placed in the
-lower 15 bits of the SOME/IP Message ID header field
+lower 16 bits of the SOME/IP Message ID header field
 
 |===
 
@@ -76,24 +76,28 @@ lower 15 bits of the SOME/IP Message ID header field
 
 link:../basics/uuid.adoc[uProtocol UUID specifications] create a unique identifier for each message along with timestamp information. the ID is used for correlate between request and response as well. SOME/IP instead defines the ID as 16bit client ID + 16 bit session ID (that is incremented). When messages are converted SOME/IP to/from uProtocol, care must be taken to ensure that the SOME/IP ID and uProtocol UUID are properly mapped, especially when corelating a request to a response. 
 
-* Generated SOME/IP events *SHOULD* set the 16 bit client ID to 0 per SOME/IP specifications 4.1.2.4
+* Generated SOME/IP events *SHOULD* set the 16 bit client ID to 0 per `[PRS_SOMEIP_00925]`
 * *MUST* auto-populate the request ID cached from the request event, into the response event and then flush the entry in the cache
 
 Further details of the usage of IDs for the various message types can be found in the next section.
 
 ==== Message Type
 
+<<umessagetype-mapping>> table below maps of uProtocol messages to `[PRS_SOMEIP_00055]` SOME/IP message types. 
+
 .UMessageType Mapping
-[umessagetype-mapping]
+[umessagetype-mapping, cols="1,1,2"]
 |===
 | UMessageType | SOME/IP Type | Details
 
-|`UMESSAGE_TYPE_PUBLISH` or `UMESSAGE_TYPE_NOTIFICATION` |`NOTIFICATION` |Both publication and notifications events are the same for SOME/IP
+|`UMESSAGE_TYPE_PUBLISH` |`NOTIFICATION` | Publish
 
-| `UMESSAGE_TYPE_REQUEST` |`REQUEST` |Requests type message
+| `UMESSAGE_TYPE_REQUEST` |`REQUEST` |Requests
 
 | `UMESSAGE_TYPE_RESPONSE` |`RESPONSE` or `ERROR` |Responses or error has occurred while attempting to deliver the message or a service
 has thrown an exception
+
+| `UMESSAGE_TYPE_NOTIFICATION` | `REQUEST_NO_RETURN` | Notification
 
 |===
 
@@ -116,7 +120,7 @@ When receiving a SOME/IP initiated requests:
 
 ==== Communication Status 
 
-<<commstatus-mapping>> below provides the mapping of uAttributes `commstatus` `UCode` codes to SOME/IP error codes.
+<<commstatus-mapping>> below provides the mapping of uAttributes `commstatus` `UCode` codes to `[PRS_SOMEIP_0019]` SOME/IP error codes.
 
 .Error Code Mapping
 [commstatus-mapping, width=70%]
@@ -130,6 +134,8 @@ When receiving a SOME/IP initiated requests:
 |`UNAVAILABLE` |`E_NOT_READY`
 |`DATA_LOSS` |`E_MALFORMED_MESSAGE`
 |`INTERNAL` |`E_NOT_REACHABLE`
+|`UNKNOWN` | `E_NOT_OK`
+|`FAILED_PRECONDITION`|`E_WRONG_PROTOCOL_VERSION` or `E_WRONG_INTERFACE_VERSION`
 |===
 
 
@@ -151,8 +157,8 @@ Application (or message payload) translation is the process of converting SOME/I
 
 The following section will elaborate only on the translation of uSubscription messages to/from SOME/IP-SD messages. Subscription state (persistent or not) is handled in the uSubscription services and not at the transport layer or this component.
 
-The following section we will elaborate on how Eventgroup Entry types (5.1.3.1) are mapped to uSubscription messages for the subscribe
-and unsubscribe flows. 
+The following section we will elaborate on how Eventgroup Entry types are mapped to uSubscription messages for the subscribe
+and unsubscribe flows per `[PRS_SOMEIPSD_00385]`. 
 
 ==== Common Fields
 
@@ -163,11 +169,13 @@ and unsubscribe flows. 
 |===
 |Eventgroup Entry Field |UUri
 
-|Service ID |`UEntity.id`
+|Service ID |`UEntity::id`
 
-|Major Version | `UEntity.major_version`
+|Major Version | `UEntity::major_version`
 
-|Eventgroup ID | `UResource.id`
+|Event ID | `UResource::id`
+
+|Instance ID | *SHALL* assume to be 1
 
 |===
 
@@ -184,8 +192,6 @@ NOTE: `UUri.authority.ip` is translated to/from IPv4 (and/or IPv6) Endpoint Opti
 |`SubscriptionRequest` 
 a|The message is used to subscribe to a topic.
 
-* Instance ID *SHALL* assume to be 0
-* *SHALL* assume version 0 to match uProtocol backwards compatibility requirements
 * TTL (`SubscribeAttributes.ttl`) *SHALL* set to 0xFFFFFF to indicate that the subscription should remain for the duration of the ignition cycle
 
 NOTE: If temporal subscriptions shall be supported by the various uProtocol implementation, `ttl` *SHOULD* be set to the desired duration of the subscription.
@@ -208,12 +214,9 @@ a|The message is used to acknowledge a failed subscription request.
 |`UnsubscribeRequest`
 a|The message is used to unsubscribe from a topic.
 
-* Instance ID *SHALL* assume to be 0
-* *SHALL* assume version 0 to match uProtocol backwards compatibility requirements
 * TTL *SHALL* set to 0 to indicate that the subscription has terminated
 
 |===
-
 
 
 === uDiscovery Translation
