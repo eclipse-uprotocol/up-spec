@@ -32,8 +32,6 @@ SPDX-License-Identifier: Apache-2.0
 
 uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these  uE's to know about what is available on their own device or on other devices, we need the ability to discover uEs, their locations and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering uThings as well.
 
-The purpose of this proposal is to define the discovery architecture so that uEs can dynamically discover uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics are served(published) by a uE in another device.
-
 
 == Background
 === Definitions of Terms
@@ -43,51 +41,11 @@ The purpose of this proposal is to define the discovery architecture so that uEs
 |===
 |Term |Definition
 |DNS |Domain Name System covered in various IETF RFCs
-|CDS |Central Discovery Service implementation of uDiscovery
-|DDS | Domain Discovery Service(local to a domain) implemenation of uDiscovery
-|LDS |Local (to a device) implementation of uDiscovery
-|Local Entity |Entity  who is local to the device (local information)
-|Remote Entity |Entity which is hosted on a different device. This is fetched from CDS and cached in the LDS
+|uCDS |Central Discovery Service implementation of uDiscovery
+|uDDS | Domain Discovery Service(local to a domain) implementation of uDiscovery
+|uLDS |Local (to a device) implementation of uDiscovery
 |===
 
-
-== Overview
-
-uDiscovery provides the ability to discover things which are addressable using UUri notation (devices, services, topics/methods). 
-
-NOTE: Data model and interface is described in link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
-
-.uProtocol Discovery Architecture
-image::overview.drawio.svg[Overview]
-
-NOTE: Components described in <<udiscovery-ues>> below all implement link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
-
-
-.uDiscovery Software Entities
-[#udiscovery-ues]
-[width="100%",cols="15%,35%,50%",options="header"]]
-|===
-|Component |Description |Requirements
-
-|*Local uDiscovery Service (LDS)*
-|Service to provide discovery of uThings per device. Every LDS stores information of all local entities. In addition, it caches information for uEs on other devices.
-a|* Every uDevice *MUST* have LDS
-
-| *Domain uDiscovery Service (uDDS)*
-| Service to provide discovery of all uThings per domain.
-a|
-* uDDS *MUST* store `uEs` for all the devices under a given domain hierarchy
-* *MUST* be only one uDDS within a domain
-* A uLDS *MAY* also function as uDDS and/or a uCDS for a uDomain or network
-* uDDS *MUST* support queries from uLDSs that are within its domain
-* uDDS *MUST* relay queries from uLDS to the uCDS and then cache the results per the TTL requirements from query API response
-* uDDS *SHOULD* be located in the always-on uDevices
-
-|*Central uDiscovery Service (uCDS)*
-|Central repository storing all deployed uDevice information in the network of connected devices residing in the Cloud. It is a superset of the local uDiscovery database content
-a|
-* *MUST* have one CDS that is globally addressable by the various domain/device LDS
-|===
 
 === Hierarchical Specifications
 
@@ -202,35 +160,8 @@ Services can declare any non-reserved identifier in their own proto files.
 NOTE: It is *STRONGLY RECOMMENDED* to scope your property names to avoid namespace collision
 
 
-=== Database Access
 
-The uDiscovery service, through the query APIs, allows any uE to discover the contents from local and central databases. These APIs shall implement appropriate permission model to prevent unauthorized access.
-
-==== Policy
-
-Table below outlines the database access policies written like network firewall rules (top to bottom). The rules will be broken down for specific rules for the LDS vs CDS.
-
-===== All Components
-* *MUST* block access by default
-
-===== uLDS
-
-* *MUST* allow local uE to read or write its own Node as well as its children Nodes
-* *MUST* allow local uE to read Nodes that it has associated link:../../../up-l2/permissions.adoc[permissions] to do so
-* Fetched Nodes *MUST* be cached per ttl requirements
-
-===== uDDS
-* *MUST* allow uLDS to read or write its own Node or its children Nodes
-* Fetched Nodes *MUST* be cached per ttl requirements
-
-===== uCDS
-* *MUST* allow uDDS to read or write its own Node or its children Nodes
-
-|3 | |
-|4 | |*MUST* allow LDS to read additional uDevice Nodes that are within its scope Scoping (or grouping) of devices shall be defined in a later version of this specification
-
-
-=== Node Metadata
+==== Node Metadata
 
 Node metadata are stored outside the Node structure and describe the Node itself (freshness, etc...).
 
@@ -267,10 +198,14 @@ Figure below illustrates the flows for performing a query to the LDS. Uri detail
 image:FindUE.svg[FinduE]
 
 ==== Get UE Topics
+Get uE Topics is used to fetch the list of topics published by a uE. Data available locally and in cache for remote uEs shall be returned in response of this API.
 
-Get uE Topics is used to fetch the list of topics published by a uE. 
 
-* *MUST* update `last_accessed` Node attribute when API is called
+==== Get UE List
+Get UE list is used retrieve the list of UEs for a given device. 
+
+==== Get Device List
+Get device list is similar to Get UE list, but at a domain level. Consumers would use this API to retrieve all devices under a given domain.
 
 
 

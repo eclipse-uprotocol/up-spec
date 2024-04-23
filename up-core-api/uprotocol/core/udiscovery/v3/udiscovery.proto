@@ -175,7 +175,7 @@ message GetuEListResponse {
 
 // Request message to get list of UEs for a device
 message GetDeviceListRequest{
-  v1.UUri UDomain = 1;
+  v1.UAuthority UDomain = 1;
 }
 
 // Request message to get list of devices for a domain
