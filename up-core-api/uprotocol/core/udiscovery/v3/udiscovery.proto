@@ -106,7 +106,7 @@ message GetuETopicsRequest {
 // 1. code.OK: Query lookup was successful
 // 2. code.NOT_FOUND: No matching UUris were found
 // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
-message GetuETopicsResponse {
+message GetUETopicsResponse {
 
   repeated v1.UUri topicList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
