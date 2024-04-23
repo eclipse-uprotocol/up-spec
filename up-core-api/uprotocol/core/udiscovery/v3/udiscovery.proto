@@ -41,34 +41,79 @@ service uDiscovery {
   option (version_minor) = 0;
   option (id) = 1;
 
-  // Used by any uProtocol application or service to find service instances
-  // locations. The passed UUri contains valid UEntity, UResource, and UAuthority information
-  // for a query.
-  // What is returned is a list of UUris that match the query. Possible return values in status are:
-  // 1. code.OK: Query lookup was successful
-  // 2. code.NOT_FOUND: No matching UUris were found
-  // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
-  // 4. code.PERMISSION_DENIED: The caller does not have permission to perform the query
+
+  option (notification_topic) = {
+    id: 0x8000,
+      name: "NodeChange",
+      message: "Notification"
+  };
+
+  /* Consumer calls this API to find all instances for a given uE and their locations. 
+  uDiscovery shall return all local(to the device) URIs for this service and also the ones found 
+  in cache of uEs for remote devices. If requested details are not found (either locally or in cache), it shall 
+  attempt to fetch those details from next uDiscovery instance in the chain. (uLDS to uDDS, uDDS to uCDS) */
+
+  /* Example: 
+  FindUE(“///core.example”)
+  Response: [“//ultifi.gm.com/core.example/2.0”, “/core.example/1.0”], Status: code.OK
+  */
+
   rpc FinduE(FinduERequest) returns (FinduEResponse) {
     option (method_id) = 1;
   }
 
-  // Retrieve the list of topics for a given uE
+
+
+  /* Consumer calls this API to retrieve a list of topics serviced by a given uE.
+  List of topics shall consist data topics being published and rpc methods services by that uE. 
+  Scope of the data fetch shall be limited to local device, meaning uLDS shall not attempt to 
+  fetch the details remotely if not found locally or in cache.*/
+  
+  
+  /* Example: 
+  GetUETopics(“up:/core.example/1”)
+  Response: [“up:/core.example/1/topic1”, “up:/core.example/1/rpc1”], Status: code.OK 
+  */
+
   rpc GetuETopics(GetuETopicsRequests) returns (GetuETopicsResponse){
     option (method_id) = 2;
   }
 
-  // Retrieve the list of uEs under a device. 
-  // Input argument : Valid device URI
-  // Output : List of all uEs under that device and appropriate status message
+
+  /* Consumers shall call this API to fetch the list of uEs under a given device.
+  Idea is to provide an API(at each levle in hierarchy) to get a list of local entities.
+  For example: uDDS might call on uLDS for each device to build up its local tree in case of failures */
+
+ /* Example: 
+  GetUETopics(“up:/device1”)
+  Response: [“up:/device1/uE1”, “up:/device1/uE2”], Status: code.OK 
+
+  GetUETopics(“up:/device2”)
+  Response: [], Status: code.INVALID_ARGUMENT (passed device should match local device)
+
+  */
   rpc GetuEList(GetuEListRequest) returns (GetuEListResponse){
     option (method_id) = 4;
   }
 
+
+ /* Consumers shall call this API to fetch the list of uEs under a given domain.
+  This is an extension of GetUEList at a higher level.
+  For example: uCDS might call on uDDS to build up its local tree in case of failures */
+
+ /* Example: 
+  GetDeviceList(“up:/domain”)
+  Response: [“up:/domain/device1”, “up:/domain/device2”], Status: code.OK 
+
+  GetUETopics(“up:/domain2”)
+  Response: [], Status: code.INVALID_ARGUMENT (invalid domain)
+
+  */
   rpc GetDeviceList(GetDeviceListRequest) returns (GetDeviceListResponse){
     option (method_id) = 5;
   }
 
+  /* TODO: Need to catch up on URI discussion before updating this*/
 
   // Resolve a UUri filling in the missing names/numbers from the Discovery database.
   // If the resolution was successful, the resolved UUri containing names and numbers
@@ -83,6 +128,16 @@ service uDiscovery {
 }
 
 
+/* All response messages shall include uprotocol status field. This shall indicate whether 
+the request was processed successfully and provide error reason if applicable. Some of the 
+common error reasons could be:
+  code.OK: Query lookup was successful
+  code.NOT_FOUND: No matching UUris were found
+  code.INVALID_ARGUMENT: The passed UUri is invalid
+  code.PERMISSION_DENIED: The caller does not have permission to perform the query
+  */
+
+
 message FinduERequest {
   string uri = 1;
 }
@@ -95,57 +150,42 @@ message FinduEResponse {
 }
 
 
-
+// Request message to get list of topics for a UE
 message GetuETopicsRequest {
   v1.UUri UE = 1;
 }
 
 
 // Response data for GetUEtopics. 
-// Possible return values in status are:
-// 1. code.OK: Query lookup was successful
-// 2. code.NOT_FOUND: No matching UUris were found
-// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
 message GetuETopicsResponse {
-
   repeated v1.UUri topicList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
 
+// Request message to get list of UEs for a device
 message GetUEListRequest{
-
   v1.UUri UDevice = 1;
 }
 
 // Response data for GetUEtopics. 
-// Possible return values in status are:
-// 1. code.OK: Query lookup was successful
-// 2. code.NOT_FOUND: No matching UUris were found
-// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
 message GetuEListResponse {
-
   repeated v1.UUri UEList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
 
-
+// Request message to get list of UEs for a device
 message GetDeviceListRequest{
-
   v1.UUri UDomain = 1;
 }
 
-// Response data for GetUEtopics. 
-// Possible return values in status are:
-// 1. code.OK: Query lookup was successful
-// 2. code.NOT_FOUND: No matching UUris were found
-// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
+// Request message to get list of devices for a domain
 message GetDeviceListResponse {
-
   repeated v1.UUri deviceList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
 
 
+/* TODO: Update after catching up on URI specs */
 // Request message passed to ResolveUri() API to resolve the missing names or numbers.
 message ResolveUriRequest {
   // The URI to resolve containing only names or numbers
