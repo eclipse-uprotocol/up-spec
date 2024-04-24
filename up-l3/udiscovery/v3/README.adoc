@@ -30,8 +30,9 @@ SPDX-License-Identifier: Apache-2.0
 
 == Purpose
 
-uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. In order for these  uE's to know about what is available on their own device or on other devices, we need the ability to discover uEs, their locations and what they serve (resources, methods, messages, etc...). There are number of Internet protocols such as DNS, Zeroconf, and others, to discover devices and services running on said devices. Intent of uDiscovery is to reuse as much as possible, existing Internet standards for discovering uThings as well.
+Purpose of uDiscovery is to provide a functionality similar to DNS lookup. 
 
+uE's (Software Entities) will be deployed dynamically on devices that are scattered throughout the uProtocol network. uDiscovery service provides functionality to discover uEs, their locations and what they serve (resources, methods, messages, etc...). 
 
 == Background
 === Definitions of Terms
@@ -46,12 +47,11 @@ uE's (Software Entities) will be deployed dynamically on devices that are scatte
 |uLDS |Local (to a device) implementation of uDiscovery
 |===
 
-
 === Hierarchical Specifications
 
 The following section will elaborate on the uProtocol hierarchy elaborating how information is organized, referenced, and structured. This is the system classification specification used to identify and define "things" .
 
-<<img-hierarchical>> below introduces node and properties that we will define in this section. The diagram illustrates the hierarchy (taxonomy) for things in the network.
+<<img-hierarchical>> below introduces uEs and properties that we will define in this section. The diagram illustrates the hierarchy (taxonomy) for things in the network.
 
 
 .Hierarchical Classification
@@ -61,14 +61,19 @@ image::hierarchical.drawio.svg[Classification]
 
 ==== Node
 
-Nodes are addressable uThings like device, service, topics, etc.... Each node has-a list of properties as well as 0-n child nodes. The declarations of nodes and properties can be found in the link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto], the snippet is below:
+Every ultifi entity that is addressable using URI is represented by a node message defined in link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]. Each node has-a list of properties as well as 0-n child nodes. 
+
+Snippet of the node proto definition is below:
 
 
 .Node & Property Definitions
 [source]
 ----
-// Typedef for a node properties. A node property can be any one of the types
-// defined below
+
+/*
+Typedef for a node properties. A node property can be any one of the ultifi ("u_") types
+defined below
+*/
 message PropertyValue {
   oneof attr {
     bool u_boolean = 1;       // Boolean
@@ -77,13 +82,19 @@ message PropertyValue {
     bytes u_bytes = 4;        // Raw Bytes
     string u_uri = 5;         // A URI
     google.protobuf.Timestamp u_timestamp = 6;  // Timestamp
+    double u_double = 7;      // Double
+    int64 u_integer_64 = 8;   // 64 bit Integer
   }
 }
 
-// Node can be domain, device, service, resource, method, etc...
+
+/*
+uProtocol definition of a Node in the hierarchy per SDV-202.
+Node can be domain, device, service, resource, method, etc...
+*/
 message Node {
-  // URI pointing to this node
-  string uri = 1;
+  // Ultifi URI pointing to this node
+  v1.UUri uri = 1;
 
   // List of child nodes under this node
   repeated Node nodes = 2;
@@ -98,18 +109,19 @@ message Node {
   // What is the uThing (stored in Node) type. This is used to more easily
   // identify the Node rather than parsing from uri and inferring the type
   enum Type {
-    INVALID = 0;    // Invalid node type
-    DOMAIN = 1;     // uDomain
-    DEVICE = 2;     // uDevice
-    ENTITY = 3;     // uEntity (uE)
-	VERSION = 9; 	// uE Version
-    TOPIC = 4;      // uE Topic
-    METHOD = 5;     // uE Method
-    MESSAGE = 6;    // uE Message
-	RESOURCE = 7;   // uE Resource
-    USER = 8;       // User Information
+    UNSPECIFIED  = 0; // Unspecified node type
+    DOMAIN = 1;       // uDomain
+    DEVICE = 2;       // uDevice
+    ENTITY = 3;       // uEntity (uE)
+    VERSION = 9;      // uEntity version
+    TOPIC = 4;        // uE Topic
+    METHOD = 5;       // uE Method
+    MESSAGE = 6;      // uE Message
+    RESOURCE = 7;     // uE Resource
+    USER = 8;         // User Information
   }
 }
+
 ----
 
 
@@ -161,26 +173,15 @@ NOTE: It is *STRONGLY RECOMMENDED* to scope your property names to avoid namespa
 
 
 
-==== Node Metadata
-
-Node metadata are stored outside the Node structure and describe the Node itself (freshness, etc...).
-
-
-.Node Metadata Definition
-|===
-|Attribute |Type |RFC2119 |Description
-
-|ttl |int32 |*REQUIRED* |Time-to-Live. How long (in milliseconds) the Node is valid for before it is outdated and needs to be refreshed. When the value is -1 the Node is considered to be valid forever. A Node is expired when the following is true:  \begin\{array}\{l}\displaystyle expired = t_\{current} > t_\{last_updated} + ttl\end\{array}
-|last_updated |Timestamp |*REQUIRED* |Last time the content of the Node has changed (been written)
-|last_accessed |Timestamp |*OPTIONAL* |The last time the Node was read (accessed) from a FindNodes() API call
-|===
-
-API requirements related to Node metadata shall be covered in the subsequent section.
-
-
 == uDiscovery Interface
 
 In the following section we will explain the various APIs and interfaces that are defined in uDiscovery and their requirements. Interface definitions (input and output parameters, etc...) are covered in the link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto].
+
+=== Write APIs 
+Write APIs are used to populate/ update data in 'local' discovery instance. 
+
+==== Set UE Topics
+This API shall be used by ultifi entities to update discovery with the list of topics they serve. This includes the topics they publish on and also the rpcs they serve. 
 
 ===  Read/Query APIs
 
@@ -192,10 +193,9 @@ Query APIs are used to lookup content in the database, either to resolve URIs (t
 
 ==== Find UE
 
-Figure below illustrates the flows for performing a query to the LDS. Uri details for requested uE are returned if found in uLDS first, else the query is sent to uDDS and in turn to uCDS if required.
-* *MUST* update `last_accessed` Node attribute when API is called
+Find UE is used by conusmers to find service instances. uDiscovery shall lookup UE details locally first and try to get it from remote instances if not found locally. 
 
-image:FindUE.svg[FinduE]
+Figure below illustrates the flows for performing a query to the LDS. Uri details for requested uE are returned if found in uLDS first, else the query is sent to uDDS and in turn to uCDS if required.
 
 ==== Get UE Topics
 Get uE Topics is used to fetch the list of topics published by a uE. Data available locally and in cache for remote uEs shall be returned in response of this API.
@@ -207,6 +207,11 @@ Get UE list is used retrieve the list of UEs for a given device.
 ==== Get Device List
 Get device list is similar to Get UE list, but at a domain level. Consumers would use this API to retrieve all devices under a given domain.
 
+=== Replication/ Synchronization APIs
+
+==== Sync Data
+
+This is used by local discovery instances to push local updates to domain and from domain to central. 
 
 
 == Failure Recovery

@@ -48,12 +48,43 @@ service uDiscovery {
       message: "Notification"
   };
 
-  /* Consumer calls this API to find all instances for a given uE and their locations. 
-  uDiscovery shall return all local(to the device) URIs for this service and also the ones found 
-  in cache of uEs for remote devices. If requested details are not found (either locally or in cache), it shall 
-  attempt to fetch those details from next uDiscovery instance in the chain. (uLDS to uDDS, uDDS to uCDS) */
+
+
+
+  /******************************* Data population *************************/
+
+  /* 
+  UEs shall call SetUETopics API to update discovery with the list of topics they service.
+  This will be used in two scenarios: 
+  1. when a UE is added on a device 
+  2. when UE wants to udpate the topic list
+  uDiscovery shall implement requisite permission model while processing this.
+ */
 
   /* Example: 
+  SetUETopics(parentUE:“///device/UE/1”, TopicList:["UE/1/topic1", "UE/1/topic2", "UE/1/rpc1"])
+  Response: Status: code.OK
+
+  SetUETopics(parentUE:“///device/UE2/1”, TopicList:["UE/1/topic1", "UE/1/topic2", "UE/1/rpc1"])
+  Response: Status: code.PERMISSION_DENIED (cant change other UEs)
+
+  */
+
+  rpc SetUETopics(SetUETopicsRequest) returns ( uprotocol.v1.UStatus){
+    option (method_id) = 1;
+  }
+
+  /******************************* Data consumption ************************/
+
+  /* 
+  Consumer shall call FindUE API to find all instances for a given uE and their locations. 
+  uDiscovery shall return all local(to the device) URIs for this service and also the ones found 
+  in cache of uEs for remote devices. If requested details are not found (either locally or in cache), it shall 
+  attempt to fetch those details from next uDiscovery instance in the chain. (uLDS to uDDS, uDDS to uCDS) 
+  */
+
+  /* 
+  Example: 
   FindUE(“///core.example”)
   Response: [“//ultifi.gm.com/core.example/2.0”, “/core.example/1.0”], Status: code.OK
   */
@@ -62,15 +93,15 @@ service uDiscovery {
     option (method_id) = 1;
   }
 
-
-
-  /* Consumer calls this API to retrieve a list of topics serviced by a given uE.
+  /* 
+  Consumers shall call GetUETopics API to retrieve a list of topics serviced by a given uE.
   List of topics shall consist data topics being published and rpc methods services by that uE. 
   Scope of the data fetch shall be limited to local device, meaning uLDS shall not attempt to 
-  fetch the details remotely if not found locally or in cache.*/
-  
-  
-  /* Example: 
+  fetch the details remotely if not found locally or in cache.
+  */
+    
+  /* 
+  Example: 
   GetUETopics(“up:/core.example/1”)
   Response: [“up:/core.example/1/topic1”, “up:/core.example/1/rpc1”], Status: code.OK 
   */
@@ -79,27 +110,31 @@ service uDiscovery {
     option (method_id) = 2;
   }
 
-
-  /* Consumers shall call this API to fetch the list of uEs under a given device.
+  /* 
+  Consumers shall call GetUEList API to fetch the list of uEs under a given device.
   Idea is to provide an API(at each levle in hierarchy) to get a list of local entities.
-  For example: uDDS might call on uLDS for each device to build up its local tree in case of failures */
+  For example: uDDS might call on uLDS for each device to build up its local tree in case of failures.
+  */
 
- /* Example: 
+  /* 
+  Example: 
   GetUETopics(“up:/device1”)
   Response: [“up:/device1/uE1”, “up:/device1/uE2”], Status: code.OK 
 
   GetUETopics(“up:/device2”)
   Response: [], Status: code.INVALID_ARGUMENT (passed device should match local device)
-
   */
+
   rpc GetuEList(GetuEListRequest) returns (GetuEListResponse){
     option (method_id) = 4;
   }
 
 
- /* Consumers shall call this API to fetch the list of uEs under a given domain.
+ /*
+  Consumers shall call GetDeviceList API to fetch the list of uEs under a given domain.
   This is an extension of GetUEList at a higher level.
-  For example: uCDS might call on uDDS to build up its local tree in case of failures */
+  For example: uCDS might call on uDDS to build up its local tree in case of failures
+ */
 
  /* Example: 
   GetDeviceList(“up:/domain”)
@@ -113,18 +148,23 @@ service uDiscovery {
     option (method_id) = 5;
   }
 
-  /* TODO: Need to catch up on URI discussion before updating this*/
+  /******************************* Data replication / synchronization ******/
 
-  // Resolve a UUri filling in the missing names/numbers from the Discovery database.
-  // If the resolution was successful, the resolved UUri containing names and numbers
-  // is returned along with the following status.code values:
-  // - code.OK: Resolution was successfull
-  // - code.NOT_FOUND: Unable to find the missing names or numbers for the passed UUri
-  // - code.INVALID_ARGUMENT: The passed UUri is invalid (missing names or numbers)
-  // - code.PERMISSION_DENIED: The caller does not have permission to perform the resolution
-  rpc ResolveUri(ResolveUriRequest) returns (ResolveUriResponse) {
-    option (method_id) = 10;
+  /*
+    UpdateData is NOT a customer facing API. This shall be used discovery 
+    instances to push an update between to core components (streamer)/ other discovery instances.
+  */
+
+  /* 
+  Example: 
+  UpdateData(“up:/domain/device/UE”)
+  Status: code.OK 
+  */
+
+  rpc SyncData(UpdateDataRequest) returns (status){
+    option (method_id) = 6;
   }
+
 }
 
 
@@ -137,7 +177,7 @@ common error reasons could be:
   code.PERMISSION_DENIED: The caller does not have permission to perform the query
   */
 
-
+// request message to Find UE
 message FinduERequest {
   string uri = 1;
 }
@@ -157,16 +197,7 @@ message GetuETopicsRequest {
 
 
 // Response data for GetUEtopics. 
-<<<<<<< HEAD
-message GetuETopicsResponse {
-=======
-// Possible return values in status are:
-// 1. code.OK: Query lookup was successful
-// 2. code.NOT_FOUND: No matching UUris were found
-// 3. code.INVALID_ARGUMENT: The passed UUri is invalid
 message GetUETopicsResponse {
-
->>>>>>> 8fce52a804c0f583b569e3eec78d59bd19d868c8
   repeated v1.UUri topicList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
@@ -207,5 +238,64 @@ message ResolveUriRequest {
 message ResolveUriResponse {
   v1.UUri uri = 1;                 // Resolved UUri  
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
+}
+
+// Request message to set UE topics
+message SetUETopicsRequest{
+  v1.UUri parentUE = 1;
+  repeated UServiceTopic UETopicsList = 2;
+
+}
+
+/*
+Typedef for a node properties. A node property can be any one of the ultifi ("u_") types
+defined below
+*/
+message PropertyValue {
+  oneof attr {
+    bool u_boolean = 1;       // Boolean
+    int32 u_integer = 2;      // Integer
+    string u_string = 3;      // String
+    bytes u_bytes = 4;        // Raw Bytes
+    string u_uri = 5;         // A URI
+    google.protobuf.Timestamp u_timestamp = 6;  // Timestamp
+    double u_double = 7;      // Double
+    int64 u_integer_64 = 8;   // 64 bit Integer
+  }
+}
+
+
+/*
+uProtocol definition of a Node in the hierarchy per SDV-202.
+Node can be domain, device, service, resource, method, etc...
+*/
+message Node {
+  // Ultifi URI pointing to this node
+  v1.UUri uri = 1;
+
+  // List of child nodes under this node
+  repeated Node nodes = 2;
+
+  // List of node properties
+  map <string, PropertyValue>  properties = 3;
+
+  // The node type
+  Type type = 4;
+
+
+  // What is the uThing (stored in Node) type. This is used to more easily
+  // identify the Node rather than parsing from uri and inferring the type
+  enum Type {
+    UNSPECIFIED  = 0; // Unspecified node type
+    DOMAIN = 1;       // uDomain
+    DEVICE = 2;       // uDevice
+    ENTITY = 3;       // uEntity (uE)
+    VERSION = 9;      // uEntity version
+    TOPIC = 4;        // uE Topic
+    METHOD = 5;       // uE Method
+    MESSAGE = 6;      // uE Message
+    RESOURCE = 7;     // uE Resource
+    USER = 8;         // User Information
+  }
 }
 
