@@ -51,6 +51,33 @@ service uDiscovery {
   /************************** Write APIs ************************************/
 
   /* 
+  UEs shall call RegisterUE API to add themselves to discovery.
+ */
+
+  /* Example: 
+  RegisterUE(“//ultifi.gm.com/core.example/2.0")
+  Response: Status: code.OK
+ */
+
+  rpc RegisterUE(RegisterUERequest) returns ( uprotocol.v1.UStatus){
+    option (method_id) = 1;
+  }
+
+    /* 
+  UEs shall call UnregisterUE API to remove themselves from discovery.
+ */
+
+  /* Example: 
+  UnregisterUE(“//ultifi.gm.com/core.example/2.0")
+  Response: Status: code.OK
+ */
+
+ rpc UnregisterUE(UnregisterUERequest) returns ( uprotocol.v1.UStatus){
+  option (method_id) = 1;
+}
+
+
+  /* 
   UEs shall call SetUETopics API to update discovery with the list of topics they service.
   This will be used in two scenarios: 
   1. when a UE is added on a device 
@@ -188,6 +215,17 @@ common error reasons could be:
   code.INVALID_ARGUMENT: The passed UUri is invalid
   code.PERMISSION_DENIED: The caller does not have permission to perform the query
   */
+
+
+// Request message to register UE
+message RegisterUERequest{
+  v1.UUri UE = 1;
+}
+
+// Request message to unregister UE
+message UnregisterUERequest{
+  v1.UUri UE = 1;
+}
 
 // request message to Find UE
 message FinduERequest {
