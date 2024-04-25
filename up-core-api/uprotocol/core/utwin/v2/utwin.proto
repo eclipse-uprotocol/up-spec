@@ -47,7 +47,7 @@ service uTwin {
   // and the event itself if uTwin was able to fetch it. uTwin will also return
   // status for those messages that it was unable to fetch (i.e. due to NOT_FOUND
   // or PERMISSION_DENIED.<br>
-  rpc GetLastMessages(uprotocol.v1.UUriBatch) returns (GetLastMessagesResponse) {
+  rpc GetLastMessages(uprotocol.v1.ShortUUriBatch) returns (GetLastMessagesResponse) {
     option (method_id) = 1;
   }
 
@@ -68,7 +68,7 @@ service uTwin {
 // Response that contains the status and message per topic
 message MessageResponse {
   // Topic that was requested to be fetched
-  uprotocol.v1.UUri topic = 1;
+  uprotocol.v1.ShortUUri topic = 1;
 
   // Status (success or not) when fetching the last event for said topic
   uprotocol.v1.UStatus status = 2;

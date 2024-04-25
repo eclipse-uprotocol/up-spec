@@ -58,11 +58,6 @@ message UUri {
 // is local.
 message UAuthority {
   optional string name = 1; // Domain & device name as a string
-  oneof number {
-    bytes ip = 2; 	// IPv4 or IPv6 Address in byte format
-    bytes id = 3;		// Unique ID for the device, could be a VIN, SHA 128, or any other identifier
-                    // *NOTE:* MAX length is 255 bytes
-  }
 }
 
 
@@ -74,10 +69,9 @@ message UAuthority {
 // A uE that publishes events is a <b>Service</b> role.<br>
 // A uE that consumes events is an <b>Application</b> role.
 message UEntity {
-  optional string name = 1;          // Name of the entity
-  optional uint32 id = 2;            // The numeric ID for the uEntity assigned from the name/number registry
-  optional uint32 version_major = 3; // optional major version of the uEntity
-  optional uint32 version_minor = 4; // optional minor version of the uEntity
+  string name = 1; // The name of the uEntity
+  string version_major = 2; // optional major version of the uEntity
+  optional string version_minor = 3; // optional minor version of the uEntity
 }
 
 
@@ -94,11 +88,36 @@ message UResource {
   optional string name = 1;      // Name of the resource
   optional string instance = 2;  // Instance of the resource
   optional string message = 3;   // Message type for the resource
-  optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
 }
 
 
 // Repeated list of URIs that can be used for batching APIs
 message UUriBatch {
   repeated UUri uris = 1; // Repeated list of URIs
+}
+
+// Short Form uProtocol <b>URI</b>.
+// Condensed version of the UUri that uses numbers (ids) in lieu of names to  
+// uniquely identify devices, services, and resources on the  network.<br>
+message ShortUUri {
+  // Authority of the URI (ex. device name, address, id), if not present, UUri is local
+  UAuthority authority = 1;
+
+  // The numeric ID for the uEntity assigned from the name/number registry
+  uint32 ue_id = 2;
+  
+  // optional major version of the uEntity
+  uint32 ue_version_major = 3;
+
+  // optional minor version of the uEntity
+  optional uint32 version_minor = 4;
+  
+  // Service Resource information (methods, topics, etc..)
+  uint32 resource_id = 5;
+}
+
+
+// Repeated list of ShortURIs that can be used for batching APIs
+message ShortUUriBatch {
+  repeated ShortUUri uris = 1; // Repeated list of ShortURIs
 }

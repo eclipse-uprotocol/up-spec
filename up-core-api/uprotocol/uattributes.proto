@@ -44,10 +44,10 @@ message UAttributes {
     UMessageType type = 2;
 
     // The origin (address) of this message.
-    UUri source = 3;
+    ShortUUri source = 3;
 
     // The destination (address) of this message.
-    UUri sink = 4;
+    ShortUUri sink = 4;
 
     // The QoS level that this message should be processed/delivered with.
     UPriority priority = 5;

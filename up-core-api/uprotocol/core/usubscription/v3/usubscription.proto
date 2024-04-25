@@ -130,7 +130,7 @@ message SubscribeAttributes {
 message SubscriberInfo {
   // subscriber URI containig the names and numbers of the
   // uE subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
-  v1.UUri uri = 1;
+  uprotocol.v1.ShortUUri uri = 1;
 
   // Any additional device specific subscriber information
   repeated google.protobuf.Any details = 2;
@@ -182,7 +182,7 @@ message EventDeliveryConfig {
 // Passed to Subscribe() contains the subscription request information
 message SubscriptionRequest {
   // uProtocol uri topic to subscribe too
-  v1.UUri topic = 1;
+  uprotocol.v1.ShortUUri topic = 1;
 
   // Subscribers's information (who is calling Subscribe)
   SubscriberInfo subscriber = 2;
@@ -202,7 +202,7 @@ message SubscriptionResponse {
   EventDeliveryConfig config = 2;
 
   // Subscription topic passed to SubscriptionRequest
-  v1.UUri topic = 3;
+  uprotocol.v1.ShortUUri topic = 3;
 }
 
 
