@@ -48,10 +48,7 @@ service uDiscovery {
       message: "Notification"
   };
 
-
-
-
-  /******************************* Data population *************************/
+  /************************** Write APIs ************************************/
 
   /* 
   UEs shall call SetUETopics API to update discovery with the list of topics they service.
@@ -74,7 +71,22 @@ service uDiscovery {
     option (method_id) = 1;
   }
 
-  /******************************* Data consumption ************************/
+
+  /* 
+  UEs shall call SetUEProperties API to update discovery with updated property values. 
+  For example, this could be used to update an UE's version.
+ */
+
+  /* Example: 
+  SetUEProperties(parentUE:“///device/UE/1”, PropertyValuesList:["version_major" : "1", "version_minor" : "2"])
+  Response: Status: code.OK
+  */
+
+  rpc SetUEProperties(SetUEPropertiesRequest) returns (uprotocol.v1.UStatus){
+    option (method_id) = 1;
+  }
+
+  /******************************* Read APIs ************************/
 
   /* 
   Consumer shall call FindUE API to find all instances for a given uE and their locations. 
@@ -182,8 +194,10 @@ message FinduERequest {
   string uri = 1;
 }
 
-// Return value from FinduE() API that contains the batch of Uris for the 
-// lookup and status from the API call
+/*
+Return value from FinduE() API that contains the batch of Uris for the 
+lookup and status from the API call */
+
 message FinduEResponse {
   v1.UUriBatch uris = 1;           // Batch of Uris
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
@@ -224,28 +238,13 @@ message GetDeviceListResponse {
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
 
-
-/* TODO: Update after catching up on URI specs */
-// Request message passed to ResolveUri() API to resolve the missing names or numbers.
-message ResolveUriRequest {
-  // The URI to resolve containing only names or numbers
-  v1.UUri uri = 1;
-}
-
-
-// Response returned from ResolveUri() API containing a UUri and the 
-// status of the resolution.
-message ResolveUriResponse {
-  v1.UUri uri = 1;                 // Resolved UUri  
-  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
-}
-
 // Request message to set UE topics
-message SetUETopicsRequest{
+message SetUEPropertiesRequest{
   v1.UUri parentUE = 1;
-  repeated UServiceTopic UETopicsList = 2;
+  map <string, PropertyValue>  propertiesList = 2;
 
 }
+
 
 /*
 Typedef for a node properties. A node property can be any one of the ultifi ("u_") types
@@ -283,8 +282,10 @@ message Node {
   Type type = 4;
 
 
-  // What is the uThing (stored in Node) type. This is used to more easily
-  // identify the Node rather than parsing from uri and inferring the type
+  /*
+  What is the uThing (stored in Node) type. This is used to more easily
+  identify the Node rather than parsing from uri and inferring the type
+  */
   enum Type {
     UNSPECIFIED  = 0; // Unspecified node type
     DOMAIN = 1;       // uDomain
