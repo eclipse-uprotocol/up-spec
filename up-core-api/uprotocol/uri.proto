@@ -78,7 +78,7 @@ message UEntity {
 // Resources are unique when prepended with UAuthority that represents the device and
 // UEntity that represents the service.
 message UResource {
-  uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
+  uint32 id = 1;        // Numerical representation of the UResource portion of the UUri
 }
 
 
