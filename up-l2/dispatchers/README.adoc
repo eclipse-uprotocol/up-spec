@@ -123,3 +123,9 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 .RPC Error Flow
 [#rpc-error-flow]
 image::rpc_flow.png[RPC Error Handling]
+
+<<publish error-flow>> figure below illustrates the sequence of messages for Publish flows and the role dispatchers play in error handling.
+
+.PUBLISH ERROR FLOW
+[#publish-err0r-flow]
+image::publish_flow.png[Publish Error Handling]
