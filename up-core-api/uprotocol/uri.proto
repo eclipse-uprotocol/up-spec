@@ -54,47 +54,31 @@ message UUri {
 // An Authority represents the deployment location of a specific Software Entity.
 // Authority can be represented in either a name (i.e example.com), ip address (205.236.147.1)
 // or an ID (i.e. VIN, SHA 128, or any other identifier that is less than 255 bytes.
-// *NOTE:* When Authority is empty (neither name, ip, or id are set) the authority
-// is local.
 message UAuthority {
-  optional string name = 1; // Domain & device name as a string
-  oneof number {
-    bytes ip = 2; 	// IPv4 or IPv6 Address in byte format
-    bytes id = 3;		// Unique ID for the device, could be a VIN, SHA 128, or any other identifier
-                    // *NOTE:* MAX length is 255 bytes
-  }
+  string name = 1; // Domain & device name as a string
 }
 
 
 // Data representation of an <b> Software Entity - uE</b><br>
-// Software entities are distinguished by using a unique name and id
+// Software entities are distinguished by using a unique name
 // along with the specific version of the software.
 // An Software Entity is a piece of software deployed somewhere on a uDevice.<br>
 // The Software Entity is used in the source and sink parts of communicating software.<br>
 // A uE that publishes events is a <b>Service</b> role.<br>
 // A uE that consumes events is an <b>Application</b> role.
 message UEntity {
-  optional string name = 1;          // Name of the entity
-  optional uint32 id = 2;            // The numeric ID for the uEntity assigned from the name/number registry
-  optional uint32 version_major = 3; // optional major version of the uEntity
-  optional uint32 version_minor = 4; // optional minor version of the uEntity
+  string name = 1;          // Name of the entity
+  uint32 version_major = 3; // optional major version of the uEntity
+  uint32 version_minor = 4; // optional minor version of the uEntity
 }
 
 
 // A service API - defined in the {@link UEntity} - has Resources and Methods.
 // Both of these are represented by the UResource message.
-// A uResource represents a resource from a Service such as "door" and an optional
-// specific instance such as "front_left". In addition, it can optionally contain
-// the name of the resource Message type, such as "Door". The Message type matches
-// the protobuf service IDL that defines structured data types.
-// An UResource is something that can be manipulated/controlled/exposed by a service.
 // Resources are unique when prepended with UAuthority that represents the device and
 // UEntity that represents the service.
 message UResource {
-  optional string name = 1;      // Name of the resource
-  optional string instance = 2;  // Instance of the resource
-  optional string message = 3;   // Message type for the resource
-  optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
+  uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
 }
 
 
