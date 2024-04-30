@@ -128,4 +128,4 @@ image::rpc_flow.png[RPC Error Handling]
 
 .PUBLISH ERROR FLOW
 [#publish-err0r-flow]
-image::publish_flow.png[Publish Error Handling]
+image::filePublish_flow.png[File Publish Handling with Notification]
