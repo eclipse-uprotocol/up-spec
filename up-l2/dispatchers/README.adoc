@@ -124,7 +124,15 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 [#rpc-error-flow]
 image::rpc_flow.png[RPC Error Handling]
 
-<<publish error-flow>> figure below illustrates the sequence of messages for Publish flows and the role dispatchers play in error handling.
+== File Publish Handling
+
+When a uStreamer instance dispatcher is supporting file transfer, the file details will generally be passed by reference, and the transfer will be queued for delivery.  uP traffic priorities will affect when content can be delivered, and file size(s) along with available link bandwidth will also affect transfer duration.
+
+Sustained integrity of files queued for transfer is essential, and the providing uEs will need to prevent the files from being changed/deleted until such time as their transfer has been completed.   
+
+The basic Publish, and uStreaming logic is a fire-and-forget approach, with content queued and delivered but no handshaking between the subscribing uEs.  This works well for content passed by value, but cases where content is passed by reference and the transfer can take an indeterminate duration to complete necessitate communication with the Publishing uE.  Dispatchers and uTransport instances are not exposed services and lack visible protobufs.  Intent for Notification is for a "known" status response to be provided to the Publisher for the type of content being published, delivered as generic ".any" protobuf within a Notification message.   The uProtocol_options.protobuf will provide an optional notification request field to trigger notifications to the publisher by applicable dispatcher(s) - in this case the File Streaming dispatcher, to indicate completion of transfer along with success/failure details.
+
+<<publish flow with Notification>> figure below illustrates the sequence of messages for Publish flows and the use of context-specific Notifications to publishers.
 
 .PUBLISH ERROR FLOW
 [#publish-err0r-flow]
