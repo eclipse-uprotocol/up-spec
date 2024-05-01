@@ -134,6 +134,6 @@ The basic Publish, and uStreaming logic is a fire-and-forget approach, with cont
 
 <<publish flow with Notification>> figure below illustrates the sequence of messages for Publish flows and the use of context-specific Notifications to publishers.
 
-.PUBLISH ERROR FLOW
-[#publish-err0r-flow]
+.FILE PUBLISH FLOW WITH NOTIFICATION
+[#file-publish-flow-with-notification]
 image::filePublish_flow.png[File Publish Handling with Notification]
