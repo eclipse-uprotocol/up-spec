@@ -60,16 +60,16 @@ message UAuthority {
 
 
 // Data representation of an <b> Software Entity - uE</b><br>
-// Software entities are distinguished by using a unique name
+// Software entities are distinguished by using a unique id 
 // along with the specific version of the software.
 // An Software Entity is a piece of software deployed somewhere on a uDevice.<br>
 // The Software Entity is used in the source and sink parts of communicating software.<br>
 // A uE that publishes events is a <b>Service</b> role.<br>
 // A uE that consumes events is an <b>Application</b> role.
 message UEntity {
-  string name = 1;          // Name of the entity
-  uint32 version_major = 3; // optional major version of the uEntity
-  uint32 version_minor = 4; // optional minor version of the uEntity
+  optional uint32 id = 1;            // UEntity ID
+  optional uint32 version_major = 2; // optional major version of the uEntity
+  optional uint32 version_minor = 3; // optional minor version of the uEntity
 }
 
 
@@ -78,7 +78,7 @@ message UEntity {
 // Resources are unique when prepended with UAuthority that represents the device and
 // UEntity that represents the service.
 message UResource {
-  uint32 id = 1;        // Numerical representation of the UResource portion of the UUri
+  optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
 }
 
 
