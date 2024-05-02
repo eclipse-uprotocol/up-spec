@@ -31,15 +31,14 @@ option java_outer_classname = "UUriProto";
 option java_multiple_files = true;
 
 
-// Data representation of uProtocol <b>URI</b>.
-// This class will be used to represent the address for messages (source and sink)
-// of UMessage. <br>
-// UUri is used as a method to uniquely identify devices, services, and resources
-// on the network.<br>
+// uProtocol URI <b>URI</b>.
+// Data model definition for source and destination addressing of messages sent to/from
+// devices, services, methods, topics, etc... 
 message UUri {
   // Authority (ex. hostname, ip address, device & domain name, etc..
-  // Empty:  is used to represent local UUri
-  // "*": Wildcard character used to represent
+  //
+  // "": No authority meaning a local address per RFC 3986
+  // "*": Wildcard character to represent all authorities
   string authority_name = 1;
 
   // Software Entity (uE) information (ex. id, major version)
