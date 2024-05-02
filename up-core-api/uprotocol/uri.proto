@@ -42,10 +42,13 @@ message UUri {
   // "*": Wildcard character used to represent
   string authority_name = 1;
 
-  // Software Entity information (ex. id, major version)
+  // Software Entity (uE) information (ex. id, major version)
+  // 0x0000: Reserved for uSubscription
+  // 0x0001-0x7FFF: Software Entity id
+  // 0xFFFF: Wildcard to represent all uE
   uint32 ue_id = 2;
 
-  // Software Entity major version number.
+  // Software Entity (uE) major version number.
   //
   // This is the major version number of the software entity
   // 0x0: reserved
