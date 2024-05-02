@@ -35,21 +35,14 @@ option java_multiple_files = true;
 
 // UPayload Message <br>
 // UPayload is the data model for storing the data and metadata for what is being sent
-// between uEs. Data can be passed either by reference or value. If data is passed by
-// reference, the data is stored in the uE's data store and the reference field contains
-// the pointer address to the data. If data is passed by value, the data is stored in the
-// value field. The length field is required if data is passed by reference. The format
+// between uEs. 
 message UPayload {
-    oneof data {
-        fixed64 reference = 1; // Data is passed by reference so this is the pointer address
-        bytes value = 2;        // Data is passed by value so value contains a copy of the data
-    }
-
-    // Length of the data in bytes, required if data is passed by reference only
-    optional int32 length = 3;
+    // Data that is passed by value (copy inside of data)
+    bytes data = 1;
 
     // Serialization format of the data
-    UPayloadFormat format = 4;
+    UPayloadFormat format = 2;
+
 }
 
 // The Serialization format for the data stored in uPayload.
