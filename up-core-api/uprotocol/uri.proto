@@ -32,53 +32,35 @@ option java_multiple_files = true;
 
 
 // Data representation of uProtocol <b>URI</b>.
-// This class will be used to represent the source and sink (destination) parts
-// of the Packet, for example in a CloudEvent Packet. <br>
+// This class will be used to represent the address for messages (source and sink)
+// of UMessage. <br>
 // UUri is used as a method to uniquely identify devices, services, and resources
-// on the  network.<br>
-// Where software is deployed, what the service is called along with a version and
-// the resources in the service. Defining a common URI for the system allows
-// applications and/or services to publish and discover each other.<br>
+// on the network.<br>
 message UUri {
-  // Authority of the URI (ex. device name, address, id), if not present, UUri is local
-  UAuthority authority = 1;
+  // Authority (ex. hostname, ip address, device & domain name, etc..
+  // Empty:  is used to represent local UUri
+  // "*": Wildcard character used to represent
+  string authority_name = 1;
 
-  // Software Entity information (ex. name, version, id)
-  UEntity entity = 2;
+  // Software Entity information (ex. id, major version)
+  uint32 ue_id = 2;
 
-  // Service Resource information (methods, topics, etc..)
-  UResource resource = 3;
-}
+  // Software Entity major version number.
+  //
+  // This is the major version number of the software entity
+  // 0x0: reserved
+  // 0x1-0x8FFF: Major version number of the software entity
+  // 0xFFFF: Wildcard to represent all versions
+  uint32 ue_version_major = 3;
 
-
-// An Authority represents the deployment location of a specific Software Entity.
-// Authority can be represented in either a name (i.e example.com), ip address (205.236.147.1)
-// or an ID (i.e. VIN, SHA 128, or any other identifier that is less than 255 bytes.
-message UAuthority {
-  string name = 1; // Domain & device name as a string
-}
-
-
-// Data representation of an <b> Software Entity - uE</b><br>
-// Software entities are distinguished by using a unique id 
-// along with the specific version of the software.
-// An Software Entity is a piece of software deployed somewhere on a uDevice.<br>
-// The Software Entity is used in the source and sink parts of communicating software.<br>
-// A uE that publishes events is a <b>Service</b> role.<br>
-// A uE that consumes events is an <b>Application</b> role.
-message UEntity {
-  optional uint32 id = 1;            // UEntity ID
-  optional uint32 version_major = 2; // optional major version of the uEntity
-  optional uint32 version_minor = 3; // optional minor version of the uEntity
-}
-
-
-// A service API - defined in the {@link UEntity} - has Resources and Methods.
-// Both of these are represented by the UResource message.
-// Resources are unique when prepended with UAuthority that represents the device and
-// UEntity that represents the service.
-message UResource {
-  optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
+  // uE resource id.
+  //
+  // Identifier used to represent either a method, publish topic, or notification topic.  
+  // 0x0000: Default Resource id (for response messages)
+  // 0x0001-0x7FFF: Methods
+  // 0x8000-0x8FFF: Publish or notifications topics
+  // Wildcard resource id is 0xFFFF
+  uint32 resource_id = 4;
 }
 
 
