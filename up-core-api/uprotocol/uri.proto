@@ -31,70 +31,45 @@ option java_outer_classname = "UUriProto";
 option java_multiple_files = true;
 
 
-// Data representation of uProtocol <b>URI</b>.
-// This class will be used to represent the source and sink (destination) parts
-// of the Packet, for example in a CloudEvent Packet. <br>
-// UUri is used as a method to uniquely identify devices, services, and resources
-// on the  network.<br>
-// Where software is deployed, what the service is called along with a version and
-// the resources in the service. Defining a common URI for the system allows
-// applications and/or services to publish and discover each other.<br>
+// uProtocol URI <b>URI</b>.
+// Data model definition for source and destination addressing of messages sent to/from
+// devices, services, methods, topics, etc... 
 message UUri {
-  // Authority of the URI (ex. device name, address, id), if not present, UUri is local
-  UAuthority authority = 1;
+  // Authority Name.
+  //
+  // Could be the host name, ip address, device & domain names, etc..
+  // empty: No authority meaning a local address per RFC 3986
+  // "*": Wildcard character to represent all authorities
+  string authority_name = 1;
 
-  // Software Entity information (ex. name, version, id)
-  UEntity entity = 2;
+  // Software Entity (uE) Identifiers.
+  //
+  // Service ID (lower 16 bits):
+  // 0x0000: Reserved for uSubscription
+  // 0x0001-0xFFFE: Software Entity id
+  // 0xFFFF: Wildcard to represent all uE
+  // 
+  // Instance ID (upper 16 bits):
+  // 0x0000: Don't care, assume instance id of 0
+  // 0x0001-0xFFFE: Instance id
+  // 0xFFFF: Wildcard to represent all instances
+  uint32 ue_id = 2;
 
-  // Service Resource information (methods, topics, etc..)
-  UResource resource = 3;
-}
+  // Software Entity (uE) major version number.
+  //
+  // 0x0: reserved
+  // 0x1-0xFE: Major version number 1-254
+  // 0xFF: Wildcard to represent all versions
+  uint32 ue_version_major = 3;
 
-
-// An Authority represents the deployment location of a specific Software Entity.
-// Authority can be represented in either a name (i.e example.com), ip address (205.236.147.1)
-// or an ID (i.e. VIN, SHA 128, or any other identifier that is less than 255 bytes.
-// *NOTE:* When Authority is empty (neither name, ip, or id are set) the authority
-// is local.
-message UAuthority {
-  optional string name = 1; // Domain & device name as a string
-  oneof number {
-    bytes ip = 2; 	// IPv4 or IPv6 Address in byte format
-    bytes id = 3;		// Unique ID for the device, could be a VIN, SHA 128, or any other identifier
-                    // *NOTE:* MAX length is 255 bytes
-  }
-}
-
-
-// Data representation of an <b> Software Entity - uE</b><br>
-// Software entities are distinguished by using a unique name and id
-// along with the specific version of the software.
-// An Software Entity is a piece of software deployed somewhere on a uDevice.<br>
-// The Software Entity is used in the source and sink parts of communicating software.<br>
-// A uE that publishes events is a <b>Service</b> role.<br>
-// A uE that consumes events is an <b>Application</b> role.
-message UEntity {
-  optional string name = 1;          // Name of the entity
-  optional uint32 id = 2;            // The numeric ID for the uEntity assigned from the name/number registry
-  optional uint32 version_major = 3; // optional major version of the uEntity
-  optional uint32 version_minor = 4; // optional minor version of the uEntity
-}
-
-
-// A service API - defined in the {@link UEntity} - has Resources and Methods.
-// Both of these are represented by the UResource message.
-// A uResource represents a resource from a Service such as "door" and an optional
-// specific instance such as "front_left". In addition, it can optionally contain
-// the name of the resource Message type, such as "Door". The Message type matches
-// the protobuf service IDL that defines structured data types.
-// An UResource is something that can be manipulated/controlled/exposed by a service.
-// Resources are unique when prepended with UAuthority that represents the device and
-// UEntity that represents the service.
-message UResource {
-  optional string name = 1;      // Name of the resource
-  optional string instance = 2;  // Instance of the resource
-  optional string message = 3;   // Message type for the resource
-  optional uint32 id = 4;        // Numerical representation of the UResource portion of the UUri
+  // uE resource id.
+  //
+  // Identifier used to represent either a method, publish topic, or notification topic.  
+  // 0x0: Default Resource id (for response messages)
+  // 0x0001-0x7FFF: Methods
+  // 0x8000-0xFFFE: Publish or notifications topics
+  // 0xFFFF: Wildcard to represent all resources
+  uint32 resource_id = 4;
 }
 
 
