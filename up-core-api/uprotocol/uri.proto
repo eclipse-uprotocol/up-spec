@@ -35,33 +35,40 @@ option java_multiple_files = true;
 // Data model definition for source and destination addressing of messages sent to/from
 // devices, services, methods, topics, etc... 
 message UUri {
-  // Authority (ex. hostname, ip address, device & domain name, etc..
+  // Authority Name.
   //
-  // "": No authority meaning a local address per RFC 3986
+  // Could be the host name, ip address, device & domain names, etc..
+  // empty: No authority meaning a local address per RFC 3986
   // "*": Wildcard character to represent all authorities
   string authority_name = 1;
 
-  // Software Entity (uE) information (ex. id, major version)
+  // Software Entity (uE) Identifiers.
+  //
+  // Service ID (lower 16 bits):
   // 0x0000: Reserved for uSubscription
-  // 0x0001-0x7FFF: Software Entity id
+  // 0x0001-0xFFFE: Software Entity id
   // 0xFFFF: Wildcard to represent all uE
+  // 
+  // Instance ID (upper 16 bits):
+  // 0x0000: Don't care, assume instance id of 0
+  // 0x0001-0xFFFE: Instance id
+  // 0xFFFF: Wildcard to represent all instances
   uint32 ue_id = 2;
 
   // Software Entity (uE) major version number.
   //
-  // This is the major version number of the software entity
   // 0x0: reserved
-  // 0x1-0x8FFF: Major version number of the software entity
-  // 0xFFFF: Wildcard to represent all versions
+  // 0x1-0xFE: Major version number 1-254
+  // 0xFF: Wildcard to represent all versions
   uint32 ue_version_major = 3;
 
   // uE resource id.
   //
   // Identifier used to represent either a method, publish topic, or notification topic.  
-  // 0x0000: Default Resource id (for response messages)
+  // 0x0: Default Resource id (for response messages)
   // 0x0001-0x7FFF: Methods
-  // 0x8000-0x8FFF: Publish or notifications topics
-  // Wildcard resource id is 0xFFFF
+  // 0x8000-0xFFFE: Publish or notifications topics
+  // 0xFFFF: Wildcard to represent all resources
   uint32 resource_id = 4;
 }
 
