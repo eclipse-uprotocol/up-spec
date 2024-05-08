@@ -40,7 +40,7 @@ This document will discuss the uTransport implementation on MQTT 5.
 
 === UAttribute Mapping
 
-MQTT 5 supports custom header fields, and we leverage this to map the UAttribute values into the MQTT header. Only required uAttribute values are mapped into their own UserProperty fields.
+MQTT 5 supports custom header fields, and we leverage this to map the UAttribute values into the MQTT header.
 
 [cols="1,1"]
 |===
@@ -56,220 +56,79 @@ MQTT 5 supports custom header fields, and we leverage this to map the UAttribute
 | UserProperty
 | ("5","{UAttribute.priority}") # UPriority
 | UserProperty
+| ("6", "{UAttribute.ttl}") # Optional ttl
+| UserProperty
+| ("7", "{UAttribute.permissionLevel}") # Optional permission level
+| UserProperty
+| ("8", "{UAttribute.commStatus}") # Optional UCode commstatus
+| UserProperty
 | ("9", "{UAttribute.reqId}") # UUID reqid
 | UserProperty
-| ("opt_ua", "{byte array of remaining UAttributes}") # Remaining UAttributes
+| ("10", "{UAttribute.token}") # Optional token
+| UserProperty
+| ("11", "{UAttribute.traceParent}") # Optional traceparent
 |===
 
-All required uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number.
-
-The source and sink fields **MUST** be a short form serialized UUri.
-
-Optional uAttributes will be a string representation of a byte array under the UserProperty field with key "opt_ua". This is done to reduce the size of the overall payload. Protobuf serialized byte arrays do not include values in a protobuf message object that are not set, so the byte array will only include the optional UAttributes that are set.
+All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number. The value is a string representation of the UAttribute field.
 
 === URI Mapping to MQTT topics
 
-The MQTT topic a message is published on utilizes elements from both the source and sink UUri fields. Which elements from the UUri are used in the topic depend on whether the sink UUri is present.
+The MQTT topic a message is published on utilizes elements from both the source and sink UUri fields. Which elements from the UUri are used in the topic depend on whether the sink UUri is present. In addition, there is a client identifier that defines where the uTransport client is located.
 
 Has sink UUri:
 
-`{source.authority.domain}/{source.authority.name}/{sink.authority.domain + ":" + sink.authority.name}/{sink.entity.id}/{sink.entity.version_major}/{sink.resource.id}`
+`{client_identifier}/{source.authority_name}/{sink.authority_name}/{sink.ue_id}/{sink.ue_version_major}/{sink.resource_id}`
 
 No sink UUri (Publish message type only):
 
-`{source.authority.domain}/{source.authority.name}//{source.entity.id}/{source.entity.version_major}/{source.resource.id}`
+`{client_identifier}/{source.authority_name}//{source.ue_id}/{source.ue_version_major}/{source.resource_id}`
 
-The entity and resource elements always represent the destination of the message. In the case of a Publish message type, the destination happens to be based on the source UUri. The source authority information is also always present to allow for authorization controls based on the authority information, since an authority maps to the uE sending the message. The domain information is included is separated out as well to allow for the cloud to easily subscribe to messages from devices only.
+The entity and resource elements always represent the destination of the message. In the case of a Publish message type, the destination happens to be based on the source UUri. The source authority information is also always present to allow for authorization controls based on the authority information, since an authority maps to the uE sending the message.
+
+The client_identifier is used to determine where messages are coming from. The valid values for the client_identifier are:
+
+- `c` : Indicates that the message originated from the cloud
+- `d` : Indicates that the message originated from a device and is remote
+- `l` : Indicates that the message originated from a device and is local to that device
+
+The client_identifier that is used for the topic is based on the kind of MQTT uTransport client that is sending the message. An MQTT uTransport client can be one of the following:
+
+- Cloud MQTT uTransport client: A client that runs in the cloud.
+- Remote MQTT uTransport client: A client that runs on a device and is connected to a cloud MQTT broker.
+- Local MQTT uTransport client: A client that runs on a device and is connected to a local MQTT broker.
 
 Below are examples of messages being sent and how to subscribe to those messages:
 
-==== Example 1: Notification or RPC Message Types
+==== Remote uTransport Client Examples
 
-[source]
-----
-source:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: UEntity {
-    version_major: 1,
-    id: 1234,
-  },
-  resource: UResource {
-    id: 5678,
-  }
-}
+How a source and sink UUri are mapped to an MQTT topic when the message is sent from a remote uTransport client:
 
-sink:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_2",
-    domain: veh.com,
-  },
-  entity: UEntity {
-    version_major: 1,
-    id: 4321,
-  },
-  resource: UResource {
-    id: 8765,
-  }
-}
-----
-topic messages are published to: `veh.com/Vehicle_1/veh.com:Vehicle_2/4321/1/8765`
+[cols="1,1,1,1"]
+|===
+| source | sink | send topic | listen topic
+| /vehicle_1.veh.com/1234/1/5678 | /vehicle_2.veh.com/4321/1/8765 | d/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765 | c/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765
+| /vehicle_1.veh.com/1234/1/5678 | None | d/vehicle_1.veh.com//1234/1/5678 | c/vehicle_1.veh.com//1234/1/5678/
+|===
 
-to register a listener with this topic, the following source and sink filter would need to be provided:
+Listener examples with wildcards:
 
-[source]
-----
-source filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: empty,
-  resource: empty,
-}
+[cols="1,1,1,1"]
+|===
+| goal | source filter | sink filter | listener topic
+| Subscribe to all incoming message to a UAuthority | empty | /vehicle_1.veh.com/4294967295/255/65535 | c/\+/vehicle_1.veh.com/+/\+/+
+| Subscribe to all publish messages from a UAuthority | /vehicle_1.veh.com/4294967295/255/65535 | None | c/vehicle_1.veh.com//\+/+/+
+|===
 
-sink filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_2",
-    domain: veh.com,
-  },
-  entity: UEntity {
-    version_major: 1,
-    id: 4321,
-  },
-  resource: UResource {
-    id: 8765,
-  }
-}
-----
+==== Cloud uTransport Client Examples
 
-==== Example 2: Publish Message Type
+Shows how source and sink filters can be used to construct wildcard topics for listening to messages from many devices.
 
-[source]
-----
-source:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: UEntity {
-    version_major: 1,
-    id: 1234,
-  },
-  resource: UResource {
-    id: 5678,
-  }
-}
-
-sink: None
-----
-
-topic messages are published to: `veh.com/Vehicle_1//1234/1/5678`
-
-to register a listener with this topic, the following source filter would need to be provided:
-
-[source]
-----
-source filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: UEntity {
-    version_major: 1,
-    id: 1234,
-  },
-  resource: UResource {
-    id: 5678,
-  }
-}
-----
-
-==== Example 3: Subscribe to all incoming messages to a UAuthority
-
-[source]
-----
-source filter: empty
-
-sink filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: empty,
-  resource: empty,
-}
-----
-
-topic: `+/+/veh.com:Vehicle_1/+/+/+`
-
-==== Example 4: Subscribe to all publish messages from a UAuthority
-
-[source]
-----
-source filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: empty,
-  resource: empty,
-}
-
-sink filter: None
-----
-
-topic: `veh.com/Vehicle_1//+/+/+`
-
-==== Example 5: Subscribe to all publish messages from a domain
-
-[source]
-----
-source filter:
-UUri {
-  authority: UAuthority {
-    name: empty,
-    domain: veh.com,
-  },
-  entity: empty,
-  resource: empty,
-}
-
-sink filter: None
-----
-
-topic: `veh.com/+//+/+/+`
-
-==== Example 6: Subscribe to all messages sent from a UAuthority
-
-This would include all message types.
-
-[source]
-----
-source filter:
-UUri {
-  authority: UAuthority {
-    name: "Vehicle_1",
-    domain: veh.com,
-  },
-  entity: empty,
-  resource: empty,
-}
-
-sink filter: empty
-----
-
-topic: `veh.com/Vehicle_1/+/+/+/+`
+[cols="1,1,1,1"]
+|===
+| goal | source filter | sink filter | listener topic
+| Subscribe to all publish messages from devices | empty | None | d/\+//+/\+/+
+| Subscribe to all messages sent from a UAuthority | /vehicle_1.veh.com/4294967295/255/65535 | empty | d/vehicle_1.veh.com/\+/+/\+/+
+|===
 
 === Payload Encoding
 
