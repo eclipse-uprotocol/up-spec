@@ -29,63 +29,86 @@ autonumber
 
 box uDevice #white
 	Collections uEs #red
-	entity LDS #orange
+	entity uLDS #orange
+	entity uDDS #orange
+	entity uCDS #orange
 end box
 entity CDS #orange
 
-uEs -> LDS: LookupUri(UriRequest)
+uEs -> uLDS: FinduE(FinduERequest)
 note right
-<size:14>**UriRequest:**</size>
+<size:14>**FinduERequest:**</size>
 ""uri"": ""//topic//""
 end note
 
 alt Found Locally
-LDS --> uEs: UriResponse
+uLDS --> uEs: FinduEResponse
 note right
-<size:14>**UriRequest:**</size>
+<size:14>**FinduEResponse:**</size>
 ""uris"": {""//topic//"", ""//topic//""}
 ""result"": {""code"": ""OK""}
 end note
 |||
 else Invalid Argument or Permission Denied
-LDS --> uEs: UriResponse
+uLDS --> uEs: FinduEResponse
 note right
-<size:14>**UriResponse:**</size>
+<size:14>**FinduEResponse:**</size>
 ""result"" : { ""code"": ""INVALID_ARGUMENT | PERMISSION_DENIED"" }
 end note
 |||
 else Remote Lookup Required
-LDS -> CDS: LookupUri(UriRequest)
+uLDS -> uDDS: FinduE(FinduERequest)
 alt Success
-CDS --> LDS: UriResponse
+uDDS --> uLDS: FinduEResponse
 note right
-<size:14>**UriResponse:**</size>
+<size:14>**FinduEResponse:**</size>
 ""uris"": {""//topic//"", ""//topic//""}
 ""result"": {""code"": ""OK""}
 end note
-LDS -> LDS: Cache (per ttl)
-LDS --> uEs: UriResponse
+uLDS -> uLDS: Cache (per ttl)
+uLDS --> uEs: FinduEResponse
 note right
-<size:14>**UriResponse:**</size>
+<size:14>**FinduEResponse:**</size>
 ""uris"": {""//topic//"", ""//topic//""}
 ""result"": {""code"": ""OK""}
 end note
+|||
+else Remote Lookup Required
+uDDS -> uCDS: FinduE(FinduERequest)
+alt Success
+uCDS --> uDDS: FinduEResponse
+note right
+<size:14>**FinduEResponse:**</size>
+""uris"": {""//topic//"", ""//topic//""}
+""result"": {""code"": ""OK""}
+end note
+uDDS -> uDDS: Cache (per ttl)
+uDDS --> uLDS: FinduEResponse
+uLDS -> uLDS : Cache( per ttl)
+uLDS --> uEs : FinduEResponse
+note right
+<size:14>**FinduEResponse:**</size>
+""uris"": {""//topic//"", ""//topic//""}
+""result"": {""code"": ""OK""}
+end note
+|||
 else Failure
-CDS --> LDS: UriResponse
+uDDS --> uLDS: FinduEResponse
 note right
-<size:14>**UriResponse:**</size>
+<size:14>**FinduEResponse:**</size>
 ""result"": {""code"": ""INVALID_ARGUMENT | NOT_FOUND | PERMISSION_DENIED""}
 end note
-LDS --> uEs: UriResponse
+uLDS --> uEs: FinduEResponse
 end alt
 
 else Not Found
-LDS --> uEs: UriResponse
+uLDS --> uEs: FinduEResponse
 note right
-<size:14>**UriResponse:**</size>
+<size:14>**FinduEResponse:**</size>
 ""result"": {""code"": ""NOT_FOUND""}
 end note
 end alt
 
-LDS --> uEs: UriResponse
+uLDS --> uEs: FinduEResponse
+end alt
 @enduml
