@@ -115,8 +115,8 @@ Listener examples with wildcards:
 [cols="1,1,1,1"]
 |===
 | goal | source filter | sink filter | listener topic
-| Subscribe to all incoming message to a UAuthority | empty | /vehicle_1.veh.com/4294967295/255/65535 | c/\+/vehicle_1.veh.com/+/\+/+
-| Subscribe to all publish messages from a UAuthority | /vehicle_1.veh.com/4294967295/255/65535 | None | c/vehicle_1.veh.com//\+/+/+
+| Subscribe to all incoming message to a UAuthority | empty | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | c/\+/vehicle_1.veh.com/+/\+/+
+| Subscribe to all publish messages from a UAuthority | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | None | c/vehicle_1.veh.com//\+/+/+
 |===
 
 ==== Cloud uTransport Client Examples
@@ -127,7 +127,7 @@ Shows how source and sink filters can be used to construct wildcard topics for l
 |===
 | goal | source filter | sink filter | listener topic
 | Subscribe to all publish messages from devices | empty | None | d/\+//+/\+/+
-| Subscribe to all messages sent from a UAuthority | /vehicle_1.veh.com/4294967295/255/65535 | empty | d/vehicle_1.veh.com/\+/+/\+/+
+| Subscribe to all messages sent from a UAuthority | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | empty | d/vehicle_1.veh.com/\+/+/\+/+
 |===
 
 === Payload Encoding
