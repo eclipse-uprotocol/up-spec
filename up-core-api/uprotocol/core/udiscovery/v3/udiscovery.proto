@@ -145,8 +145,8 @@ service uDiscovery {
   Response: [“up:/core.example/1/topic1”, “up:/core.example/1/rpc1”], Status: code.OK 
   */
 
-  rpc GetuETopics(GetuETopicsRequests) returns (GetuETopicsResponse){
-    option (method_id) = 2;
+  rpc GetuETopics(GetUETopicsRequest) returns (GetUETopicsResponse){
+    option (method_id) = 1;
   }
 
   /* 
@@ -164,7 +164,7 @@ service uDiscovery {
   Response: [], Status: code.INVALID_ARGUMENT (passed device should match local device)
   */
 
-  rpc GetuEList(GetuEListRequest) returns (GetuEListResponse){
+  rpc GetuEList(GetUEListRequest) returns (GetUEListResponse){
     option (method_id) = 4;
   }
 
@@ -200,7 +200,7 @@ service uDiscovery {
   Status: code.OK 
   */
 
-  rpc SyncData(UpdateDataRequest) returns (status){
+  rpc SyncData(UpdateDataRequest) returns (uprotocol.v1.UStatus){
     option (method_id) = 6;
   }
 
@@ -243,7 +243,7 @@ message FinduEResponse {
 
 
 // Request message to get list of topics for a UE
-message GetuETopicsRequest {
+message GetUETopicsRequest {
   v1.UUri UE = 1;
 }
 
@@ -260,7 +260,7 @@ message GetUEListRequest{
 }
 
 // Response data for GetUEtopics. 
-message GetuEListResponse {
+message GetUEListResponse {
   repeated v1.UUri UEList = 1;
   uprotocol.v1.UStatus status = 2; // Return code for the rpc call
 }
@@ -280,6 +280,20 @@ message GetDeviceListResponse {
 message SetUEPropertiesRequest{
   v1.UUri parentUE = 1;
   map <string, PropertyValue>  propertiesList = 2;
+
+}
+
+// Request message to update Data on remote discovery instances
+message UpdateDataRequest{
+  v1.UUri parentUE = 1;
+  repeated Node node = 2;
+
+}
+
+// Request message to set UE Topics
+message SetUETopicsRequest{
+  v1.UUri parentUE = 1;
+  repeated UServiceTopic topicsList = 2;
 
 }
 
