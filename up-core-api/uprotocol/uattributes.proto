@@ -18,7 +18,7 @@ package uprotocol.v1;
 import "uri.proto";
 import "uuid.proto";
 import "ustatus.proto";
-import "uprotocol_options.proto";
+import "uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.v1";
 option java_outer_classname = "UAttributesProto";
@@ -76,21 +76,21 @@ enum UMessageType {
 
     // Publish
     // A message that is used to notify all interested consumers of an event that has occurred.
-    UMESSAGE_TYPE_PUBLISH = 1 [(uprotocol.ce_name) = "pub.v1"];
+    UMESSAGE_TYPE_PUBLISH = 1 [(uprotocol.v1.ce_name) = "pub.v1"];
 
     // RPC Request
     // A message that is used by a service consumer to invoke one of a service provider's methods with some input data, expecting the service
     // provider to reply with a response message.
-    UMESSAGE_TYPE_REQUEST = 2 [(uprotocol.ce_name) = "req.v1"];
+    UMESSAGE_TYPE_REQUEST = 2 [(uprotocol.v1.ce_name) = "req.v1"];
 
     // RPC Response
     // A message that is used by a service provider to send the outcome of processing a request message
     // from a servcice consumer.
-    UMESSAGE_TYPE_RESPONSE = 3 [(uprotocol.ce_name) = "res.v1"];
+    UMESSAGE_TYPE_RESPONSE = 3 [(uprotocol.v1.ce_name) = "res.v1"];
 
     // Notification
     // A message that is used to inform a specific consumer about an event that has occurred.
-    UMESSAGE_TYPE_NOTIFICATION = 4 [(uprotocol.ce_name) = "not.v1"];
+    UMESSAGE_TYPE_NOTIFICATION = 4 [(uprotocol.v1.ce_name) = "not.v1"];
 }
 
 
@@ -101,25 +101,25 @@ enum UPriority {
     UPRIORITY_UNSPECIFIED = 0;
 
     // Low Priority. No bandwidth assurance such as File Transfer.
-    UPRIORITY_CS0 = 1 [(uprotocol.ce_name) = "CS0"];
+    UPRIORITY_CS0 = 1 [(uprotocol.v1.ce_name) = "CS0"];
 
     // Standard, undifferentiated application such as General (unclassified).
-    UPRIORITY_CS1 = 2 [(uprotocol.ce_name) = "CS1"];
+    UPRIORITY_CS1 = 2 [(uprotocol.v1.ce_name) = "CS1"];
 
     // Operations, Administration, and Management such as Streamer messages (sub, connect, etc…)
-    UPRIORITY_CS2 = 3 [(uprotocol.ce_name) = "CS2"];
+    UPRIORITY_CS2 = 3 [(uprotocol.v1.ce_name) = "CS2"];
 
     // Multimedia streaming such as Video Streaming
-    UPRIORITY_CS3 = 4 [(uprotocol.ce_name) = "CS3"];
+    UPRIORITY_CS3 = 4 [(uprotocol.v1.ce_name) = "CS3"];
 
     // Real-time interactive such as High priority (rpc events)
-    UPRIORITY_CS4 = 5 [(uprotocol.ce_name) = "CS4"];
+    UPRIORITY_CS4 = 5 [(uprotocol.v1.ce_name) = "CS4"];
 
     // Signaling such as Important
-    UPRIORITY_CS5 = 6 [(uprotocol.ce_name) = "CS5"];
+    UPRIORITY_CS5 = 6 [(uprotocol.v1.ce_name) = "CS5"];
 
     // Network control such as Safety Critical
-    UPRIORITY_CS6 = 7 [(uprotocol.ce_name) = "CS6"];
+    UPRIORITY_CS6 = 7 [(uprotocol.v1.ce_name) = "CS6"];
 }
 
 // The format for the data stored in the UMessage.

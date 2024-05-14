@@ -13,7 +13,7 @@
  */
 syntax = "proto3";
 
-package uprotocol;
+package uprotocol.v1;
 
 import "google/protobuf/descriptor.proto";
 
@@ -23,19 +23,19 @@ option java_multiple_files = true;
 // Service Options & Attributes
 extend google.protobuf.ServiceOptions {
   // Name of the service that can be used in uri
-  string name = 51100;
+  string service_name = 51100;
 
   // Semantic 2.0 major versioning
-  uint32 version_major = 51101;
+  uint32 service_version_major = 51101;
 
   // Semantic 2.0 minor versioning
-  uint32 version_minor = 51102;
+  uint32 service_version_minor = 51102;
 
   // Globally unique service id
-  uint32 id = 51103;
+  uint32 service_id = 51103;
 
   // Code Access Permission (CAP) Level for the uE
-  uint32 permission_level = 51104;
+  uint32 service_permission_level = 51104;
 
   // Service declared published topics
   repeated UServiceTopic publish_topic = 51105;
@@ -52,21 +52,6 @@ extend google.protobuf.MethodOptions {
   uint32 method_permission_level = 51201;
 }
 
-
-extend google.protobuf.MessageOptions {
-  // Topic base id (unique within containing service)
-  // The topic base id is added to a resource id to form a specific topic id.
-  optional uint32 base_topic_id = 51300;
-  // Code Access Permission (CAP) Level for the topic
-  uint32 topic_permission_level = 51301;
-}
-
-
-extend google.protobuf.FieldOptions {
-  // Name mask for exported resources
-  optional string resource_name_mask = 51400;
-
-}
 
 extend google.protobuf.EnumValueOptions {
   // MIME type mapping
