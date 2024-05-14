@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
- * Copyright (c) 2023 General Motors GTO LLC.
+ * SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  * 
  * SPDX-FileType: DOCUMENTATION
- *
- * SPDX-FileCopyrightText: 2023 General Motors GTO LLC
  * SPDX-License-Identifier: Apache-2.0
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.uprotocol</groupId>
     <artifactId>uprotocol-core-api</artifactId>
@@ -24,19 +24,20 @@
 
 
     <licenses>
-      <license>
-        <name>The Apache License, Version 2.0</name>
-        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      </license>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <comments>The Apache License, Version 2.0</comments>
+        </license>
     </licenses>
 
 
     <developers>
         <developer>
-          <name>Steven Hartley</name>
-          <email>steven.hartley@gm.com</email>
-          <organization>General Motors</organization>
-          <organizationUrl>https://www.gm.com</organizationUrl>
+            <name>Steven Hartley</name>
+            <email>steven.hartley@gm.com</email>
+            <organization>General Motors</organization>
+            <organizationUrl>https://www.gm.com</organizationUrl>
         </developer>
     </developers>
 
@@ -55,8 +56,8 @@
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
         <url>https://github.com/eclipse-uprotocol/uprotocol-core-api.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
 
     <build>
@@ -82,51 +83,54 @@
                             <goal>compile-python</goal>
                         </goals>
                     </execution>
-                     <execution>
+                    <execution>
                         <id>compile-kt</id>
                         <goals>
-                        <goal>compile-custom</goal>
+                            <goal>compile-custom</goal>
                         </goals>
                         <configuration>
-                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                            <outputDirectory>${project.build.directory}/generated-sources/protobuf/kotlin</outputDirectory>
+                            <protocArtifact>
+                                com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                            <outputDirectory>
+                                ${project.build.directory}/generated-sources/protobuf/kotlin</outputDirectory>
                             <pluginId>kotlin</pluginId>
                         </configuration>
                     </execution>
                 </executions>
-                    <configuration>
-                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                            <protoSourceRoot>${project.basedir}/uprotocol</protoSourceRoot>
-                    </configuration>
-            </plugin>                 
+                <configuration>
+                    <protocArtifact>
+                        com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                    <protoSourceRoot>${project.basedir}/uprotocol</protoSourceRoot>
+                </configuration>
+            </plugin>
 
             <plugin>
-               <groupId>org.sonatype.plugins</groupId>
-               <artifactId>nexus-staging-maven-plugin</artifactId>
-               <version>1.6.13</version>
-               <extensions>true</extensions>
-               <configuration>
-                 <serverId>ossrh</serverId>
-                 <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                 <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                 <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
-               </configuration>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.13</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
+                </configuration>
             </plugin>
 
             <!-- requirement plugins -->
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-javadoc-plugin</artifactId>
-               <version>3.6.0</version>
-               <executions>
-                  <execution>
-                    <id>attach-javadocs</id>
-                    <goals>
-                       <goal>jar</goal>
-                    </goals>
-                  </execution>
-              </executions>
-            </plugin>    
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -138,20 +142,20 @@
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
-                <plugin>
-                    <groupId>org.eclipse.dash</groupId>
-                    <artifactId>license-tool-plugin</artifactId>
-                    <version>1.0.2</version>
-                    <executions>
-                        <execution>
-                            <id>exclude-execution</id>
-                            <phase>none</phase>
-                            <goals>
-                                <goal>license-check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+            <plugin>
+                <groupId>org.eclipse.dash</groupId>
+                <artifactId>license-tool-plugin</artifactId>
+                <version>1.0.2</version>
+                <executions>
+                    <execution>
+                        <id>exclude-execution</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>license-check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -174,7 +178,7 @@
         </dependencies>
     </dependencyManagement>
 
-    
+
     <dependencies>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -205,16 +209,16 @@
 
     </dependencies>
 
-    
+
     <distributionManagement>
-      <snapshotRepository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-      <repository>
-       <id>ossrh</id>
-       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 
     <pluginRepositories>
@@ -232,19 +236,19 @@
                 <plugins>
 
                     <plugin>
-                       <groupId>org.apache.maven.plugins</groupId>
-                       <artifactId>maven-source-plugin</artifactId>
-                       <version>3.3.0</version>
-                       <executions>
-                          <execution>
-                             <id>attach-sources</id>
-                             <goals>
-                                <goal>jar-no-fork</goal>
-                             </goals>
-                          </execution>
-                       </executions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
-        
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -266,7 +270,7 @@
                             <passphraseServerId>gpg.passphrase</passphraseServerId>
                         </configuration>
                     </plugin>
-                    
+
 
                 </plugins>
             </build>
