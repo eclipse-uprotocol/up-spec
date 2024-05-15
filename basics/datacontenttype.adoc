@@ -1,0 +1,42 @@
+= Data Content Type
+:toc: preamble
+:sectnums:
+:source-highlighter: highlight.js
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+The following documents the different data content types (data encoding formats) that are supported by uProtocol.
+Data content types are declared in link:../up-core-api/uprotocol/uattributes.proto[uattributes.proto].
+
+== UDataContentType
+.Data Content Type Enumeration 
+[width="100%",cols="8%,49%,43%",options="header",]
+|===
+|Name |Mime Type |Data Description
+
+|*WRAPPED_IN_ANY* | `application/x-protobuf` | Serialized `google.protobuf.Any` message.
+|*PROTOBUF* |`application/protobuf` |Protobuf serialized `google.protobuf.Message`
+|*JSON* |`application/json` |JSON serialization format
+|*SOME_IP* |`application/x-someip` |Basic SOME/IP serialization format
+|*SOME_IP_TLV* |`application/x-someip_tlv` |SOME/IP TLV format
+|*RAW* |`application/octet-stream` |RAW (binary) format
+|*TEXT* |`text/plain` |Text format
+| *SHM* | `application/x-shm` | Shared memory format
+|===
+

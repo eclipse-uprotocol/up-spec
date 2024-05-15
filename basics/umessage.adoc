@@ -20,6 +20,6 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-UMessage is the top-level message type for the uProtocol. It consists of link:uattributes.adoc[message metadata] and (optional) link:upayload.adoc[payload]. UMessage is the common way to represent messages sent between uEntities over any communication protocol/middleware.
+UMessage is the top-level message type for the uProtocol. It consists of link:uattributes.adoc[message metadata] and (optional) data (payload).
 
 NOTE: Please refer to link:../up-core-api/uprotocol/umessage.proto[umessage.proto] for more details.

@@ -118,3 +118,34 @@ enum UPriority {
     // Network control such as Safety Critical
     UPRIORITY_CS6 = 7 [(uprotocol.ce_name) = "CS6"];
 }
+
+// The format for the data stored in the UMessage.
+enum UDataContentType {
+    // Payload format was not is not set,
+    // per specification, assumption is UDATA_CONTENT_TYPE_PROTOBUF_WRAPPED_IN_ANY
+    UDATA_CONTENT_TYPE_UNSPECIFIED = 0;
+
+    // Payload is an Any protobuf message that contains the packed payload
+    UDATA_CONTENT_TYPE_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
+
+    // Protobuf serialization format
+    UDATA_CONTENT_TYPE_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
+
+    // JSON serialization format
+    UDATA_CONTENT_TYPE_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
+
+    // Basic SOME/IP serialization format
+    UDATA_CONTENT_TYPE_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
+
+    // SOME/IP TLV format
+    UDATA_CONTENT_TYPE_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
+
+    // RAW (binary) format
+    UDATA_CONTENT_TYPE_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
+
+    // Text format
+    UDATA_CONTENT_TYPE_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
+
+    // Shared memory format
+    UDATA_CONTENT_TYPE_SHM = 8 [ (uprotocol.mime_type) = "application/x-shm" ];
+}

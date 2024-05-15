@@ -16,7 +16,6 @@ syntax = "proto3";
 package uprotocol.v1;
 
 import "uattributes.proto";
-import "upayload.proto";
 
 option java_package = "org.eclipse.uprotocol.v1";
 option java_outer_classname = "UMessageProto";
@@ -29,6 +28,6 @@ message UMessage {
     // uProtocol mandatory and optional attributes
     UAttributes attributes = 1;
 
-    // Optional message payload containing the data to be sent
-    UPayload payload = 2;
+    // Optional message payload
+    optional bytes data = 2;
 }

@@ -78,6 +78,11 @@ stem:[t_{current} > t_{id} + ttl]
 |no
 |A tracing identifier to use for correlating messages across the system. Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md[CloudEvents distributed tracing extension].
 
+|`datacontentytpe`
+|link:datacontenttype.adoc[UDataContentType]
+|no
+|How the data (payload) of the message is encoded.
+
 |===
 
 [#publish-attributes]
