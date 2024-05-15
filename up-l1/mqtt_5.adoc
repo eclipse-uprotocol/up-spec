@@ -156,6 +156,7 @@ How a source and sink UUri are mapped to an MQTT topic when the message is sent 
 [cols="1,1,1,1"]
 |===
 | source | sink | send topic | listen topic
+
 | //vehicle_1.veh.com/1234/1/5678 | //vehicle_2.veh.com/4321/1/8765 | d/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765 | c/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765
 | //vehicle_1.veh.com/1234/1/5678 | None | d/vehicle_1.veh.com//1234/1/5678 | c/vehicle_1.veh.com//1234/1/5678/
 |===
@@ -165,6 +166,7 @@ Listener examples with wildcards:
 [cols="1,1,1,1"]
 |===
 | goal | source filter | sink filter | listener topic
+
 | Subscribe to all incoming message to a UAuthority | empty | //vehicle_1.veh.com/FFFF/FF/FFFF | c/\+/vehicle_1.veh.com/+/\+/+
 | Subscribe to all publish messages from a UAuthority | //vehicle_1.veh.com/FFFF/FF/FFFF | None | c/vehicle_1.veh.com//\+/+/+
 |===
@@ -176,6 +178,7 @@ Shows how source and sink filters can be used to construct wildcard topics for l
 [cols="1,1,1,1"]
 |===
 | goal | source filter | sink filter | listener topic
+
 | Subscribe to all publish messages from devices | empty | None | d/\+//+/\+/+
 | Subscribe to all messages sent from a UAuthority | //vehicle_1.veh.com/FFFF/FF/FFFF | empty | d/vehicle_1.veh.com/\+/+/\+/+
 |===
