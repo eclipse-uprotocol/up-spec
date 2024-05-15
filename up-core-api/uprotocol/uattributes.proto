@@ -61,6 +61,9 @@ message UAttributes {
     // A tracing identifier to use for correlating messages across the system.
     // Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md
     optional string traceparent = 11;
+
+    // The format for the data stored in the UMessage.
+    UDataContentType data_content_type = 12;
 }
 
 
