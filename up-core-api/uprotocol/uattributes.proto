@@ -63,7 +63,7 @@ message UAttributes {
     optional string traceparent = 11;
 
     // The format for the data stored in the UMessage.
-    UDataContentType data_content_type = 12;
+    UPayloadFormat payload_format = 12;
 }
 
 
@@ -123,32 +123,32 @@ enum UPriority {
 }
 
 // The format for the data stored in the UMessage.
-enum UDataContentType {
+enum UPayloadFormat {
     // Payload format was not is not set,
-    // per specification, assumption is UDATA_CONTENT_TYPE_PROTOBUF_WRAPPED_IN_ANY
-    UDATA_CONTENT_TYPE_UNSPECIFIED = 0;
+    // per specification, assumption is UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
+    UPAYLOAD_FORMAT_UNSPECIFIED = 0;
 
     // Payload is an Any protobuf message that contains the packed payload
-    UDATA_CONTENT_TYPE_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
+    UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
 
     // Protobuf serialization format
-    UDATA_CONTENT_TYPE_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
+    UPAYLOAD_FORMAT_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
 
     // JSON serialization format
-    UDATA_CONTENT_TYPE_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
+    UPAYLOAD_FORMAT_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
 
     // Basic SOME/IP serialization format
-    UDATA_CONTENT_TYPE_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
+    UPAYLOAD_FORMAT_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
 
     // SOME/IP TLV format
-    UDATA_CONTENT_TYPE_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
+    UPAYLOAD_FORMAT_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
 
     // RAW (binary) format
-    UDATA_CONTENT_TYPE_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
+    UPAYLOAD_FORMAT_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
 
     // Text format
-    UDATA_CONTENT_TYPE_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
+    UPAYLOAD_FORMAT_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
 
     // Shared memory format
-    UDATA_CONTENT_TYPE_SHM = 8 [ (uprotocol.mime_type) = "application/x-shm" ];
+    UPAYLOAD_FORMAT_SHM = 8 [ (uprotocol.mime_type) = "application/x-shm" ];
 }

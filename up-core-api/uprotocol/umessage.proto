@@ -22,12 +22,12 @@ option java_outer_classname = "UMessageProto";
 option java_multiple_files = true;
 
 // UMessage is the top-level message type for the uProtocol.
-// It contains a header (UAttributes), and payload (UPayload) and is a way of representing a
+// It contains a header (UAttributes), and payload and is a way of representing a
 // message that would be sent between two uEs.
 message UMessage {
     // uProtocol mandatory and optional attributes
     UAttributes attributes = 1;
 
     // Optional message payload
-    optional bytes data = 2;
+    optional bytes payload = 2;
 }
