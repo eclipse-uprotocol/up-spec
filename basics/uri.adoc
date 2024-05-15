@@ -1,6 +1,7 @@
 = uProtocol URI (UUri)
-:toc:
+:toc: preamble
 :sectnums:
+:source-highlighter: highlight.js
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
@@ -19,399 +20,518 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview 
-URIs are used to uniquely identify (or address) stuff such as devices, software entities, topics, methods, etc...). A common URI definition allows _stuff_ to be addressable anywhere on any heterogeneous system.
 
-=== RFC3986
-
-The standard URI format is defined in https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] and illustrated in the figure below.
+uProtocol uses https://datatracker.ietf.org/doc/html/rfc3986[Uniform Resource Identifiers] (URI) to uniquely identify (and/or address) resources such as devices,
+software components, topics, methods, etc on a computer network. https://datatracker.ietf.org/doc/html/rfc3986[RFC3986] defines the structure of a URI as follows:
 
 .URI
 image::rfc3986.png[RFC3986 URI]
 
-URI specifications are covered at length in RFC3986 and will not be covered in this document, we will focus on the additions to RFC3986 that are specific to the uProtocol.
+Using this terminology, a uProtocol URI (UUri) can be structured like this:
 
-The following is taken from https://datatracker.ietf.org/doc/html/rfc3986#appendix-A[RFC3986 Appendix-A] and shall be used as reference in this specification:
-
-[source]
-----
- gen-delims = ":" / "/" / "?" / "#" / "\[" / "\]" / "@"
- sub-delims = "!" / "$" / "&" / "'" / "(" / ")"
- / "*" / "+" / "," / ";" / "="
- pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
- unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
- reserved = gen-delims / sub-delims
-----
-
-<<uuri-specification>> diagram below provides an overview of the specifications that we will elaborate in this document. 
-
-.URI Specification
+.UUri Specification
 [#uuri-specification]
-image::uri.drawio.svg[uProtocol URI Specification]
+image::uri.drawio.svg["uProtocol Uri Specification", align="center"]
 
-A uProtocol URI can be represented in the following formats:
+A UUri can be represented as:
 
-1. <<UUri Data Model>>: Object format (declared in protobuf)
-2. <<Long URIs>>: UUri object serialized to a string containing names (i.e. human readable)
-3. <<Short URIs>>: UUri object serialized to a string containing numeric ids
-4. <<Micro URIs>>: UUri serialized to a byte array (i.e. machine readable).
+* An instantiation of the <<data-model-definition>> in a supported programming language
+* A URI string as defined by <<uri-definition>>
 
+In the remainder of this document, the term _UUri_ is used to refer to an instantiation of the data model, whereas the term _URI_ is used to refer to its textual representation.
 
+[#data-model-definition]
 == Data Model
 
-This section shall explain the requirements for each SDK to implement such that the mental model is the same across all programming languages. <<Data Model>> diagram below illustrates the UUri data model as well as includes the requirements for the naming convention for the various APIs.
-
-NOTE: _Resolved_ UUri refers to a UUri that contains both names and numbers (ids) meaning the UUri could be serialized to any of the given formats defined in <<Serializers>> below.
-
-
-* *MUST* be declared in protobuf such that the definitions can be shared across all programming languages
+The diagram below shows a UUri and its properties using UML2 notation.
 
 .UUri Data Model
 [#uuri-data-model]
-image:uuri.drawio.svg[UUri Data Model]
-
- * *MUST* Follow the type names, member variables, and method names as defined in the diagram above
-
-NOTE: please refer to link:../../up-core-api/uprotocol/uri.proto for the data model definitions
-
-
-In the next section we shall define the per-language requirements for the UUri data model. These classes are meant to facilitate the use of the UUri data model in the respective language (i.e. serialize, validate, etc...).
-
-== Validators
-
-UriValidator is an interface with static methods to validate the <<UUri Data Model>> and check properties of the UUri such as if it contains the information to serialize to Long form or micro form, etc...
-
-.UriValidator
-[width="100%",cols="30%,70%",options="header"]
-|===
-|API |Description
-
-| `validate(UUri): UStatus`
-a| Validates the UUri object and return `UStatus` with the result of the validation. 
-
-* *MUST* return `UStatus::Failed` if the `UUri` is empty
-* *MUST* return `UStatus::Failed` if the `UUri.entity.name` is blank
-
-| `validateRpcMethod(UUri): UStatus`
-a| Validate that the `UUri` is a valid RPC method UUri
-
-* *MUST*  return `UStatus::Failed` if `validate(UUri)` fails or `isRpcMethod()` is false
-
-| `validateRpcResponse(UUri): UStatus`
-a| Validate that the `UUri` is a valid RPC Response UUri 
-
-* *MUST*  return `UStatus::Failed` if  `validate(UUri)` or `validateRpcMethod(UUri)` fails or `isRpcResponse()` is false
-
-| `isLocal(UUri): boolean`
-| Return true if: `!UUri.hasAuthority()`
-
-| `isLongForm(UUri): boolean`
-a| Returns true if the Uri part contains names so that it can be serialized to <<Long URIs>>.
-
-| `isEmpty(UUri): boolean`
-| Returns true if the object contains no information
-
-| `isResolved(UUri): boolean`
-| Returns true if the object contains both names and numbers (ids) such that it can be serialize to both <<Long URIs>> and <<Micro URIs>>
-
-| `isMicroForm(UUri): boolean`
-| Returns true if the Uri part contains the required ids to serialized to Micro format and the fields of the Uri can fit within the specified number of bits and bytes. Both sets of details can be obtained under <<Micro URIs>>
-
-| `isShortForm(UUri): boolean`
-| Returns true if the Uri contains the required ids to be serialized to <<Short URIs>>.
-
-| `isRpcMethod(UResource): boolean`
-| Returns true if: `id < 0x8000 && name == rpc`
-
-| `isRpcResponse(UResource): boolean`
-| Returns true if: `id==0  && name==rpc && instance==response`
-
-|===
-
-
-== Serializers
-`UriSerializer` is the interface that defines the serialize and deserialize methods for the different types of serializers. We will explain each serialization format in this section. 
-
-=== Long URIs
-
-Long URIs are UUri objects that have been serialized to a string containing human readable name of the UUri.
-
-.Long Form URI Description
-[#long-form-uri]
-[width="100%",cols="23%,18%,59%",options="header"]
-|===
-|Item |Value |Description
-
-|*`SCHEME`* |`up:` |Scheme (protocol name)
-|*`UAUTHORITY_NAME`* |unreserved |Canonical hostname of the device following https://datatracker.ietf.org/doc/html/rfc1035[RFC1035] requirements.
-
-|*`UE_NAME`* |pchar |The uEntity name
-
-|*`UE_VER_MAJOR`* |pchar | uEntity major version number only.
-
-|*`URESOURCE_NAME`* |pchar |The name of the resource. For methods, this is fixed to `rpc`.
-
-|*`URESOURCE_MESSAGE`* |*( pchar / "/" / "?" ) |Protobuf message name as defined in https://developers.google.com/protocol-buffers/docs/overview.
-
-|===
-
-
-*Additional URI Protocol Rules:*
-
-* *MAY* contain scheme
-* A segment in the path (UE_NAME, UE_VER_MAJOR, URESOURCE_NAME) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
-* Schema and authority *MUST* be case-insensitive per RFC3986
-* Path, query, and message *MUST* be case-sensitive
-
-If a segment in the path is empty:
-
-* The path *MUST NOT* start with "//"
-* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
-
-NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
-
-
-=== Short URIs
-
-Short URIs are UUri objects that have been serialized to a string containing only numeric values of a UUri.
-
-.Short Form URI Description
-[#short-form-uri]
-[width="00%",cols="23%,18%,59%",options="header"]
-|===
-|Item |Value |Description
-
-|*`SCHEME`* |`up:` |Scheme (protocol name)
-|*`UAUTHORITY_IPV4`* |unreserved |IPv4 address per https://datatracker.ietf.org/doc/html/rfc791[RFC791].
-
-|*`UAUTHORITY_IPV6`* |unreserved |IPv6 address per https://datatracker.ietf.org/doc/html/rfc4291[RFC4291].
-
-|*`UAUTHORITY_ID`* |unreserved a| Identifier
-
- *MAY* be a valid vehicle VIN (17 MSB)
- *MUST* fit within 255 bytes (when used for micro form)
-
-|*`UE_ID`* |pchar |The UEntity identifier
-
-|*`UE_VER_MAJOR`* |pchar | uEntity major version number only.
-
-|*`URESOURCE_ID`* |pchar |The unique identifier for the resource.
-
-|===
-
-
-*Additional URI Protocol Rules:*
-
-* *MAY* contain scheme
-* A segment in the path (UE_ID, UE_VER_MAJOR, URESOURCE_ID) *MAY* be empty, resulting in two consecutive slashes (//) in the path component, this is equivalent to a wildcard
-* Schema and authority *MUST* be case-insensitive per RFC3986
-* Path, query, and message *MUST* be case-sensitive
-
-If a segment in the path is empty:
-
-* The path *MUST NOT* start with "//"
-* Path *MUST* be https://www.rfc-editor.org/rfc/rfc3986#section-3.3[path-abempty] (i.e. its value can be either an absolute path or empty)
-
-NOTE: Local URIs do not contain the authority and begin with `/` (forward slash)
-
-
-=== Micro URIs
-Micro URIs are used to represent various portions of the URI in byte array format using only the IDs for various portions of UAuthority, UEntity, and UResource. Micro URIs may be used in the uProtocol transport layer (uP-L1) to reduce the size of the URI and improve performance. There are two types of Micro URIs, they are local and remote where remote contains an address (IP or ID) and local is without an address (refer to some uThing that is local to the device).
-
-* All fields of micro UUri *MUST* be populated
-* Fields are Big-Endian unless otherwise specified
-
-.Micro Uri Fields
-[#micro-uri-fields,width="100%",cols="20%,10%,30%,40%",options="header"]
-|===
-|Field |Size(Bits) |Description | Requirements
-
-|`UP_VERSION` |8 |Current version of this specification | *MUST* be 0x01
-
-|`TYPE` | 8 |Type of Micro Uri   a| *MUST* be one of the following values:
-
-!===
-!*Value* !*Description*
-!`0` !Local authority
-!`1` !Remote authority using IPv4 address
-!`2` !Remote authority using IPv6 address
-!`3` !Remote authority using a variable length ID
-!===
-
-
-|`URESOURCE_ID` |16 |The ID assigned to the topic in the proto (unique per uE) | 
-
-|`UAUTHORITY_ADDRESS` |32 or 128 |UAuthority IP Address | *MUST* be a valid IPv4 or IPv6 address
-
-|`UAUTHORITY_ID` |8-2040 |UAuthority ID | *MAY* be a valid vehicle VIN (17 MSB)
-
-|`ID_LEN` |8  |Length of bytes for the UAuthority ID | *MUST* be greater than 0
-
-|`UENTITY_ID` | 16 |UE Identifiers | 
-
-|`UE_VERSION` | 8 |UEntity MAJOR version | *MUST* be a valid MAJOR version
-
-|`UNUSED` | 8 | Unused bits | *MUST* be 0x00
-
-|===
-
-
-==== Local Micro Uri
-
-Local UUris do not contain authority and *SHOULD* be used at all times when addressing uThings within the same uDevice. 
-
-.Local
-[#local-micro-uri,java]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
 ----
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+classDiagram
+
+class UUri {
+  authority_name : String
+  ue_id : UInt32
+  ue_version_major : UInt8
+  resource_id : UInt16
+}
 ----
 
+[.specitem,oft-sid="dsn~data-model-naming~1",oft-needs="impl"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* implement the data model using the type and property names as defined in the following sections.
+--
 
-==== Remote Micro Uris
+[.specitem,oft-sid="req~data-model-proto~1",oft-needs="impl,utest"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* support writing and reading of an instance of the data model to/from a protobuf as defined in link:../up-core-api/uprotocol/uri.proto[uri.proto].
+--
 
-Remote UUris mean that the uThing is running on a different device and we need to address the uThing using the device name, IP address, or an arbitrary length id (1-255 bytes). 
+The remainder of this section defines the requirements for the data model by means of _invariants_ which must hold true at all times. Additionally, there are some _predicates_ that can be used by uEntities to determine if a UUri contains the information they are interested in. Both the invariants and the predicates are (formally) defined by means of link:https://www.omg.org/spec/OCL/2.4[Object Constraint Language] (OCL) expressions on the UUri data model. The link:https://modeling-languages.com/ocl-tutorial/[OCL Tutorial] provides an overview of the basic concepts used in the definitions.
 
-* Remote UUris *MUST* contain the UAuthority address (IP or ID) and *MAY* contain the UAuthority name.
 
-.IPv4 Remote Micro URI
-[#ipv4-micro-uri,java]
+=== Authority
+
+An authority represents the deployment location of a specific software entity. The location is represented by means of a logical identifier like a domain name (e.g. `mcu1.example.com`) or a Vehicle Identification Number (VIN).
+
+
+[.specitem,oft-sid="dsn~authority-name-length~1",oft-needs="impl,utest"]
+--
+A UUri's `authority_name` *MUST NOT* exceed 128 characters in length.
+
+[source,ocl]
 ----
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              UAUTHORITY_ADDRESS (IPv4 32bits)                 |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inv: authority_name.length() <= 128
+----
+--
+
+=== uEntity
+
+A uProtocol software entity (uEntity) is a piece of software deployed somewhere on a network host.
+uEntities are uniquely identified within a system by means of the type and version of the service interface that they implement and an instance identifier in case multiple instances of the same service are deployed in the system.
+
+NOTE: uEntities which produce events for consumption by other uEntities assume a _Service_ role. +
+uEntities which consume events produced by other uEntities assume an _Application_ role. +
+uEntities *MAY* assume both the Service and Application roles.
+
+[.specitem,oft-sid="dsn~entity-id~1"]
+--
+A UUri's `ue_id` property value determines the type and instance of the service being referred to. +
+The value's _least_ significant 16 bits contain the _service ID_, representing the service interface type.
+The value's _most_ significant 16 bits contain the _service instance ID_. +
+--
+
+=== Resource
+
+A service interface consists of _resources_ and _methods_. A resource usually represents the state of a property of the service (instance) while methods are used to manage the state of a service (instance).
+
+Resources and methods are uniquely identified within a service interface by means of their numeric identifier.
+
+[.specitem,oft-sid="dsn~resource-id~1"]
+--
+A UUri's `resource_id` contains the identifier of the resource or method being referred to.
+--
+
+[.specitem,oft-sid="dsn~resource-rpc-method~1"]
+--
+A UUri refers to an RPC service method if its `isRpcMethod` predicate as defined below evaluates to `true`.
+
+[source,ocl]
+----
+def: isRpcMethod() : Boolean = resource_id > 0 and resource_id < 0x8000
+----
+--
+
+[.specitem,oft-sid="dsn~resource-rpc-response~1"]
+--
+A UUri refers to an RPC response address if its `isRpcResponse` predicate as defined below evaluates to `true`.
+
+[source,ocl]
+----
+def: isRpcResponse() : Boolean = resource_id = 0
+----
+--
+
+[#uri-definition]
+== Mapping to URI
+
+It is often helpful to represent UUris in a textual format, for example when serializing uProtocol messages to a transport's Protocol Data Unit (PDU). This section defines how UUris can be mapped to and from a URI according to the https://datatracker.ietf.org/doc/html/rfc3986#section-4.1[URI-Reference production of RFC3986].
+
+The URIs mapped from UUris use the syntax defined in https://datatracker.ietf.org/doc/html/rfc3986#appendix-A[RFC3986, Appendix A] with a few modifications:
+
+[.specitem,oft-sid="dsn~uri-scheme~1",oft-needs="impl,utest"]
+--
+A URI *MUST NOT* use any scheme other than `up` and *MUST NOT* have a _query_ component and *MUST NOT* have a _fragment_ component.
+--
+[source,abnf]
+----
+URI = "up" ":" hier-part
+relative-ref = relative-part
 ----
 
-.IPv6 Remote Micro URI
-[#ipv6-micro-uri,java]     
+[.specitem,oft-sid="dsn~uri-host-only~1",oft-needs="impl,utest"]
+--
+The _authority_ component of a URI *MUST* consist of a _host_ part only, i.e. it *MUST NOT* contain neither _userinfo_ nor _port_ information.
+--
+[source,abnf]
 ----
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|              UAUTHORITY_ADDRESS (IPv6 128bits)                |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+authority = host
 ----
 
-.ID Remote Micro URI
-[#vin-micro-uri,java]     
+NOTE: The ABNF fragments above only contain the altered productions.
+
+[.specitem,oft-sid="dsn~uri-authority-mapping~1",oft-needs="impl,utest"]
+--
+A URI's _authority_ *MUST* be mapped to/from the UUri's `authority_name` property following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2[RFC3986, Section 3.2.2]. In particular, the URI *MUST NOT* contain an _authority_ if `authority_name` is empty and vice versa.
+--
+
+[.specitem,oft-sid="dsn~uri-path-mapping~1",oft-needs="impl,utest"]
+--
+A URI's _path_ *MUST* be mapped to/from the UUri's `ue_id`, `ue_version_major` and `resource_id` properties.
+
+Each property value *MUST* be mapped to a _segment_ following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.3[RFC3986, Section 3.3].
+
+The `ue_id`, `ue_version_major` and `resource_id` *MUST* be mapped to the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
+of the corresponding property values.
+--
+
+=== Examples
+
+The examples below can be used as test vectors for implementing client libraries.
+
+[%autowidth]
+|===
+|authority |entity |version |resource |URI
+
+| `""`
+| `0x0000`
+| `0x03`
+| `0x8000`
+| `/0/3/8000`
+
+| `"192.168.1.10"`
+| `0x0000`
+| `0xFF`
+| `0x8000`
+| `//192.168.1.10/0/FF/8000`
+|===
+
+
+== Serialization
+
+[.specitem,oft-sid="req~uri-serialization~1",oft-needs="impl,utest"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to serialize UUris to the <<_mapping_to_uri, URI format>> and vice versa. A concrete implementation should follow common practices for the particular programming language.
+--
+
+For example, a Java library might implement a `UriSerializer` class providing corresponding _static_ methods.
+
+[source,java]
 ----
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  UP_VERSION   |      TYPE     |           URESOURCE_ID        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|        UENTITY_ID             |  UE_VERSION   |   UNUSED      |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    ID_LEN     |        UAUTHORITY_ID (1=256 bytes)  ...       |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+public final class UriSerializer {
+  /**
+   * @returns The UUri parsed from the given string representation.
+   * @throws UuriSerializationException if the given string is not a valid URI.
+                        The exception may contain details regarding the violated
+                        constraint(s).
+   */
+  public static UUri deserialize(String: uri) throws UuriSerializationException {
+    ...
+  }
+  /**
+   * @returns The given UUri's string representation.
+   * @throws UuriSerializationException if the UUri cannot be serialized.
+   */
+  public static String serialize(UUri: uuri) throws UuriSerializationException {
+    ...
+  }
+}
 ----
 
-== URI Examples
+Alternatively, the `UUri` class might provide corresponding methods.
 
-The following examples are based off the USubscription notification topic (see usubscription.proto).
+[source,java]
+----
+public class UUri {
+  /**
+   * @returns The UUri parsed from the given string representation.
+   * @throws UuriSerializationException if the given string is not a valid
+                         URI. The exception may contain details
+   *                     regarding the violated constraint(s).
+   */
+  public static UUri fromUri(String: uri) throws UuriSerializationException {
+    ...
+  }
+  /**
+   * @returns The given UUri's string representation.
+   * @throws UuriSerializationException if this UUri cannot be serialized.
+   */
+  public final String toUri() throws UuriSerializationException {
+    ...
+  }
+}
+----
 
+Similarly, a Rust library might implement a `UriSerializer` struct providing corresponding functions
 
-.Local Uri
-[width="80%",cols="30%,70%",options="header"]
-|===
-|Format | Value
+[source,rust]
+----
+pub struct UriSerializer {}
 
-|Long
-|`/core.usubscription/3/SubscriptionChange#Update`
+impl UriSerializer {
+  pub fn try_deserialize(uri: &str) -> Result<UUri, UuriSerializationError> {
+    ...
+  }
+  pub fn try_serialize(uuri: &UUri) -> Result<String, UuriSerializationError> {
+    ...
+  }
+}
+----
 
-|Short
-| `/0/3/32768`
+or implement the functions on the `UUri` struct
 
-|Micro
-|`[1, 0, -128, 0, 0, 0, 3, 0]`
-
-|===
-
-
-=== Remote Uris
-
-
-.Remote IPv4 Uri
-[width="80%",cols="30%,70%",options="header"]
-|===
-|Format | Value
-
-|Long
-|`//vcu.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
-
-|Short
-| `//192.168.1.100/0/3/32768`
-
-|Micro
-|`[1, 1, -128, 0, 0, 0, 3, 0, -64, -88, 1, 100]`
-
-|===
-
-
-.Remote IPv6 Uri
-[width="80%",cols="30%,70%",options="header"]
-|===
-|Format | Value
-
-|Long
-|`//vcu.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
-
-|Short
-| `//2001:db8:85a3:0:0:8a2e:370:7334/0/3/32768`
-
-|Micro
-|`[1, 2, -128, 0, 0, 0, 3, 0, 32, 1, 13, -72, -123, -93, 0, 0, 0, 0, -118, 46, 3, 112, 115, 52]`
-
-|===
-
-
-.Remote ID (VIN) Uri
-[width="80%",cols="30%,70%",options="header"]
-|===
-|Format | Value
-
-|Long
-|`//1G1YZ23J9P5800001.veh.gm.com/core.usubscription/3/SubscriptionChange#Update`
-
-|Short
-| `//1G1YZ23J9P5800001/0/3/32768`
-
-|Micro
-|`[1, 3, -128, 0, 0, 0, 3, 0, 17, 49, 71, 49, 89, 90, 50, 51, 74, 57, 80, 53, 56, 48, 48, 48, 48, 49]`
-
-|===
+[source,rust]
+----
+impl UUri {
+  pub fn try_from_uri(uri: &str) -> Result<UUri, UuriSerializationError> {
+    ...
+  }
+  pub fn try_to_uri(&self) -> Result<String, UuriSerializationError> {
+    ...
+  }
+}
+----
 
 
 
+== Validation
 
-== Wildcards
-Wildcard are used to replace portions of the URI to perform pattern matching (i.e. subscribing to multiple topics, searching for services, etc...). Wildcard are represented in a long or short URI only when the segment is blank.
+[.specitem,oft-sid="req~validation~1",oft-needs="impl,utest"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to perform the checks defined by means of predicates on the UUri data model. The concrete implementation should follow common practices of the particular programming language.
+--
 
-NOTE: Not all implementations and uEs support wildcards, please refer to the implementation and uE documentation for more information.
+For example, a Java library might implement a `UriValidator` class providing corresponding _static_ methods.
 
+[source,java]
+----
+public final class UriValidator {
+  /**
+   * @returns {@code true} if the URI represents an RPC method.
+   */
+  public static boolean isRpcMethod(UUri: uri) {
+    ...
+  }
+  /**
+   * @throws UuriValidationException if the URI does not represent an RPC method.
+   *                     The exception may contain details regarding the violated
+   *                     constraint(s).
+   */
+  public static void validateRpcMethod(UUri: uri) throws UuriValidationException {
+    if (!UriValidator.isRpcMethod(uri)) {
+      throw new UuriValidationException("not an RPC Method URI");
+    }
+  }
+}
+----
+
+Alternatively, the `UUri` class might provide corresponding methods.
+
+[source,java]
+----
+public class UUri {
+  /**
+   * @returns {@code true} if this URI represents an RPC method.
+   */
+  public final boolean isRpcMethod() {
+    ...
+  }
+  /**
+   * @throws UuriValidationException if this URI does not represent an RPC method.
+   *                     The exception may contain details regarding the violated
+   *                     constraint(s).
+   */
+  public final void validateRpcMethod() throws UuriValidationException {
+    if (!this.isRpcMethod()) {
+      throw new UuriValidationException("not an RPC Method URI");
+    }
+  }
+}
+----
+
+Similarly, a Rust library might implement a `UriValidator` struct providing corresponding functions
+
+[source,rust]
+----
+pub struct UriValidator {}
+
+impl UriValidator {
+  pub fn is_rpc_method(uri: &UUri) -> bool {
+    ...
+  }
+  pub fn validate_rpc_method(uri: &UUri) -> Result<(), UuriValidationError> {
+    if is_rpc_method(uri) {
+      Ok(())
+    } else {
+      Err(UuriValidationError::new("not an RPC Method URI"))
+    }
+  }
+}
+----
+
+or implement the functions on the `UUri` struct
+
+[source,rust]
+----
+impl UUri {
+  pub fn is_rpc_method(&self) -> bool {
+    ...
+  }
+  pub fn validate_rpc_method(&self) -> Result<(), UuriValidationError> {
+    if self.is_rpc_method() {
+      Ok(())
+    } else {
+      Err(UuriValidationError::new("not an RPC Method URI"))
+    }
+  }
+}
+----
+
+== Pattern Matching
+
+[.specitem,oft-sid="dsn~pattern-matching~1",oft-needs="impl,utest"]
+--
+A UUri can be used to define a _pattern_ that other UUris can then be matched against.
+For that purpose, a UUri
+
+* *MAY* have its `authority_name` set to the `*` (`U+002A`, Asterisk) character in order to match _any_ (including _no_) authority,
+* *MAY* have the _service ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ type,
+* *MAY* have the _service instance ID_ part of its `ue_id` set to `0x0000` in order to match _any_ instance,
+* *MAY* have its `ue_version_major` set to `0xFF` in order to match _any_ version,
+* *MAY* have its `resource_id` set to `0xFFFF` in order to match _any_ resource.
+
+A _candidate_ UUri _matches_ a particular _pattern_ UUri if all of the candidate UUri's properties match the pattern UUri's corresponding properties according to the rules defined by the predicates below.
+
+[source,ocl]
+----
+context (pattern) UUri
+def: matches_authority(candidate : UUri) : Boolean =
+  self.authority_name = '*'
+  or
+  self.authority_name = candidate.authority_name
+
+def: service_type() : UInt32 = ue_id & 0x0000_FFFF
+def: service_instance() : UInt32 = ue_id & 0xFFFF_0000
+
+def: matches_entity_type(candidate : UUri) : Boolean =
+  self.service_type() = 0x0000_FFFF
+  or
+  self.service_type() = candidate.service_type()
+
+def: matches_entity_instance(candidate : UUri) : Boolean =
+  self.service_instance() = 0x0000_0000
+  or
+  self.service_instance() = candidate.service_instance()
+
+def: matches_entity_version(candidate : UUri) : Boolean =
+  self.ue_version_major = 0xFF
+  or
+  self.ue_version_major = candidate.ue_version_major
+
+def: matches_resource(candidate : UUri) : Boolean =
+  self.instance_id = 0xFFFF
+  or
+  self.instance_id = candidate.instance_id
+
+def: matches(candidate : UUri) : Boolean =
+  self.matches_authority(candidate)
+  and
+  self.matches_entity_type(candidate)
+  and
+  self.matches_entity_instance(candidate)
+  and
+  self.matches_entity_version(candidate)
+  and
+  self.matches_resource(candidate)
+----
+
+Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to perform UUri pattern matching according to the `matches` predicate as defined above.
+--
+
+=== Examples
+
+==== Matching on Authority
+
+The following pattern UUri
+
+[example]
+----
+UUri {
+  authority_name: "192.168.1.100",
+  ue_id: 0x0000_FFFF                // any instance, any service
+  ue_version_major: 0xFF,           // any
+  resource_id: 0xFFFF               // any
+}
+----
+
+will match the following URIs:
+
+[example]
+----
+//192.168.1.100/0/3/8000
+//192.168.1.100/1/3/8
+//192.168.1.100/1A/2/2
+----
+
+But not these:
+[example]
+----
+//192.168.1.200/0/3/8000  // wrong authority
+/1/3/8                    // no authority
+----
+
+==== Matching on Entity
+
+The following pattern UUri
+
+[example]
+----
+UUri {
+  authority_name: "*",       // any
+  ue_id: 0x0000_0000,        // any instance of service 0x0000
+  ue_version_major: 0x03,
+  resource_id: 0xFFFF        // any
+}
+----
+
+will match the following URIs:
+
+[example]
+----
+//other-vcu.my-vehicle/0/3/8000
+/20000/3/2
+----
+
+But not these:
+[example]
+----
+//vcu.other.device/1/3/8000    // wrong service ID (0x0001)
+/20010/3/2                     // wrong service ID (0x0010)
+----
+
+==== Matching on Resource
+
+The following pattern UUri
+
+[example]
+----
+UUri {
+  authority_name: "",        // local
+  ue_id: 0x0000_0000,        // any instance of service 0x0000
+  ue_version_major: 0xFF,    // any
+  resource_id: 0x0001
+}
+----
+
+will match the following URIs:
+[example]
+----
+/0/3/1
+/0/2/1
+----
+
+But not these:
+[example]
+----
+//vcu.other.device/0/3/1     // non-local authority
+/1/3/3                       // wrong resource
+----
 
 == Best Practices
 
-When a UUri is not resolved (only contain either names or ids), the only way to resolve the UUri is to lookup in uDiscovery the missing information. UEntity name and numbers are declared in the uService's protos by adding the service metadata attributes using   https://protobuf.dev/programming-guides/proto2/#options[Protobuf Options]. This information for the uE is then exposed through the uService generated stubs. 
- 
-UResource portion of the UUri is also encoded in the uService protos and can be fetched by application developers using https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors]. Application developers are then able to easily construct resolved UUris using the above mentioned generated code. link:../up-l2/README.adoc[Dispatchers] however do not have the name-to-number mapping metadata as they are only provided either serialized Long or Micro Uris so if they have to send a Uri in a different format, they have no choice but to dynamically lookup (resolve) the Uri. 
+The numerical identifiers of a uService's type and its resources are defined in the service's proto3 definition by means of corresponding https://protobuf.dev/programming-guides/proto2/#options[Protobuf Options].
 
-IMPORTANT: If a uE has a specific Uri format requirements (Long vs Micro), they *MUST* document them in their respective APIs specifications. Please see link:../up-l3/README.adoc#_core_platform_ues[Core uProtocol uEs] for more specific requirements for uProtocol core services.
+Applications can determine these identifiers during runtime from the client stubs generated from a uService proto3 file via the corresponding https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors].

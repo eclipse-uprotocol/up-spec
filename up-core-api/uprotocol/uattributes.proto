@@ -64,19 +64,6 @@ message UAttributes {
 }
 
 
-// A subset of UAttributes used for RPC method invocation.
-message CallOptions {
-    // The QoS level that this request should be processed/delivered with.
-    UPriority priority = 1;
-
-    // The amount of time (in milliseconds) after which this request MUST NOT be delivered/processed anymore.
-    uint32 ttl = 2;
-
-    // The service consumer's access token.
-    optional string token = 3;
-}
-
-
 // uProtocol defines different types of messages.
 // Using the message type, validation can be performed to ensure transport
 // validity of the data in the {@link UAttributes}.
