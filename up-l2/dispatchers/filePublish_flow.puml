@@ -1,0 +1,64 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor uService #red
+collections dispatchers as UB
+collections remoteDispatchers as remoteUB
+entity uE_remote as uE_remote #blue
+
+uService --\ UB: pub.v1
+note right
+	<size:12>**pub.v1:**</size>
+    "id" : "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
+    "source": "up://Device1/uService/1/pub.topic"
+    "sink": "up://Device2/uE/"
+    "specversion": "1.0"
+    "type": "pub.v1"
+    "dataschema": //url of Topic schema//
+    "data": //Protobuf serialized Pub Message//
+end note
+
+UB --\ remoteUB : File Transfer (single or multifile)
+remoteUB --\ UB : File Transfer Status
+
+UB --> UB : Generate updatedPub.v1 message with remote location details 
+UB --> UB : Include success/fail indication for each file transferred
+
+
+	note right
+		<size:12>**updatedPub.v1:**</size>
+		"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
+		"source": "up://Device1/dispatcher/1/pub.topic"
+		"sink": "up://Device2/uE/"
+		"specversion": "1.0"
+		"type": "pub.v1"
+		"dataschema": //url of Topic schema//
+		"data": //Protobuf serialized Pub Message//
+	end note
+
+UB --/ uE_remote: updatedPub.v1
+
+uE_remote --> uE_remote : retrieve successfully delivered file(s) from remoteUB
+
+alt if notification_request is True in pub.v1
+  UB -> UB : generate NotificationMsg, wrapping updatedPub.v1
+  UB -> uService : NotificationMsg
+
+	note right
+		<size:12>**not.v1:**</size>
+		"id" : "f8c48bcf-2b54-4d64-83df-ad1cde652e10"
+		"source": "up://Device1/dispatcher/1/notif.topic"
+		"sink": "up://Device1/uService/"
+		"specversion": "1.0"
+		"type": "not.v1"
+		"request_id": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10"
+		"dataschema": //url of Notification Topic schema//
+		"data": //Protobuf serialized Notification Message//
+	end note
+
+
+end alt
+
+@enduml

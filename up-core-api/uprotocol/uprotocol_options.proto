@@ -27,6 +27,7 @@ syntax = "proto3";
 package uprotocol;
 
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/any.proto";  // adding to support UPubNotification message content.
 
 option java_package = "org.eclipse.uprotocol";
 option java_multiple_files = true;
@@ -70,6 +71,19 @@ extend google.protobuf.MessageOptions {
   optional uint32 base_topic_id = 51300;
   // Code Access Permission (CAP) Level for the topic
   uint32 topic_permission_level = 51301;
+  
+  // Delivery notification request for published messages
+  // Indication to uTransport-specific instance that a notification should be provided to the publisher of a message
+  //  on completion/termination (with success/failure)  
+  optional bool notify_publisher = 51302; 
+}
+
+// uPublish notification message, intended to deliver context-specific content known the publisher, and provided by the uTransport layer supporting the Notiication response
+// Scenarios where content is being passed by reference and delivered via a specific uTransport implementation, with non-trivial potential latency until completion/abort of a transfer
+//   will require that the publisher maintain the current content for the message/item(s) being delivered by the applicable uTransport instance.
+// Notification 
+message UPubNotification {
+  google.protobuf.any notif_details = 1;
 }
 
 
@@ -101,3 +115,25 @@ message UServiceTopic {
   // Name of the protobuf.Message
   string message = 3;
 }
+
+// The following is used to identify files - to be transferred, or after transfer, to be accessed by the receiving uEs
+// File Proto
+message File {
+  String uri_1 = 1;
+  optional uint64 size = 2;
+  Checksum checksum = 3;
+}
+// Files proto
+message Files {
+  repeated File files = 1;
+}
+message Checksum {
+  enum Type {
+    MD5  = 0;  
+    SHA1 = 1;
+    None = 2; // Cases when 
+  }
+  Type type = 1;
+  bytes value = 2:
+}
+    
