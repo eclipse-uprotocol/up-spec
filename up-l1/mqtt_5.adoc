@@ -7,22 +7,12 @@ The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*
 ----
 SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
 
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
 
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
 
 SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
@@ -42,34 +32,96 @@ This document will discuss the uTransport implementation on MQTT 5.
 
 MQTT 5 supports custom header fields, and we leverage this to map the UAttribute values into the MQTT header.
 
-[cols="1,1"]
+[cols="1,1,1,1"]
 |===
-| MQTT Header Property Code | Value (key:value)
+| MQTT Header Property Code | Value (key:value) | Value Type | Description
+
 | UserProperty
-| ("1", "{UAttribute.id}") # UUID id
+| ("0", "{UAttribute Version}")
+| String
+a| The version of the UAttribute protobuf
+
+* MUST represent the major version of the UAttribute protobuf. Currently should be set to `1`.
+
 | UserProperty
-| ("2", "{UAttribute.type}") # UMessageType
+| ("1", "{UAttribute.id}")
+| String
+a| Unique identifier for the message
+
+* MUST be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
+
 | UserProperty
-| ("3","{UAttribute.source}") # Short Form Serialized Source UURI
+| ("2", "{UAttribute.type}")
+| String
+a| The type of message
+
+* MUST be the enum value for UAttributes.type link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
+
 | UserProperty
-| ("4","{UAttribute.sink}") # Short Form Serialized Sink UURI
+| ("3","{UAttribute.source}")
+| String
+a| The origin (address) of the message
+
+* MUST be the link:../basics/uri.adoc[string serialization of the UUri]
+
 | UserProperty
-| ("5","{UAttribute.priority}") # UPriority
+| ("4","{UAttribute.sink}")
+| String
+a| The destination (address) of the message
+
+* MUST be the link:../basics/uri.adoc[string serialization of the UUri]
+
 | UserProperty
-| ("6", "{UAttribute.ttl}") # Optional ttl
+| ("5","{UAttribute.priority}")
+| String
+a| The message's priority as defined in link:../basics/qos.adoc[QoS doc]
+
+* MUST be set to the enum value for UAttributes.priority link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
+
 | UserProperty
-| ("7", "{UAttribute.permissionLevel}") # Optional permission level
+| ("6", "{UAttribute.ttl}")
+| String
+a| The amount of time (in milliseconds) after which this message MUST NOT be delivered/processed anymore
+
 | UserProperty
-| ("8", "{UAttribute.commStatus}") # Optional UCode commstatus
+| ("7", "{UAttribute.permissionLevel}")
+| String
+a| The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
+
 | UserProperty
-| ("9", "{UAttribute.reqId}") # UUID reqid
+| ("8", "{UAttribute.commStatus}")
+| String
+a| A UCode indicating an error that has occurred during the delivery of either an RPC Request or Response message
+
+* MUST be set to the link:../up-core-api/uprotocol/ustatus.proto[UCode]'s integer value as a string.
+
 | UserProperty
-| ("10", "{UAttribute.token}") # Optional token
+| ("9", "{UAttribute.reqId}")
+| String
+a| The identifier that a service consumer can use to correlate an RPC Repsonse message with its RPC Request
+
+* MUST be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
+
 | UserProperty
-| ("11", "{UAttribute.traceParent}") # Optional traceparent
+| ("10", "{UAttribute.token}")
+| String
+a| The service consumer's access token
+
+| UserProperty
+| ("11", "{UAttribute.traceParent}")
+| String
+a| A tracing identifier to use for correlating messages across the system
+
+| UserProperty
+| ("upf", "{UPayload.format}")
+| String
+a| Serialization format of the UPayload data
+
+* MUST be set to the enum value for UPayload.format link:../up-core-api/uprotocol/upayload.proto[UPayloadFormat enum].
+
 |===
 
-All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number. The value is a string representation of the UAttribute field.
+All uAttributes are mapped to a MQTT header UserProperty, where the key is the UAttribute protobuf field number. The value is a string representation of the UAttribute field. Only UAttributes that are used in the message are included in the MQTT header. If a UAttribute field is not present in the header, than it is considered not used when recompiling the UAttributes.
 
 === URI Mapping to MQTT topics
 
@@ -89,13 +141,11 @@ The client_identifier is used to determine where messages are coming from. The v
 
 - `c` : Indicates that the message originated from the cloud
 - `d` : Indicates that the message originated from a device and is remote
-- `l` : Indicates that the message originated from a device and is local to that device
 
 The client_identifier that is used for the topic is based on the kind of MQTT uTransport client that is sending the message. An MQTT uTransport client can be one of the following:
 
 - Cloud MQTT uTransport client: A client that runs in the cloud.
 - Remote MQTT uTransport client: A client that runs on a device and is connected to a cloud MQTT broker.
-- Local MQTT uTransport client: A client that runs on a device and is connected to a local MQTT broker.
 
 Below are examples of messages being sent and how to subscribe to those messages:
 
@@ -106,8 +156,8 @@ How a source and sink UUri are mapped to an MQTT topic when the message is sent 
 [cols="1,1,1,1"]
 |===
 | source | sink | send topic | listen topic
-| /vehicle_1.veh.com/1234/1/5678 | /vehicle_2.veh.com/4321/1/8765 | d/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765 | c/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765
-| /vehicle_1.veh.com/1234/1/5678 | None | d/vehicle_1.veh.com//1234/1/5678 | c/vehicle_1.veh.com//1234/1/5678/
+| //vehicle_1.veh.com/1234/1/5678 | //vehicle_2.veh.com/4321/1/8765 | d/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765 | c/vehicle_1.veh.com/vehicle_2.veh.com/4321/1/8765
+| //vehicle_1.veh.com/1234/1/5678 | None | d/vehicle_1.veh.com//1234/1/5678 | c/vehicle_1.veh.com//1234/1/5678/
 |===
 
 Listener examples with wildcards:
@@ -115,8 +165,8 @@ Listener examples with wildcards:
 [cols="1,1,1,1"]
 |===
 | goal | source filter | sink filter | listener topic
-| Subscribe to all incoming message to a UAuthority | empty | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | c/\+/vehicle_1.veh.com/+/\+/+
-| Subscribe to all publish messages from a UAuthority | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | None | c/vehicle_1.veh.com//\+/+/+
+| Subscribe to all incoming message to a UAuthority | empty | //vehicle_1.veh.com/FFFF/FF/FFFF | c/\+/vehicle_1.veh.com/+/\+/+
+| Subscribe to all publish messages from a UAuthority | //vehicle_1.veh.com/FFFF/FF/FFFF | None | c/vehicle_1.veh.com//\+/+/+
 |===
 
 ==== Cloud uTransport Client Examples
@@ -127,9 +177,9 @@ Shows how source and sink filters can be used to construct wildcard topics for l
 |===
 | goal | source filter | sink filter | listener topic
 | Subscribe to all publish messages from devices | empty | None | d/\+//+/\+/+
-| Subscribe to all messages sent from a UAuthority | /vehicle_1.veh.com/FFFFFFFF/FF/FFFF | empty | d/vehicle_1.veh.com/\+/+/\+/+
+| Subscribe to all messages sent from a UAuthority | //vehicle_1.veh.com/FFFF/FF/FFFF | empty | d/vehicle_1.veh.com/\+/+/\+/+
 |===
 
 === Payload Encoding
 
-The MQTT payload **MUST** be a UPayload that is represented as a byte array to reduce size.
+The MQTT payload **MUST** be the UPayload.data field, which is a byte array to reduce size.
