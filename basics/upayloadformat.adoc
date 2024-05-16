@@ -1,4 +1,4 @@
-= uProtocol Payload (uPayload)
+= uProtocol Payload Format
 :toc:
 :sectnums:
 
@@ -18,13 +18,7 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-== Overview 
-
-UPayload is a wrapper around a message's payload data, either by value or reference, as well as some metadata describing the payload like format, size, etc.
-
-NOTE: Please refer to link:../up-core-api/uprotocol/upayload.proto[upayload.proto] for more details
-
-== Payload Format
+== Overview
 
 The following table provides an overview of the payload formats supported by uProtocol.
 
@@ -60,4 +54,7 @@ The following table provides an overview of the payload formats supported by uPr
 |`text/plain`
 |The message payload *MUST* be the network byte order UTF-8 encoding of a unicode string representing the payload data.
 
+|`UPAYLOAD_FORMAT_SHM`
+|`application/x-shm`
+|The message payload *MUST* be the network byte order address of a shared memory segment.
 |===

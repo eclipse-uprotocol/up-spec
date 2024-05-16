@@ -28,7 +28,7 @@ The following are the foundational requirements for uProtocol specifications:
 * *link:qos.adoc[Quality of Service & Priority (UPriority)]*
 * *link:uattributes.adoc[uProtocol Attributes (UAttributes)]*
 * *link:umessage.adoc[uProtocol Message (UMessage)]*
-* *link:upayload.adoc[uProtocol Payload (UPayload)]*
+* *link:upayloadformat.adoc[uProtocol Payload Format (UPayloadFormat)]*
 * *link:delivery.adoc[Event Delivery]*
 * *link:permissions.adoc[Permissions]*
 

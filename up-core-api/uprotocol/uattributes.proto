@@ -61,6 +61,9 @@ message UAttributes {
     // A tracing identifier to use for correlating messages across the system.
     // Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md
     optional string traceparent = 11;
+
+    // The format for the data stored in the UMessage.
+    UPayloadFormat payload_format = 12;
 }
 
 
@@ -117,4 +120,35 @@ enum UPriority {
 
     // Network control such as Safety Critical
     UPRIORITY_CS6 = 7 [(uprotocol.ce_name) = "CS6"];
+}
+
+// The format for the data stored in the UMessage.
+enum UPayloadFormat {
+    // Payload format was not is not set,
+    // per specification, assumption is UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
+    UPAYLOAD_FORMAT_UNSPECIFIED = 0;
+
+    // Payload is an Any protobuf message that contains the packed payload
+    UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
+
+    // Protobuf serialization format
+    UPAYLOAD_FORMAT_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
+
+    // JSON serialization format
+    UPAYLOAD_FORMAT_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
+
+    // Basic SOME/IP serialization format
+    UPAYLOAD_FORMAT_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
+
+    // SOME/IP TLV format
+    UPAYLOAD_FORMAT_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
+
+    // RAW (binary) format
+    UPAYLOAD_FORMAT_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
+
+    // Text format
+    UPAYLOAD_FORMAT_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
+
+    // Shared memory format
+    UPAYLOAD_FORMAT_SHM = 8 [ (uprotocol.mime_type) = "application/x-shm" ];
 }
