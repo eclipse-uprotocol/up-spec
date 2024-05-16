@@ -1,4 +1,4 @@
-= Transport & Session Layer (uP-L1) Specifications
+= Transport & Session Layer (uP-L1)
 :toc:
 :sectnums:
 
@@ -25,8 +25,28 @@ This specification defines the transport layer's abstract API which is mapped to
 
 The Transport Layer API is defined using UML2 notation.
 
-NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
 
+class UTransport {
+  <<interface>>
+  send(message : UMessage)
+  receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) UMessage
+  registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+  unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+}
+
+class UListener {
+  <<interface>>
+  onReceive(message : UMessage)
+}
+
+UTransport ..> UListener
+----
+
+NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
 
 == UListener
 
@@ -34,15 +54,14 @@ A uEntity registers a `UListener` with the transport in order to process (incomi
 
 === OnReceive
 
-A transport invokes this method for each newly arrived message that matches the criteria specified as part of <<_registerlistener,registering the listener>>.
+A transport invokes this method for each newly arrived message that matches the criteria specified as part of <<register-listener,registering the listener>>.
 
 [source]
 ----
-onReceive(message: UMessage) : Void
+onReceive(message: UMessage)
 ----
 
-==== Parameters
-.OnReceive Parameters
+.onReceive Parameters
 [width="100%",cols="15%,15%,70%"]
 |===
 |Parameter | Type | Description
@@ -53,18 +72,31 @@ onReceive(message: UMessage) : Void
 
 |===
 
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+participant L as listener:UListener
+participant T as transport:UTransport
+
+T-)L : onReceive(UMessage)
+activate L
+deactivate L
+----
 
 == UTransport
 
 This is the main entry point into a transport's messaging functionality.
 
+[#send]
 === Send
 
 Clients use this method to transmit a single message.
 
 [source]
 ----
-send(message: UMessage) : Future<Void>
+send(message: UMessage)
 ----
 
 .Send Parameters
@@ -75,40 +107,103 @@ send(message: UMessage) : Future<Void>
 | message
 | link:../basics/umessage.adoc[UMessage]
 | The message to send.
-
-| result
-| Future<Void>
-| A succeeded future if the message has been sent successfully. This means that the underlying messaging infrastructure has accepted the message for delivery. It does *not* (necessarily) mean that the message has reached its destination (yet). +
-Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
+The successful completion of this method means that the given message has been handed over to the underyling communication protocol's message delivery mechanism. For a hub-and-spoke based communication protocol like MQTT, this typically means that the MQTT PUBLISH packet containing the message has been accepted by the broker from where the message remains to be retrieved by potential recipients. For a peer-to-peer based protocol like HTTP, this typically means that the peer's HTTP endpoint has processed the HTTP request containing the message. Based on that, a client using this method should not assume that the given message has already reached its destination nor that it has already been processed once the method has completed successfully.
 
- In such cases, a uProtocol message's UAttributes might be mapped to the 
+On the other hand, unsuccessful completion of this method does not necessarily mean that the given message has not been sent at all. In such a case, clients should use the returned error to determine, if another attempt to send the message is feasible or not. For example, if the initial attempt to send the message has failed with a `UCode.INVALID_ARGUMENT`, then trying to send the same unaltered message again will most likely yield the same result. However, if the initial attempt failed with a `UCode.UNAVAILABLE`, then resending the message using some back-off mechanism will likely succeed eventually.
 
- successfully send and receive that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
+NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
-Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
+UTransport implementations
 
-For example, if HartleyTransport can map only UPriority to its PDU header, then HartleyTransport would define a PDU payload type that includes UPayload and all the other UAttributes and send that new type in its PDU payload such that the receiver will not lose any metadata. 
+* *MUST* preserve all of the message's meta data and payload during transmission
 
-Implementations
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
 
-* *MUST* preserve all of the message's meta data during transmission
-* *MUST* preserve the message's payload during transmission
+actor C as Client
+participant T as transport:UTransport
 
-=== RegisterListener
+C->>T : send(UMessage)
+activate T
+opt error while sending
+Note right of T: message may or may<br>not have been sent
+T--)C : error : Ustatus
+end
+deactivate T
+----
 
-Clients use this method to register a listener for messages matching given filter criteria.
-This API is used to implement the _push_ <<Delivery Method>> for the underlying messaging infrastructure.
-After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
+[#receive]
+=== Receive
+
+Clients use this method to receive a single message matching given filter criteria.
 
 [source]
 ----
-registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener) : Future<Void>
+receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
 ----
 
-.RegisterListener Parameters
+.Receive Parameters
 [width="100%",cols="15%,25%,60%"]
+|===
+|Parameter | Type | Description
+
+| sourceFilter
+| link:../basics/uri.adoc[UUri]
+| The _source_ address pattern that messages need to match.
+
+| sinkFilter
+| link:../basics/uri.adoc[UUri]
+| The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
+
+| result
+| UMessage
+| The least recent message that matches the given filter criteria and has not expired yet.
+
+|===
+
+This method implements the _pull_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
+
+UTransport implementations
+
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
+* *MUST* fail with a `UCode.NOT_FOUND` if there are no matching messages available
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as transport:UTransport
+
+C->>T : receive(UUri, UUri)
+activate T
+alt pull not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else no message available
+T--)C : error : UStatus(UCode.NOT_FOUND)
+else
+T--)C : matching message : UMessage
+end
+deactivate T
+----
+
+[#register-listener]
+=== RegisterListener
+
+Clients use this method to register a listener for messages matching given filter criteria.
+
+[source]
+----
+registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+----
+
+.registerListener Parameters
+[width="100%",cols="15%,15%,70%"]
 |===
 |Parameter | Type | Description
 
@@ -123,29 +218,51 @@ registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListene
 | listener
 | <<UListener>>
 | The listener to be registered.
-
-| result
-| Future<Void>
-| A succeeded future if the listener has been registered successfully. +
-Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
-Implementations
+This API is used to implement the _push_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
+After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
 
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<Delivery Method>>. In that case, the <<_unregisterlistener>> method *MUST* also fail accordingly.
+UTransport implementations
+
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
+* *MUST* fail with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
 * *MUST* support registering more than one listener for any given address patterns
 * *MUST* support registering the same listener for multiple address patterns
 * *MUST* document the maximum supported number of listeners per address pattern.
-* *MUST* fail with a `UCode::RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
 
+.Registering a Listener
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as transport:UTransport
+
+C->>T : register(UUri, UUri, UListener)
+activate T
+opt error
+alt push not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else max listeners exceeded
+T--)C : error : UStatus(UCode.RESOURCE_EXHAUSTED)
+else other
+T--)C : error : UStatus
+end
+end
+deactivate T
+----
+
+[#unregister-listener]
 === UnregisterListener
 
 Clients use this method to unregister a previously registered listener.
-The listener will no longer be called for any (matching) messages after this method has returned successfully.
+After this method has returned successfully, the listener will no longer be invoked for any (matching) messages.
 
 [source]
 ----
-unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener) : Future<Void>
+unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
 ----
 
 .RegisterListener Parameters
@@ -164,68 +281,43 @@ unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListe
 | listener
 | <<UListener>>
 | The listener to be unregistered.
-
-| result
-| Future<Void>
-| A succeeded future if the listener has been unregistered successfully. +
-Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
-Implementations
+UTransport implementations
 
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<Delivery Method>>. In that case, the <<_registerlistener>> method *MUST* also fail accordingly.
-* *MUST* fail with a `UCode::NOT_FOUND`, if no such listener had been registered before
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
+* *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
 
-=== Receive
-
-Clients use this method to receive a single message matching given filter criteria.
-This method implements the _pull_ <<Delivery Method>> for the underlying messaging infrastructure.
-
-[source]
+.Unregistering a Listener
+[mermaid]
+ifdef::env-github[[source,mermaid]]
 ----
-receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : Future<UMessage>
+sequenceDiagram
+
+actor C as Client
+participant T as transport:UTransport
+
+C->>T : unregister(UUri, UUri, UListener)
+activate T
+opt error
+alt push not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else no such listener
+T--)C : error : UStatus(UCode.NOT_FOUND)
+else other
+T--)C : error : UStatus
+end
+end
+deactivate T
 ----
 
-.Receive Parameters
-[width="100%",cols="15%,25%,60%"]
-|===
-|Parameter | Type | Description
+[#delivery-method]
+== Message Delivery
 
-| sourceFilter
-| link:../basics/uri.adoc[UUri]
-| The _source_ address pattern that messages need to match.
+Transport API implementations
 
-| sinkFilter
-| link:../basics/uri.adoc[UUri]
-| The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
-
-| result
-| Future<UMessage>
-| A succeeded future containing the least recent message that matches the given filter criteria and has not expired yet. +
-Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
-
-|===
-
-Implementations
-
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _pull_ <<Delivery Method>>
-* *MUST* fail with a `UCode::NOT_FOUND` if there are no matching messages available
-
-=== Message Delivery
-
-==== Policy
-
-* uTransport `send()` API *MUST* support, meaning the caller of this API is guaranteed the message was successfully delivered to the next-hop only. End-2-end delivery, when messages are sent across multiple transports, is *not* guaranteed by the transport layer
-* Transport *MUST* support retransmission of messages that are no able to be delivered to the next-hop
-
-If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
-
-* *MUST* use Transmission Control Protocols (TCP) and *SHOULD NOT* User Datagram Protocol (UDP) for message delivery, this is to ensure https://www.cloudcomputingpatterns.org/at_least_once_delivery/[At-least-once delivery] of messages
-
-==== Delivery Method
-
-* Transport API implementations *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
-* Transport API implementations *MUST* document the delivery methods they support
+* *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
+* *MUST* document the delivery methods they support
 
 == Communication Protocol Binding
 
@@ -247,9 +339,7 @@ Each uProtocol Client *MUST* employ exactly one of these bindings for implementi
 
 Additional bindings *MAY* be defined in future versions of uProtocol.
 
-A binding *MAY* employ link:https://cloudevents.io/[CloudEvents] as a means to map uProtocol messages to the communication protocol's PDU. In order to provide for consistency across implementations, such bindings *MUST* adhere to
-
-* link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
+A binding *MAY* employ link:https://cloudevents.io/[CloudEvents] as a means to map uProtocol messages to the communication protocol's PDU. In order to provide for consistency across implementations, such bindings *MUST* adhere to link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
 
 
 
