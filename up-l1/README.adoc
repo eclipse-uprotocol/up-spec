@@ -23,21 +23,7 @@ The purpose of this layer of uProtocol is to define a common API for sending and
 
 This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's link:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by link:../upclient.adoc[uProtocol Client libraries].
 
-The Transport Layer API is defined by means of pseudo code using the following terminology:
-
-.API Definition Terminology
-[width="80%",cols="20%,80%"]
-|===
-|Term | Description
-
-| `IN` | Input parameter
-| `OUT`| Output parameter
-| `&` | Parameter passed by reference
-| `?` | Parameter is optional
-| `Future<T, E>` | Language specific mechanism to access the result of asynchronous operations, e.g. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java etc. +
-`T` is the type of the operation's successful outcome. `E` is the type of the operation's erroneous outcome.
-
-|===
+The Transport Layer API is defined using UML2 notation.
 
 NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
 
@@ -51,7 +37,7 @@ A transport invokes this method for each newly arrived message that matches the 
 
 [source]
 ----
-onReceive(IN message: UMessage&)
+onReceive(message: UMessage) : Void
 ----
 
 ==== Parameters
@@ -77,9 +63,7 @@ Clients use this method to transmit a single message.
 
 [source]
 ----
-send(
-  IN message: UMessage&,
-  OUT result: Future<Void, UStatus>
+send(message: UMessage) : Future<Void>
 )
 ----
 
@@ -93,22 +77,19 @@ send(
 | The message to send.
 
 | result
-| Future<Void, link:../basics/error_model.adoc[UStatus]>
-| A succeeded future if the message has been sent successfully. +
-Otherwise, a failed future containing a `UStatus` indicating the reason for the failure.
+| Future<Void>
+| A succeeded future if the message has been sent successfully. This means that the underlying messaging infrastructure has accepted the message for delivery. It does *not* (necessarily) mean that the message has reached its destination (yet). +
+Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
 Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
-For example, if HartleyTransport can map only UPriority to its PDU header, then HartleyTransport would define a PDU payload type that includes UPayload and all the other UAttributes and send that new type in its PDU payload such that the receiver will not loose any metadata. 
+For example, if HartleyTransport can map only UPriority to its PDU header, then HartleyTransport would define a PDU payload type that includes UPayload and all the other UAttributes and send that new type in its PDU payload such that the receiver will not lose any metadata. 
 
-[oft-sid="req~utransport-send~1"]
---
 Implementations
 
 * *MUST* preserve all of the message's meta data during transmission
 * *MUST* preserve the message's payload during transmission
---
 
 === RegisterListener
 
@@ -118,12 +99,7 @@ After this method has completed successfully, the given listener will be invoked
 
 [source]
 ----
-registerListener(
-  IN sourceFilter: UUri,
-  IN sinkFilter: UUri?,
-  IN listener: UListener&,
-  OUT result: Future<Void, UStatus>
-)
+registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener) : Future<Void>
 ----
 
 .RegisterListener Parameters
@@ -144,20 +120,18 @@ registerListener(
 | The listener to be registered.
 
 | result
-| Future<Void, link:../basics/error_model.adoc[UStatus]>
+| Future<Void>
 | A succeeded future if the listener has been registered successfully. +
-Otherwise, a failed future containing a `UStatus` indicating the reason for the failure.
+Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
-[oft-sid="req~utransport-register-listener~1"]
---
 Implementations
 
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<_delivery_method>>. In that case, the <<_unregisterlistener>> method *MUST* also fail accordingly.
 * *MUST* support registering more than one listener for any given address patterns
 * *MUST* support registering the same listener for multiple address patterns
 * *MUST* document the maximum supported number of listeners per address pattern.
 * *MUST* fail with a `UCode::RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
---
 
 === UnregisterListener
 
@@ -166,12 +140,7 @@ The listener will no longer be called for any (matching) messages after this met
 
 [source]
 ----
-unregisterListener(
-  IN sourceFilter: UUri,
-  IN sinkFilter: UUri?,
-  IN listener: UListener&,
-  OUT result: Future<Void, UStatus>
-)
+unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener) : Future<Void>
 ----
 
 .RegisterListener Parameters
@@ -192,11 +161,15 @@ unregisterListener(
 | The listener to be unregistered.
 
 | result
-| Future<Void, link:../basics/error_model.adoc[UStatus]>
+| Future<Void>
 | A succeeded future if the listener has been unregistered successfully. +
-Otherwise, a failed future containing a `UStatus` indicating the reason for the failure.
+Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
 
+Implementations
+
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<_delivery_method>>. In that case, the <<_registerlistener>> method *MUST* also fail accordingly.
+* *MUST* fail with a `UCode::NOT_FOUND`, if no such listener had been registered before
 
 === Receive
 
@@ -205,11 +178,7 @@ This method implements the _pull_ <<Delivery Method>> for the underlying messagi
 
 [source]
 ----
-receive(
-  IN sourceFilter: UUri,
-  IN sinkFilter: UUri?,
-  OUT result: Future<UMessage&, UStatus>
-)
+receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : Future<UMessage>
 ----
 
 .Receive Parameters
@@ -226,18 +195,16 @@ receive(
 | The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
 
 | result
-| Future<Void, link:../basics/error_model.adoc[UStatus]>
+| Future<UMessage>
 | A succeeded future containing the least recent message that matches the given filter criteria and has not expired yet. +
-A failed future if no message can be retrieved from the messaging infrastructure. The `UStatus` will contain a `UCode` indicating the reason for the failure.
+Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 
 |===
 
-[oft-sid="req~utransport-register-listener~1"]
---
 Implementations
 
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _pull_ <<_delivery_method>>
 * *MUST* fail with a `UCode::NOT_FOUND` if there are no matching messages available
---
 
 === Message Delivery
 
@@ -252,13 +219,8 @@ If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OS
 
 ==== Delivery Method
 
-* Transport *MUST* support either _push_ or _pull_ delivery method
-* *MAY* support both _push_ or _pull_ delivery methods between uEs
-* Delivery method *SHOULD* be known by uEs at design time
-* Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
-
-NOTE: Delivery method advertising shall be defined later
-
+* Transport API implementations *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
+* Transport API implementations *MUST* document the delivery methods they support
 
 == Transport Specifics
 
