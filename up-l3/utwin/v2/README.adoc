@@ -114,7 +114,7 @@ A uE calls this API to retrieve the last uMessages for a given set of topics. Wh
 
 *API: `rpc SetLastMessage(uprotocol.v1.UMessage) returns (uprotocol.v1.UStatus)`*
 
-A call to SetLasMessage (typically from uBus) to update the uTwin internal cache with a message for a given topic (UMessage.source). Return value status.Code is one of:
+A call to SetLastMessage (typically from a dispatcher) to update the uTwin internal cache with a message for a given topic (UMessage.source). Return value status.Code is one of:
 - OK if UMessage was successfully stored in uTwin
 - INVALID argument if uTwin encountered an issue with UMessage content (source field in particular)
 - PERMISSION_DENIED if requesting uE does not have permission to access the Topic
