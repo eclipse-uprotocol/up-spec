@@ -155,6 +155,11 @@ a|A code indicating an error that has occurred during the delivery of either an 
 |String
 |A tracing identifier to use for correlating messages across the system.
 
+|`payload_format`
+|`pformat`
+|Integer
+|The value of the UPayloadFormat that is used to indicate the encoding of the payload
+
 |===
 
 [#ce-formats]
