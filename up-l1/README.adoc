@@ -27,6 +27,7 @@ The Transport Layer API is defined using UML2 notation.
 
 NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
 
+
 == UListener
 
 A uEntity registers a `UListener` with the transport in order to process (incoming) messages that are of interest to the uEntity.
@@ -64,7 +65,6 @@ Clients use this method to transmit a single message.
 [source]
 ----
 send(message: UMessage) : Future<Void>
-)
 ----
 
 .Send Parameters
@@ -81,6 +81,11 @@ send(message: UMessage) : Future<Void>
 | A succeeded future if the message has been sent successfully. This means that the underlying messaging infrastructure has accepted the message for delivery. It does *not* (necessarily) mean that the message has reached its destination (yet). +
 Otherwise, a failed future which contains a `UCode` indicating the reason for the failure.
 |===
+
+
+ In such cases, a uProtocol message's UAttributes might be mapped to the 
+
+ successfully send and receive that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
 Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
 
@@ -127,7 +132,7 @@ Otherwise, a failed future which contains a `UCode` indicating the reason for th
 
 Implementations
 
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<_delivery_method>>. In that case, the <<_unregisterlistener>> method *MUST* also fail accordingly.
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<Delivery Method>>. In that case, the <<_unregisterlistener>> method *MUST* also fail accordingly.
 * *MUST* support registering more than one listener for any given address patterns
 * *MUST* support registering the same listener for multiple address patterns
 * *MUST* document the maximum supported number of listeners per address pattern.
@@ -168,7 +173,7 @@ Otherwise, a failed future which contains a `UCode` indicating the reason for th
 
 Implementations
 
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<_delivery_method>>. In that case, the <<_registerlistener>> method *MUST* also fail accordingly.
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _push_ <<Delivery Method>>. In that case, the <<_registerlistener>> method *MUST* also fail accordingly.
 * *MUST* fail with a `UCode::NOT_FOUND`, if no such listener had been registered before
 
 === Receive
@@ -203,7 +208,7 @@ Otherwise, a failed future which contains a `UCode` indicating the reason for th
 
 Implementations
 
-* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _pull_ <<_delivery_method>>
+* *MAY* fail invocations with a `UCode::UNIMPLEMENTED` if the transport does not support the _pull_ <<Delivery Method>>
 * *MUST* fail with a `UCode::NOT_FOUND` if there are no matching messages available
 
 === Message Delivery
@@ -222,9 +227,13 @@ If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OS
 * Transport API implementations *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
 * Transport API implementations *MUST* document the delivery methods they support
 
-== Transport Specifics
+== Communication Protocol Binding
 
-Below is an non-exhaustive list of transport specific requirements to ensure consistency across implementations of the same or different languages:
+Communication protocols like MQTT, HTTP define a specific Protocol Data Unit (PDU) for conveying control information and user data. A uProtocol Client implements the Transport Layer API defined above on top of such a communication protocol.
+
+A _communication protocol binding_ defines how the uProtocol Transport Layer API maps to the communication protocol's message exchange pattern(s) and how uProtocol messages are mapped to the protocol's PDU. Many communication protocols distinguish between a message's metadata and the (raw) payload. This is often reflected by the structure of the protocol's PDU. For example, HTTP supports _header_ fields and a _body_ which can be used to convey a uProtocol message's attributes and payload respectively.
+
+uProtocol defines bindings to the following communication protocols:
 
 * link:binder.adoc[*Android Binder*]
 * link:zenoh.adoc[*Eclipse Zenoh*]
@@ -234,6 +243,13 @@ Below is an non-exhaustive list of transport specific requirements to ensure con
 * link:http.adoc[*HTTP*]
 * link:someip/README.adoc[*SOME/IP*]
 
-Implementers of `UTransport` *MAY* choose to employ link:https://cloudevents.io/[CloudEvents] as a means to map UMessages to the underlying transport's Packet Data Unit (PDU). In order to provide for consistency across implementations, such transport implementations *MUST* adhere to
+Each uProtocol Client *MUST* employ exactly one of these bindings for implementing the Transport Layer API.
+
+Additional bindings *MAY* be defined in future versions of uProtocol.
+
+A binding *MAY* employ link:https://cloudevents.io/[CloudEvents] as a means to map uProtocol messages to the communication protocol's PDU. In order to provide for consistency across implementations, such bindings *MUST* adhere to
 
 * link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
+
+
+
