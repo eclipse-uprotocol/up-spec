@@ -17,9 +17,9 @@ package uprotocol.core.usubscription.v3;
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
-import "ustatus.proto";
-import "uri.proto";
-import "uoptions.proto";
+import "v1/ustatus.proto";
+import "v1/uri.proto";
+import "v1/uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.core.usubscription.v3";
 option java_outer_classname = "USubscriptionProto";

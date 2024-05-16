@@ -64,14 +64,23 @@ extend google.protobuf.EnumValueOptions {
 
 // the following is used to declare service level topics, what a service publishes
 message UServiceTopic {
-  // The topic id. <br>
+  // The topic identifier.
   // * *MUST* be unique within the uService scope
-  // * *MUST* start at 0x8000h
+  // * *MUST* be in the 0x8000h-0xFFFFh range
   uint32 id = 1;
 
-  // Topic name represented as a string
+  // Topic name represented as a string. <br>
+  // - *MUST* be unique within the containing service scope
   string name = 2;
 
-  // Name of the protobuf.Message
+  // URL/resource name that uniquely identifies the type of the
+  // protocol buffer message. This string must contain at least
+  // one "/" character. The last segment of the URL's path must represent
+  // the fully qualified name of the type (ex. 
+  // `/org.eclipse.uprotocol.core.usubscription.v3.SubscriptionRequest`.
+  // The name should be in a canonical form (e.g., leading "." is not accepted).
   string message = 3;
+
+  // Code Access Permission (CAP) Level for said topic
+  uint32 permission_level = 4;
 }

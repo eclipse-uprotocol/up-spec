@@ -15,10 +15,10 @@ syntax = "proto3";
 
 package uprotocol.v1;
 
-import "uri.proto";
-import "uuid.proto";
-import "ustatus.proto";
-import "uoptions.proto";
+import "v1/uri.proto";
+import "v1/uuid.proto";
+import "v1/ustatus.proto";
+import "v1/uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.v1";
 option java_outer_classname = "UAttributesProto";
@@ -129,26 +129,26 @@ enum UPayloadFormat {
     UPAYLOAD_FORMAT_UNSPECIFIED = 0;
 
     // Payload is an Any protobuf message that contains the packed payload
-    UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.mime_type) = "application/x-protobuf" ];
+    UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY = 1 [ (uprotocol.v1.mime_type) = "application/x-protobuf" ];
 
     // Protobuf serialization format
-    UPAYLOAD_FORMAT_PROTOBUF = 2 [ (uprotocol.mime_type) = "application/protobuf" ];
+    UPAYLOAD_FORMAT_PROTOBUF = 2 [ (uprotocol.v1.mime_type) = "application/protobuf" ];
 
     // JSON serialization format
-    UPAYLOAD_FORMAT_JSON = 3 [ (uprotocol.mime_type) = "application/json" ];
+    UPAYLOAD_FORMAT_JSON = 3 [ (uprotocol.v1.mime_type) = "application/json" ];
 
     // Basic SOME/IP serialization format
-    UPAYLOAD_FORMAT_SOMEIP = 4 [ (uprotocol.mime_type) = "application/x-someip" ];
+    UPAYLOAD_FORMAT_SOMEIP = 4 [ (uprotocol.v1.mime_type) = "application/x-someip" ];
 
     // SOME/IP TLV format
-    UPAYLOAD_FORMAT_SOMEIP_TLV = 5 [ (uprotocol.mime_type) = "application/x-someip_tlv" ];
+    UPAYLOAD_FORMAT_SOMEIP_TLV = 5 [ (uprotocol.v1.mime_type) = "application/x-someip_tlv" ];
 
     // RAW (binary) format
-    UPAYLOAD_FORMAT_RAW = 6 [ (uprotocol.mime_type) = "application/octet-stream" ];
+    UPAYLOAD_FORMAT_RAW = 6 [ (uprotocol.v1.mime_type) = "application/octet-stream" ];
 
     // Text format
-    UPAYLOAD_FORMAT_TEXT = 7 [ (uprotocol.mime_type) = "text/plain" ];
+    UPAYLOAD_FORMAT_TEXT = 7 [ (uprotocol.v1.mime_type) = "text/plain" ];
 
     // Shared memory format
-    UPAYLOAD_FORMAT_SHM = 8 [ (uprotocol.mime_type) = "application/x-shm" ];
+    UPAYLOAD_FORMAT_SHM = 8 [ (uprotocol.v1.mime_type) = "application/x-shm" ];
 }
