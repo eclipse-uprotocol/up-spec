@@ -157,7 +157,7 @@ receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
 
 | sinkFilter
 | link:../basics/uri.adoc[UUri]
-| The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
+| The _sink_ address pattern that messages need to match. If omitted, a message **MUST NOT** contain any sink address in order to match.
 
 | result
 | UMessage
