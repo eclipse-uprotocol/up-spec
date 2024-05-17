@@ -20,13 +20,30 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-uPClient library is the application facing library that uEs use to communicate to a given implementation of uProtocol (ex. up-android, up-zenoh, etc...). The library contains a transport specific implementation of the link:up-l1/README.adoc[uTransport], and link:up-l2/rpcclient.adoc[RpcClient] interfaces declared in link:languages.adoc[uProtocol Language Specific Library Specifications]. The library also includes implementation specific client-side implementations of the core uServices uDiscovery, uTwin, and uSubscription.
+A uProtocol Client library is the application facing library that uEntities use to interact with other uEntities. The library contains a programming language and transport protocol specific implementation of the low level link:up-l1/README.adoc[Transport Layer API] and the link:up-l2/rpcclient.adoc[Communication Layer API]. The library also includes implementation specific client-side implementations of the core uServices uDiscovery, uTwin, and uSubscription.
 
 == Requirements
 
-* *MUST* implement the uProtocol uP-L1 & uP-L2 protocol specific interfaces link:up-l1/README.adoc[uTransport], and link:up-l2/rpcclient.adoc[RpcClient]
-* *MUST* implement (client-side) uProtocol uP-L3 core uService interfaces link:up-l3/usubscription/v3/README.adoc[uSubscription], link:up-l3/utwin/v3/README.adoc[uTwin], and link:up-l3/udiscovery/v3/README.adoc[uDiscovery]
-* *MUST* Follow the naming convention `up-client-[IMPLEMENTATION]-[LANGUAGE]` 
+Each uProtocol Client library
+[oft-sid="req~up-client-transport-api~1"]
+--
+* *MUST* provide an implementation of the link:up-l1/README.adoc[uProtocol Transport Layer API].
+--
+
+[oft-sid="req~up-client-comm-api~1"]
+--
+* *MUST* provide an implementation of the link:up-l2/rpcclient.adoc[uProtocol Communication Layer API].
+--
+
+[oft-sid="req~up-client-app-api~1"]
+--
+* *MUST* provide an implementation of the link:up-l3/README.adoc[uProtocol Application Layer API].
+--
+
+[oft-sid="req~up-client-naming~1"]
+--
+* *MUST* be named according to pattern `up-client-[TRANSPORT]-[LANGUAGE]`
+--
 
 == Class Diagram
 <<up-client>> below illustrates how the upClient implements the interfaces that are declared in the language libraries.

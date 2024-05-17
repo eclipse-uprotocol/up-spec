@@ -1,4 +1,4 @@
-= Transport & Session Layer (uP-L1) Specifications
+= Transport & Session Layer (uP-L1)
 :toc:
 :sectnums:
 
@@ -18,198 +18,314 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-IMPORTANT: This specification is a work in progress and needs to be updated to uProtocol 1.5 (uAttributes, uPayload, , etc...)
+The Transport & Session Layer is responsible for bidirectional point-2-point communication between uEntities (uE). 
+The purpose of this layer of uProtocol is to define a common API for sending and receiving messages across different transport protocols like Eclipse Zenoh, MQTT 5 or Android Binder, runtime environments like Android, Linux or MCUs, and programming languages like Java, Rust, Python or C/C++.
 
+This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's link:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by link:../upclient.adoc[uProtocol Client libraries].
 
-Transport & Session Layer is responsible for bidirectional point-2-point communication between uEs. What gets sent between uEs vary considerably depending on the type of payload (Safety, Security, fire & forget, etc...) as well as the deployment environment where the uEs are located (Android, Linux, MCU, etc...). 
+The Transport Layer API is defined using UML2 notation.
 
-The Purpose of this layer of the protocol is to define a common ubiquitous language for sending and receiving a messages in a common way across transports, heterogeneous system the uEs are deployed on, or the programming language used. 
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
 
-This specification shall define the data models (types) and interfaces.
+class UTransport {
+  <<interface>>
+  send(message : UMessage)
+  receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) UMessage
+  registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+  unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+}
 
-uProtocol programming language specific libraries (SDKs) declare the transport layer interfaces and define the data model, while transport technologies (ex. Binder, MQTT, Zenoh, SOME/IP, DDS, HTTP, etc...) implement said interfaces per language. 
+class UListener {
+  <<interface>>
+  onReceive(message : UMessage)
+}
 
-NOTE: We will define the various interfaces in this specification using pseudo code in lieu of a particular IDL such as protobuf as we expect the implementations of this spec to vary slightly between languages. 
+UTransport ..> UListener
+----
 
-We will use the following terminology during this document:
-
-.API Definition Terminology
-[width="80%",cols="20%,80%"]
-|===
-|Term | Description
-
-| `IN` | Input parameter
-| `OUT`| Output parameter
-| `IN/OUT` | Input/output parameter
-| `&` | Parameter passed by reference
-| `Future` | Language specific mechanism to access the result of asynchronous operations, ex. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java, etc...
-
-|===
-
- * <<UStatus>> is defined in link:../basics/error_model.adoc[uProtocol Error Model]
-
-
-NOTE: uProtocol data model used by the uTransport interface are declared in https://github.com/eclipse-uprotocol/up-core-api[up-core-api]
+NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
 
 == UListener
 
-`UListener` is an interface used for receiving messages by the client uE from the uTransport layer. Listeners are used for receiving messages asynchronously by the uTransport layer.  
+A uEntity registers a `UListener` with the transport in order to process (incoming) messages that are of interest to the uEntity.
 
-  * Type name *MUST* be `UListener`
-  * *MUST* contain the method `void onReceive(UMessage&)` that is called by the Transport to notify (callback) the client
+=== OnReceive
 
+A transport invokes this method for each newly arrived message that matches the criteria specified as part of <<register-listener,registering the listener>>.
+
+[source]
+----
+onReceive(message: UMessage)
+----
+
+.onReceive Parameters
+[width="100%",cols="15%,15%,70%"]
+|===
+|Parameter | Type | Description
+
+| message
+| link:../basics/umessage.adoc[UMessage]
+| The newly received message.
+
+|===
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+participant L as listener:UListener
+participant T as transport:UTransport
+
+T-)L : onReceive(UMessage)
+activate L
+deactivate L
+----
 
 == UTransport
 
-The transport layer API responsible for point-2-point communication. The interface provides common functionality across all transport implementations.
+This is the main entry point into a transport's messaging functionality.
 
-* *MUST* implement all APIs defined in this section
+[#send]
+=== Send
 
-=== Send()
+Clients use this method to transmit a single message.
 
-Transmit a UMessage.  
+[source]
+----
+send(message: UMessage)
+----
 
-
-Communication protocols (a.k.a. uProtocol Transports) define their own Protocol Data Unit (PDU) that comprises of header and payload. Some transports header parameters map already to uProtocol UAttributes. Sending UAttributes in the transport's payload as well as in the header increases overhead for little to no gain. To address this issue,  <<Send()>> allows flexibility for uTransport implementers to define however they see fit what gets mapped into their transport header vs payload. 
-
-For example, if HartleyTransport can map only UPriority to its PDU header, then HartleyTransport would define a PDU payload type that includes UPayload and all the other UAttributes and send that new type in its PDU payload such that the receiver will not loose any metadata. 
-
-The API signature:
-
-`OUT UStatus send(UMessage&)`
-
-==== Parameters
 .Send Parameters
-[width="100%",cols="20%,80%"]
+[width="100%",cols="15%,25%,60%"]
 |===
-|Parameter | Description
+|Parameter | Type | Description
 
-| UMessage
-
-| UProtocol message containing the header (UAttributes) and payload (UPayload)
-
- * *MUST* be passed by reference
-
+| message
+| link:../basics/umessage.adoc[UMessage]
+| The message to send.
 |===
 
-* All UMessage attributes metadata *MUST* be preserved during transmission and available to the receiver
-* *MUST* not manipulate the UMessage payload during transmission
-* *MUST* pass UUris for which `isMicroForm()` return true
-* *SHOULD* pass Resolved UUris (contains both names and numbers)
+The successful completion of this method means that the given message has been handed over to the underyling communication protocol's message delivery mechanism. For a hub-and-spoke based communication protocol like MQTT, this typically means that the `send` method implementation has received the MQTT `PUBACK` packet, which indicates that the message has been transferred successfully to the broker from where the message remains to be retrieved by potential recipients. For a peer-to-peer based protocol like HTTP, this typically means that the `send` method implementation has received the peer's HTTP response message, which indicates that the message has been transferred successfully to the peer's HTTP endpoint. Based on that, a client using this method should not assume that the given message has already reached its destination nor that it has already been processed once the method has completed successfully.
 
+On the other hand, unsuccessful completion of this method does not necessarily mean that the given message has not been sent at all. For example, an MQTT based implementation might lose its connection to the MQTT broker _after_ it has sent its MQTT `PUBLISH` packet but _before_ it has received the broker's `PUBACK`. In such a case, clients should use the returned error to determine, if another attempt to send the message is feasible or not. For example, if the initial attempt to send the message has failed with a `UCode.INVALID_ARGUMENT`, then trying to send the same unaltered message again will most likely yield the same result. However, if the initial attempt failed with a `UCode.UNAVAILABLE`, then resending the message using some back-off mechanism will likely succeed eventually.
 
+NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
-=== RegisterListener()
+UTransport implementations
 
-Register a UListener to receive message(s) for a given UUri (topic). This API is used to implement the _push_ <<Delivery Method>>.
+* *MUST* preserve all of the message's meta data and payload during transmission
 
-API Signature: 
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
 
-`OUT UStatus registerListener(IN UUri, IN UListener&)`
+actor C as Client
+participant T as transport:UTransport
 
+C->>T : send(UMessage)
+activate T
+opt error while sending
+Note right of T: message may or may<br>not have been sent
+T--)C : error : Ustatus
+end
+deactivate T
+----
 
- * *MUST* support registering more than one listener per topic
- * *MUST* support registering more than one topic per listener
- * Transport implementations *MUST* declare the maximum number of listeners per topic that it can support. If the maximum number of listeners is reached, the transport *MUST* return `RESOURCE_EXHAUSTED` status code
-* *MUST* pass a UUri for which `isMicroForm()` returns true
-* *SHOULD* pass a Resolved UUri (contains both names and numbers)
+[#receive]
+=== Receive
 
+Clients use this method to receive a single message matching given filter criteria.
 
-==== Parameters
-.RegisterListener Parameters
-[width="100%",cols="20%,80%"]
-|===
-|Parameter | Description
+[source]
+----
+receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
+----
 
-| UUri
-| Topic to register the listener for
-
-| <<UListener>>
-| Listener to be registered
-
-|===
-
-
-=== UnregisterListener()
-
-API used to unregister a <<UListener>> for a given topic.
-
-API Signature: 
-
-`OUT <<UStatus>> unregisterListener(IN UUri, IN <<UListener>>&)`
-
-==== Parameters
-.UnregisterListener Parameters
-[width="70%",cols="20%,80%"]
-|===
-|Parameter | Description
-
-| UUri
-| Topic to unregister the listener for
-
-| <<UListener>>
-| Listener to be unregistered
-
-|===
-
-* *MUST* pass a UUri for which `isMicroForm()` returns true
-* *SHOULD* pass a Resolved UUri (contains both names and numbers)
-
-
-=== Receive()
-
-Implements the _pull_ <<Delivery Method>> to fetch a message from the transport for a given UUri (topic).
-
-`OUT <<UStatus>> receive(IN UUri, OUT UPayload&, OUT UAttributes&)`
-
-==== Parameters
 .Receive Parameters
-[width="100%",cols="20%,80%"]
+[width="100%",cols="15%,25%,60%"]
 |===
-|Parameter | Description
+|Parameter | Type | Description
 
-| UUri
-| Topic to receive the message from
+| sourceFilter
+| link:../basics/uri.adoc[UUri]
+| The _source_ address pattern that messages need to match.
 
-| UPayload
-a| Data and metadata received
+| sinkFilter
+| link:../basics/uri.adoc[UUri]
+| The _sink_ address pattern that messages need to match. If omitted, a message **MUST NOT** contain any sink address in order to match.
 
- * *MUST* be passed by reference
-
-| UAttributes
-a| Message metadata
-
- * *MUST* be passed by reference
+| result
+| UMessage
+| The least recent message that matches the given filter criteria and has not expired yet.
 
 |===
 
- * *MUST* return `NOT_FOUND` if there are no messages for the given topic
+This method implements the _pull_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 
+UTransport implementations
 
-=== Message Delivery
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
+* *MUST* fail with a `UCode.NOT_FOUND` if there are no matching messages available
 
-==== Policy
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
 
-* uTransport `send()` API *MUST* support , meaning the caller of this API is guaranteed the message was successfully delivered to the next-hop only. End-2-end delivery, when messages are sent across multiple transports, is *not* guaranteed by the transport layer
-* Transport *MUST* support retransmission of messages that are no able to be delivered to the next-hop
+actor C as Client
+participant T as transport:UTransport
 
-If the uP-L1 transport layer is above https://en.wikipedia.org/wiki/OSI_model[OSI Session layer 5]:
+C->>T : receive(UUri, UUri)
+activate T
+alt pull not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else no message available
+T--)C : error : UStatus(UCode.NOT_FOUND)
+else
+T--)C : matching message : UMessage
+end
+deactivate T
+----
 
-* *MUST* use Transmission Control Protocols (TCP) and *SHOULD NOT* User Datagram Protocol (UDP) for message delivery, this is to ensure https://www.cloudcomputingpatterns.org/at_least_once_delivery/[At-least-once delivery] of messages
+[#register-listener]
+=== RegisterListener
 
-==== Delivery Method
+Clients use this method to register a listener for messages matching given filter criteria.
 
-* Transport *MUST* support either _push_ or _pull_ delivery method
-* *MAY* support both _push_ or _pull_ delivery methods between uEs
-* Delivery method *SHOULD* be known by uEs at design time
-* Receivers *MAY* select which delivery method they prefer if the transport between sender and receiver supports more than one delivery method
+[source]
+----
+registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+----
 
-NOTE: Delivery method advertising shall be defined later
+.registerListener Parameters
+[width="100%",cols="15%,15%,70%"]
+|===
+|Parameter | Type | Description
 
+| sourceFilter
+| link:../basics/uri.adoc[UUri]
+| The _source_ address pattern that messages need to match.
 
-== Transport Specifics
+| sinkFilter
+| link:../basics/uri.adoc[UUri]
+| The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
 
-Below is an non-exhaustive list of transport specific requirements to ensure consistency across implementations of the same or different languages:
+| listener
+| <<UListener>>
+| The listener to be registered.
+|===
+
+This API is used to implement the _push_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
+After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
+
+UTransport implementations
+
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
+* *MUST* fail with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
+* *MUST* support registering more than one listener for any given address patterns
+* *MUST* support registering the same listener for multiple address patterns
+* *MUST* document the maximum supported number of listeners per address pattern.
+
+.Registering a Listener
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as transport:UTransport
+
+C->>T : register(UUri, UUri, UListener)
+activate T
+opt error
+alt push not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else max listeners exceeded
+T--)C : error : UStatus(UCode.RESOURCE_EXHAUSTED)
+else other
+T--)C : error : UStatus
+end
+end
+deactivate T
+----
+
+[#unregister-listener]
+=== UnregisterListener
+
+Clients use this method to unregister a previously registered listener.
+After this method has returned successfully, the listener will no longer be invoked for any (matching) messages.
+
+[source]
+----
+unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListener)
+----
+
+.RegisterListener Parameters
+[width="100%",cols="15%,25%,60%"]
+|===
+|Parameter | Type | Description
+
+| sourceFilter
+| link:../basics/uri.adoc[UUri]
+| The source address pattern that the listener had been registered for.
+
+| sinkFilter
+| link:../basics/uri.adoc[UUri]
+| The sink address pattern that the listener had been registered for.
+
+| listener
+| <<UListener>>
+| The listener to be unregistered.
+|===
+
+UTransport implementations
+
+* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
+* *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
+
+.Unregistering a Listener
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as transport:UTransport
+
+C->>T : unregister(UUri, UUri, UListener)
+activate T
+opt error
+alt push not supported
+T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else no such listener
+T--)C : error : UStatus(UCode.NOT_FOUND)
+else other
+T--)C : error : UStatus
+end
+end
+deactivate T
+----
+
+[#delivery-method]
+== Message Delivery
+
+Transport API implementations
+
+* *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
+* *MUST* document the delivery methods they support
+
+== Communication Protocol Binding
+
+Communication protocols like MQTT, HTTP define a specific Protocol Data Unit (PDU) for conveying control information and user data. A uProtocol Client implements the Transport Layer API defined above on top of such a communication protocol.
+
+A _communication protocol binding_ defines how the uProtocol Transport Layer API maps to the communication protocol's message exchange pattern(s) and how uProtocol messages are mapped to the protocol's PDU. Many communication protocols distinguish between a message's metadata and the (raw) payload. This is often reflected by the structure of the protocol's PDU. For example, HTTP supports _header_ fields and a _body_ which can be used to convey a uProtocol message's attributes and payload respectively.
+
+uProtocol defines bindings to the following communication protocols:
 
 * link:binder.adoc[*Android Binder*]
 * link:zenoh.adoc[*Eclipse Zenoh*]
@@ -219,6 +335,11 @@ Below is an non-exhaustive list of transport specific requirements to ensure con
 * link:http.adoc[*HTTP*]
 * link:someip/README.adoc[*SOME/IP*]
 
-Implementers of `UTransport` *MAY* choose to employ link:https://cloudevents.io/[CloudEvents] as a means to map UMessages to the underlying transport's Packet Data Unit (PDU). In order to provide for consistency across implementations, such transport implementations *MUST* adhere to
+Each uProtocol Client *MUST* employ exactly one of these bindings for implementing the Transport Layer API.
 
-* link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
+Additional bindings *MAY* be defined in future versions of uProtocol.
+
+A binding *MAY* employ link:https://cloudevents.io/[CloudEvents] as a means to map uProtocol messages to the communication protocol's PDU. In order to provide for consistency across implementations, such bindings *MUST* adhere to link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
+
+
+

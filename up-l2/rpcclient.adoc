@@ -29,10 +29,10 @@ SPDX-License-Identifier: Apache-2.0
 
 | `IN` | Input parameter
 | `OUT`| Output parameter
-| `IN/OUT` | Input/output parameter
 | `&` | Parameter passed by reference
 | `?` | Parameter is optional
-| `Future` | Language specific mechanism to access the result of asynchronous operations, ex. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java, etc...
+| `Future<T, E>` | Language specific mechanism to access the result of asynchronous operations, e.g. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java etc. +
+`T` is the type of the operation's successful outcome. `E` is the type of the operation's erroneous outcome.
 
 |===
 
@@ -41,21 +41,38 @@ SPDX-License-Identifier: Apache-2.0
 
 All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the `RpcClient` interface with method:
 
-`OUT Future link:../basics/umessage.adoc[UMessage] invokeMethod(IN link:../basics/uri.adoc[UUri], IN UPayload?, IN link:../basics/uattributes.adoc[CallOptions])`
+[source]
+----
+invokeMethod(
+  IN method: UUri,
+  IN options: CallOptions,
+  IN payload: UPayload?,
+  OUT result: Future<UMessage, UStatus>
+)
+----
 
 .Parameters
-[#parameters, width="80%",cols="30%,70%"]
+[#parameters, width="100%",cols="15%,25%,60%"]
 |===
 
-| Parameter
-| Description
+| Parameter | Type | Description
 
-| `UUri`
-| Method URI that is being invoked
+| method
+| link:../basics/uri.adoc[UUri]
+| The URI representing the service method to invoke.
 
-| `CallOptions`
-| Set of attributes that can be sent as part of a method invocation
+| options
+| CallOptions
+| Additional meta data to include in the request message.
 
+| payload
+| link:../basics/upayload.adoc[UPayload]
+| The payload data to include in the request message.
+
+| result
+| Future<Void, link:../basics/error_model.adoc[UStatus]>
+| A succeeded future containing the response message returned by the service provider. +
+A failed future indicating an error that occurred while transmitting the request or response message.
 |===
 
 

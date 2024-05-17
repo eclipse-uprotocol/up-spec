@@ -19,14 +19,14 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Language specific uProtocol libraries (_the library_), builds the protobuf defined data model from https://github.com/eclipse-uprotocol/up-core-api[Eclipse-uProtocol Core-API] project and adds validators, serializers, and builders specific to the protocol for said data model not covered in protobuf generated code. The library is also responsible to declare the language specific uP-L1 & uP-L2 interfaces uTransport and RpcClient. 
 
+Language specific uProtocol libraries (_the library_) implement the data model defined in link:../basics/README.adoc[uProtocol Basic Types] in a particular programming language like Java, Rust or C/C++. A library also provides helpers for validating data model instances, serializing UUris to a textual representation as well as builders for correctly instantiating more complex data types. Each library includes the language specific declaration of the abstract interfaces defined in uProtocol link:../up-l1/README.adoc[Layer 1] and link:../up-l2/README.adoc[Layer 2].
 
-NOTE: All projects/libraries *MUST* be released under a permissive license (Apache 2.0, MIT, etc..) and located in https://github.com/eclipse-uprotocol[GitHub Eclipse-uProtocol] project and **MUST** also depend only on other permissive license libraries.
+NOTE: All libraries *MUST* be made available under a permissive (OSS) license like Apache 2.0 or MIT and *MUST* be hosted under the https://github.com/eclipse-uprotocol[Eclipse uProtocol GitHub Organization].
 
+== Source Code Structure
 
-== Source 
-The following section will shall elaborate on the contents and structure of these libraries.
+The following sections define the content and structure of these libraries.
 
 * The root namespace (package name) *MUST* be `org.eclipse.uprotocol`
 * Modules defined in table <<content>> below *MUST* be implemented in their own folder (namespace)
@@ -52,7 +52,7 @@ The following section will shall elaborate on the contents and structure of thes
 
 === Modules
 
-Modules are packages (folders) that reside under the `src` director. <<content>> table below lists the required modules.
+Modules are packages (folders) that reside under the `src` directory. <<content>> table below lists the required modules.
 
 .SDK Modules
 [#content,width="100%",cols="20%,20%,60%",options="header"]
