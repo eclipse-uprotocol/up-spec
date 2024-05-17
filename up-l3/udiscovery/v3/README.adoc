@@ -185,7 +185,7 @@ NOTE: Please see https://protobuf.dev/programming-guides/style/[Protobuf Style G
 
 A property is a name-value pair of information that is declared using Protobuf Options. There are two types of properties:
 
-1. *uProtocol Properties:* Required properties that all services must set, these are defined https://github.com/eclipse-uprotocol/up-core-api/blob/main/uprotocol/uoptions.proto[uprotocol-options.proto]
+1. *uProtocol Properties:* Required properties that all services must set, these are defined in link:../up-core-api/uprotocol/v1/uoptions.proto[uoptions.proto]
 2. *uService Specific Properties:* Properties that are declared in their respective service proto. 
 
 Services can declare any non-reserved identifier in their own proto files.
