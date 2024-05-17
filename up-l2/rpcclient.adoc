@@ -22,33 +22,110 @@ SPDX-License-Identifier: Apache-2.0
 
 `RpcClient` defines a common, language specific interface for method invocation to allow the auto-generation of client-side & server-side code per-language (SDK) in lieu of per platform. 
 
-.API Definition Terminology
-[width="80%",cols="20%,80%"]
-|===
-|Term | Description
+The API is defined using UML2 notation.
 
-| `IN` | Input parameter
-| `OUT`| Output parameter
-| `&` | Parameter passed by reference
-| `?` | Parameter is optional
-| `Future<T, E>` | Language specific mechanism to access the result of asynchronous operations, e.g. https://en.cppreference.com/w/cpp/thread/future[`std::future`] for C++, https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html[`CompletableFuture`] for Java etc. +
-`T` is the type of the operation's successful outcome. `E` is the type of the operation's erroneous outcome.
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
 
-|===
+class RpcClient {
+  <<interface>>
+  invokeMethod(message: UMessage, responseHandler: ResponseHandler)
+}
 
+class ResponseHandler {
+  <<interface>>
+  onResponse(message : UMessage)
+  onError(error: UStatus)
+}
 
-== Interface
+RpcClient ..> ResponseHandler
+----
 
-All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the `RpcClient` interface with method:
+All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the abstract `RpcClient` interface and its supporting types using appropriate programming language constructs.
+
+NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
+
+[#response-handler]
+== ResponseHandler
+
+A client provides a `ResponseHandler` in order to process the outcome of a <<invoke-method, service method invocation>>.
+
+=== OnResponse
+
+An `RpcClient` implementation invokes this method for an RPC _Response_ message that has been received in reply to the client's RPC _Request_ message.
 
 [source]
 ----
-invokeMethod(
-  IN method: UUri,
-  IN options: CallOptions,
-  IN payload: UPayload?,
-  OUT result: Future<UMessage, UStatus>
-)
+onReceive(message: UMessage)
+----
+
+.onReceive Parameters
+[width="100%",cols="15%,15%,70%"]
+|===
+|Parameter | Type | Description
+
+| message
+| link:../basics/umessage.adoc[UMessage]
+| The response message from the service provider.
+
+|===
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+participant H as handler:ResponseHandler
+participant R as client:RpcClient
+
+R-)H : onResponse(response: UMessage)
+activate H
+deactivate H
+----
+
+=== OnError
+
+An `RpcClient` implementation invokes this method when the invocation of the method was not successful.
+
+[source]
+----
+onError(error: UStatus)
+----
+
+.onReceive Parameters
+[width="100%",cols="15%,15%,70%"]
+|===
+|Parameter | Type | Description
+
+| error
+| link:../basics/error_model.adoc[Error Model]
+| Information about the error that has occurred.
+
+|===
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+participant H as handler:ResponseHandler
+participant R as client:RpcClient
+
+R-)H : onError(error: UStatus)
+activate H
+deactivate H
+----
+
+== RpcClient
+
+[#invoke-method]
+=== InvokeMethod
+
+[source]
+----
+invokeMethod(request: UMessage, handler: ResponseHandler)
 ----
 
 .Parameters
@@ -57,44 +134,87 @@ invokeMethod(
 
 | Parameter | Type | Description
 
-| method
-| link:../basics/uri.adoc[UUri]
-| The URI representing the service method to invoke.
+| request
+| link:../basics/umessage.adoc[UMessage]
+| The RPC Request message to send to the service provider.
 
-| options
-| CallOptions
-| Additional meta data to include in the request message.
-
-| payload
-| link:../basics/upayload.adoc[UPayload]
-| The payload data to include in the request message.
-
-| result
-| Future<Void, link:../basics/error_model.adoc[UStatus]>
-| A succeeded future containing the response message returned by the service provider. +
-A failed future indicating an error that occurred while transmitting the request or response message.
+| handler
+| <<response-handler, ResponseHandler>>
+| The handler to invoke with the outcome of the RPC call.
 |===
 
+RpcClient implementations
 
-== Implementation
+* *MUST* fail the given handler with a `UCode.DEADLINE_EXCEEDED` if no corresponding Response message has been received before the Request message expires.
+* *MUST* fail the given handler with a `UCode.INVALID_PARAMETER` if the given message is not a link:../basics/uattributes.adoc[valid RPC Request message].
+* *MUST* fail the given handler with a `UCode.ALREADY_EXISTS` if a service invocation with the same request message is currently pending and not expired.
 
-Implementations communicate to their underlining transport through the link:../up-l1/README.adoc#_utransport[uTransport Interface].
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
 
-* Every link:../upclient.adoc[uPClient library] *MUST* implement the `RpcClient` interface.
+actor C as Client
 
-* The `UUri` and `CallOptions` passed to `invokeMethod()` *MUST* be cached non-persistent memory per call, this is to be able to complete the `Future` when the response is received from the server.
+create participant H as handler:ResponseHandler
+C->>H : new()
+participant R as RpcClient
+C-)R : invoke(request, handler)
+activate R
+alt invalid request message
+R--)H : onError(UStatus(UCode.INVALID_ARGUMENT))
+else duplicate request
+R--)H : onError(UStatus(UCode.ALREADY_EXISTS))
+else
+actor S as service provider
+R-)S : request message
+alt request timed out
+R--)H : onError(UStatus(UCode.DEADLINE_EXCEEDED))
+else comm_status != OK
+S-)R : response message
+R--)H : onError(UStatus(comm_status))
+else comm_status = OK
+S-)R : response message
+R--)H : onResponse(UMessage)
+end
+end
+deactivate R
+----
 
-* The `UPayload` passed to `invokeMethod()` *MAY* be null or empty.
+=== Implementation
 
-* Method invocation that fails, *MUST* return exceptionally as defined by the link:../basics/error_model.adoc[uProtocol Error Model].
+Each link:../languages.adoc[language-specific uProtocol library] *MUST* provide a _default_ implementation of `RpcClient` based on the link:../up-l1/README.adoc[Transport Level API] as follows:
 
-* Cached requests must be completed exceptionally with  `DEADLINE_EXCEEDED` when `UAttributes.isExpired()` is `true`. This notifies the calling context that the request has expired.
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
 
-* *MUST* return `INVALID_PARAMETER` if `UUri` is null or empty or `CallOptions.priority() < CS4`
+actor C as Client
 
-* *MUST* return `ALREADY_EXISTS` if the same request already exists (i.e. same `UUri` and `CallOptions`). This is to prevent duplicate requests.
+create participant H as handler<br>:ResponseHandler
+C->>H : new()
+participant R as transport based impl<br>:RpcClient
+C-)R : invoke(request, handler)
+activate R
+create participant UL as listener<br>:UListener
+R->>UL : new(handler)
+participant T as transport<br>:UTransport
+R->>T : registerListener(method, reply-to-address, listener)
+R->>T : send(request)
+activate T
+actor S as service provider<br>:UEntity
+T-)S : request
+deactivate T
+deactivate R
+S-)T : response
+activate T
+T-)UL : onReceive(response)
+deactivate T
+UL-)H : onMessage(response)
+----
 
-* *MUST* complete future successfully when the response is received from the server.
+A link:../upclient.adoc[uPClient library] *MAY* provide additional implementations of `RpcClient` which, for example, take advantage of specific features of the underlying communication protocol.
 
 
 
