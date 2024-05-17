@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-A uProtocol Client library is the application facing library that uEntities use to interact with other uEntities. The library contains a programminb language and transport protocol specific implementation of the low level link:up-l1/README.adoc[Transport Layer API] and the link:up-l2/rpcclient.adoc[Communication Layer API]. The library also includes implementation specific client-side implementations of the core uServices uDiscovery, uTwin, and uSubscription.
+A uProtocol Client library is the application facing library that uEntities use to interact with other uEntities. The library contains a programming language and transport protocol specific implementation of the low level link:up-l1/README.adoc[Transport Layer API] and the link:up-l2/rpcclient.adoc[Communication Layer API]. The library also includes implementation specific client-side implementations of the core uServices uDiscovery, uTwin, and uSubscription.
 
 == Requirements
 
