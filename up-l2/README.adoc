@@ -18,17 +18,17 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-uProtocol Communication layer defines message processing, i.e. routing/ dispatching, access control, and corelation between messages (i.e. request response). The specification is broken down into the following sections:
+uProtocol Communication layer (uP-L2) defines the message patterns (pub/sub, notification, and RPC) APIs used by applications & services (uEs), as well as the routing and dispatching rules for transmitting said communication messages across distributed heterogeneous systems. 
 
 .uP-L2 Sections
-[width="80%",cols="20%,80%",options="header"]
+[width="80%",cols="30%,70%",options="header"]
 |===
 |Section | Description
 
 | link:dispatchers/README.adoc[*Dispatchers*]
 | uEs that are responsible for dispatching messages between uEs and between uDevices
 
-| link:rpcclient.adoc[*RpcClient*]
-| Interface for the generation of client-side boundary objects for uP-L3 services
+| link:api.adoc[*APIs*]
+|  Application Programming Interfaces for the messaging patterns pub/sub, notification, and RPC
 
 |===
