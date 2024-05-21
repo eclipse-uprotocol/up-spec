@@ -15,7 +15,7 @@ syntax = "proto3";
 
 package uprotocol.core.utwin.v2;
 
-import "v1/uoptions.proto";
+import "uoptions.proto";
 import "v1/ustatus.proto";
 import "v1/uri.proto";
 import "v1/umessage.proto";
@@ -26,10 +26,10 @@ option java_multiple_files = true;
 
 // uTwin Service interface definition
 service uTwin {
-  option (uprotocol.v1.service_name) = "core.utwin"; // Service name
-  option (uprotocol.v1.service_version_major) = 2;
-  option (uprotocol.v1.service_version_minor) = 0;
-  option (uprotocol.v1.service_id) = 26;
+  option (uprotocol.service_name) = "core.utwin"; // Service name
+  option (uprotocol.service_version_major) = 2;
+  option (uprotocol.service_version_minor) = 0;
+  option (uprotocol.service_id) = 26;
 
   // A uE calls this API to retrieve the last uMessages for a given set of topics.<br>
   // What is returned is a list of MessageResponse with the status for message retreival
@@ -37,7 +37,7 @@ service uTwin {
   // status for those messages that it was unable to fetch (i.e. due to NOT_FOUND
   // or PERMISSION_DENIED.<br>
   rpc GetLastMessages(uprotocol.v1.UUriBatch) returns (GetLastMessagesResponse) {
-    option (uprotocol.v1.method_id) = 1;
+    option (uprotocol.method_id) = 1;
   }
 
   // A call to SetLasMessage (typically from uBus) to update the uTwin internal cache
@@ -48,7 +48,7 @@ service uTwin {
   // - PERMISSION_DENIED if requesting uE does not have permission to access the Topic
   // - RESOURCE_EXHAUSTED if uTwin has no more memory available to store new UMessages
   rpc SetLastMessage(uprotocol.v1.UMessage) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 2;
+    option (uprotocol.method_id) = 2;
   }
 
 }

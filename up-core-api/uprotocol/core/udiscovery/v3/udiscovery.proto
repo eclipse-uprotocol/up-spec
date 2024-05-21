@@ -15,7 +15,7 @@ syntax = "proto3";
 
 package uprotocol.core.udiscovery.v3;
 import "google/protobuf/timestamp.proto";
-import "v1/uoptions.proto";
+import "uoptions.proto";
 import "v1/uri.proto";
 import "v1/ustatus.proto";
 
@@ -25,13 +25,13 @@ option java_multiple_files = true;
 
 // Platform USE Discovery Service Interface
 service uDiscovery {
-  option (uprotocol.v1.service_name) = "core.udiscovery"; // Service name
-  option (uprotocol.v1.service_version_major) = 3;
-  option (uprotocol.v1.service_version_minor) = 0;
-  option (uprotocol.v1.service_id) = 1;
+  option (uprotocol.service_name) = "core.udiscovery"; // Service name
+  option (uprotocol.service_version_major) = 3;
+  option (uprotocol.service_version_minor) = 0;
+  option (uprotocol.service_id) = 1;
 
   // uDiscovery Node Change Notification that sends the Update message
-  option (uprotocol.v1.notification_topic) = {
+  option (uprotocol.notification_topic) = {
     id: 0x8000,
       name: "NodeChange",
       message: "Notification"
@@ -48,14 +48,14 @@ service uDiscovery {
   // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
   // 4. code.PERMISSION_DENIED: The caller does not have permission to perform the query
   rpc LookupUri(v1.UUri) returns (LookupUriResponse) {
-    option (uprotocol.v1.method_id) = 1;
+    option (uprotocol.method_id) = 1;
   }
 
   // Update a node in the database.
   // What is returned is the status of the API request as uprotocol.v1.UStatus.
   // **NOTE:** You MUST have write permission to the node in the database
   rpc UpdateNode(UpdateNodeRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 2;
+    option (uprotocol.method_id) = 2;
   }
 
   // Query the database to find Node(s). What is passed is the search criterial in
@@ -68,12 +68,12 @@ service uDiscovery {
   // 4. uResource: `//device.domain/body.access//door.door_front_left`
   // **NOTE:** You MUST have read permission to the node in the database
   rpc FindNodes(FindNodesRequest) returns (FindNodesResponse) {
-    option (uprotocol.v1.method_id) = 3;
+    option (uprotocol.method_id) = 3;
   }
 
   // Query the database to fetch a list of 1 or more properties for a given node.
   rpc FindNodeProperties(FindNodePropertiesRequest) returns (FindNodePropertiesResponse) {
-    option (uprotocol.v1.method_id) = 4;
+    option (uprotocol.method_id) = 4;
   }
 
   // Remove one or more nodes (and all its children nodes) in the database.
@@ -82,7 +82,7 @@ service uDiscovery {
   // all the children nodes, as well as write permission to the parent otherwise
   // you will get PERMISSION_DENIED and no nodes will be deleted.
   rpc DeleteNodes(DeleteNodesRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 5;
+    option (uprotocol.method_id) = 5;
   }
 
 
@@ -90,7 +90,7 @@ service uDiscovery {
   // ALREADY_EXISTS and none of the nodes shall be added to the parent.
   // **NOTE:** You MUST have write permission to the parent node
   rpc AddNodes(AddNodesRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 6;
+    option (uprotocol.method_id) = 6;
   }
 
 
@@ -98,20 +98,20 @@ service uDiscovery {
   // **NOTE:** You MUST have write permission to the node who's property you
   // are updating
   rpc UpdateProperty(UpdatePropertyRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 7;
+    option (uprotocol.method_id) = 7;
   }
 
 
   // Register to receive Notifications to changes to one of more Nodes. The changes
   // are published on the notification topic: '/core.udiscovery/3/nodes#Notification'
   rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 8;
+    option (uprotocol.method_id) = 8;
   }
   
 
   // Unregister for Node change notifications
   rpc UnregisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (uprotocol.v1.method_id) = 9;
+    option (uprotocol.method_id) = 9;
   }
 
   
@@ -123,7 +123,7 @@ service uDiscovery {
   // - code.INVALID_ARGUMENT: The passed UUri is invalid (missing names or numbers)
   // - code.PERMISSION_DENIED: The caller does not have permission to perform the resolution
   rpc ResolveUri(ResolveUriRequest) returns (ResolveUriResponse) {
-    option (uprotocol.v1.method_id) = 10;
+    option (uprotocol.method_id) = 10;
   }
 }
 
