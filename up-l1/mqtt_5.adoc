@@ -55,7 +55,7 @@ a| Unique identifier for the message
 | String
 a| The type of message
 
-* MUST be the enum value for UAttributes.type link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
+* MUST be the enum value for UAttributes.type link:../up-core-api/uprotocol/v1/uattributes.proto[UMessageType enum].
 
 | UserProperty
 | ("3","{UAttributes.source}")
@@ -76,7 +76,7 @@ a| The destination (address) of the message
 | String
 a| The message's priority as defined in link:../basics/qos.adoc[QoS doc]
 
-* MUST be set to the enum value for UAttributes.priority link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
+* MUST be set to the enum value for UAttributes.priority link:../up-core-api/uprotocol/v1/uattributes.proto[UPriority enum].
 
 | UserProperty
 | ("6", "{UAttributes.ttl}")
@@ -93,7 +93,7 @@ a| The service consumer's permission level as defined in link:../up-l2/permissio
 | String
 a| A UCode indicating an error that has occurred during the delivery of either an RPC Request or Response message
 
-* MUST be set to the link:../up-core-api/uprotocol/ustatus.proto[UCode]'s integer value as a string.
+* MUST be set to the link:../up-core-api/uprotocol/v1/ustatus.proto[UCode]'s integer value as a string.
 
 | UserProperty
 | ("9", "{UAttributes.reqId}")
@@ -117,7 +117,7 @@ a| A tracing identifier to use for correlating messages across the system
 | String
 a| The format for the data stored in the UMessage
 
-* MUST be set to the enum value for UAttributes.payload_format link:../up-core-api/uprotocol/uattributes.proto[UPayloadFormat enum].
+* MUST be set to the enum value for UAttributes.payload_format link:../up-core-api/uprotocol/v1/uattributes.proto[UPayloadFormat enum].
 
 |===
 
