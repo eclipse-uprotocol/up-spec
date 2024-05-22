@@ -98,7 +98,7 @@ The Platform itself (which uTwin is part of) is acting as a distributed cache fo
 
 A Topic is a cache entry that can be refreshed individually. Refreshing cache instances happens automatically as new data propagates through the network of buses
 
-uTwin instances act as a distributed networks of caches that can communicate to retrieve values without requesting a new publication, in case a uTwin instance is lacking a Topic entry in its own cache, by retrieving the last event from the cache (uTwin instance) running on the same device as the publisher of the topic. Using the analogy of a cache, it may also be useful to implement, later, a flush() command, that would remove the last known state for specific Topics, or all Topics of a given uDevice, etc.
+uTwin instances act as a distributed network of caches that can communicate to retrieve values without requesting a new publication, in case a uTwin instance is lacking a Topic entry in its own cache, by retrieving the last event from the cache (uTwin instance) running on the same device as the publisher of the topic. Using the analogy of a cache, it may also be useful to implement, later, a `flush()` command, that would remove the last known state for specific Topics, or all Topics of a given uDevice, etc.
 
 
 == Interface
@@ -108,13 +108,18 @@ The proposal defines a new Digital Twin service, named uTwin, exposing the follo
 
 *API: `rpc GetLastMessages(uprotocol.v1.UUriBatch) returns (GetLastMessagesResponse)`*
 
-A uE calls this API to retrieve the last uMessages for a given set of topics. What is returned is a list of MessageResponse with the status for message retreival and the event itself if uTwin was able to fetch it. uTwin will also return status for those messages that it was unable to fetch (i.e. due to NOT_FOUND or PERMISSION_DENIED).
+`GetLastMessages()` sends back the last uMessages for a given set of topics. What is returned is a list of MessageResponse with the status for message retrieval and the event itself if uTwin was able to fetch it. uTwin will also return status for those messages that it was unable to fetch (i.e. due to NOT_FOUND or PERMISSION_DENIED). uTwin's behavior is similar to a cache, it therefore has no "obligation" to retain the data and in worst case it will simply not provide the last published event.  Applications that make use of uTwin *MUST* therefore account for the possibility that the uTwin cannot deliver the event they are requesting. This may happen in the following cases:
+
+* uTwin is out of memory and cannot store new incoming events (the policy that defines what events are prioritized to be stored is implementation-dependent)
+* uTwin has restarted and its internal cache that stores the last events is not persistent
+
+The implementation of `GetLastEvent()` *MUST* enforce permissions associated with the Topic being requested
 
 === Set last known state
 
 *API: `rpc SetLastMessage(uprotocol.v1.UMessage) returns (uprotocol.v1.UStatus)`*
 
-A call to SetLastMessage (typically from a dispatcher) to update the uTwin internal cache with a message for a given topic (UMessage.source). Return value status.Code is one of:
+A call to SetLastMessage (typically from a uBus) to update the uTwin internal cache with a message for a given topic (UMessage.source). Return value status.Code is one of:
 - OK if UMessage was successfully stored in uTwin
 - INVALID argument if uTwin encountered an issue with UMessage content (source field in particular)
 - PERMISSION_DENIED if requesting uE does not have permission to access the Topic
