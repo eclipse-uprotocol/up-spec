@@ -99,9 +99,10 @@ uEntities *MAY* assume both the Service and Application roles.
 
 [.specitem,oft-sid="dsn~entity-id~1"]
 --
-A UUri's `ue_id` property value determines the type and instance of the service being referred to. +
-The value's _least_ significant 16 bits contain the _service ID_, representing the service interface type.
-The value's _most_ significant 16 bits contain the _service instance ID_. +
+A UUri's `ue_id` property value determines the type and instance of the service being referred to:
+
+* The value's _least_ significant 16 bits contain the _service ID_, representing the service interface type.
+* The value's _most_ significant 16 bits contain the _service instance ID_.
 --
 
 === Resource
@@ -113,26 +114,6 @@ Resources and methods are uniquely identified within a service interface by mean
 [.specitem,oft-sid="dsn~resource-id~1"]
 --
 A UUri's `resource_id` contains the identifier of the resource or method being referred to.
---
-
-[.specitem,oft-sid="dsn~resource-rpc-method~1"]
---
-A UUri refers to an RPC service method if its `isRpcMethod` predicate as defined below evaluates to `true`.
-
-[source,ocl]
-----
-def: isRpcMethod() : Boolean = resource_id > 0 and resource_id < 0x8000
-----
---
-
-[.specitem,oft-sid="dsn~resource-rpc-response~1"]
---
-A UUri refers to an RPC response address if its `isRpcResponse` predicate as defined below evaluates to `true`.
-
-[source,ocl]
-----
-def: isRpcResponse() : Boolean = resource_id = 0
-----
 --
 
 [#uri-definition]
@@ -175,7 +156,7 @@ A URI's _path_ *MUST* be mapped to/from the UUri's `ue_id`, `ue_version_major` a
 Each property value *MUST* be mapped to a _segment_ following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.3[RFC3986, Section 3.3].
 
 The `ue_id`, `ue_version_major` and `resource_id` *MUST* be mapped to the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
-of the corresponding property values.
+of the corresponding property values. Leading zeros (`0`) *MAY* be omitted.
 --
 
 === Examples
@@ -285,100 +266,6 @@ impl UUri {
 }
 ----
 
-
-
-== Validation
-
-[.specitem,oft-sid="req~validation~1",oft-needs="impl,utest"]
---
-Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to perform the checks defined by means of predicates on the UUri data model. The concrete implementation should follow common practices of the particular programming language.
---
-
-For example, a Java library might implement a `UriValidator` class providing corresponding _static_ methods.
-
-[source,java]
-----
-public final class UriValidator {
-  /**
-   * @returns {@code true} if the URI represents an RPC method.
-   */
-  public static boolean isRpcMethod(UUri: uri) {
-    ...
-  }
-  /**
-   * @throws UuriValidationException if the URI does not represent an RPC method.
-   *                     The exception may contain details regarding the violated
-   *                     constraint(s).
-   */
-  public static void validateRpcMethod(UUri: uri) throws UuriValidationException {
-    if (!UriValidator.isRpcMethod(uri)) {
-      throw new UuriValidationException("not an RPC Method URI");
-    }
-  }
-}
-----
-
-Alternatively, the `UUri` class might provide corresponding methods.
-
-[source,java]
-----
-public class UUri {
-  /**
-   * @returns {@code true} if this URI represents an RPC method.
-   */
-  public final boolean isRpcMethod() {
-    ...
-  }
-  /**
-   * @throws UuriValidationException if this URI does not represent an RPC method.
-   *                     The exception may contain details regarding the violated
-   *                     constraint(s).
-   */
-  public final void validateRpcMethod() throws UuriValidationException {
-    if (!this.isRpcMethod()) {
-      throw new UuriValidationException("not an RPC Method URI");
-    }
-  }
-}
-----
-
-Similarly, a Rust library might implement a `UriValidator` struct providing corresponding functions
-
-[source,rust]
-----
-pub struct UriValidator {}
-
-impl UriValidator {
-  pub fn is_rpc_method(uri: &UUri) -> bool {
-    ...
-  }
-  pub fn validate_rpc_method(uri: &UUri) -> Result<(), UuriValidationError> {
-    if is_rpc_method(uri) {
-      Ok(())
-    } else {
-      Err(UuriValidationError::new("not an RPC Method URI"))
-    }
-  }
-}
-----
-
-or implement the functions on the `UUri` struct
-
-[source,rust]
-----
-impl UUri {
-  pub fn is_rpc_method(&self) -> bool {
-    ...
-  }
-  pub fn validate_rpc_method(&self) -> Result<(), UuriValidationError> {
-    if self.is_rpc_method() {
-      Ok(())
-    } else {
-      Err(UuriValidationError::new("not an RPC Method URI"))
-    }
-  }
-}
-----
 
 == Pattern Matching
 

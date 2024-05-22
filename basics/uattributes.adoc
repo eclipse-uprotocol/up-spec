@@ -23,7 +23,7 @@ SPDX-License-Identifier: Apache-2.0
 
 UAttributes contain metadata describing a particular message's purpose, content and processing requirements.
 
-NOTE: Please refer to link:../up-core-api/uprotocol/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model.
+NOTE: Please refer to link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model.
 
 uProtocol defines four types of messages:
 
@@ -102,6 +102,7 @@ The following table defines attributes that are used for publish messages in add
 |yes
 |A link:uri.adoc[UUri] representing the topic that this message is published to.
 
+* The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
 |===
 
 [#notification-attributes]
@@ -121,9 +122,13 @@ The following table defines attributes that are used for notification messages i
 |yes
 |A link:uri.adoc[UUri] representing the component that this notification originates from.
 
+* The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
+
 |`sink`
 |yes
 |A link:uri.adoc[UUri] representing the receiver of this notification.
+
+* The UUri's `resource_id` *MUST* be set to `0`.
 
 |===
 
@@ -144,9 +149,13 @@ The following table defines attributes that are used for RPC request messages in
 |yes
 |The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
 
+* The UUri's `resource_id` *MUST* be set to `0`.
+
 |`sink`
 |yes
 |A link:uri.adoc[UUri] identifying the service provider's method to invoke.
+
+* The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
 
 |`priority`
 |yes
@@ -187,9 +196,13 @@ The following table defines attributes that are used for RPC response messages i
 |yes
 |The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
 
+* The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
+
 |`sink`
 |yes
 |The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
+
+* The UUri's `resource_id` *MUST* be set to `0`.
 
 |`reqid`
 |yes
@@ -205,6 +218,11 @@ The following table defines attributes that are used for RPC response messages i
 
 |`commstatus`
 |no
-|A link:../up-core-api/uprotocol/ustatus.proto[UCode] indicating an error that has occurred during the delivery of either the RPC request or response message. A value of `0` or no value indicates that no communication error has occurred.
+|A link:../up-core-api/uprotocol/v1/ustatus.proto[UCode] indicating an error that has occurred during the delivery of either the RPC request or response message. A value of `0` or no value indicates that no communication error has occurred.
 
 |===
+
+
+== Validation
+
+Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to assert the consistency of a message's attributes according to its type as defined in the sections above. The concrete implementation should follow common practices of the particular programming language.
