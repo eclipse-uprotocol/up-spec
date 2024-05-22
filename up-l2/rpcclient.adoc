@@ -43,7 +43,7 @@ class ResponseHandler {
 RpcClient ..> ResponseHandler
 ----
 
-All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the abstract `RpcClient` interface and its supporting types using appropriate programming language constructs.
+All link:../languages.adoc[language-specific uProtocol libraries] *MUST* declare the `RpcClient` interface and its supporting types using appropriate programming language constructs.
 
 NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
 
