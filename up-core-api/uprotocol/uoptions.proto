@@ -284,6 +284,5 @@ message UServiceTopic {
   repeated string resources = 4;
 
   // Code Access Permission (CAP) Level for the topic
-  uint32 permission_level = 5;
-
+  optional uint32 permission_level = 5;
 }
