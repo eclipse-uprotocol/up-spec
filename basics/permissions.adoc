@@ -78,7 +78,7 @@ While inspired by Android’s permission, CAPs under the current proposal are di
 
 === Service Declaration of uPLs
 
-Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in  link:../../up-core-api/uprotocol/uprotocol_options.proto[uprotocol_options.proto] and their purpose is defined in <<cap-options>> below. 
+Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in link:../up-core-api/uprotocol/uoptions.proto[uoptions.proto] and their purpose is defined in <<cap-options>> below. 
 
 * uPL value *MUST* be an integer, 0 to N, where N is the most permissive level. The default value is 0.
 

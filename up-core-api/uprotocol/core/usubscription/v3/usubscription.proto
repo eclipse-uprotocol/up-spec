@@ -17,9 +17,9 @@ package uprotocol.core.usubscription.v3;
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
-import "ustatus.proto";
-import "uri.proto";
-import "uprotocol_options.proto";
+import "v1/ustatus.proto";
+import "v1/uri.proto";
+import "uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.core.usubscription.v3";
 option java_outer_classname = "USubscriptionProto";
@@ -27,13 +27,13 @@ option java_multiple_files = true;
 
 // Subscription Service Interface definition
 service uSubscription {
-  option (name) = "core.usubscription"; // Service name
-  option (version_major) = 3;
-  option (version_minor) = 0;
-  option (id) = 0;
+  option (uprotocol.service_name) = "core.usubscription"; // Service name
+  option (uprotocol.service_version_major) = 3;
+  option (uprotocol.service_version_minor) = 0;
+  option (uprotocol.service_id) = 0;
 
   // uSubscription change Notification topic that sends the Update message
-  option (notification_topic) = {
+  option (uprotocol.notification_topic) = {
     id: 0x8000,
     name: "SubscriptionChange",
     message: "Update"
@@ -49,35 +49,35 @@ service uSubscription {
   // to received subscription change notifications if ever the subscription state
   // changes.
   rpc Subscribe(SubscriptionRequest) returns (SubscriptionResponse) {
-    option (method_id) = 1;
+    option (uprotocol.method_id) = 1;
   }
 
   // The consumer no longer wishes to subscribe to a topic so it issues an
   // explicit unsubscribe request.
   rpc Unsubscribe(UnsubscribeRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 2;
+    option (uprotocol.method_id) = 2;
   }
 
   // Fetch a list of subscriptions
   rpc FetchSubscriptions(FetchSubscriptionsRequest) returns (FetchSubscriptionsResponse) {
-    option (method_id) = 3;
+    option (uprotocol.method_id) = 3;
   }
 
 
   // Register to receive subscription change notifications that are published on the
   // 'up:/core.usubscription/3/subscriptions#Update'
   rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 6;
+    option (uprotocol.method_id) = 6;
   }
 
   // Unregister for subscription change events
   rpc UnregisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 7;
+    option (uprotocol.method_id) = 7;
   }
 
   // Fetch a list of subscribers that are currently subscribed to a given topic.
   rpc FetchSubscribers(FetchSubscribersRequest) returns (FetchSubscribersResponse) {
-    option (method_id) = 8;
+    option (uprotocol.method_id) = 8;
   }
 
   // Reset subscriptions to and from the uSubscription Service.
@@ -88,7 +88,7 @@ service uSubscription {
   // **__NOTE:__** This is a private API only for uSubscription services,
   // uEs can call Unsubscribe() to flush their own subscriptions.
   rpc Reset(ResetRequest) returns (uprotocol.v1.UStatus) {
-    option (method_id) = 9;
+    option (uprotocol.method_id) = 9;
   }
 }
 

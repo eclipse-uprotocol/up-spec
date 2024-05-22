@@ -1,0 +1,288 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under
+ * the terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+syntax = "proto3";
+
+package uprotocol;
+
+import "google/protobuf/descriptor.proto";
+
+option java_package = "org.eclipse.uprotocol";
+option java_multiple_files = true;
+
+
+/////////////////////////////////////////////////////////
+// RESERVED UPROTOCOL OPTION IDS
+//
+// File       51000 - 51099
+// Service    51100 - 51199
+// Method     51200 - 51299
+// Message    51300 - 51399
+// Field      51400 - 51499
+// Enum       51500 - 51599
+// EnumValue  51600 - 51699
+//
+
+// uProtocol options for a proto File
+extend google.protobuf.FileOptions {
+
+  // Specifies whether this file is SOME/IP compatible.
+  // Enabling this option ensures that all messages defined
+  // in this file conform strictly to the SOME/IP fixed-size
+  // serialization format, which requires all fields to have
+  // predetermined and constant sizes.
+  optional bool file_someip = 51000;
+
+}
+
+// uProtocol options for a service definition
+extend google.protobuf.ServiceOptions {
+
+  // Service id (0x0000 - 0xFFFF).
+  // The service id must be globally unique.
+  uint32 service_id = 51100;
+
+  // Service name (e.g., "MyService").
+  // The service name must be globally unique.
+  string service_name = 51101;
+
+  // Semantic 2.0 major versioning
+  uint32 service_version_major = 51102;
+
+  // Semantic 2.0 minor versioning
+  optional uint32 service_version_minor = 51103;
+
+  // Code Access Permission (CAP) Level for the uE
+  optional uint32 service_permission_level = 51104;
+
+  // Service declared published topics
+  repeated UServiceTopic publish_topic = 51105;
+
+  // Service declaired notification topics
+  repeated UServiceTopic notification_topic = 51106;
+
+  // Specifies whether this service is SOME/IP compatible.
+  // Overrides the corresponding *file_someip* option on the file level.
+  // Enabling this option ensures that all messages used in this service
+  // conform strictly to the SOME/IP fixed-size serialization format.
+  optional bool service_someip = 51107;
+
+}
+
+
+// uProtocol options for a method definition
+extend google.protobuf.MethodOptions {
+
+  // Method id (0x0000 - 0x7FFF).
+  // The method id must be unique within containing service scope.
+  uint32 method_id = 51200;
+
+  // Code Access Permission (CAP) Level for the method
+  optional uint32 method_permission_level = 51201;
+
+}
+
+
+// uProtocol options for a message definition
+extend google.protobuf.MessageOptions {
+
+  // Specifies whether this message is SOME/IP compatible.
+  // Overrides the corresponding *file_someip* option on the file level.
+  // Enabling this option ensures that the message conforms strictly to the
+  // SOME/IP fixed-size serialization format.
+  optional bool message_someip = 51300;
+
+  // Fixed message size in bytes. This constraint is mainly intended for
+  // fixed-size encodings (e.g., SOME/IP) and is ignored by the standard
+  // protobuf encoding.
+  //
+  // - When omitted, the message size is automatically computed from the
+  // aggregate sum of all its member field sizes, including the sizes of
+  // nested messages to any depth level.
+  //
+  // - If the specified size is larger than the computed message size, the
+  // excess size is reseved as unused space at the end of the message. This
+  // allows for future extension and addition of new fields to the message
+  // without breaking compatibility.
+  //
+  // - Conversely, if the specified size is smaller than the computed message
+  // size, a compile-time error will be raised.
+  optional uint32 message_size = 51301;
+
+}
+
+
+// uProtocol options for a field definition
+extend google.protobuf.FieldOptions {
+
+  // Field value size constraint.
+  //
+  // This constraint is mainly intended for fixed-size encodings (e.g.,
+  // SOME/IP) and is ignored by the standard protobuf encoding. 
+  // Applicable for the following field types:
+  //
+  //  - **Integer fields**: Fixed integer size in bytes (1, 2, 4, or 8).
+  //    For example, setting size=1 on a uint32 field (4 bytes) effectively
+  //    reduces it to a uint8 field (1 byte). Integer field size can only be
+  //    reduced, and cannot be made larger than the field's base size. The 
+  //    field's min/max/default values, if defined, must fit within the reduced
+  //    field size.
+  //
+  //  - **Enum fields**: Fixed enum size in bytes (1, 2, or, 4). If present,
+  //    overrides the enum size defined on the enum declaration (see
+  //    EnumOptions for details). If the enum size is left unspecified on both
+  //    the field and the enum levels, then the enum size will default to 4
+  //    bytes. The enum size can be reduced only to the smallest size that
+  //    still fits all its defined enum values.
+  //
+  //  - **String fields**: Fixed string size in bytes. Note that the string
+  //    size is measured in bytes and not in characters, and so the maximal
+  //    string length depends on its character contents and on the text
+  //    encoding used (utf-8, utf-16, etc). The string byte order mark (BOM)
+  //    and null terminator (\0) are included in the allocated string size.
+  //
+  //  - **Byte fields**: Fixed number of bytes.
+  //
+  //  - **Repeated fields**: Fixed size of the array items (not the array
+  //    itself). The number of items in the array can be specified using 
+  //    *field_count*.
+  //
+  //  - **Map fields**: Fixed size of the map values. The fixed size of the map
+  //    keys can be specified using *field_key_size*. The number of entries in
+  //    the map can be specified using *field_count*.
+  //
+  optional uint32 field_size = 51400;
+
+  // Field key size constraint.
+  //
+  // This constraint is mainly intended for fixed-size encodings (e.g., 
+  // SOME/IP) and is ignored by the standard protobuf encoding. Applicable for
+  // the following field types:
+  //
+  //  - **Map fields**: Fixed size of the map keys. The fixed size of the map
+  //    values can be specified using *field_size*.
+  //
+  optional uint32 field_key_size = 51401;
+
+  // Field items count constraint.
+  //
+  // This constraint is mainly intended for fixed-size encodings (e.g., 
+  // SOME/IP) and is ignored by the standard protobuf encoding. Applicable for
+  // the following field types:
+  //
+  //  - **Repeated fields**: Fixed number of items in the array.
+  //
+  //  - **Map fields**: Fixed number of key/value entries in the map.
+  //
+  optional uint32 field_count = 51402;
+
+}
+
+
+// uProtocol options for an enum definition
+extend google.protobuf.EnumOptions {
+
+  // Maximum enum size in bytes (if not specified, default is 4 bytes)
+  optional uint32 enum_size = 51500;
+
+  // Specifies whether this enum is SOME/IP compatible.
+  // Overrides the corresponding *file_someip* option on the file level.
+  optional bool enum_someip = 51501;
+
+}
+
+// uProtocol options for an enum value definition
+extend google.protobuf.EnumValueOptions {
+
+  // MIME type mapping
+  optional string mime_type = 51600;
+
+  // CloudEvent String representation of the uProtocol enum value
+  optional string ce_name = 51601;
+}
+
+
+// Service topic definition
+message UServiceTopic {
+
+  // Topic id (0x8000 - 0xFFFF).
+  // The topic id **MUST** be unique within the containing service scope.
+  uint32 id = 1;
+
+  // Topic name.
+  // The topic name **MUST** be unique within the containing service scope.
+  string name = 2;
+
+  // The topic message (defines the data passed in the topic).
+  //
+  // Both absolute and relative message names can be used, following the
+  // [Protobuf type name resolution rules](https://protobuf.dev/programming-guides/proto3/#name-resolution):
+  //
+  // 1. **Relative name:** partially-qualified name, resolved starting from the
+  //    innermost scope to the outermost scope.
+  // 2. **Absolute name:** fully-qualified name with a leading `'.'`, resolved
+  //    starting from the outermost scope instead.
+  //
+  // For example, with respect to a concrete service *foo.bar.Service*, the
+  // following topic message references are all equivalent:
+  //
+  // - *foo.bar.Topic*
+  // - *bar.Topic*
+  // - *Topic*
+  // <br>
+  //
+  // **_NOTE:_** If the topic message is defined in a separate proto file, then
+  // this proto file must be explicitly imported into the proto file in which
+  // it is referenced, otherwise the message reference will not be resolved.
+  //
+  string message = 3;
+
+  // One or more enumerated resource values that can be used to generate 
+  // corresponding list of topics:
+  // <p>&emsp;&emsp;&emsp;[* resource_enum *] : [* resource_value *]</p>
+  //
+  // Both absolute and relative resource enum names can be used, following the
+  // [Protobuf type name resolution rules](https://protobuf.dev/programming-guides/proto3/#name-resolution).
+  // If the resource name is relative, it will be resolved relative to the
+  // topic message. The *resource_enum* part is optional, and if omitted will
+  // default to "Resources".
+  //
+  // For example, with respect to a concrete topic message *foo.bar.Topic*, the
+  // following topic resource references are all equivalent:
+  //
+  // - *foo.bar.Topic.Resources* : \*
+  // - *bar.Topic.Resources* : \*
+  // - *Topic.Resources* : \*
+  // - *Resources* : \*
+  // - \*
+  // <br>
+  //
+  // Topics can be defined automatically using the `"\*"` wildcard (e.g., 
+  // `"Resources:*"`). This will create a separate topic per each resource
+  // instance, using the resource code/value to generate the topic id/uri.
+  //
+  // Topics with multiple resources can be defined using an array (e.g., 
+  // `["front_left", "front_right"]`). The `"\*"` wildcard can also be used in
+  // this context (e.g., `["*"]`). This can be used to define a single topic
+  // that is triggered by a combination of multiple resources.
+  //
+  // **_NOTE:_** If a topic resource is defined in a separate proto file, then
+  // this proto file must be explicitly imported into the proto file in which
+  // it is referenced, otherwise the resource reference will not be resolved.
+  //
+  repeated string resources = 4;
+
+  // Code Access Permission (CAP) Level for the topic
+  optional uint32 permission_level = 5;
+}

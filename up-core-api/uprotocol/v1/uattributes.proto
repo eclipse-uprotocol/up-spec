@@ -15,10 +15,10 @@ syntax = "proto3";
 
 package uprotocol.v1;
 
-import "uri.proto";
-import "uuid.proto";
-import "ustatus.proto";
-import "uprotocol_options.proto";
+import "v1/uri.proto";
+import "v1/uuid.proto";
+import "v1/ustatus.proto";
+import "uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.v1";
 option java_outer_classname = "UAttributesProto";
