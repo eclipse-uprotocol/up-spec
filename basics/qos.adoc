@@ -32,8 +32,8 @@ For this purpose, each link:umessage.adoc[UMessage] is assigned to one of the fo
 |*CS2* |Operations, Administration, and Management |Streamer messages (sub, connect, etc…)
 |*CS3* |Multimedia streaming |Video Streaming
 |*CS4* |Real-time interactive |High priority (RPC events)
-|*CS5* |Signaling |Important
-|*CS6* |Network control |Safety Critical
+|*CS5* |Important |Signaling
+|*CS6* |Safety Critical |Network control
 |===
 
 These classes are represented by the values of the link:../up-core-api/uprotocol/uattributes.proto[UPriority protobuf enum].
