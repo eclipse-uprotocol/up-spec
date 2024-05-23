@@ -39,15 +39,14 @@ message UUri {
   // 0xFFFF: Wildcard to represent all uE
   // 
   // Instance ID (upper 16 bits):
-  // 0x0000: Don't care, assume instance id of 0
+  // 0x0000: Don't care, assume instance id of 1
   // 0x0001-0xFFFE: Instance id
   // 0xFFFF: Wildcard to represent all instances
   uint32 ue_id = 2;
 
   // Software Entity (uE) major version number.
   //
-  // 0x0: reserved
-  // 0x1-0xFE: Major version number 1-254
+  // 0x0-0xFE: Major version number 0-254
   // 0xFF: Wildcard to represent all versions
   uint32 ue_version_major = 3;
 
@@ -55,8 +54,8 @@ message UUri {
   //
   // Identifier used to represent either a method, publish topic, or notification topic.  
   // 0x0: Default Resource id (for response messages)
-  // 0x0001-0x7FFF: Methods
-  // 0x8000-0xFFFE: Publish or notifications topics
+  // 0x0001-0x7FFF: SHOULD be used for Methods
+  // 0x8000-0xFFFE: SHOULD be used for Publish or notifications topics
   // 0xFFFF: Wildcard to represent all resources
   uint32 resource_id = 4;
 }
