@@ -29,6 +29,23 @@ uProtocol follows Google's https://cloud.google.com/apis/design/errors[protocol-
 
 uProtocol uses https://protobuf.dev/programming-guides/proto3/#services[Protobuf] for defining a service provider's operations. Based on the error model defined above, the _Protobuf Message_ defined/used as the response of an operation *SHOULD* only contain the data/information that represents the outcome of _successful_ execution of the operation.
 
+If an operation does not return any data/information on successful execution, the operation *SHOULD* use a dedicated empty response Message:
+
+[example]
+----
+service HvacService {
+  rpc SetTemperature(SetTemperatureRequest) returns (SetTemperatureResponse);
+}
+
+message SetTemperatureRequest {
+    uint32 temperature = 1;
+}
+
+message SetTemperatureResponse {}
+----
+
+A service consumer invoking this operation will then receive a `UMessage` with an empty payload.
+
 == Service Implementation
 
 In case of _successful_ execution of a service operation, a service provider *MUST* put the operation's response Protobuf Message into the xref:umessage.adoc[response UMessage]'s `payload` and *MUST* set its `commstatus` attribute to value `OK`.
