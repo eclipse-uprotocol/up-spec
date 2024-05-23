@@ -102,7 +102,7 @@ The following table defines attributes that are used for publish messages in add
 |yes
 a|A link:uri.adoc[UUri] representing the topic that this message is published to.
 
-* The UUri's `resource_id` *SHOULD* be set to a value in range `[0x8000, 0xFFFF)`.
+* The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
 |===
 
 [#notification-attributes]
@@ -122,7 +122,7 @@ The following table defines attributes that are used for notification messages i
 |yes
 a|A link:uri.adoc[UUri] representing the component that this notification originates from.
 
-* The UUri's `resource_id` *SHOULD* be set to a value in range `[0x8000, 0xFFFF)`.
+* The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
 
 |`sink`
 |yes
@@ -155,7 +155,7 @@ a|The link:uri.adoc[UUri] that the service consumer expects to receive the respo
 |yes
 a|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
 
-* The UUri's `resource_id` *SHOULD* be set to a value in range `(0, 0x8000)`.
+* The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
 
 |`priority`
 |yes
@@ -196,7 +196,7 @@ The following table defines attributes that are used for RPC response messages i
 |yes
 a|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
 
-* The UUri's `resource_id` *SHOULD* be set to a value in range `(0, 0x8000)`.
+* The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
 
 |`sink`
 |yes
