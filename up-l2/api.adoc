@@ -68,8 +68,6 @@ a| Register & unregister notification Listeners.
 
 * *MUST* follow the link:../basics/error_model.adoc[uProtocol Error Model] for error handling for the respective APIs.
 
-* The API *SHOULD* be idempotent, meaning that calling the same API multiple times registering the same handler multiple times will have no effect.
-
 * The API *MUST* be non-blocking and *SHOULD* be asynchronous. 
 
 * *MAY* use Exceptions or other language-specific error handling mechanisms to report errors vs returning successfully.
