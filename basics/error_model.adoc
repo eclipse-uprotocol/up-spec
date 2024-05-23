@@ -18,5 +18,19 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
+uProtocol supports invoking operations on (remote) service providers by means of _Remote Procedure Calls_ (RPC).
+In order to do so, a client uEntity (service consumer) sends an xref:uattributes.adoc#request-attributes[RPC Request message] to the service provider and waits for a corresponding xref:uattributes.adoc#response-attributes[RPC Response message] which conveys the outcome of the invocation of the operation.
 
-uProtocol will follow Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model] declared in up-core-api project in link:../up-core-api/uprotocol/v1/ustatus.proto[`ustatus.proto`] please refer to the proto for details about UStatus and UCode.
+In general, an RPC can succeed or fail from the service consumer's point of view. In the former case, the response message contains the data/information that is the result of successfully processing the input data conveyed in the request message. In the latter case, the response message contains details regarding the reason why processing of the request message has failed.
+
+uProtocol follows Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model]. In particular, a service consumer *MUST* consider an RPC as _failed_ if the `commstatus` property contained in the xref:uattributes.adoc#response-attributes[response message attributes] has a value other than `OK`. In that case the response message's payload *MUST* be a serialized xref:../up-core-api/uprotocol/v1/ustatus.proto[UStatus] containing detail information about the reason for failure.
+
+== Service Interface Design
+
+uProtocol uses https://protobuf.dev/programming-guides/proto3/#services[Protobuf] for defining a service provider's operations. Based on the error model defined above, the _Protobuf Message_ defined/used as the response of an operation *SHOULD* only contain the data/information that represents the outcome of _successful_ execution of the operation.
+
+== Service Implementation
+
+In case of _successful_ execution of a service operation, a service provider *MUST* put the operation's response Protobuf Message into the xref:umessage.adoc[response UMessage]'s `payload` and *MUST* set its `commstatus` attribute to value `OK`.
+
+In case of _erroneous_ execution, a service provider *SHOULD* put a xref:../up-core-api/uprotocol/v1/ustatus.proto[UStatus Message] into the xref:umessage.adoc[response UMessage]'s `payload` and set its `commstatus` attribute to the same value as the UStatus' `code` property.
