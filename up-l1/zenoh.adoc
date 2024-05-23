@@ -30,7 +30,17 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version `0.10.1-rc` to ensure the interoperability in different language bindings.
+We **MUST** use Zenoh version `0.11.0-rc.3` to ensure the interoperability in different language bindings.
+
+=== UPClientZenoh initialization
+
+While initializing up-client library, we **MUST** include the following information.
+
+* Zenoh Config: If user wants to configure how Zenoh works, they can adjust the configuration.
+* UAuthority: UAuthority is used in two scenarios:
+    - UAuthority is used to generate source authority field in Zenoh key.
+    - While calling `invoke_method`, we need UAuthority and UEntity to generate the response UUri.
+* UEntity: While calling `invoke_method`, we need UAuthority and UEntity to generate the response UUri.
 
 === UAttribute Mapping
 
@@ -86,83 +96,15 @@ Different message types **MUST** use different Zenoh API.
 | CS6 | REAL_TIME
 |===
 
-=== URI Mapping
+==== TTL
 
-UUri **MUST** be able to be serialized into link:../basics/uri.adoc#42-micro-uris[micro form].
-Then we can transform the micro-form UUri, which is `u8` array, into string in lowercase hexadecimal representation.
+While sending Request messages, TTL **MUST** be mapped to the timeout configuration in Zenoh query.
 
-Zenoh key for uProtocol consists of three parts and they are separated by `/`.
-Zenoh key **MUST** start with `upl/` or `upr/`.
-While the local UUri maps to `upl/`, the remote UUri maps to `upr/`.
-If UAuthority is defined in UUri, it **MUST** be put in the second part.
-Then the rest of the UUri **MUST** be put in the last part.
+==== Payload Format
 
-To be more specific:
-
-* The local UUri without UAuthority: `upl/[hexadecimal representation of the UUri]`
-* The remote UUri with UAuthority: `upr/[hexadecimal representation of the UAuthority]/[hexadecimal representation of the rest of the UUri]`
-
-Note that there is a special case. If the UUri only contains UAuthority with empty UEntity and UResource,
-it's defined as a special form of Zenoh key `upr/[byte hexadecimal of UAuthority]/**`.
-It can listen to all the messages sending to a certain UAuthority.
-
-Some examples:
-
-* The local UUri without UAuthority:
-
-[source]
-----
-UUri {
-  authority: empty,
-  entity: UEntity {
-    name: "body.access",
-    version_major: 1,
-    id: 1234,
-  }
-  resource: UResource {
-    name: "door",
-    instance: "front_left",
-    message: "Door",
-    id: 5678,
-  }
-}
-----
-
-It's a local UUri, so it starts with `upl`.
-Also, we leave the second part blank since it doesn't have UAuthority.
-Only ID in UEntity and UResource matters while serializing into link:../basics/uri.adoc#421-local-micro-uri[micro-form Uri].
-Then transform it into lowercase hexadecimal representation.
-The Zenoh key is `upl/0100162e04d20100`.
-
-* The remote UUri with UAuthority
-
-[source]
-----
-UUri {
-  authority: UAuthority {
-    name: UAuthName,
-    number: Id({01, 02, 03, 10, 11, 12})
-  },
-  entity: empty,
-  resource: empty,
-}
-----
-
-It's a remote UUri, so it starts with `upr`.
-The UAuthority is serialized into mirco form.
-Given how a UAuthority containing an ID is serialized into micro form as outlined in link:../basics/uri.adoc#422-remote-micro-uris[the spec],
-it is length + serialized UUri in lowercase hexadecimal representation, which is `06` + `0102030a0b0c`.
-The UEntity and UResource are all blank, so it is the special form UUri.
-It means that the third part is `+++**+++`.
-Therefore, the Zenoh key is `upr/060102030a0b0c/+++**+++`.
-
-=== UPayload
-
-Although UPayload can be encoded into protobuf, it saves a lot of time without encoding.
-UPayload consists of three parts: length, format, data.
-
-* Length only works with shared memory, and we ignore it temporarily.
-* Format **SHOULD** be sent with Zenoh encoding. Zenoh supports `Encoding::WithSuffix`. The encoding here is `KnownEncoding::AppCustom` and the UPayloadFormat (int32) is transformed into the string.
+Payload Format **MUST** be sent with Zenoh encoding.
+Zenoh supports `Encoding::WithSuffix`.
+The encoding here is `KnownEncoding::AppCustom` and the UPayloadFormat (int32) is transformed into the string.
 
 [source, rust]
 ----
@@ -172,88 +114,39 @@ Encoding::WithSuffix(
 )
 ----
 
-* Zenoh takes data as a buffer simply and sends it directly. Ignore the shared memory (reference) temporarily.
+=== UPayload
 
-=== Work Flow
+The data is sent with Zenoh directly without further processing.
 
-The section provides the details how it works in different message types.
+=== URI Mapping
 
-==== Transfer Publish message
+UUri are transformed into Zenoh key expressions following the format defined below.
+The format of Zenoh key **MUST** be 
+`up/[source.authority_name]/[source.ue_id]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_id]/[sink.ue_version_major]/[sink.resource_id]`
 
-1. A uEntity (`origin-authority/origin-entity`) creates a message with
-    * source: `up://origin-authority/origin-entity/origin-version/origin-resource.instance#message`
-    * sink: `-`
+* `up/`: Zenoh key **MUST** always start with `up/`, which can be used to identify the uProtocol traffic.
+* `authority_name`: Since authority is case-insensitive and allows some special characters defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2[RFC3986, Section 3.2.2]. The implementation **MUST** transform all the alphabets to lowercase and use `{}` to escape special characters.
+* `entity_id`, `ue_version_major` and `resource_id`: They *MUST* be mapped to the upper-case base16 encoding.
 
-2. `UTransport.send` maps source (**origin UUri**) to Zenoh key
-    * local (w/o origin-authority): `upl/` + `origin-resource-id + origin-entity-id + origin-version`
-    * remote (with origin-authority): `upr/` + `origin-authority-id/` + `origin-resource-id + origin-entity-id + origin-version`
+[%autowidth]
+|===
+| Special characters in authority | Zenoh Key
 
-3. Subscriber registers a listener on **origin UUri**
-    * `up://origin-authority/origin-entity/origin-version/origin-resource.instance#message`
+| empty | `{}`
+| `$` | `{dollar}`
+|===
 
-4. which `UTransport.registerListener` maps to Zenoh key
-    * local (w/o origin-authority): `upl/` + `origin-resource-id + origin-entity-id + origin-version`
-    * remote (with origin-authority): `upr/` + `origin-authority-id/` + `origin-resource-id + origin-entity-id + origin-version`
+Take some examples:
 
-5. Since this is **Publish URI**, `Zenoh subscriber` will be used to bind the `registerListener`
+[%autowidth]
+|===
+| Use Case | Source | Sink | Zenoh Key
 
-==== Transfer Notification message
-
-1. A uEntity (`origin-authority/origin-entity`) creates a message with
-    * source: `up://origin-authority/origin-entity/origin-version/origin-resource.instance`
-    * sink: `up://dest-authority/dest-entity/dest-version/dest-resource.instance`
-
-2. `UTransport.send` maps sink (**destination UUri**) to Zenoh key
-    * local (w/o dest-authority): `upl/` + `dest-resource-id + dest-entity-id + dest-version`
-    * remote (with dest-authority): `upr/` + `dest-authority-id/` + `dest-resource-id + dest-entity-id + dest-version`
-
-3. Receiver (dest-authority/dest-entity) registers a listener on **destination UUri**
-    * `up://dest-authority/dest-entity/dest-version/dest-resource.instance`
-
-4. which `UTransport.registerListener` maps to Zenoh key
-    * local (w/o dest-authority): `upl/` + `dest-resource-id + dest-entity-id + dest-version`
-    * remote (with dest-authority): `upr/` + `dest-authority-id/` + `dest-resource-id + dest-entity-id + dest-version`
-
-5. Since this is **Notification URI**, `Zenoh subscriber` will be used to bind the `registerListener`
-
-==== Transfer Request message
-
-1. Service consumer (`consumer-authority/consumer-entity`) creates a message with
-    * source: `up://consumer-authority/consumer-entity/consumer-version/rpc.response`
-    * sink: `up://provider-authority/provider-entity/provider-version/rpc.methodname`
-
-2. `UTransport.send` maps sink (**destination UUri**) to Zenoh key
-    * local (w/o provider-authority): `upl/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
-    * remote (with provider-authority): `upr/` + `provider-authority-id/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
-
-3. Service provider (provider-authority/provider-entity) registers a listener on **destination UUri**
-    * `up://provider-authority/provider-entity/provider-version/rpc.methodname`
-
-4. which `UTransport.registerListener` maps to Zenoh key
-    * local (w/o provider-authority): `upl/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
-    * remote (with provider-authority): `upr/` + `provider-authority-id/` + `provider-resource-id(> [METHOD_ID_RANGE]) + provider-entity-id + provider-version`
-
-5. Since this is **Request URI**, `Zenoh queryable` will be used to bind the `registerListener`
-
-==== Transfer Response message
-
-The way to transfer Response message is different from others, because Zenoh can reply the message with its own mechanism and doesn't need to map the UUri to another Zenoh key.
-
-1. Service provider receives a Request message with `Zenoh queryable`, and it can store this query with `UAttributes.id`.
-
-2. `UTransport.send` will retrieve the specific query by comparing the `UAttributes.reqid`, and then send back the message with that query.
-
-3. There are two ways for service consumer to receive the response message:
-    * Using `invoke_method`:
-        - After sending query with `Zenoh get`, we can receive the reply by using `recv()`.
-    * Using `register_listener`:
-        - Service consumer (consumer-authority/consumer-entity) registers a listener on **Response UUri** (`up://consumer-authority/consumer-entity/consumer-version/rpc.response`)
-        - While the request is sent by `UTransport.send`, the listener will be registered in `Zenoh get` and triggered if receiving the response message.
-
-==== Message routing
-
-1. A streamer that is interested in all incoming messages for dest-authority registers a listener for
-    * `up://dest-authority////`
-
-2. which `UTransport.registerListener` maps to Zenoh key
-    * `upr/` + `dest-authority-id/` + `**`
+| Send Publish | up://192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
+| Subscribe messages | up://192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
+| Send Notification | up://192.168.1.100/10AB/3/80CD | up://192.168.1.101/20EF/4/80GH | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/80GH
+| Receive all Notifications | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/20EF/4/80GH | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/80GH
+| Send Request | up://MY-HOST1/10AB/3/0 | up://my-host$/20EF/4/B | up/my-host1/10AB/3/0/my-host{dollar}/20EF/4/B
+| Receive all Requests | up://+++*+++/FFFF/FF/FFFF | up://my-host$/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host{dollar}/20EF/4/B
+| Receive all messages to a device | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/+++*+++/+++*+++/+++*+++
+|===
