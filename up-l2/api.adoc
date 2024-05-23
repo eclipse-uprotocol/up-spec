@@ -1,0 +1,75 @@
+= Communication Layer APIs
+:toc:
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+The Communication Layer APIs provide the common language specific interfaces for the pub/sub, notification, and RPC patterns supported by uProtocol implementations. The interfaces are declared in the link:../languages.adoc[language-specific uProtocol libraries] and as such are merely described at a high level in this document to allow the language-specific libraries to declare the interface signatures using appropriate programming language constructs.
+
+== Interfaces
+
+.Communication Layer Interfaces
+[#messaging-apis, cols="1,1,3",options="header"]
+|===
+|Messaging Pattern | Interface Name | Purpose
+
+| Pub/Sub
+| `*Subscriber*`
+a| Provide `subscribe()` and `unsubscribe()` functionality to published topics, as well as setup listeners to receive the published messages.
+
+* *MUST* be able to handle persistent subscriptions such that the subscriber can remain subscribed even when the subscribe is terminated. 
+
+
+| Pub/Sub
+| `*Publisher*`
+| Provide `publish()` API so publishers can send a message to a given topic.
+
+| Notification
+| `*Notifier*`
+a| Send notification to a specific destination. 
+
+* *MUST* provide `notify()` API that passes the notification topic, the destination address (who to send the notification to), any optional payload, and any other message metadata.
+
+| Notification
+| `*NotificationListener*`
+a| Register & unregister notification Listeners.
+
+| RPC
+| `*RpcServer*`
+| Server-side RPC API that a service uses to register callbacks (or other mechanisms) that will process incoming requests and then automatically generate uProtocol response messages.
+
+| RPC
+| `*RpcClient*`
+| Client-side RPC API to invoke service methods and handle the responses from the service.
+
+|===
+
+* link:../languages.adoc[language-specific uProtocol libraries (Language Libraries)] *MUST* declare the Communication Layer APIs.
+
+*  Language Libraries *MUST* package (group) the <<messaging-apis>> into a folder (package/namespace) called `communication`.
+
+* Language Libraries *MUST* provide a _default_ implementation of the <<messaging-apis>> based on the link:../up-l1/README.adoc[Transport Level APIs].
+
+* *MUST* follow the link:../basics/error_model.adoc[uProtocol Error Model] for error handling for the respective APIs.
+
+* The API *MUST* be non-blocking and *SHOULD* be asynchronous. 
+
+* *MAY* use Exceptions or other language-specific error handling mechanisms to report errors vs returning successfully.
+
+NOTE: For more details of the language specific communication APIs, please consult your respective language-specific uProtocol library documentation.
