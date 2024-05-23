@@ -29,6 +29,6 @@ uProtocol Communication layer (uP-L2) defines the message patterns (pub/sub, not
 | uEs that are responsible for dispatching/forwarding messages between uEs and between uDevices.
 
 | link:api.adoc[*APIs*]
-|  Communication Layer API that implements the pub/sub, notification, and RPC messaging patterns for uE developers (applications and/or services) can use.
+|  Communication Layer API that allows uEntity developers (applications and/or services) to employ the pub/sub, notification and RPC messaging patterns.
 
 |===
