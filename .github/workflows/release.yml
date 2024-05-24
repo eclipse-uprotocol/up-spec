@@ -34,7 +34,7 @@ jobs:
 
     - name: Stage to Nexus and Release to Maven central
       run: |
-        mvn -B release:clean release:prepare -P release release:perform --file pom.xml
+        mvn -B release:clean release:prepare -P release release:perform
       env:
         OSSRH_USER: ${{ secrets.ORG_OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.ORG_OSSRH_PASSWORD }}
@@ -44,7 +44,7 @@ jobs:
 
     - if: cancelled() || failure()
       run: |
-        mvn -B release:rollback --file pom.xml
+        mvn -B release:rollback
       env:
         GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
