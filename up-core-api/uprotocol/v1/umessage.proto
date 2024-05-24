@@ -15,7 +15,7 @@ syntax = "proto3";
 
 package uprotocol.v1;
 
-import "v1/uattributes.proto";
+import "uprotocol/v1/uattributes.proto";
 
 option java_package = "org.eclipse.uprotocol.v1";
 option java_outer_classname = "UMessageProto";

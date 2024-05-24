@@ -37,10 +37,10 @@ jobs:
           settings-path: ${{ github.workspace }} 
   
       - name: Build with Maven
-        run: mvn -B package --file up-core-api/pom.xml
+        run: mvn -B package
   
       - name: Publish maven package to GitHub Packages
-        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml --file up-core-api/pom.xml
+        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
         env:
           # GITHUB_TOKEN: ${{ github.token }}
          GITHUB_TOKEN: ${{ secrets.PKG_PUSH_TOKEN }}
