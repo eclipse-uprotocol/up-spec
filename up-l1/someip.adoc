@@ -1,0 +1,265 @@
+= SOME/IP
+:toc:
+:sectnums:
+:plantuml-server-url: http://www.plantuml.com/plantuml
+:github-plantuml-url: https://github.com/plantuml/plantuml-server/raw/master/dist
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+Scalable service-Oriented MiddlewarE over IP *(SOME/IP)* is a communication protocol used in the automotive industry for exchanging data between electronic control units (ECUs) in a vehicle.
+
+*SOME/IP* provides a framework for efficient and reliable communication between ECUs over IP networks. It is designed to support real-time and high-bandwidth communication requirements in automotive systems. The protocol allows ECUs to discover and communicate with each other, exchange messages, and provide services in a distributed system.
+
+*SOME/IP* is based on the Internet Protocol (IP) and uses UDP or TCP as the transport layer. It supports various communication patterns, including unicast, multicast, and broadcast. The protocol defines a set of message formats and procedures for encoding and decoding data, handling service discovery, and managing communication sessions.
+By using *SOME/IP*, automotive ECUs can communicate with each other to exchange information related to vehicle functions, such as sensor data, control commands, diagnostics, and software updates. It enables the integration and interoperability of different ECUs from various automotive suppliers within a vehicle's network architecture.
+Overall, *SOME/IP* plays a crucial role in facilitating efficient and standardized communication between ECUs in modern automotive systems.
+
+The following specification will elaborate on how uProtocol shall be mapped to *SOME/IP* protocol so that mechatronics applications and services can be connected to non-mechatronics and cloud based applications and services.
+
+=== Open Source Libraries
+
+As of the time of writing, there are two open source projects that are available for *SOME/IP*:
+
+1. *https://github.com/COVESA/vsomeip[COVESA-vsomeip]:* C++ solution based on the original specifications developed by BMW prior to contribution to AUTOSAR
+2. *https://projects.eclipse.org/projects/automotive.sommr[Eclipse-SommR]:*  Rust implementation based on the latest AUTOSAR *SOME/IP* specifications.
+
+NOTE: Given the latest version of *SOME/IP* specifications from AUTOSAR is not open source, we cannot share or implement uProtocol using Eclipse-SommR.
+
+=== AUTOSAR References
+All references below to:
+
+- `[PRS_SOMEIP_XXXXX]` refer to link:https://some-ip.com/standards.shtml[AUTOSAR *SOME/IP* specification].
+- `[PRS_SOMEIP_SD_XXXXX]` refer to link:https://some-ip.com/standards.shtml[SOME/IP Service Discovery Protocol Specification].
+
+A search engine usually finds the correct document based on the reference number.
+
+== Transport Layer Translation
+
+=== UAttributes
+
+The following table highlights the mapping of *uAttributes* to *SOME/IP* fields that apply to all event types. For more information about *uAttributes*, please refer to link:../basics/uattributes.adoc[uAttributes Specification].
+
+
+==== Uris
+
+link:../basics/uattributes.adoc[uAttributes Specification] explains that `source` attributes defines the address of whom sent the message, while `sink` defines the destination for the message in link:../basics/uri.adoc[`UUri`] format. `UUri` is translated to *SOME/IP* attributes per <<sink-source-uri-mapping>> below.
+
+.Sink & Source URI Mapping
+[sink-source-uri-mapping, cols="1,1,2"]
+|===
+| *UUri Portion* | *SOME/IP Field* | *Description*
+a| `authority_name` | IP address & port
+a| IP address & port (destination endpoint) of the mDevice.
+
+NOTE: `vsomeip` hides IP endpoint information and uses `Service ID`/`Instance ID` instead.
+
+a| `ue_id` a| `Instance ID` \| `Service ID`
+a| `Service ID` *MUST* be encoded in the lower 16 bits of `resource_id`.
+
+`Instance ID` *MAY* be encoded in the upper 16 bits of the 32 bit `ue_id`.
+If the upper 16 bits are `0x0000` (a reserved instance value), `Instance ID` is assumed to be `1`.
+
+NOTE: Explicitly setting `Instance ID` to `0x0001` *SHOULD* be avoided as it increases the message size.
+
+a| `ue_version_major` a| `Interface Version`
+a| `Interface Version` field of *SOME/IP Header*. `[PRS_SOMEIP_00053]`.
+
+Maps to `Major Version` for the `Service ID`. If set, it *SHOULD* be passed to underlying *SOME/IP* library to override it's default _Service Major Version_
+
+a| `resource_id` a| `Method ID`/`Event ID` | Identifier of the method/event placed in the
+lower 16 bits of the *SOME/IP Header* `Message ID`. `[PRS_SOMEIP_00034]`
+
+|===
+
+*NOTES:*
+
+    * `Service ID` and `Method ID` are defined in *SOME/IP Header format*, specified by AUTOSAR `[PRS_SOMEIP_00030]`.
+    * `Event ID` is an alias for `Method ID`, but used for events. `[PRS_SOMEIP_00245]`
+    * `Instance ID` is defined in *SOME/IP-SD Service Entry Type*, specified by AUTOSAR `[PRS_SOMEIPSD_00268]`.
+    * `Instance ID` is not present in *SOME/IP Header*, but is needed for _Service Discovery_ and events and *MUST* be provided for *SOME/IP* libraries (e.g. `vsomeip`). `[PRS_SOMEIP_00162]`
+    * Additional mappings *MAY* be required by the underlying *SOME/IP* library, e.g. Service Major/Minor version. Such values *MAY* be pre-configured
+
+==== UUIDs
+
+link:../basics/uuid.adoc[uProtocol UUID] specifications create a unique identifier for each message along with timestamp information.
+
+The ID is used for correlate between request and response as well. *SOME/IP* instead defines the `Request ID` as 16 bit `Client ID` + 16 bit `Session ID` (that is incremented). `[PRS_SOMEIP_00046]`
+
+When messages are converted *SOME/IP* to/from *uProtocol*, care must be taken to ensure that the *SOME/IP* ID and uProtocol UUID are properly mapped, especially when corelating a request to a response.
+
+* Generated *SOME/IP* Events *MUST* set the 16 bit `Client ID` to 0 per `[PRS_SOMEIP_00925]`
+* Generated *SOME/IP* Responses *MUST* auto-populate the `Request ID` cached from the request message, into the response message and then flush the entry in the cache.
+
+Further details of the usage of IDs for the various message types can be found in the next section.
+
+==== Message Type
+
+<<umessagetype-mapping>> table below maps of uProtocol messages to `[PRS_SOMEIP_00055]` *SOME/IP* message types.
+
+.UMessageType Mapping
+[umessagetype-mapping, cols="1,1,2"]
+|===
+| UMessageType | SOME/IP Type | Details
+
+a| `UMESSAGE_TYPE_PUBLISH` a| `NOTIFICATION` | Publish
+
+a| `UMESSAGE_TYPE_REQUEST` a| `REQUEST` | Requests
+
+a| `UMESSAGE_TYPE_RESPONSE` a| `RESPONSE` or `ERROR` | Responses or error has occurred while attempting to deliver the message or a service
+has thrown an exception
+
+a| `UMESSAGE_TYPE_NOTIFICATION` a| `NOTIFICATION` | Notification
+
+|===
+
+
+When receiving *uProtocol* initiated requests:
+
+* *MUST* cache the request `UAttributes` for a maximum of `ttl` so that it can be used to build a response `UAttributes` when receiving a response from *SOME/IP*
+
+```
+response.priority = request.priority
+response.reqid = request.id
+```
+
+When sending auto-generated *SOME/IP* REQUEST messages:
+
+  * *MUST* cache the message's `Request ID` to correlate with the RESPONSE message.
+  * Underlying *SOME/IP* library *SHOULD* handle `Request ID` updating.
+
+When receiving a *SOME/IP* initiated requests:
+
+  * *MUST* cache the *SOME/IP* `Request ID` as well as the generated `UAttributes` for the request messages so that the response can be translated back to a *SOME/IP* response message
+
+
+==== Communication Status
+
+<<commstatus-mapping>> below provides the mapping of link:../basics/uattributes.adoc[UAttributes] `commstatus` `UCode` codes to `[PRS_SOMEIP_0019]` *SOME/IP* error codes.
+
+.Error Code Mapping
+[commstatus-mapping, width=70%]
+|===
+| UCode | SOME/IP Error Codes
+
+a| `OK` a| `E_OK`
+a| `INVALID_ARGUMENT` a| `E_WRONG_MESSAGE_TYPE` or `E_UNKNOWN_METHOD`
+a| `DEADLINE_EXCEEDED` a| `E_TIMEOUT`
+a| `NOT_FOUND` a| `E_UNKNOWN_SERVICE`
+a| `UNAVAILABLE` a| `E_NOT_READY`
+a| `DATA_LOSS` a| `E_MALFORMED_MESSAGE`
+a| `INTERNAL` a| `E_NOT_REACHABLE`
+a| `UNKNOWN` a| `E_NOT_OK`
+a| `FAILED_PRECONDITION` a| `E_WRONG_PROTOCOL_VERSION` or `E_WRONG_INTERFACE_VERSION`
+|===
+
+
+=== UPayload
+
+`UPayload` hosts the application layer data that is being sent between devices.
+
+`payload` structure, defined in link:../basics/umessage.adoc[UMessage] contains either a copy or reference to the actual payload that is to be sent.
+`UMessage.attributes` also contains link:../basics/upayloadformat.adoc[UPayloadFormat] used to give a hint of the payload format (protobuf serialized, SOME/IP format, TEXT, RAW, etc...).
+
+The *SOME/IP* specification however does not have an equivalent field for `UPayloadFormat` as it is assumed that the payload is serialized in the format that the other end knows how to deserialize (i.e. it is fixed per topic). As such, when converting between *uProtocol* and *SOME/IP*, the `UPayloadFormat` field *SHOULD* be ignored (left at the default of `UMESSAGE_TYPE_UNSPECIFIED`).
+
+
+=== uTransport
+
+Mapping of uTransport APIs to *SOME/IP* specific library APIs shall not be covered in this document given there are multiple open source libraries available for *SOME/IP*.
+
+
+== Application Layer Translation
+
+Application (or message payload) translation is the process of converting *SOME/IP-SD* subscription and discovery messages, to/from *uDiscovery* and *uSubscription* Messages.
+
+=== uSubscription
+
+The following section will elaborate only on the translation of *uSubscription* messages to/from *SOME/IP-SD* messages. Subscription state (persistent or not) is handled in the *uSubscription* services and not at the transport layer or this component.
+
+The following section we will elaborate on how Eventgroup Entry types are mapped to link:../up-l3/usubscription/v3/README.adoc[*uSubscription*] messages for the subscribe
+and unsubscribe flows per `[PRS_SOMEIPSD_00385]`.
+
+==== Common Fields
+
+<<common-field-mappings>> table below illustrates the common *SOME/IP-SD* EventGroup Entry fields that are present in for all *SOME/IP-SD* Eventgroup entry types (`SubscribeEventgroup`, `SubscribeEventGroupAck`, `SubscribeEventgroupNack`, `StopSubscribeEventGroup`).
+
+These fields are then mapped to uProtocol `UUri` attributes used in uProtocol `UMessage` for performing subscription operations.
+
+.Common Field Mappings
+[#common-field-mappings,  cols="1,2"]
+|===
+| Eventgroup Entry Field | UUri
+
+a| `Service ID` a| Set in lower 16 bits of `ue_id`
+
+a| `Instance ID` a| If instance is not the default (`0x1`), set it in upper 16 bits of `ue_id`
+
+a| `Major Version` a| `ue_version_major`
+
+a| `EventGroup ID` / `Event ID` a| `resource_id`
+
+NOTE: `1:1` mapping between `EventGroup ID` and `Event ID` is assumed. This may require specific ECU Firmware.
+
+
+|===
+
+NOTE: `UUri.authority_name` *MAY* be translated to/from IPv4 (and/or IPv6) Endpoint Option of the *SOME/IP-SD* message, although in `vsomeip` this is not available in the API (e.g. each discovered Endpoint maps to `Service ID`/`Instance ID`/`Major Version`/`Minor Version`).
+
+==== EventGroup Entry Type Mapping
+
+.EventGroup Entry Type Mapping
+[#eventgroup-entry-mapping, cols="1,1,2"]
+|===
+| Eventgroup Entry Type | uSubscription Message | Additional Details
+
+a| `SubscribeEventGroup`
+a| `SubscriptionRequest`
+a| The message is used to subscribe to a topic.
+
+* If `SubscribeAttributes.expire` is not set, `TTL` *MAY* be set to `0xFFFFFF` to indicate that the subscription should remain for the duration of the ignition cycle
+
+NOTE: `vsomeip` has static TTL configuration (for Service Discovery), that applies for all subscriptions. It can't be changed per subscription.
+
+a| `SubscribeEventGroupAck`
+a| `SubscriptionResponse`
+a| The message is used to acknowledge a successful subscription request.
+
+* `SubscriptionStatus.code` *SHALL* be set to `OK`
+* `SubscriptionStatus.state` *SHALL* be set to `SUBSCRIBED`
+
+a| `SubscribeEventGroupNack`
+a| `SubscriptionResponse`
+a| The message is used to acknowledge a failed subscription request.
+
+* SubscriptionStatus.code *SHALL* be set to the corresponding error code per the <<commstatus-mapping>> table
+* SubscriptionStatus.state *SHALL* be set to `UNSUBSCRIBED`
+
+a|`StopSubscribeEventGroup`
+a|`UnsubscribeRequest`
+a|The message is used to unsubscribe from a topic.
+
+* `TTL` *SHALL* be set to 0 to indicate that the subscription has terminated.
+NOTE: handled by underlying *SOME/IP* library.
+
+|===
+
+
+=== uDiscovery Translation
+
+*TODO:* _Pending uDiscovery v3 redesign_
