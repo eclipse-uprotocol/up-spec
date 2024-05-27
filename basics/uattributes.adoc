@@ -42,7 +42,7 @@ uProtocol defines four types of messages:
 
 |RPC Response
 |A message that is used by a service provider to send the outcome of processing a request message
-from a servcice consumer.
+from a service consumer.
 |===
 
 Each type of message is described by a set of mandatory and optional attributes.
@@ -69,7 +69,7 @@ The following table defines attributes that are used for all message types:
 |`ttl`
 |`unsigned integer`
 |no
-|The amount of time (in milliseconds) after which this message *MUST* no longer be delivered/processed. The message is considered expired if this attribute is set to a positive value and
+a|The amount of time (in milliseconds) after which this message *MUST* no longer be delivered/processed. The message is considered expired if this attribute is set to a positive value and
 
 stem:[t_{current} > t_{id} + ttl]
 
@@ -100,7 +100,7 @@ The following table defines attributes that are used for publish messages in add
 
 |`source`
 |yes
-|A link:uri.adoc[UUri] representing the topic that this message is published to.
+a|A link:uri.adoc[UUri] representing the topic that this message is published to.
 
 * The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
 |===
@@ -120,13 +120,13 @@ The following table defines attributes that are used for notification messages i
 
 |`source`
 |yes
-|A link:uri.adoc[UUri] representing the component that this notification originates from.
+a|A link:uri.adoc[UUri] representing the component that this notification originates from.
 
 * The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFF)`.
 
 |`sink`
 |yes
-|A link:uri.adoc[UUri] representing the receiver of this notification.
+a|A link:uri.adoc[UUri] representing the receiver of this notification.
 
 * The UUri's `resource_id` *MUST* be set to `0`.
 
@@ -147,13 +147,13 @@ The following table defines attributes that are used for RPC request messages in
 
 |`source`
 |yes
-|The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
+a|The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
 
 * The UUri's `resource_id` *MUST* be set to `0`.
 
 |`sink`
 |yes
-|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
+a|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
 
 * The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
 
@@ -194,13 +194,13 @@ The following table defines attributes that are used for RPC response messages i
 
 |`source`
 |yes
-|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
+a|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
 
 * The UUri's `resource_id` *MUST* be set to a value in range `(0, 0x8000)`.
 
 |`sink`
 |yes
-|The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
+a|The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
 
 * The UUri's `resource_id` *MUST* be set to `0`.
 

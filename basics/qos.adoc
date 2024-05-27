@@ -36,7 +36,7 @@ For this purpose, each link:umessage.adoc[UMessage] is assigned to one of the fo
 |*CS6* |Safety Critical |Network control
 |===
 
-These classes are represented by the values of the link:../up-core-api/uprotocol/uattributes.proto[UPriority protobuf enum].
+These classes are represented by the values of the link:../up-core-api/uprotocol/v1/uattributes.proto[UPriority protobuf enum].
 
 * A UMessage *MAY* be assigned _explicitly_ to a service class by setting its `attributes.priority` property to the desired value.
 [#default-priority]
