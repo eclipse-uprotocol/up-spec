@@ -42,26 +42,24 @@ service uDiscovery {
   // Used by any uProtocol application or service to find service instances
   // locations. The passed UUri contains valid UEntity, UResource, and UAuthority information
   // for a query.
-  // What is returned is a list of UUris that match the query. Possible return values in status are:
-  // 1. code.OK: Query lookup was successful
+  // What is returned is a list of UUris that match the query.
+  // If lookup fails, the response will be a UStatus with
   // 2. code.NOT_FOUND: No matching UUris were found
   // 3. code.INVALID_ARGUMENT: The passed UUri is invalid
   // 4. code.PERMISSION_DENIED: The caller does not have permission to perform the query
-  rpc LookupUri(v1.UUri) returns (LookupUriResponse) {
+  rpc LookupUri(LookupUriRequest) returns (LookupUriResponse) {
     option (uprotocol.method_id) = 1;
   }
 
   // Update a node in the database.
-  // What is returned is the status of the API request as uprotocol.v1.UStatus.
   // **NOTE:** You MUST have write permission to the node in the database
-  rpc UpdateNode(UpdateNodeRequest) returns (uprotocol.v1.UStatus) {
+  rpc UpdateNode(UpdateNodeRequest) returns (UpdateNodeResponse) {
     option (uprotocol.method_id) = 2;
   }
 
   // Query the database to find Node(s). What is passed is the search criterial in
   // the FindNodeRequest message. the returned FindNodeResponse contains the
-  // resulting query node(s) and their child nodes, as well as the
-  // uprotocol.v1.UStatus for the query. Below are some example queries:
+  // resulting query node(s) and their child nodes. Below are some example queries:
   // 1. uDomain: `//*.device/`
   // 2. uDevice: `//device`
   // 3. uService: `//device.domain/body.access/`
@@ -77,19 +75,18 @@ service uDiscovery {
   }
 
   // Remove one or more nodes (and all its children nodes) in the database.
-  // What is returned is the status of the API request as uprotocol.v1.UStatus.
   // **NOTE:** You MUST have write permission to the deleted all the nodes passed,
   // all the children nodes, as well as write permission to the parent otherwise
   // you will get PERMISSION_DENIED and no nodes will be deleted.
-  rpc DeleteNodes(DeleteNodesRequest) returns (uprotocol.v1.UStatus) {
+  rpc DeleteNodes(DeleteNodesRequest) returns (DeleteNodesResponse) {
     option (uprotocol.method_id) = 5;
   }
 
 
-  // Add one of more nodes to a parent node. If one of the nodes already exists, this API will return
-  // ALREADY_EXISTS and none of the nodes shall be added to the parent.
+  // Add one of more nodes to a parent node. If one of the nodes already exists, this RPC will fail
+  // with a UStatus containing an ALREADY_EXISTS UCode and none of the nodes shall be added to the parent.
   // **NOTE:** You MUST have write permission to the parent node
-  rpc AddNodes(AddNodesRequest) returns (uprotocol.v1.UStatus) {
+  rpc AddNodes(AddNodesRequest) returns (AddNodesResponse) {
     option (uprotocol.method_id) = 6;
   }
 
@@ -97,28 +94,28 @@ service uDiscovery {
   // Update a property in a node
   // **NOTE:** You MUST have write permission to the node who's property you
   // are updating
-  rpc UpdateProperty(UpdatePropertyRequest) returns (uprotocol.v1.UStatus) {
+  rpc UpdateProperty(UpdatePropertyRequest) returns (UpdatePropertyResponse) {
     option (uprotocol.method_id) = 7;
   }
 
 
   // Register to receive Notifications to changes to one of more Nodes. The changes
   // are published on the notification topic: '/core.udiscovery/3/nodes#Notification'
-  rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
+  rpc RegisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
     option (uprotocol.method_id) = 8;
   }
   
 
   // Unregister for Node change notifications
-  rpc UnregisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
+  rpc UnregisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
     option (uprotocol.method_id) = 9;
   }
 
   
   // Resolve a UUri filling in the missing names/numbers from the Discovery database.
   // If the resolution was successful, the resolved UUri containing names and numbers
-  // is returned along with the following status.code values:
-  // - code.OK: Resolution was successfull
+  // is returned.
+  // If resolving fails, the response will be a UStatus with
   // - code.NOT_FOUND: Unable to find the missing names or numbers for the passed UUri
   // - code.INVALID_ARGUMENT: The passed UUri is invalid (missing names or numbers)
   // - code.PERMISSION_DENIED: The caller does not have permission to perform the resolution
@@ -186,12 +183,14 @@ message UpdateNodeRequest {
   optional int32 ttl = 3;
 }
 
+message UpdateNodeResponse {}
 
 // Delete one or more nodes request
 message DeleteNodesRequest {
   repeated string uris = 1;   // uProtocol formatted URI
 }
 
+message DeleteNodesResponse {}
 
 // FindNodesRequest passed to FindNodes()
 message FindNodesRequest {
@@ -208,11 +207,10 @@ message FindNodesRequest {
 
 // FindNodesResponse that is returned from the FindNodes() API
 message FindNodesResponse {
+  reserved 2;
+
   // List of node information
   repeated Node nodes = 1;
-
-  // Return code for the rpc call
-  uprotocol.v1.UStatus status = 2;
 
   // Time-to-live: How long (ms) the information should be live for in the database.
   // -1 means lives forever
@@ -233,11 +231,9 @@ message FindNodePropertiesRequest {
 
 // Returned from FindNodeProperties()
 message FindNodePropertiesResponse {
+  reserved 2;
   // a list of property name/value pairs
   map <string, PropertyValue>  properties = 1;
-
-  // Return code for the rpc call
-  uprotocol.v1.UStatus status = 2;
 }
 
 
@@ -253,6 +249,7 @@ message AddNodesRequest {
   repeated Node nodes = 2;
 }
 
+message AddNodesResponse {}
 
 // Message passed to UpdateProperty() to update a property in a Node
 message UpdatePropertyRequest {
@@ -266,6 +263,7 @@ message UpdatePropertyRequest {
   PropertyValue value = 3;
 }
 
+message UpdatePropertyResponse {}
 
 // Node Change Notification Message.
 // When uEs call RegisterForNotifications(), a Notification message is sent when the node either
@@ -323,24 +321,32 @@ message NotificationsRequest {
   optional int32 depth = 3;
 }
 
+message NotificationsResponse {}
+
 // Request message passed to ResolveUri() API to resolve the missing names or numbers.
 message ResolveUriRequest {
-  // The URI to resolve containing only names or numbers
-  v1.UUri uri = 1;
+  // The URI to resolve
+  uprotocol.v1.UUri uri = 1;
 }
 
 
-// Response message returned from ResolveUri() API containing a UUri and the 
-// status of the resolution.
+// Response message returned from ResolveUri() API containing the resolved UUri
 message ResolveUriResponse {
-  v1.UUri uri = 1;                 // Resolved UUri  
-  uprotocol.v1.UStatus status = 3; // Return code for the rpc call
+  reserved 3;
+  // Resolved URI
+  uprotocol.v1.UUri uri = 1;
 }
 
+// Request message passed to LookupUri() API.
+message LookupUriRequest {
+  // The Uri to look up
+  uprotocol.v1.UUri uri = 1;
+}
 
 // Return value from LookupUri() API that contains the batch of Uris for the 
-// lookup and status from the API call
+// lookup
 message LookupUriResponse {
-  v1.UUriBatch uris = 1;           // Batch of Uris
-  uprotocol.v1.UStatus status = 2; // Return code for the rpc call
+  reserved 2;
+  // Batch of URIs
+  uprotocol.v1.UUriBatch uris = 1;           
 }

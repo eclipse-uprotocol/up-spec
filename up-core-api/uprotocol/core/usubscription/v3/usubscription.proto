@@ -54,7 +54,7 @@ service uSubscription {
 
   // The consumer no longer wishes to subscribe to a topic so it issues an
   // explicit unsubscribe request.
-  rpc Unsubscribe(UnsubscribeRequest) returns (uprotocol.v1.UStatus) {
+  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {
     option (uprotocol.method_id) = 2;
   }
 
@@ -66,12 +66,12 @@ service uSubscription {
 
   // Register to receive subscription change notifications that are published on the
   // 'up:/core.usubscription/3/subscriptions#Update'
-  rpc RegisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
+  rpc RegisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
     option (uprotocol.method_id) = 6;
   }
 
   // Unregister for subscription change events
-  rpc UnregisterForNotifications(NotificationsRequest) returns (uprotocol.v1.UStatus) {
+  rpc UnregisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
     option (uprotocol.method_id) = 7;
   }
 
@@ -87,7 +87,7 @@ service uSubscription {
   // reset).
   // **__NOTE:__** This is a private API only for uSubscription services,
   // uEs can call Unsubscribe() to flush their own subscriptions.
-  rpc Reset(ResetRequest) returns (uprotocol.v1.UStatus) {
+  rpc Reset(ResetRequest) returns (ResetResponse) {
     option (uprotocol.method_id) = 9;
   }
 }
@@ -119,7 +119,7 @@ message SubscribeAttributes {
 message SubscriberInfo {
   // subscriber URI containig the names and numbers of the
   // uE subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
-  v1.UUri uri = 1;
+  uprotocol.v1.UUri uri = 1;
 
   // Any additional device specific subscriber information
   repeated google.protobuf.Any details = 2;
@@ -141,11 +141,10 @@ message SubscriptionStatus {
                               // remote uSubscription Service
   }
 
+  reserved 2;
+
   // Subscription state
   State state = 1;
-
-  // The Subscription status code
-  uprotocol.v1.UCode code = 2;
 
   // The Subscription status message
   string message = 3;
@@ -171,7 +170,7 @@ message EventDeliveryConfig {
 // Passed to Subscribe() contains the subscription request information
 message SubscriptionRequest {
   // uProtocol uri topic to subscribe too
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Subscribers's information (who is calling Subscribe)
   SubscriberInfo subscriber = 2;
@@ -183,7 +182,7 @@ message SubscriptionRequest {
 
 // Response message from the Subscribe() API
 message SubscriptionResponse {
-  // Current status of the subscription (state, code, etc...)
+  // Current status of the subscription
   SubscriptionStatus status = 1;
 
   // Any platform (uDevice) specific additional event delivered configuration
@@ -191,7 +190,7 @@ message SubscriptionResponse {
   EventDeliveryConfig config = 2;
 
   // Subscription topic passed to SubscriptionRequest
-  v1.UUri topic = 3;
+  uprotocol.v1.UUri topic = 3;
 }
 
 
@@ -199,18 +198,19 @@ message SubscriptionResponse {
 // to as well as the subscriber identification
 message UnsubscribeRequest {
   // Topic to be unsubscribed to
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Subscriber identification
   SubscriberInfo subscriber = 2;
 }
 
+message UnsubscribeResponse {}
 
 // Passed to FetchSubscribers such that we can obtain a list of subscribers to
 // a particular topic
 message FetchSubscribersRequest {
   // Topic we wish to find the subscribers for
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Offset in the fetch requests
   optional uint32 offset = 2;
@@ -220,14 +220,12 @@ message FetchSubscribersRequest {
 // Returned from FetchSubscribers(), this message contains a repeated list of
 // SubscriberInfo
 message FetchSubscribersResponse {
+  reserved 3;
   // List of subscribers
   repeated SubscriberInfo subscribers = 1;
 
   // Set to true if the batch did not return all records
   optional bool has_more_records = 2;
-
-  // Status of the query
-  uprotocol.v1.UStatus status = 3;
 }
 
 
@@ -235,12 +233,12 @@ message FetchSubscribersResponse {
 // is returned from FetchSubscriptions() API.
 message Subscription {
   // Subscription topic
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Information about the subscriber who changed their subscription
   SubscriberInfo subscriber = 2;
 
-  // Current status of the subscription (state, code, etc...)
+  // Current status of the subscription
   SubscriptionStatus status = 3;
 
   // Subscribers subscription attributes
@@ -255,7 +253,7 @@ message Subscription {
 message FetchSubscriptionsRequest {
   oneof request {
     // Topic to register/unregister to receive subscription change notifications
-    v1.UUri topic = 1;
+    uprotocol.v1.UUri topic = 1;
 
     // Subscribers's information
     SubscriberInfo subscriber = 2;
@@ -268,14 +266,12 @@ message FetchSubscriptionsRequest {
 
 // Results from FetchSubscriptions() API
 message FetchSubscriptionsResponse {
+  reserved 3;
   // Repeated list of subscriptions for a subscriber
   repeated Subscription subscriptions = 1;
 
   // Set to true if the batch did not return all records
   optional bool has_more_records = 2;
-
-  // Status of the query
-  uprotocol.v1.UStatus status = 3;
 }
 
 
@@ -284,13 +280,13 @@ message FetchSubscriptionsResponse {
 // as information about the subscriber who wishes to receive said notifications
 message NotificationsRequest {
   // Topic to register/unregister to receive subscription change notifications
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Subscribers's information
   SubscriberInfo subscriber = 2;
 }
 
-
+message NotificationsResponse {}
 
 // Subscription Update Message.
 // This Update message is sent from uSusbcription on the topic:
@@ -299,12 +295,12 @@ message NotificationsRequest {
 // any uE that called RegisterForNotifications().
 message Update {
   // Subscribed topic whos state has changed
-  v1.UUri topic = 1;
+  uprotocol.v1.UUri topic = 1;
 
   // Information about the subscriber who changed their subscription
   SubscriberInfo subscriber = 2;
 
-  // Current status of the subscription (state, code, etc...)
+  // Current status of the subscription
   SubscriptionStatus status = 3;
 
   // Subscribers subscription attributes
@@ -354,3 +350,5 @@ message ResetRequest {
     }
   }
 }
+
+message ResetResponse {}
