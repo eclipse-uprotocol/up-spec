@@ -21,13 +21,13 @@ Core uProtocol services interfaces to define:
 |===
 |File |Description
 
-|link:udiscovery/v2/udiscovery.proto[*udiscovery.proto*]
+|link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
 |Contract for dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
 
-|link:usubscription/v2/usubscription.proto[*usubscription.proto*]
+|link:usubscription/v3/usubscription.proto[*usubscription.proto*]
 |Contract for publishers and subscribers to subscribe/publish to topics
 
-|link:utwin/v1/utwin.proto[*utwin.proto*]
+|link:utwin/v2/utwin.proto[*utwin.proto*]
 a|* Device-to-device Twin:
 ** To enable remote Apps to access last published state (and received by the device)
 ** To remain accessible even if connectivity is lost
