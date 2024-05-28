@@ -17,7 +17,6 @@ package uprotocol.core.udiscovery.v3;
 import "google/protobuf/timestamp.proto";
 import "uprotocol/uoptions.proto";
 import "uprotocol/v1/uri.proto";
-import "uprotocol/v1/ustatus.proto";
 
 option java_package = "org.eclipse.uprotocol.core.udiscovery.v3";
 option java_outer_classname = "UDiscoveryProto";
