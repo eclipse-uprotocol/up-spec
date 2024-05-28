@@ -16,7 +16,7 @@
     <artifactId>uprotocol-core-api</artifactId>
     <name>uProtocol Core uEs API</name>
     <description>This project contains the built artifacts for core uProtocol services (uSubscription, uDiscovery, uTwin, etc..). Artifacts include language specific messages and client/server stubs</description>
-    <version>1.5.8</version>
+    <version>1.5.9-SNAPSHOT</version>
     <packaging>jar</packaging>
     <url>https://github.com/eclipse-uprotocol/up-spec/</url>
 
@@ -54,7 +54,7 @@
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
         <url>https://github.com/eclipse-uprotocol/up-spec.git</url>
-        <tag>uprotocol-core-api-1.5.8</tag>
+        <tag>HEAD</tag>
     </scm>
 
 
