@@ -64,6 +64,7 @@ message MessageResponse {
   uprotocol.v1.UMessage message = 3;
 }
 
+// The request message for the GetLastMessage operation.
 message GetLastMessagesRequest {
   // The topics to get the last message for
   uprotocol.v1.UUriBatch topics = 1;
@@ -75,8 +76,10 @@ message GetLastMessagesResponse {
   repeated MessageResponse responses = 2;
 }
 
+// The request message for the SetLastMessage operation.
 message SetLastMessageRequest {
   uprotocol.v1.UMessage message = 1;
 }
 
+// The (empty) response message representing the successful execution of the SetLastMessage operation.
 message SetLastMessageResponse {}

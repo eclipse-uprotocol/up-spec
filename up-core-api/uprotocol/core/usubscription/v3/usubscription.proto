@@ -204,6 +204,7 @@ message UnsubscribeRequest {
   SubscriberInfo subscriber = 2;
 }
 
+// The (empty) response message representing the successful execution of the Unsubscribe operation.
 message UnsubscribeResponse {}
 
 // Passed to FetchSubscribers such that we can obtain a list of subscribers to
@@ -266,7 +267,6 @@ message FetchSubscriptionsRequest {
 
 // Results from FetchSubscriptions() API
 message FetchSubscriptionsResponse {
-  reserved 3;
   // Repeated list of subscriptions for a subscriber
   repeated Subscription subscriptions = 1;
 
@@ -286,6 +286,8 @@ message NotificationsRequest {
   SubscriberInfo subscriber = 2;
 }
 
+// The (empty) response message representing the successful execution of the
+// RegisterForSubscriptionChanges and UnregisterForSubscriptionChanges operations.
 message NotificationsResponse {}
 
 // Subscription Update Message.
@@ -351,4 +353,5 @@ message ResetRequest {
   }
 }
 
+// The (empty) response message representing the successful execution of the Reset operation.
 message ResetResponse {}

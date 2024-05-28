@@ -180,9 +180,10 @@ message UpdateNodeRequest {
 
   // Time-to-live: How long (ms) the information should be live for in the database.
   // -1 means lives forever
-  optional int32 ttl = 3;
+  optional int32 ttl = 2;
 }
 
+// The (empty) response message representing the successful execution of the UpdateNode operation.
 message UpdateNodeResponse {}
 
 // Delete one or more nodes request
@@ -190,6 +191,7 @@ message DeleteNodesRequest {
   repeated string uris = 1;   // uProtocol formatted URI
 }
 
+// The (empty) response message representing the successful execution of the DeleteNodes operation.
 message DeleteNodesResponse {}
 
 // FindNodesRequest passed to FindNodes()
@@ -207,14 +209,13 @@ message FindNodesRequest {
 
 // FindNodesResponse that is returned from the FindNodes() API
 message FindNodesResponse {
-  reserved 2;
 
   // List of node information
   repeated Node nodes = 1;
 
   // Time-to-live: How long (ms) the information should be live for in the database.
   // -1 means lives forever
-  optional int32 ttl = 3;
+  optional int32 ttl = 2;
 }
 
 
@@ -231,7 +232,6 @@ message FindNodePropertiesRequest {
 
 // Returned from FindNodeProperties()
 message FindNodePropertiesResponse {
-  reserved 2;
   // a list of property name/value pairs
   map <string, PropertyValue>  properties = 1;
 }
@@ -249,6 +249,7 @@ message AddNodesRequest {
   repeated Node nodes = 2;
 }
 
+// The (empty) response message representing the successful execution of the AddNodes operation.
 message AddNodesResponse {}
 
 // Message passed to UpdateProperty() to update a property in a Node
@@ -263,6 +264,7 @@ message UpdatePropertyRequest {
   PropertyValue value = 3;
 }
 
+// The (empty) response message representing the successful execution of the UpdateProperty operation.
 message UpdatePropertyResponse {}
 
 // Node Change Notification Message.
@@ -321,6 +323,8 @@ message NotificationsRequest {
   optional int32 depth = 3;
 }
 
+// The (empty) response message representing the successful execution of the
+// RegisterForNotifications and UnregisterForNotifications operations.
 message NotificationsResponse {}
 
 // Request message passed to ResolveUri() API to resolve the missing names or numbers.
@@ -332,7 +336,6 @@ message ResolveUriRequest {
 
 // Response message returned from ResolveUri() API containing the resolved UUri
 message ResolveUriResponse {
-  reserved 3;
   // Resolved URI
   uprotocol.v1.UUri uri = 1;
 }
@@ -346,7 +349,6 @@ message LookupUriRequest {
 // Return value from LookupUri() API that contains the batch of Uris for the 
 // lookup
 message LookupUriResponse {
-  reserved 2;
   // Batch of URIs
-  uprotocol.v1.UUriBatch uris = 1;           
+  uprotocol.v1.UUriBatch uris = 1;
 }
