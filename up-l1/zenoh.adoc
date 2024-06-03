@@ -36,11 +36,8 @@ We **MUST** use Zenoh version `0.11.0-rc.3` to ensure the interoperability in di
 
 While initializing up-client library, we **MUST** include the following information.
 
-* Zenoh Config: If user wants to configure how Zenoh works, they can adjust the configuration.
-* UAuthority: UAuthority is used in two scenarios:
-    - UAuthority is used to generate source authority field in Zenoh key.
-    - While calling `invoke_method`, we need UAuthority and UEntity to generate the response UUri.
-* UEntity: While calling `invoke_method`, we need UAuthority and UEntity to generate the response UUri.
+* Zenoh Config: If users want to configure how Zenoh works, they can adjust the configuration.
+* UAuthority: The authority might be omitted in local UUri, and we need this to derive the Zenoh key.
 
 === UAttribute Mapping
 
@@ -100,20 +97,6 @@ Different message types **MUST** use different Zenoh API.
 
 While sending Request messages, TTL **MUST** be mapped to the timeout configuration in Zenoh query.
 
-==== Payload Format
-
-Payload Format **MUST** be sent with Zenoh encoding.
-Zenoh supports `Encoding::WithSuffix`.
-The encoding here is `KnownEncoding::AppCustom` and the UPayloadFormat (int32) is transformed into the string.
-
-[source, rust]
-----
-Encoding::WithSuffix(
-    KnownEncoding::AppCustom,
-    payload.format.value().to_string().into(),
-)
-----
-
 === UPayload
 
 The data is sent with Zenoh directly without further processing.
@@ -125,16 +108,11 @@ The format of Zenoh key **MUST** be
 `up/[source.authority_name]/[source.ue_id]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_id]/[sink.ue_version_major]/[sink.resource_id]`
 
 * `up/`: Zenoh key **MUST** always start with `up/`, which can be used to identify the uProtocol traffic.
-* `authority_name`: Since authority is case-insensitive and allows some special characters defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2[RFC3986, Section 3.2.2]. The implementation **MUST** transform all the alphabets to lowercase and use `{}` to escape special characters.
-* `entity_id`, `ue_version_major` and `resource_id`: They *MUST* be mapped to the upper-case base16 encoding.
+* `authority_name`: The authority defined in link:../basics/uri.adoc#3-mapping-to-uri[URI spec] is mapped into Zenoh key directly.
+* `ue_id`, `ue_version_major` and `resource_id`: They *MUST* be mapped to the upper-case base16 encoding.
 
-[%autowidth]
-|===
-| Special characters in authority | Zenoh Key
-
-| empty | `{}`
-| `$` | `{dollar}`
-|===
+Note that in Publish use case, there is no sink UURI.
+We **MUST** use `{}` to replace the empty `authority_name`, `ue_id`, `ue_version_major`, and `resource_id`.
 
 Take some examples:
 
@@ -146,7 +124,7 @@ Take some examples:
 | Subscribe messages | up://192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
 | Send Notification | up://192.168.1.100/10AB/3/80CD | up://192.168.1.101/20EF/4/80GH | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/80GH
 | Receive all Notifications | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/20EF/4/80GH | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/80GH
-| Send Request | up://MY-HOST1/10AB/3/0 | up://my-host$/20EF/4/B | up/my-host1/10AB/3/0/my-host{dollar}/20EF/4/B
-| Receive all Requests | up://+++*+++/FFFF/FF/FFFF | up://my-host$/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host{dollar}/20EF/4/B
+| Send Request | up://my-host1/10AB/3/0 | up://my-host2/20EF/4/B | up/my-host1/10AB/3/0/my-host2/20EF/4/B
+| Receive all Requests | up://+++*+++/FFFF/FF/FFFF | up://my-host2/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/20EF/4/B
 | Receive all messages to a device | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/+++*+++/+++*+++/+++*+++
 |===
