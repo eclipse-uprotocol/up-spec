@@ -18,88 +18,102 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-== Overview
+== Overview 
 
-Language specific uProtocol libraries (_the library_) implement the data model defined in link:../basics/README.adoc[uProtocol Basic Types] in a particular programming language like Java, Rust or C/C++. A library also provides helpers for validating data model instances, serializing UUris to a textual representation as well as builders for correctly instantiating more complex data types. Each library includes the language specific declaration of the abstract interfaces defined in uProtocol link:../up-l1/README.adoc[Layer 1] and link:../up-l2/README.adoc[Layer 2].
-
-NOTE: All libraries *MUST* be made available under a permissive (OSS) license like Apache 2.0 or MIT and *MUST* be hosted under the https://github.com/eclipse-uprotocol[Eclipse uProtocol GitHub Organization].
-
-== Source Code Structure
-
-The following sections define the content and structure of these libraries.
-
-* The root namespace (package name) *MUST* be `org.eclipse.uprotocol`
-* Modules defined in table <<content>> below *MUST* be implemented in their own folder (namespace)
-* Each module *SHOULD* separate the implementation of the specification as defined in table <<folders>> below.
+A uProtocol Language specific libraries (_libraries_), are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport Layer (uP-L1) and implement the uProtocol Communication Layer API (uP-L2).
 
 
-.Module Folders/Namespace
-[#folders,width="80%",cols="20%,80%",options="header"]
-|===
-| Folder | Description
+== Requirements
 
-| `validators`
-| static methods to validate the data model
+=== Content
 
-| `serializer`
-| Any code that is responsible to Serialize and deserialize the data model
+[oft-sid="req~up-language-api~1"]
+--
+* *MUST* implement serializers, validators, and builders for the link:../basics/README.adoc[uProtocol data types] using the link:../up-core-api/README.adoc[up-core-api data model].
+--
 
-| `factory` (or `builder`)
-| Factory methods to build the data model per business logic (i.e. to build CloudEvents, UUIDs, etc..)
+[oft-sid="req~up-language-transport-api~1"]
+--
+* *MUST* declare the language specific link:up-l1/README.adoc[uProtocol Transport Layer interface], such that the interface can be implemented by the transport libraries.
+--
 
-|===
+[oft-sid="req~up-language-comm-api~1"]
+--
+* *MUST* provide an implementation of the link:up-l2/README.adoc[uProtocol Communication Layer API].
+--
 
+[oft-sid="req~up-language-naming~1"]
+--
+* *MUST* be named according to pattern `up-[LANGUAGE]`
+--
 
-=== Modules
+[oft-sid="req~up-language-license~1"]
+--
+* *MUST* use a permissive (OSS) license like Apache 2.0 or MIT and located in https://github.com/eclipse-uprotocol[Eclipse uProtocol GitHub Organization] that is documented in `LICENSE` file.
+--
 
-Modules are packages (folders) that reside under the `src` directory. <<content>> table below lists the required modules.
+[oft-sid="req~up-language-legal~1"]
+--
+* *MUST* contain `CONTRIBUTING.adoc`, `CODE_OF_CONDUCT.adoc`, `SECURITY.adoc` that point to the versions of these files in this project.
+--
 
-.SDK Modules
-[#content,width="100%",cols="20%,20%,60%",options="header"]
-|===
-| Folder | Specification |Description
+[oft-sid="req~up-language-legal~2"]
+--
+* Dependencies *MUST* only be permissive licensed code/libraries (i.e. *MUST NOT* depend on external code that will pollute the license of the library).
+--
 
-| `uri`
-| link:basics/uri.adoc[UUri]
-| How things are addressed in uProtocol
+[oft-sid="req~up-language-structure~1"]
+--
+* The top level namespace (package name) *MUST* contain `uprotocol` and *SHOULD* contain `org.eclipse.uprotocol` 
+--
 
-| `uuid`
-| link:basics/uuid.adoc[UUID]
-| Unique ID & timestamp specification 
+[oft-sid="req~up-language-documentation~1"]
+--
+ * *MUST* contain a `README.adoc` that explains how to build and use the library. 
+--
 
-| `cloudevents`
-| link:up-l1/cloudevents.adoc[CloudEvents]
-| Specification of how uProtocol data models can be expressed using CloudEvents data model
+=== Test & CI
 
-| `transport`
-| link:up-l1/README.adoc[uTransport]
-a| uP-L1 Transport Interface & data model.
-
-* *MUST* declare the interface & data model where as link:../upclient.adoc[uProtocol Client Library] implement the said interface.
-
-| `rpc`
-| link:up-l2/rpcclient.adoc[uP-L2 RPC Client]
-a|APIs used by clients to invoke methods to simplify implementation of the RPC design pattern. 
-
-|===
-
-
-== Test
-
- * *SHOULD* include a test suite under the folder `test`
+[oft-sid="req~up-language-test~1"]
+--
  * *MUST* be able to run the test suite such that merge requests (commits) cannot be merged till tests are passed
-  * *SHOULD* cover 100% of all code and specifications defined in <<Source>>
+--
+
+[oft-sid="req~up-language-ci~1"]
+--
+ * *MUST* have workflows that ensures code compiles before the can be merged
+--
+
+[oft-sid="req~up-language-ci~2"]
+--
+ * *SHOULD* cover 100% of all code and specifications defined in <<Source>>
+--
+
+[oft-sid="req~up-language-ci~3"]
+--
+ * *SHOULD* have lint & documentation coverage checks
+--
 
 
-== Build
+=== Build
 
- * *MUST* be easily built in both a Windows and Linux development environment. Any build requirements (i.e. package dependencies) need to be properly documented in the README
-* *MUST* be able to be imported to any wellknown IDE (Eclipse, IntelliJ, VSCode, etc..) and include self contained build system to build the code and dependencies(ex. maven, gradle, clang, soong, etc...).
-* *MUST* fetch external dependency libraries as handle build dependencies, *MUST NOT* copy external dependencies
-* *MUST NOT* depend on external copyright or copyleft libraries/modules, only permissive licenses such as Apache 2.0, MIT, shall be accepted etc..
+[oft-sid="req~up-language-build~1"]
+--
+ * *MUST* be easily built in both a Windows and Linux development environment.
+--
 
+[oft-sid="req~up-language-build~2"]
+--
+ * *MUST* include self contained build system to build the code and dependencies(ex. maven, gradle, clang, soong, etc...).
+--
 
-== Documentation
+[oft-sid="req~up-language-build~3"]
+--
+ * *MUST* fetch and build external dependency libraries, *MUST NOT* copy external dependencies
+--
 
- * *MUST* include a main README.adoc file that explains how to build and use the library. 
- * Each module *MUST* also have a README.adoc that explains how to use said module
+== Class Diagram
+
+.Class Diagram
+[#up-libraries]
+image:up_libraries.drawio.svg[width=800]
