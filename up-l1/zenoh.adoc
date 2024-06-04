@@ -108,8 +108,9 @@ The format of Zenoh key **MUST** be
 `up/[source.authority_name]/[source.ue_id]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_id]/[sink.ue_version_major]/[sink.resource_id]`
 
 * `up/`: Zenoh key **MUST** always start with `up/`, which can be used to identify the uProtocol traffic.
-* `authority_name`: The authority defined in link:../basics/uri.adoc#3-mapping-to-uri[URI spec] is mapped into Zenoh key directly.
-* `ue_id`, `ue_version_major` and `resource_id`: They *MUST* be mapped to the upper-case base16 encoding.
+* `authority_name`: The authority_name defined in link:../basics/uri.adoc#3-mapping-to-uri[URI spec] is mapped into Zenoh key directly.
+If the authority_name is omitted in UUri, it **MUST** be filled with UAuthority which is initialized while creating UPClienZenoh.
+* `ue_id`, `ue_version_major` and `resource_id`: They **MUST** be mapped to the upper-case base16 encoding.
 
 Note that in Publish use case, there is no sink UURI.
 We **MUST** use `{}` to replace the empty `authority_name`, `ue_id`, `ue_version_major`, and `resource_id`.
@@ -120,11 +121,11 @@ Take some examples:
 |===
 | Use Case | Source | Sink | Zenoh Key
 
-| Send Publish | up://192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
-| Subscribe messages | up://192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
-| Send Notification | up://192.168.1.100/10AB/3/80CD | up://192.168.1.101/20EF/4/80GH | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/80GH
-| Receive all Notifications | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/20EF/4/80GH | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/80GH
-| Send Request | up://my-host1/10AB/3/0 | up://my-host2/20EF/4/B | up/my-host1/10AB/3/0/my-host2/20EF/4/B
-| Receive all Requests | up://+++*+++/FFFF/FF/FFFF | up://my-host2/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/20EF/4/B
-| Receive all messages to a device | up://+++*+++/FFFF/FF/FFFF | up://192.168.1.101/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/+++*+++/+++*+++/+++*+++
+| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.0.100) | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
+| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
+| Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/20EF/4/0 | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/0
+| Receive all Notifications | //+++*+++/FFFF/FF/FFFF | //192.168.1.101/20EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/0
+| Send Request | //my-host1/10AB/3/0 | //my-host2/20EF/4/B | up/my-host1/10AB/3/0/my-host2/20EF/4/B
+| Receive all Requests | //+++*+++/FFFF/FF/FFFF | //my-host2/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/20EF/4/B
+| Receive all messages to a device | //+++*+++/FFFF/FF/FFFF | //[::1]/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/[::1]/+++*+++/+++*+++/+++*+++
 |===
