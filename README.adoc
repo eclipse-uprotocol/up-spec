@@ -21,95 +21,27 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-== Purpose
+== Overview
 
-A software defined vehicle requires the design and development of software entities that are distributed by nature, deployed in different os/hw environments (mechatronics, high-compute, mobile phones, and the cloud).
+uProtocol is a communication protocol that enables software (uEs) to easily communicate with each other running in distributed systems. The protocol is designed to be lightweight, efficient, easy to use, and run on top of any other communication middleware (transport) such as SOME/IP, MQTT, zenoh, HTTP, etc...
 
-Every environment have their own software development, deployment, and communications protocols, thus resulting in no common interface,language or means for said distributed software to seamlessly discover, connect, and communicate with each other in a transparent, simplified, and secure manner.
+To achieve the above mentioned objectives, we have split the specifications into sections (folders) that are:
 
-uProtocol addresses the above-mentioned problem by defining an ubiquitous language that includes:
+ * link:basics/README.adoc[*The Basics:*] Foundational principles and concepts of uProtocol (ex. such as addressing, IDs, message header definitions, etc...). 
 
-1. Transport layer interface: Common way to  `send()` and `receive()` messages regardless of the underlining networking transport protocol
+ * link:up-l1/README.adoc[*Transport layer (uP-L1):*] Common interface for sending and receiving of messages intended to be implemented employing a particular communication middleware technology (ex. MQTT, SOME/IP, HTTP, Zenoh, etc...).
 
-2. Common Message Definitions
+ * link:up-l2/[*Communication Layer (uP-L2):*] The common transport agnostic, programming language specific, API for the publisher/subscriber, notification, and RPC messaging patterns used by application/service developers to communicate with each other.
 
-3. Common application layer interfaces for core business logic (ex. subscription management, discovery, etc...)
-
-<<img-overview>> image below provides a high-level view of what we aim to define in this specification. The arrows between the uEs are the physical/virtual transport (anything from OSI layer 2 protocol up to automotive/Internet application layer protocols, and everything in-between. The icon image:https://cloudevents.io/img/logos/cloudevents-icon-color.png[CloudEvents,25,35] represents the messages sent between uEs that, for the remainder of this document, referred to as CloudEvents or CEs.
+* link:up-l3/[*Application Layer (uP-L3):*] Service contracts for subscription management, service/device discovery, and event caching that is common across all deployments (implementations) of uProtocol.
 
 
-.uProtocol Overview
-[#img-overview]
-image::overview.drawio.svg[Overview]
+== How to get started?
+
+It is always best to start with link:basics/README.adoc[_the basics_] to familiarize yourself with common terminology used with uProtocol. 
+
+If you're a developer who would like to use uProtocol in your application or service, please refer to the appropriate language library (ex. up-cpp, up-java, up-rust, etc..) `README.adoc`. 
+
+If you would like to contribute to uProtocol to develop a new language library or transport implementation, please checkout the link:CONTRIBUTING.adoc[CONTRIBUTING.adoc].
 
 
-
-== link:basics/README.adoc[The Basics]
-In this section of the specifications we cover the foundations of uProtocol such as CloudEvents, UUIDs, naming conventions and more.
-
-
-== Layers
-
-.uProtocol Layers
-[#img-layers]
-image::layers.drawio.svg[uProtocol Layers]
-
-uProtocol consists of three layers as depicted in <<img-layers>> above, they are:
-
-1. link:up-l1/[*Transport & Session Layer (uP-L1):*] Bidirectional point-2-point communication between uEs (how messages are sent and received between uEs).
-
-2. link:up-l2/[*Communication (Messaging) Layer (uP-L2):*] Defines the message types, headers, format, and delivery semantics
-
-3. link:up-l3/[*Application Layer (uP-L3):*] Also known as the business logic layer, responsible for declaration and definition of interfaces between clients and servers (ex. subscription management, discovery, etc...)
-
-
-== Software Entities (uEs)
-A uE is software that communicates with other software using uProtocol.
-
-<<img-ues>> below illustrates the set of uProtocol defined uEs required to implement the protocol.
-
-.uE Classifications
-[#img-ues]
-image::ues.drawio.svg[uEs]
-
-=== Communication Backbone
-
-uEs in this category are essential for dispatching/routing of messages between uEs, uDevices, and uDomains.
-
-.Communication uEs
-[width=100%",cols="30%,70%"]
-|===
-|uE Name |Description
-
-|link:up-l2/dispatchers/README.adoc[*Dispatchers*]
-|Message dispatches sending CEs between uEs, between devices, etc...
-
-|link:up-l3/usubscription/v3/README.adoc[*uSubscription*]
-|Implement the publisher/subscriber architecture pattern within and between devices. Used by dispatchers to multicast messages to subscribers
-
-|===
-
-=== Core uEs
-Core uEs are business layer logic to perform a specific function of the protocol highlighted in the table below.
-
-.Core uEs
-[width=100%",cols="30%,70%"]
-|===
-|uE Name |Description
-
-|link:up-l3/udiscovery/v3/README.adoc[*uDiscovery*]
-|Discovery (services, devices, topics, methods, properties, etc...)
-
-|link:up-l3/utwin/v2/README.adoc[*uTwin*]
-|Local (to the device) caches of published information for subscribed topics
-
-|===
-
-=== Topology
-<<img-topology>> below illustrates what a uProtcol topology consists of when all the uEs connected together.
-
-.Topology
-[#img-topology]
-image::platform_ues.drawio.svg[uProtocol Topology]
-
-NOTE: Please see link:principles.adoc[Guiding Principles] for more information about motivations and high-level requirements/principles driving the specification
