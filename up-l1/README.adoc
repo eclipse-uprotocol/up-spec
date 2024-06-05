@@ -331,9 +331,9 @@ uProtocol defines bindings to the following communication protocols:
 * link:zenoh.adoc[*Eclipse Zenoh*]
 * link:ecal.adoc[*Eclipse ECAL*]
 * link:p3comm.adoc[*Eclipse P3Comm*]
-* link:mqtt.adoc[*MQTT*]
+* link:mqtt_5.adoc[*MQTT*]
 * link:http.adoc[*HTTP*]
-* link:someip/README.adoc[*SOME/IP*]
+* link:someip.adoc[*SOME/IP*]
 
 Each uProtocol Client *MUST* employ exactly one of these bindings for implementing the Transport Layer API.
 
