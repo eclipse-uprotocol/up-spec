@@ -97,7 +97,7 @@ Different message types **MUST** use different Zenoh API.
 
 While sending Request messages, TTL **MUST** be mapped to the timeout configuration in Zenoh query.
 
-=== UPayload
+=== Payload
 
 The data is sent with Zenoh directly without further processing.
 
@@ -121,7 +121,7 @@ Take some examples:
 |===
 | Use Case | Source | Sink | Zenoh Key
 
-| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.0.100) | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
+| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
 | Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
 | Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/20EF/4/0 | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/0
 | Receive all Notifications | //+++*+++/FFFF/FF/FFFF | //192.168.1.101/20EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/0
