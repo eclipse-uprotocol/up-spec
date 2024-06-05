@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-A uProtocol Language specific libraries (_libraries_), are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport Layer (uP-L1) and implement the uProtocol Communication Layer API (uP-L2).
+uProtocol Language specific libraries (_libraries_) are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport Layer (uP-L1) and implement the uProtocol Communication Layer API (uP-L2).
 
 
 == Requirements
