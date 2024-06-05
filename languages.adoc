@@ -39,7 +39,7 @@ uProtocol Language specific libraries (_libraries_) are written for a given prog
 
 [oft-sid="req~up-language-comm-api~1"]
 --
-* *MUST* provide an implementation of the link:up-l2/README.adoc[uProtocol Communication Layer API].
+* *MUST* provide an implementation of the link:up-l2/README.adoc[uProtocol Communication Layer API] based on the uProtocol Transport Layer API.
 --
 
 [oft-sid="req~up-language-naming~1"]
