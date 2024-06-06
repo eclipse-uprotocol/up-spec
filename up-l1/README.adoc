@@ -43,6 +43,13 @@ class UListener {
   onReceive(message : UMessage)
 }
 
+class LocalUriProvider {
+  <<interface>>
+  getAuthority() String
+  getSource() UUri
+  getResource(id: UInt16) UUri
+}
+
 UTransport ..> UListener
 ----
 
@@ -310,6 +317,34 @@ end
 end
 deactivate T
 ----
+
+== LocalUriProvider
+
+A uEntity can use the `LocalUriProvider` to create URIs representing the uEntity's local resources during runtime. This information can then be used in messages to be sent to other uEntities.
+
+A `UTransport` implementation can use the `LocalUriProvider` to determine the uEntity's authority during runtime. This information can might be useful for normalizing _local_ URIs passed into the Transport Layer API methods with authority information.
+
+=== GetAuthority
+
+A uEntity invokes this method to get its own authority.
+
+Implementations *MAY* use any appropriate mechanism to determine the local authority during runtime, e.g. by means of a configuration file, environment variables or a central registry.
+
+=== GetSource
+
+A uEntity invokes this method to get the address that it expects incoming Notification or RPC Response messages to be sent to.
+
+The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and _resource ID_ `0x0000`.
+
+Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
+
+=== GetResource
+
+A uEntity invokes this method to get a resource specific address to publish messages to or that it expects incoming RPC Request messages to be sent to.
+
+The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and the passed in _resource ID_.
+
+Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 
 [#delivery-method]
 == Message Delivery
