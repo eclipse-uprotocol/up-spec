@@ -20,7 +20,7 @@ option java_outer_classname = "UUIDProto";
 option java_multiple_files = true;
 
 
-// The UUID datamodel per https://datatracker.ietf.org/doc/html/rfc4122[RFC 4122]
+// The UUID datamodel per https://www.rfc-editor.org/rfc/rfc9562[RFC 9562]
 message UUID {
     fixed64 msb = 1; // Most significant bits
     fixed64 lsb = 2; // Least significant bits
