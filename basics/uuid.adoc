@@ -19,7 +19,7 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Universal Unique Identifier (UUID) are used in uProtocol to uniquely identify link:umessage.adoc[`UMessages`]. The UUID include a timestamp used to verify the liveliness of a message (ex. if a type of message should expire or not).  For more explanation of the use cases for the uProtocol UUID, please refer to link:uattributes.adoc[UAttributes Specifications].
+Universal Unique Identifiers (UUID) are used in uProtocol to uniquely identify link:umessage.adoc[`UMessages`]. The UUID includes a timestamp used to verify the liveliness of a message (ex. if a type of message should expire or not).  For more explanation of the use cases for the uProtocol UUID, please refer to link:uattributes.adoc[UAttributes Specifications].
 
 [.specitem,oft-sid="dsn~uuid-spec~1",oft-needs="impl,utest"]
 --
