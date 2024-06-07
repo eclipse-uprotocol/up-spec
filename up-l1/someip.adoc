@@ -100,7 +100,7 @@ NOTES::
 
 === UAttributes
 
-The following sections highlight the mapping of link:../basics/uattributes.adoc[uAttributes] to *SOME/IP* fields.
+The following sections highlight the mapping of link:../basics/uattributes.adoc[UAttributes] to *SOME/IP* fields.
 
 ==== Common UMessage Attributes
 
@@ -112,23 +112,30 @@ The following sections highlight the mapping of link:../basics/uattributes.adoc[
 
 | id | UUid to SOME/IP `MessageID` as explained in <<uuid-mapping,UUIds>>.
 
-| priority | Not available in SOME/IP.
+| priority | Not available in SOME/IP. Default UPriority values are used per UMessage type as described in link:../basics/uattributes.adoc[UAttributes].
 
-* A `NOTIFICATION` *MAY* use the default priority.
-* A `RESPONSE` *SHOULD* use the `REQUEST` priority.
+* SOME/IP `NOTIFICATION` *SHOULD* use the link:../basics/qos.adoc[CS1] priority.
+* SOME/IP `REQUEST` *SHOULD* use link:../basics/qos.adoc[CS4] or higher priority.
+* SOME/IP `RESPONSE` *MUST* use the priority from its corresponding `REQUEST` message.
 
 | ttl | Should be checked for incoming `UMESSAGE_TYPE_REQUEST` messages.
 
-* SOME/IP `REQUEST` *SHOULD* not be sent if incoming UMessage has `ttl > 0` and timestamp from `id` + `ttl` has already expired un *UE* host.
-* If present `ttl` *SHOULD* be used to limit the time a `Request` is kept in the cache for correlation with a `RESPONSE`.
+* SOME/IP `REQUEST` *SHOULD* not be sent if incoming UMessage `ttl` has already expired.
+* Remaining time from `ttl` *SHOULD* be used to limit the time a `REQUEST` is kept in the cache for correlation with a `RESPONSE`.
 * If needed `ttl=0` *MAY* be used to indicate `REQUEST_NO_RETURN` (currently not allowed)
 
-NOTE: Unix timestamps between hosts are very likely to be different (even with `ntp`, especially for cloud events), so the transport *MAY* assume the local timestamp of receiving the request, especially for `ttl < 100ms`.
+Check `ttl` link:#note-ttl[NOTE] below.
 
 | payload_format | SOME/IP specification however does not have an equivalent field for link:../basics/upayloadformat.adoc[UPayloadFormat].
 
 It is assumed that the payload is serialized in the format that the other end knows how to deserialize (i.e. it is fixed per topic). As such, when converting between uProtocol and SOME/IP, the `payload_format` field *SHOULD* be ignored (left at the default or `UPAYLOAD_FORMAT_UNSPECIFIED`).
 |===
+
+
+[[note-ttl]]
+NOTE:  Unix timestamps in UUID are likely to be different between hosts,
+so small `ttl` values may cause undefined behavior: e.g. not sending `REQUEST`,
+or ignoring the `RESPONSE`.
 
 [[uuid-mapping]]
 ==== UUIDs
@@ -182,9 +189,9 @@ Further details of the usage of IDs for the various message types is described <
 
 ==== Sink & Source Mapping
 
-*uAttributes* Specification explains that `source` attributes defines the address of whom sent the message, while `sink` defines the destination for the message as described in <<uri-mapping>>.
+*UAttributes* Specification explains that `source` attributes defines the address of whom sent the message, while `sink` defines the destination for the message as described in <<uri-mapping>>.
 
-.SOME/IP to uAttributes Sink & Source Mapping
+.SOME/IP to UAttributes Sink & Source Mapping
 [[uattribute-mapping]]
 [cols=".^m,.^m,.^m,.^m,.^m,.^m,.^m,.^m", options="autowidth"]
 |===
@@ -196,7 +203,7 @@ Further details of the usage of IDs for the various message types is described <
 | REQUEST       | REQUEST (0x00)           | sink.ue_id    | sink.resource_id   | source.ue_id  | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version   | OK
 
 .2+.^| RESPONSE .^| RESPONSE (0x80) | sink.ue_id  | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version | OK
-                .^| ERROR (0x81)    | sink.ue_id  | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version |  <<commstatus-mapping>>
+                .^| ERROR (0x81)    | sink.ue_id  | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version |  <<commstatus-error-mapping,commstatus>>
 |===
 
 NOTES::
