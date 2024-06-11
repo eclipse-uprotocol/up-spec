@@ -19,57 +19,41 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Universal Unique Identifier (UUID) are used to uniquely identify a "thing". UUIDs shall be used in uProtocol the UUID shall be used to uniquely identify messages (events) sent between uEs and between devices.
+Universal Unique Identifiers (UUID) are used in uProtocol to uniquely identify link:umessage.adoc[`UMessages`]. The UUID includes a timestamp used to verify the liveliness of a message (ex. if a type of message should expire or not).  For more explanation of the use cases for the uProtocol UUID, please refer to link:uattributes.adoc[UAttributes Specifications].
 
-UUIDv1 through 4 are defined in https://datatracker.ietf.org/doc/html/rfc4122[RFC4122] and have been deployed throughout the Internet and in applications for many years. A new RFC draft
-https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis] proposes three new types of RFCs, UUIDv6, v7, and v8.
+[.specitem,oft-sid="dsn~uuid-spec~1",oft-needs="impl,utest"]
+--
+ * *MUST* be a https://www.rfc-editor.org/rfc/rfc9562#name-uuid-version-7[UUIDv7] per https://www.rfc-editor.org/rfc/rfc9562[RFC 9562].
+--
+    
 
-uProtocol shall define its own format of UUID (using UUIDv8 specification) so that:
+The UUID may be represented in one of the following formats:
 
-* ID is sortable
-* Timestamp is based on the reliable (and widely used) Unix Epoch
-* Large random number to ensure the UUIDs retain the required level of unguessability through underlying entropy
-* Support for <1ms precision
-* ID generation is efficient
+ * An instantiation of the <<Data Model>> in a supported programming language
+ * or as a "hex-and-dash" string defined in https://www.rfc-editor.org/rfc/rfc9562#name-uuid-format[RFC 9562]
 
-== Specification
 
-The following will elaborate on the uProtocol UUIDv8 bit allocations:
+[#data-model-definition]
+== Data Model
 
-     0                   1                   2                   3
-     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                         unix_ts_ms                            |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |           unix_ts_ms          |  ver  |         counter       |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |var|                          rand_b                           |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                           rand_b                              |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+The diagram below shows a UUID and its properties using UML2 notation.
 
-.UUIDv8 Field Description
-[width="100%",cols="15%,85%",options="header",]
-|===
-|Field |RFC2119
+.UUID Data Model
+[#uuid-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
 
-|*unix_ts_ms* a|
-* *MUST* be the 48 bit big-endian unsigned number of Unix epoch timestamp in milliseconds as per Section 6.1 of https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis] 
+class UUID {
+  msb : UInt64
+  lsb : UInt64
+}
+----
 
-|*ver* a|
-* *MUST* be the 4 bit version for UUIDv8 `1000b` per https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
+[.specitem,oft-sid="req~uuid-proto~1",oft-needs="impl,utest"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* support writing and reading of an instance of the data model to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uuid.proto[uuid.proto].
+--
 
-|*counter* a|
-* *MUST* be a 12 bit counter, reset at each unix_ts_ms tick
-* *MUST* be incremented for each UUID generated within unix_ts_ms tick
-* *MUST* be frozen when counter reaches maximum value 4095
-
-|*var* a|
-* *MUST* be the 2 bit variant `10b` per Section 4.1 of https://datatracker.ietf.org/doc/draft-ietf-uuidrev-rfc4122bis/[draft-ietf-uuidrev-rfc4122bis]
-
-|*rand_b* a|
-* *MUST* be a 62 bits pseudo-random number generated per uE
-* *MUST NOT* change during the lifecycle of the uE
-
-|===
 
