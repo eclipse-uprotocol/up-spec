@@ -17,7 +17,6 @@ package uprotocol.v1;
 
 import "uprotocol/v1/uri.proto";
 import "uprotocol/v1/uuid.proto";
-import "uprotocol/v1/ustatus.proto";
 import "uprotocol/v1/ucode.proto";
 import "uprotocol/uoptions.proto";
 
