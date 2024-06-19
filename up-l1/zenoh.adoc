@@ -129,3 +129,39 @@ Take some examples:
 | Receive all Requests | //+++*+++/FFFF/FF/FFFF | //my-host2/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/20EF/4/B
 | Receive all messages to a device | //+++*+++/FFFF/FF/FFFF | //[::1]/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/[::1]/+++*+++/+++*+++/+++*+++
 |===
+
+=== Listeners for different message types
+
+Zenoh has different implementations for different uProtocol Message types.
+If we register the listeners, we need distinguish the message types and run the corresponding Zenoh mechanisms.
+It's important to distinguish the message types based on the various combination of source `resource_id` and sink `resource_id`.
+
+Here is the table:
+
+[%autowidth]
+|===
+| src resource_id | sink resource_id | Publish | Notification | Request | Response
+
+| [8000-FFFF) |   None   |    V    |              |         |          
+| [8000-FFFF) |     0    |         |      V       |         |          
+|      0      | (0-8000) |         |              |    V    |          
+|   (0-8000)  |     0    |         |              |         |    V     
+|     FFFF    |     0    |         |      V       |         |    V     
+|     FFFF    | (0-8000) |         |              |    V    |          
+|      0      |   FFFF   |         |              |    V    |          
+|   (0-8000)  |   FFFF   |         |              |         |    V     
+| [8000-FFFF) |   FFFF   |         |      V       |         |          
+|     FFFF    |   FFFF   |         |      V       |    V    |    V     
+|===
+
+These can be reorganized as:
+
+[%autowidth]
+|===
+| Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
+
+| Publish      | {[8000-FFFF), None}
+| Notification | {[8000-FFFF), 0}, {[8000-FFFF), FFFF]}, {FFFF, 0}, {FFFF, FFFF}
+| Request      | {0, (0-8000)}, {0, FFFF}, {FFFF, (0-8000)}, {FFFF, FFFF}
+| Response     | {(0-8000), 0}, {(0-8000), FFFF}, (FFFF, 0), {FFFF, FFFF}
+|===
