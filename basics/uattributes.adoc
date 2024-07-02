@@ -226,3 +226,39 @@ a|The link:uri.adoc[UUri] that the service consumer expects to receive this resp
 == Validation
 
 Each link:../languages.adoc[uProtocol Language Library] *MUST* provide means to assert the consistency of a message's attributes according to its type as defined in the sections above. The concrete implementation should follow common practices of the particular programming language.
+
+
+== Listeners for different message types
+
+In uTransport listener API, we only have the `resource_id`` of the source and sink.
+However, sometimes it's necessary to distinguish the message types which should be listened to.
+
+Here is the table to map the various combination of source `resource_id` and sink `resource_id` to different message types.
+
+[%autowidth]
+|===
+| src resource_id | sink resource_id | Publish | Notification | Request | Response
+
+| [8000-FFFE] |   None   |    V    |              |         |          
+| [8000-FFFE] |     0    |         |      V       |         |          
+|      0      | [1-7FFF] |         |              |    V    |          
+|   [1-7FFF]  |     0    |         |              |         |    V     
+|     FFFF    |     0    |         |      V       |         |    V     
+|     FFFF    | [1-7FFF] |         |              |    V    |          
+|      0      |   FFFF   |         |              |    V    |          
+|   [1-7FFF]  |   FFFF   |         |              |         |    V     
+| [8000-FFFE] |   FFFF   |         |      V       |         |          
+|     FFFF    |   FFFF   |         |      V       |    V    |    V     
+|===
+
+These can be reorganized as:
+
+[%autowidth]
+|===
+| Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
+
+| Publish      | {[8000-FFFE], None}
+| Notification | {[8000-FFFE], 0}, {[8000-FFFE], FFFF}, {FFFF, 0}, {FFFF, FFFF}
+| Request      | {0, [1-7FFF]}, {0, FFFF}, {FFFF, [1-7FFF]}, {FFFF, FFFF}
+| Response     | {[1-7FFF], 0}, {[1-7FFF], FFFF}, (FFFF, 0), {FFFF, FFFF}
+|===
