@@ -261,25 +261,25 @@ end
 deactivate T
 ----
 
-In RegisterListener API, we only have the `resource_id`` of the source and sink.
+In RegisterListener API, we only have the `resource_id` of the source and sink.
 However, sometimes it's necessary to distinguish the message types which should be listened to.
 
 Here is the table to map the various combination of source `resource_id` and sink `resource_id` to different message types.
 
 [%autowidth]
 |===
-| src resource_id | sink resource_id | Publish | Notification | Request | Response
+| source `resource_id` | sink `resource_id` | Publish | Notification | Request | Response | Use Case
 
-| [8000-FFFE] |   None   |    V    |              |         |          
-| [8000-FFFE] |     0    |         |      V       |         |          
-|      0      | [1-7FFF] |         |              |    V    |          
-|   [1-7FFF]  |     0    |         |              |         |    V     
-|     FFFF    |     0    |         |      V       |         |    V     
-|     FFFF    | [1-7FFF] |         |              |    V    |          
-|      0      |   FFFF   |         |              |    V    |          
-|   [1-7FFF]  |   FFFF   |         |              |         |    V     
-| [8000-FFFE] |   FFFF   |         |      V       |         |          
-|     FFFF    |   FFFF   |         |      V       |    V    |    V     
+| [8000-FFFE] |   None   |    V    |              |         |         | A uE listens for a specific published message 
+| [8000-FFFE] |     0    |         |      V       |         |         | A uE listens for a specific notification message
+|      0      | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request 
+|   [1-7FFF]  |     0    |         |              |         |    V    | A uE listens for a specific response
+|     FFFF    |     0    |         |      V       |         |    V    | A uE listens for all notifications and responses 
+|     FFFF    | [1-7FFF] |         |              |    V    |         | Same as {0, [1-7FFF]}
+|      0      |   FFFF   |         |              |    V    |         | Same as {0, [1-7FFF]}
+|   [1-7FFF]  |   FFFF   |         |              |         |    V    | Same as {[1-7FFF], 0}
+| [8000-FFFE] |   FFFF   |         |      V       |         |         | Same as {[8000-FFFE], 0}
+|     FFFF    |   FFFF   |         |      V       |    V    |    V    | uStreamer listens for all notifications, requests, and responses
 |===
 
 These can be reorganized as:
