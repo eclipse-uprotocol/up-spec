@@ -237,6 +237,7 @@ UTransport implementations
 * *MUST* support registering more than one listener for any given address patterns
 * *MUST* support registering the same listener for multiple address patterns
 * *MUST* document the maximum supported number of listeners per address pattern.
+* *MUST* be idempotent, multiple calls to said API with the same parameters *MUST* have the same effect as a single call.
 
 .Registering a Listener
 [mermaid]
@@ -294,6 +295,7 @@ UTransport implementations
 
 * *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
 * *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
+* *MUST* be idempotent, multiple calls to said API with the same parameters *MUST* have the same effect as a single call.
 
 .Unregistering a Listener
 [mermaid]
