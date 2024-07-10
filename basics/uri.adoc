@@ -60,12 +60,12 @@ class UUri {
 }
 ----
 
-[.specitem,oft-sid="dsn~data-model-naming~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~uri-data-model-naming~1",oft-needs="impl"]
 --
 Each link:../languages.adoc[uProtocol Language Library] *MUST* implement the data model using the type and property names as defined in the following sections.
 --
 
-[.specitem,oft-sid="req~data-model-proto~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~uri-data-model-proto~1",oft-needs="impl,utest"]
 --
 Each link:../languages.adoc[uProtocol Language Library] *MUST* support writing and reading of an instance of the data model to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uri.proto[uri.proto].
 --
@@ -78,7 +78,7 @@ The remainder of this section defines the requirements for the data model by mea
 An authority represents the deployment location of a specific software entity. The location is represented by means of a logical identifier like a domain name (e.g. `mcu1.example.com`) or a Vehicle Identification Number (VIN).
 
 
-[.specitem,oft-sid="dsn~authority-name-length~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-authority-name-length~1",oft-needs="impl,utest"]
 --
 A UUri's `authority_name` *MUST NOT* exceed 128 characters in length.
 
@@ -97,7 +97,7 @@ NOTE: uEntities which produce events for consumption by other uEntities assume a
 uEntities which consume events produced by other uEntities assume an _Application_ role. +
 uEntities *MAY* assume both the Service and Application roles.
 
-[.specitem,oft-sid="dsn~entity-id~1"]
+[.specitem,oft-sid="dsn~uri-entity-id~1"]
 --
 A UUri's `ue_id` property value determines the type and instance of the service being referred to:
 
@@ -111,7 +111,7 @@ A service interface consists of _resources_ and _methods_. A resource usually re
 
 Resources and methods are uniquely identified within a service interface by means of their numeric identifier.
 
-[.specitem,oft-sid="dsn~resource-id~1"]
+[.specitem,oft-sid="dsn~uri-resource-id~1"]
 --
 A UUri's `resource_id` contains the identifier of the resource or method being referred to.
 --
@@ -272,7 +272,7 @@ impl UUri {
 
 == Pattern Matching
 
-[.specitem,oft-sid="dsn~pattern-matching~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-pattern-matching~1",oft-needs="impl,utest"]
 --
 A UUri can be used to define a _pattern_ that other UUris can then be matched against.
 For that purpose, a UUri
