@@ -261,10 +261,10 @@ end
 deactivate T
 ----
 
-In RegisterListener API, we only have the `resource_id` of the source and sink.
-However, sometimes it's necessary to distinguish the message types which should be listened to.
+In RegisterListener API, we have the source and sink `UUri` in the arguments.
+However, not all the combinations of source and sink `UUri` are valid.
 
-Here is the table to map the various combination of source `resource_id` and sink `resource_id` to different message types.
+The following table are the valid combinations, which maps to the corresponding user case.
 
 [%autowidth]
 |===
@@ -275,23 +275,22 @@ Here is the table to map the various combination of source `resource_id` and sin
 |      0      | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request 
 |   [1-7FFF]  |     0    |         |              |         |    V    | A uE listens for a specific response
 |     FFFF    |     0    |         |      V       |         |    V    | A uE listens for all notifications and responses 
-|     FFFF    | [1-7FFF] |         |              |    V    |         | Same as {0, [1-7FFF]}
-|      0      |   FFFF   |         |              |    V    |         | Same as {0, [1-7FFF]}
-|   [1-7FFF]  |   FFFF   |         |              |         |    V    | Same as {[1-7FFF], 0}
-| [8000-FFFE] |   FFFF   |         |      V       |         |         | Same as {[8000-FFFE], 0}
 |     FFFF    |   FFFF   |         |      V       |    V    |    V    | uStreamer listens for all notifications, requests, and responses
 |===
 
-These can be reorganized as:
+Note that other combinations not in the table *MUST* never be used in RegisterListener API.
+
+Sometimes it's necessary to distinguish the message types which should be listened to.
+We can get the message types by reorganizing the table above to the following one.
 
 [%autowidth]
 |===
 | Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
 
 | Publish      | {[8000-FFFE], None}
-| Notification | {[8000-FFFE], 0}, {[8000-FFFE], FFFF}, {FFFF, 0}, {FFFF, FFFF}
-| Request      | {0, [1-7FFF]}, {0, FFFF}, {FFFF, [1-7FFF]}, {FFFF, FFFF}
-| Response     | {[1-7FFF], 0}, {[1-7FFF], FFFF}, (FFFF, 0), {FFFF, FFFF}
+| Notification | {[8000-FFFE], 0}, {FFFF, 0}, {FFFF, FFFF}
+| Request      | {0, [1-7FFF]}, {FFFF, FFFF}
+| Response     | {[1-7FFF], 0}, (FFFF, 0), {FFFF, FFFF}
 |===
 
 [#unregister-listener]
