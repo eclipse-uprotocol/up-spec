@@ -20,76 +20,86 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-uProtocol Language specific libraries (_libraries_) are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport Layer (uP-L1) and implement the uProtocol Communication Layer API (uP-L2).
+uProtocol Language specific libraries (_libraries_) are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport (uP-L1) and Communication Layers (uP-L2) and provide a generic implementation of the latter.
 
 
 == Requirements
 
 === Content
 
-[.specitem,oft-sid="req~up-language-api~1",oft-needs="impl,utest"]
---
-* *MUST* implement serializers, validators, and builders for the link:../basics/README.adoc[uProtocol data types] using the link:../up-core-api/README.adoc[up-core-api data model].
---
+A language library
 
-[.specitem,oft-sid="req~up-language-transport-api~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-language-transport-api~1",oft-needs="impl",oft-title="Library declares Transport Layer API"]
 --
 * *MUST* declare the language specific link:up-l1/README.adoc[uProtocol Transport Layer interface], such that the interface can be implemented by the transport libraries.
 --
 
-[.specitem,oft-sid="req~up-language-comm-api~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-language-comm-api~1",oft-needs="impl",oft-title="Library declares Communication Layer API"]
 --
-* *MUST* declare the language specific link:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API] and provide a default implementation based on the (abstract) Transport Layer API.
---
-
-[.specitem,oft-sid="req~up-language-naming~1",oft-needs="impl,utest"]
---
-* *MUST* be named according to pattern `up-[LANGUAGE]`
+* *MUST* declare the language specific link:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API], such that the interface *MAY* be implemented by the transport libraries.
 --
 
-[.specitem,oft-sid="req~up-language-structure~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-language-comm-api-default-impl~1",oft-needs="impl,utest",oft-title="Library implements Communication Layer API"]
 --
-* The top level namespace (package name) *MUST* contain `uprotocol` and *SHOULD* contain `org.eclipse.uprotocol` 
+* *MUST* provide a default implementation of link:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API] based on the (abstract) Transport Layer API.
 --
 
-[.specitem,oft-sid="req~up-language-documentation~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-language-naming~1",oft-title="Library follows naming pattern"]
 --
- * *MUST* contain a `README.adoc` that explains how to build and use the library. 
+* *MUST* be named according to pattern `up-[LANGUAGE]`, e.g. `up-rust` or `up-python`.
+--
+
+[.specitem,oft-sid="dsn~up-language-structure~1",oft-title="Library uses uProtocol namespace"]
+--
+* *MUST* use the programming language specific namespace concept, if availabe, to indicate that the library belongs to the _uProtocol_ project. If the language supports hierarchical namespaces (like Java does), then `org.eclipse.uprotocol` *SHOULD* be used. Otherwise, a namespace of `uprotocol` *MUST* be used*.
+--
+
+[.specitem,oft-sid="req~up-language-documentation~1",oft-needs="uman",oft-title="Library contains adequate README file"]
+--
+* *MUST* contain a `README.adoc` that explains how to build and use the library. 
 --
 
 === Test & CI
 
-[.specitem,oft-sid="req~up-language-test~1",oft-needs="impl,utest"]
+A language library
+
+[.specitem,oft-sid="req~up-language-test-coverage~1",oft-title="Library has sufficient test coverage"]
 --
- * *MUST* be able to run the test suite such that merge requests (commits) cannot be merged till tests are passed
+* *SHOULD* contain a test suite that covers 100% of all code and specifications defined in <<Content>>
 --
 
-[.specitem,oft-sid="req~up-language-ci-build~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-language-ci-build~1",oft-needs="impl",oft-title="CI asserts that library can be built"]
 --
- * *MUST* have CI workflow that verifies pull requests compiles before they can be merged
---
-
-[.specitem,oft-sid="req~up-language-ci-test~1",oft-needs="impl,utest"]
---
- * *SHOULD* cover 100% of all code and specifications defined in <<Content>>
+* *MUST* use a CI workflow that prevents pull requests from being merged if they cannot be built.
 --
 
-[.specitem,oft-sid="req~up-language-ci~1"]
+[.specitem,oft-sid="req~up-language-ci-test~1",oft-needs="impl",oft-title="CI asserts that test suite passes"]
 --
- * *SHOULD* have linter for static code analysis as well as a tool that verifies APIs are properly documented
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's test suite does not pass.
 --
 
+[.specitem,oft-sid="req~up-language-ci-linter~1",oft-needs="impl",oft-title="CI asserts that code complies with linting rules"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not comply with the project's code linting rules.
+--
+
+[.specitem,oft-sid="req~up-language-ci-api-docs~1",oft-needs="impl",oft-title="CI asserts that code contains API documentation"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not contain proper API documentation.
+--
 
 === Build
 
-[.specitem,oft-sid="req~up-language-build-sys~1",oft-needs="impl,utest"]
+A language library
+
+[.specitem,oft-sid="req~up-language-build-sys~1",oft-needs="impl",oft-title="Library uses common build system"]
 --
- * *SHOULD* employ an existing build system that is commonly used for the given programming language
+* *MUST* employ an existing build system that is commonly used for the given programming language.
 --
 
-[.specitem,oft-sid="req~up-language-build-deps~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-language-build-deps~1",oft-needs="impl",oft-title="Library build system resolves dependencies"]
 --
- * *MUST* resolve and include external dependencies as part of the build process only
+* *MUST* resolve and include external dependencies as part of the build process only.
 --
 
 == Class Diagram
