@@ -262,6 +262,38 @@ end
 deactivate T
 ----
 
+In RegisterListener API, we have the source and sink `UUri` in the arguments.
+However, not all the combinations of source and sink `UUri` are valid.
+
+The following table are the valid combinations, which maps to the corresponding user case.
+
+[%autowidth]
+|===
+| source `resource_id` | sink `resource_id` | Publish | Notification | Request | Response | Use Case
+
+| [8000-FFFE] |   None   |    V    |              |         |         | A uE listens for a specific published message 
+| [8000-FFFE] |     0    |         |      V       |         |         | A uE listens for a specific notification message
+|      0      | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request 
+|   [1-7FFF]  |     0    |         |              |         |    V    | A uE listens for a specific response
+|     FFFF    |     0    |         |      V       |         |    V    | A uE listens for all notifications and responses 
+|     FFFF    |   FFFF   |         |      V       |    V    |    V    | uStreamer listens for all notifications, requests, and responses
+|===
+
+Note that other combinations not in the table *MUST* never be used in RegisterListener API.
+
+Sometimes it's necessary to distinguish the message types which should be listened to.
+We can get the message types by reorganizing the table above to the following one.
+
+[%autowidth]
+|===
+| Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
+
+| Publish      | {[8000-FFFE], None}
+| Notification | {[8000-FFFE], 0}, {FFFF, 0}, {FFFF, FFFF}
+| Request      | {0, [1-7FFF]}, {FFFF, FFFF}
+| Response     | {[1-7FFF], 0}, (FFFF, 0), {FFFF, FFFF}
+|===
+
 [#unregister-listener]
 === UnregisterListener
 
