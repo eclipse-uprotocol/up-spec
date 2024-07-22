@@ -30,7 +30,7 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version `0.11.0-rc.3` to ensure the interoperability in different language bindings.
+We **MUST** use Zenoh version `0.11.0` to ensure the interoperability in different language bindings.
 
 === UPClientZenoh initialization
 
