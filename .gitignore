@@ -1,6 +1,6 @@
-/.idea/
-/.vscode/
-/uprotocol-spec.iml
-/up-spec.iml
-/up-core-api/target/
-/target/
+.idea/
+.vscode/
+uprotocol-spec.iml
+up-spec.iml
+up-core-api/target/
+target/
