@@ -28,7 +28,7 @@ This document will discuss the uTransport implementation on MQTT 5 for two well 
 1. *Device-2-Device (D2D) Communication:* This is when devices (through the streamer) was to send messages to other devices through a cloud gateway (broker). 
 2. *uE-2-uE Communication:* When MQTT is used as a local software bus for uEs to talk to each other through a local broker.
 
-The reason fo the different configurations is that cloud MQTT brokers often have limitations on the number of topics that can be subscribed to as well as the topic segment lengths so we need to ensure that message routing is as efficient as possible.
+The reason for the different configurations is that cloud MQTT brokers often have limitations on the number of topics that can be subscribed to as well as the topic segment lengths so we need to ensure that message routing is as efficient as possible.
 
 == MQTT5 Header
 
