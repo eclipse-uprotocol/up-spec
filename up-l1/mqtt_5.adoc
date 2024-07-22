@@ -36,7 +36,8 @@ MQTT 5 supports custom header fields, and we leverage this to map the `UAttribut
 
 [.specitem,oft-sid="req~up-transport-mqtt5-attributes-non-empty~1",oft-needs="impl,utest"]
 --
-* Only non-empty attribute values *MUST* be mapped to MQTT header `UserProperty` keys.
+* All non-empty attribute values *MUST* be mapped to MQTT header *User Properties* using the keys defined below.
+* Empty attribute values *MUST NOT* be mapped.
 --
 
 .uAttributes Mapping to MQTT5 User Properties
