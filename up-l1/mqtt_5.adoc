@@ -34,9 +34,9 @@ The reason for the different configurations is that cloud MQTT brokers often hav
 
 MQTT 5 supports custom header fields, and we leverage this to map the `UAttributes` values into the `UserProperty` MQTT header in string format.
 
-[.specitem,oft-sid="req~up-transport-mqtt5-attributes~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~up-transport-mqtt5-attributes-non-empty~1",oft-needs="impl,utest"]
 --
-* `UserProperty` Keys *MUST* map to the UAttributes protobuf field numbers.
+* Only non-empty attribute values *MUST* be mapped to MQTT header `UserProperty` keys.
 --
 
 .uAttributes Mapping to MQTT5 User Properties
@@ -183,7 +183,7 @@ When a message is sent from one uE to another uE, the topic is constructed using
 
 [.specitem,oft-sid="req~up-transport-mqtt5-ue2ue-topic~1",oft-needs="impl,utest"]
 --
-`{UAttributes.source}/{UAttributes.sink}/`
+`{UAttributes.source}/{UAttributes.sink}`
 --
 
 [.specitem,oft-sid="req~up-transport-mqtt5-ue2ue-topic-nosink~1",oft-needs="impl,utest"]
