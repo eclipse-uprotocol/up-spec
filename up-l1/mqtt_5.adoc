@@ -180,11 +180,11 @@ The MQTT topic a message is published on utilizes the source and sink UUri field
 
 === uE-2-uE Communication
 
-When a message is sent from one uE to another uE, the topic is constructed using the source and sink UUri fields. The topic is constructed as follows using the string representation of a `UUri`:
+When MQTT5 (broker) is used for local (within a device) uE-2-uE communication, the topic shall consist of the entire source and sink `UUri` from `UAttributes` as shown below:
 
 [.specitem,oft-sid="req~up-transport-mqtt5-ue2ue-topic~1",oft-needs="impl,utest"]
 --
-`{UAttributes.source}/{UAttributes.sink}`
+`{source.authority_name}/{source.ue_id}/{source.ue_version_major}/{source.resource_id}/{sink.authority_name}/{sink.ue_id}/{sink.ue_version_major}/{sink.resource_id}`
 --
 
 [.specitem,oft-sid="req~up-transport-mqtt5-ue2ue-topic-nosink~1",oft-needs="impl,utest"]
@@ -220,11 +220,11 @@ If the messages does not have a sink `UUri`, then the sink portion of the MQTT5 
 
 === D2D Communication
 
-D2D routing of messages only require the authority portion of the source and sink attributes for routing between devices so the MQTT5 topic shall be:
+When MQTT5 (broker) is used for D2D communication, the topic shall consist of only the authority portion of the source and sink `UUri` from `UAttributes` as shown below:
 
 [.specitem,oft-sid="req~up-transport-mqtt5-d2d-topic~1",oft-needs="impl,utest"]
 --
-`{UAttributes.source.authority_name}/{UAttributes.sink.authority_name}`
+`{source.authority_name}/{sink.authority_name}`
 --
 
 ==== Examples
