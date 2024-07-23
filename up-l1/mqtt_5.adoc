@@ -230,7 +230,7 @@ When MQTT5 (broker) is used for D2D communication, the topic shall consist of on
 ==== Examples
 
 ===== Registering Listener to Receive All Messages 
-`UTransport::registerListener(ANY, getSource())` where getSource(0 returns the local device's UUri, this translates into the MQTT subscribe to topic `+/{my_source_authority_name}`
+`UTransport::registerListener(ANY, getSource())` where getSource() returns the local device's UUri, this translates into the MQTT subscribe to topic `+/{my_source_authority_name}`
 
 ===== Sending a Message
 `UTransport::send(UMessage)` translates to the MQTT publish to topic `{UMessage.source.authority_name}/{UMessage.sink.authority_name}`

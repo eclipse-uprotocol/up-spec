@@ -142,9 +142,9 @@ a|A link:uri.adoc[UUri] representing the topic that this message is published to
 --
 
 |`sink`
-|no
+|no (see Description)
 a|A link:uri.adoc[UUri] representing the receiver of this published message. This information is 
-only required when we are sending the published event between devices through the streamer, publishers are not required to populate this information.
+only required when we are sending the published event between devices through a streamer. A uEntity sending a Publish message is not required to populate this information.
 
 [.specitem,oft-sid="dsn~up-attributes-publish-sink~1",oft-needs="impl,utest"]
 --
