@@ -69,11 +69,12 @@ Every message *MUST* have a unique message identifier. The timestamp contained i
 |link:qos.adoc[UPriority]
 |no
 a|
-The QoS level that this message should be processed/delivered with. If not specified explicitly, the link:qos.adoc#default-priority[default priority level] is assumed.
+The QoS level that this message should be processed/delivered with. 
 [.specitem,oft-sid="req~up-attributes-priority~1",oft-needs="impl,utest"]
 --
-* *MUST* have a priority attribute.
+A consumer *MUST* assume a message to have the link:qos.adoc#default-priority[default priority] if not set explicitly.
 --
+
 |`ttl`
 |`unsigned integer`
 |no
