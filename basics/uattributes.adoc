@@ -79,14 +79,15 @@ The QoS level that this message should be processed/delivered with. If not speci
 |no
 a|
 The amount of time (in milliseconds) after which this message is no longer delivered/processed.
-[.specitem,oft-sid="req~up-attributes-ttl~1",oft-needs="impl,utest"]
---
-* *MUST* have a TTL attribute.
---
 [.specitem,oft-sid="req~up-attributes-ttl-timeout~1",oft-needs="impl,utest"]
 --
-* The message *MUST* expire if the current time is greater than the sum of the message's creation time and the TTL value.
+A consumer *MUST NOT* process an expired message. A message is expired if the TTL is > `0` and the consumer's current time is _after_ the message's creation time _plus_ its TTL.
 --
+[.specitem,oft-sid="req~up-attributes-ttl~1",oft-needs="impl,utest"]
+--
+A consumer *MUST* not consider a message expired if it has a TTL value of `0`.
+--
+
 
 stem:[t_{current} > t_{id} + ttl]
 
