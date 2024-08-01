@@ -111,11 +111,11 @@ uTwin *MUST* indicate when its capacity is exhausted and it is unable to accept 
 
 uTwin *MUST* reject identical copies of an already cached Topic CE (identical CE message ID or Topic URI and Timestamp), enabling uBus to refrain from forwarding duplicate publish messages to subscribers.
 
-In the event that limited cache capacity is available for uTwin and the potential exists for it to run out of capacity if all or a significant portion of available Topics provided by or used by on-device uEs, uTwin *SHOULD* actively manage its cache to ensure that Topics with the longest interval since they were last updated, potentially also based upon specific (TBC) priority critria are removed from the cache in order to ensure that new content can continue to be accepted.  
+When a specified Cache capacity is defined for uTwin, and the potential exists for it to run out of capacity if all or a significant portion of available Topics provided by or used by on-device uEs, uTwin *MUST* actively manage its cache to ensure that Topics with the longest interval since they were last updated are the first to be removed, while also allowing for a priority-based means of protecting critical topics from scrubbing.
 
 When uTwin cache scrubbing is supported, this *MUST* be implemented so as to prevent it from adding latency to critical path execution of active uTwin SetLastMessage transactions, when triggered.  
 
-If required, MVP uTwin cache scrubbing *MUST* remove the oldest (longest gap since last updated) topics in the queue, bringing cache size from (TBC) 98% to 90% of available capacity.
+MVP uTwin cache scrubbing *MUST* remove the oldest (longest gap since last updated) topics in the queue, bringing cache size from (TBC) 98% to 90% of available capacity.
 
 Post-MVP cache scrubbing *SHOULD* allow for protection of higher priority content per UAttributes.priority, in order to enable it to be prevented from being removed.  This *SHOULD* be managed by a uTwin property, specifying the threshold message Priority level from and below which, based upon increasing criticality with lower ordinate priority level, messages cannot be deleted when scrubbing due to capacity limits.
 
@@ -148,7 +148,9 @@ A call to SetLastMessage (typically from a uBus) to update the uTwin internal ca
 
 === Remote last known state
 
-A uTwin instance *MUST* run on each uDevice. Each uTwin instance *MUST* store the last published event on each Topic it 'manages', including event received by Streamers (therefore remotely published)  and published to 'local' subscribers.
+Each device *MUST* have its own instance of uTwin. 
+
+uTwins *MUST* store the last published event for all topics (local and remote) published to the device.
 
 With this mechanism, all devices with at least 1 subscriber of a given Topic will receive, and keep the last event on the Topic.
 
