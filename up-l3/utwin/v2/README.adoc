@@ -109,17 +109,19 @@ uTwin will initialize its cache on startup with the following scenarios:
 
 uTwin *MUST* indicate when its capacity is exhausted and it is unable to accept a new / updated SetLastMessage command.
 
-uTwin "MUST* reject identical copies of an already cached Topic CE, enabling uBus to refrain from forwarding duplicate publish messages to subscribers.
+uTwin *MUST* reject identical copies of an already cached Topic CE (identical CE message ID or Topic URI and Timestamp), enabling uBus to refrain from forwarding duplicate publish messages to subscribers.
 
 In the event that limited cache capacity is available for uTwin and the potential exists for it to run out of capacity if all or a significant portion of available Topics provided by or used by on-device uEs, uTwin *SHOULD* actively manage its cache to ensure that Topics with the longest interval since they were last updated, potentially also based upon specific (TBC) priority critria are removed from the cache in order to ensure that new content can continue to be accepted.  
 
-When uTwin cache scrubbing is supported, this *MUST* be implemented so as to prevent it from adding latency to critical path execution of active uTwin SetLastMessage transactions, based upon a (TBC 95% full) threshold.  
+When uTwin cache scrubbing is supported, this *MUST* be implemented so as to prevent it from adding latency to critical path execution of active uTwin SetLastMessage transactions, when triggered.  
 
-If required, MVP uTwin cache scrubbing *MUST* remove the oldest (longest gap since last updated) topics in the queue, bringing cache size from 95% to 90% of available capacity.
+If required, MVP uTwin cache scrubbing *MUST* remove the oldest (longest gap since last updated) topics in the queue, bringing cache size from (TBC) 98% to 90% of available capacity.
 
-Post-MVP cache scrubbing *SHOULD* allow for protection of higher priority content, in order to enavvle it to be prevented from being removed, along with determination of "staleness" for specific topics/topic classes/priorities.
+Post-MVP cache scrubbing *SHOULD* allow for protection of higher priority content per UAttributes.priority, in order to enable it to be prevented from being removed.  This *SHOULD* be managed by a uTwin property, specifying the threshold message Priority level from and below which, based upon increasing criticality with lower ordinate priority level, messages cannot be deleted when scrubbing due to capacity limits.
 
 uTwin cache size allocation *SHOULD* ensure that it supports not less than 125% of the capacity for all IV Topics, to allow for a percentage of published traffic coming from the cloud.
+
+
 == Interface
 The proposal defines a new Digital Twin service, named uTwin, exposing the following API:
 
