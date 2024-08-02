@@ -102,7 +102,7 @@ uEntities *MAY* assume both the Service and Application roles.
 A UUri's `ue_id` property value determines the type and instance of the service being referred to:
 
 * The value's _least_ significant 16 bits contain the _service ID_, representing the service interface type.
-* The value's _most_ significant 16 bits contain the _service instance ID_.
+* The value's _most_ significant 16 bits contain the _service instance ID_ where a value of `0x0000` refers to _any_ (or don't care). 
 --
 
 === Resource
