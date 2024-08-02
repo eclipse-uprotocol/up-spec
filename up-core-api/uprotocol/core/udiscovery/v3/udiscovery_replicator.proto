@@ -1,0 +1,66 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ * 
+ * This program and the accompanying materials are made available under
+ * the terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-License-Identifier: Apache-2.0
+ */
+syntax = "proto3";
+
+package uprotocol.core.udiscovery.v3;
+import "google/protobuf/timestamp.proto";
+import "uprotocol/uoptions.proto";
+import "uprotocol/v1/uri.proto";
+import "uprotocol/core/udiscovery/v3/udiscovery.proto";
+ 
+option java_package = "org.eclipse.uprotocol.core.udiscovery.v3";
+option java_outer_classname = "UDiscoveryReplicatorProto";
+option java_multiple_files = true;
+ 
+  
+// UDiscovery Replicator is a set of APIs that are used internal to UDiscovery to populate and replicate
+// information in the uDiscovery database. This API is for internal (to UDiscovery service) use only and 
+// not accessible for client uEs to use.
+ service UDiscoveryReplicator {
+  option (uprotocol.service_name) = "core.udiscovery"; // Service name
+  option (uprotocol.service_version_major) = 3;
+  option (uprotocol.service_version_minor) = 0;
+  option (uprotocol.service_id) = 1;
+
+
+  // Add, update, or remove one or more UServiceTopic from the Udiscovery database.
+  //
+  // This API is used to add, update, or remove UServiceTopic information and is called from 
+  // between UDiscovery services (ex. local to domain, domain to central, etc..).
+  // To remove a topic, simply set the ttl in SetServiceTopicsRequest to be 0.
+  // The API returns a SetServiceTopicsResponse when the operation was successful, or it will return an
+  // error (the method invocation fails) with one of the following reasons:
+    // UCode.INVALID_ARGUMENT - The URI passed is invalid
+  // UCode.PERMISSION_DENIED - The caller is not permissed to set the UServiceTopics for that service.
+  rpc SetServiceTopics(SetServiceTopicsRequest) returns (SetServiceTopicsResponse) {
+    option (uprotocol.method_id) = 10;
+  }
+}
+
+// Request message for SetServiceTopics that contains a repeated list of service topic metadata 
+message SetServiceTopicsRequest {
+  // The topics to add (update) in the database.
+  repeated ServiceTopicInfo topics = 1;
+
+  // How long the topic metadata (in seconds) is valid for from the moment the API is called.
+  // If the metadata has expired, the UDiscovery service that received this data must flush the ServiceTopic info.
+  // If the field is missed, the ServiceTopicInfo is valid forever.
+  // If the field is set to 0, the ServiceTopicInfo should be removed from the database immediately.
+  optional uint32 ttl = 2;
+}
+
+
+// Empty message returned from SetServiceTopics when the command returned successfully
+message SetServiceTopicsResponse {}
+ 
