@@ -275,8 +275,7 @@ The following table are the valid combinations, which maps to the corresponding 
 | [8000-FFFE] |     0    |         |      V       |         |         | A uE listens for a specific notification message
 |      0      | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request
 |   [1-7FFF]  |     0    |         |              |         |    V    | A uE listens for a specific response
-|     FFFF    |   None   |    V    |              |         |         | A uE listens for all published messages
-|     FFFF    | [1-7FFF] |         |              |    V    |         | A uE listens for all requests
+|     FFFF    | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request of 1-7FFF
 |     FFFF    |     0    |         |      V       |         |    V    | A uE listens for all notifications and responses
 |     FFFF    |   FFFF   |         |      V       |    V    |    V    | uStreamer listens for all notifications, requests, and responses
 |===
@@ -290,7 +289,7 @@ We can get the message types by reorganizing the table above to the following on
 |===
 | Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
 
-| Publish      | {[8000-FFFE], None}, {FFFF, None}
+| Publish      | {[8000-FFFE], None}
 | Notification | {[8000-FFFE], 0}, {FFFF, 0}, {FFFF, FFFF}
 | Request      | {0, [1-7FFF]}, {FFFF, [1-7FFF]}, {FFFF, FFFF}
 | Response     | {[1-7FFF], 0}, (FFFF, 0), {FFFF, FFFF}
