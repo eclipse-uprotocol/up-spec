@@ -123,7 +123,7 @@ On the other hand, unsuccessful completion of this method does not necessarily m
 NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
 
-[.specitem,oft-sid="des~utransport-send-preserve-data~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest"]
 --
 * *MUST* preserve all of the message's meta data and payload during transmission
 --
@@ -262,17 +262,17 @@ After this method has completed successfully, the given listener will be invoked
 * *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
 --
 
-[.specitem,oft-sid="req~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest"]
 --
 * *MUST* support registering more than one listener for any given address patterns
 --
   
-[.specitem,oft-sid="req~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest"]
 --
 * *MUST* support registering the same listener for multiple address patterns
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-max-listeners~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman"]
 --
 * *MUST* document the maximum supported number of listeners per address pattern.
 --
@@ -415,7 +415,7 @@ A `UTransport` implementation can use the `LocalUriProvider` to determine the uE
 
 A uEntity invokes this method to get its own authority.
 
-[.specitem,oft-sid="req~utransport-localuriprovider-getauthority~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-localuriprovider-getauthority~1",oft-needs="dsn"]
 --
 Implementations *MAY* use any appropriate mechanism to determine the local authority during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
@@ -424,12 +424,12 @@ Implementations *MAY* use any appropriate mechanism to determine the local autho
 
 A uEntity invokes this method to get the address that it expects incoming Notification or RPC Response messages to be sent to.
 
-[.specitem,oft-sid="req~utransport-localuriprovider-getsource-uri-segments~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-localuriprovider-getsource-uri-segments~1",oft-needs="impl,utest"]
 --
 The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and _resource ID_ `0x0000`.
 --
 
-[.specitem,oft-sid="req~utransport-localuriprovider-getsource-runtime~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-localuriprovider-getsource-runtime~1",oft-needs="dsn"]
 --
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
@@ -438,12 +438,12 @@ Implementations *MAY* use any appropriate mechanism to determine these values du
 
 A uEntity invokes this method to get a resource specific address to publish messages to or that it expects incoming RPC Request messages to be sent to.
 
-[.specitem,oft-sid="req~utransport-localuriprovider-getresource~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-localuriprovider-getresource~1",oft-needs="impl,utest"]
 --
 The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and the passed in _resource ID_.
 --
   
-[.specitem,oft-sid="req~utransport-localuriprovider-getresource-runtime~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-localuriprovider-getresource-runtime~1",oft-needs="dsn"]
 --
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
@@ -456,7 +456,7 @@ Implementations *MAY* use any appropriate mechanism to determine these values du
 * *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
 --
   
-[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="impl"]
+[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="uman"]
 --
 * *MUST* document the delivery methods they support
 --
