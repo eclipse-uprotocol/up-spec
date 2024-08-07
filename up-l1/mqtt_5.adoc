@@ -235,5 +235,10 @@ When MQTT5 (broker) is used for D2D communication, the topic shall consist of on
 ===== Sending a Message
 `UTransport::send(UMessage)` translates to the MQTT publish to topic `{UMessage.source.authority_name}/{UMessage.sink.authority_name}`
 
+== MQTT5 Connection handling
 
+=== Establishing a connection
+Establishing a connection to an MQTT broker *SHOULD* be done with `cleanSession = true` and `sessionExpiry = 0`. With those settings the broker will not buffer any messages while a the client is offline and will loose any subscriptions on a client disconnect. 
 
+=== Reconnection
+If a connection is lost the UTransport *MUST* try to reconnect to the MQTT broker. The client *SHOULD* implement a backoff retry strategy to avoid overloading the broker. If the client connected with `cleanSession = true` then after a successful reconnect the UTransport *MUST* re-register all the previosly registred UListener.
