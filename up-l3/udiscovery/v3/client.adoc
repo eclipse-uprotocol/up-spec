@@ -1,0 +1,50 @@
+= uDiscovery Client APIs
+:toc: preamble
+:sectnums:
+:source-highlighter: highlight.js
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+The following document we will elaborate on the design and requirements for the uDiscovery service client facing APIs.
+
+.Client APIs
+[#client-api]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+Client ->> UDiscoveryService: FindService()
+
+Client ->> UDiscoveryService: FindServiceTopics()
+----
+
+In <<client-api>> above, _Client_ represents the client-facing APIs to talk to uDiscovery database that can be found in the various language libraries such as https://github.com/eclipse-uprotocol/up-cpp[up-cpp], https://github.com/eclipse-uprotocol/up-java[up-java], etc..  that are used to find services and their topics. 
+
+== Client Facing APIs
+
+The client facing APIs of uDiscovery provide the means for uEs to discover services (where they are located, versions, etc...), and topic metadata that a service produces (method id and permissions, publish topic message formats, etc...). The API is declared in the the xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[uDiscovery service proto].
+
+[.specitem,oft-sid="dsn~discovery-client-apis~1",oft-needs="impl"]
+--
+* link:../languages.adoc[uProtocol Language Library] *MUST* implement the client-side APIs of xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto] using xref:../../../up-l2/api.adoc[Communication Layer (uP-L1) RpcClient API]. 
+--
+
+NOTE: Please refer to the xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto] for details of the UDiscovery Client APIs.
+
