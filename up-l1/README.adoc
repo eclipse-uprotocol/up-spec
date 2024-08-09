@@ -129,12 +129,12 @@ NOTE: The above strategy for retrying failed attempts to send a message results 
 * *MUST* preserve all of the message's meta data and payload during transmission
 --
 
-[.specitem,oft-sid="req~utransport-send-error-invalid-parameter~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-send-error-invalid-parameter~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UMessage failed validation
 --
 
-[.specitem,oft-sid="req~utransport-send-error-permission-denied~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-send-error-permission-denied~1",oft-needs="dsn"]
 --
 * *MUST* fail with a `UCode.PERMISSION_DENIED` if a non-streamer client tries to send a message with `UAttributes.source` that is different than the source address associated with the transport, this is to avoid address spoofing.
 --
@@ -189,12 +189,12 @@ This method implements the _pull_ <<delivery-method, delivery method>> on top of
 
 *Requirements for UTransport Implementations:*
 
-[.specitem,oft-sid="req~utransport-receive-error-unimplemented~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-receive-error-unimplemented~1",oft-needs="impl,utest"]
 --
 * *MUST* return `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
 --
 
-[.specitem,oft-sid="req~utransport-receive-error-notfound~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest"]
 --
 * *MUST* return a `UCode.NOT_FOUND` if there are no matching messages available
 --
@@ -252,12 +252,12 @@ After this method has completed successfully, the given listener will be invoked
 
 *Requirements for UTransport Implementations:*
 
-[.specitem,oft-sid="req~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="req~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
 --
@@ -372,17 +372,17 @@ unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListe
 | The listener to be unregistered.
 |===
 
-[.specitem,oft-sid="req~utransport-unregisterlistener-error-unimplemented~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-unimplemented~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="req~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
 --
 
-[.specitem,oft-sid="req~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
 --
 * *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
 --
