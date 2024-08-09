@@ -122,6 +122,7 @@ On the other hand, unsuccessful completion of this method does not necessarily m
 
 NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
+*Requirements for UTransport Implementations:*
 
 [.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest"]
 --
@@ -186,6 +187,8 @@ receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
 
 This method implements the _pull_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 
+*Requirements for UTransport Implementations:*
+
 [.specitem,oft-sid="req~utransport-receive-error-unimplemented~1",oft-needs="impl,utest"]
 --
 * *MUST* return `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
@@ -246,6 +249,8 @@ registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListene
 
 This API is used to implement the _push_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
+
+*Requirements for UTransport Implementations:*
 
 [.specitem,oft-sid="req~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest"]
 --
@@ -477,13 +482,5 @@ uProtocol defines bindings to the following communication protocols:
 * link:mqtt_5.adoc[*MQTT*]
 * link:http.adoc[*HTTP*]
 * link:someip.adoc[*SOME/IP*]
-
-
-If a communication protocol binding uses link:https://cloudevents.io/[CloudEvents]:
-
-[.specitem,oft-sid="dsn~utransport-cloudevents~1",oft-needs="impl,utest"]
---
-* *MUST* adhere to link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
---
 
 
