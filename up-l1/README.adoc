@@ -122,9 +122,22 @@ On the other hand, unsuccessful completion of this method does not necessarily m
 
 NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
-UTransport implementations
+*Requirements for UTransport Implementations:*
 
+[.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest"]
+--
 * *MUST* preserve all of the message's meta data and payload during transmission
+--
+
+[.specitem,oft-sid="dsn~utransport-send-error-invalid-parameter~1",oft-needs="impl,utest"]
+--
+* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UMessage failed validation
+--
+
+[.specitem,oft-sid="req~utransport-send-error-permission-denied~1",oft-needs="dsn"]
+--
+* *MUST* fail with a `UCode.PERMISSION_DENIED` if a non-streamer client tries to send a message with `UAttributes.source` that is different than the source address associated with the transport, this is to avoid address spoofing.
+--
 
 [mermaid]
 ifdef::env-github[[source,mermaid]]
@@ -174,10 +187,17 @@ receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
 
 This method implements the _pull_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 
-UTransport implementations
+*Requirements for UTransport Implementations:*
 
-* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
-* *MUST* fail with a `UCode.NOT_FOUND` if there are no matching messages available
+[.specitem,oft-sid="dsn~utransport-receive-error-unimplemented~1",oft-needs="impl,utest"]
+--
+* *MUST* return `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
+--
+
+[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest"]
+--
+* *MUST* return a `UCode.NOT_FOUND` if there are no matching messages available
+--
 
 [mermaid]
 ifdef::env-github[[source,mermaid]]
@@ -230,14 +250,43 @@ registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListene
 This API is used to implement the _push_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
 
-UTransport implementations
+*Requirements for UTransport Implementations:*
 
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest"]
+--
 * *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest"]
+--
 * *MUST* fail with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
+--
+
+[.specitem,oft-sid="req~utransport-registerlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
+--
+* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest"]
+--
 * *MUST* support registering more than one listener for any given address patterns
+--
+  
+[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest"]
+--
 * *MUST* support registering the same listener for multiple address patterns
+--
+
+[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman"]
+--
 * *MUST* document the maximum supported number of listeners per address pattern.
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest"]
+--
 * *MUST* be idempotent, multiple calls to said API with the same parameters *MUST* have the same effect as a single call.
+--
+
 
 .Registering a Listener
 [mermaid]
@@ -323,10 +372,20 @@ unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListe
 | The listener to be unregistered.
 |===
 
-UTransport implementations
-
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-unimplemented~1",oft-needs="impl,utest"]
+--
 * *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
+--
+
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest"]
+--
 * *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
+--
+
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
+--
+* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
+--
 
 .Unregistering a Listener
 [mermaid]
@@ -361,31 +420,52 @@ A `UTransport` implementation can use the `LocalUriProvider` to determine the uE
 
 A uEntity invokes this method to get its own authority.
 
+[.specitem,oft-sid="req~utransport-localuriprovider-getauthority~1",oft-needs="dsn"]
+--
 Implementations *MAY* use any appropriate mechanism to determine the local authority during runtime, e.g. by means of a configuration file, environment variables or a central registry.
+--
 
 === GetSource
 
 A uEntity invokes this method to get the address that it expects incoming Notification or RPC Response messages to be sent to.
 
+[.specitem,oft-sid="dsn~utransport-localuriprovider-getsource-uri-segments~1",oft-needs="impl,utest"]
+--
 The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and _resource ID_ `0x0000`.
+--
 
+[.specitem,oft-sid="req~utransport-localuriprovider-getsource-runtime~1",oft-needs="dsn"]
+--
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
+--
 
 === GetResource
 
 A uEntity invokes this method to get a resource specific address to publish messages to or that it expects incoming RPC Request messages to be sent to.
 
+[.specitem,oft-sid="dsn~utransport-localuriprovider-getresource~1",oft-needs="impl,utest"]
+--
 The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and the passed in _resource ID_.
-
+--
+  
+[.specitem,oft-sid="req~utransport-localuriprovider-getresource-runtime~1",oft-needs="dsn"]
+--
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
+--
 
 [#delivery-method]
 == Message Delivery
 
-Transport API implementations
-
+[.specitem,oft-sid="dsn~utransport-delivery-methods~1",oft-needs="impl,utest"]
+--
 * *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
+--
+  
+[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="uman"]
+--
 * *MUST* document the delivery methods they support
+--
+
 
 == Communication Protocol Binding
 
@@ -402,12 +482,5 @@ uProtocol defines bindings to the following communication protocols:
 * link:mqtt_5.adoc[*MQTT*]
 * link:http.adoc[*HTTP*]
 * link:someip.adoc[*SOME/IP*]
-
-Each uProtocol Client *MUST* employ exactly one of these bindings for implementing the Transport Layer API.
-
-Additional bindings *MAY* be defined in future versions of uProtocol.
-
-A binding *MAY* employ link:https://cloudevents.io/[CloudEvents] as a means to map uProtocol messages to the communication protocol's PDU. In order to provide for consistency across implementations, such bindings *MUST* adhere to link:cloudevents.adoc[*UMessage mapping to CloudEvents*]
-
 
 
