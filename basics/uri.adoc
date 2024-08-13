@@ -272,7 +272,7 @@ impl UUri {
 
 == Pattern Matching
 
-[.specitem,oft-sid="dsn~uri-pattern-matching~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-pattern-matching~2",oft-needs="impl,utest"]
 --
 A UUri can be used to define a _pattern_ that other UUris can then be matched against.
 For that purpose, a UUri
