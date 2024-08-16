@@ -266,11 +266,11 @@ If a connection is lost, the UTransport *MUST* try to reconnect to the MQTT brok
 
 [.specitem,oft-sid="req~up-transport-mqtt5-reconnection-backoff~1",oft-needs="impl,utest"]
 --
-The client *MUST* implement a backoff strategy in order not to overload the MQTT broker. It *MUST* be possible to inject this strategy into the UTransport. The UTransport *MUST* implement the default strategy where the n+1-th reconnect is done after the n-th after a pause given by the following table:
+The UTransport *MUST* implement an exponential backoff strategy as defined in the following table.
 
 [cols="1,1,1,1,1,1,1"]
 |===
-|  Reconnect attempt: | 1 | 2 | 3 | 4 | 5 | 5+
+|  Reconnect attempt | 1 | 2 | 3 | 4 | 5 | 5+
 |  Pause              | 500ms | 1s | 2s | 4s | 10s | 10s
 |===
 
