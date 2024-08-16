@@ -238,7 +238,40 @@ When MQTT5 (broker) is used for D2D communication, the topic shall consist of on
 == MQTT5 Connection handling
 
 === Establishing a connection
-Establishing a connection to an MQTT broker *SHOULD* be done with `cleanSession = true` and `sessionExpiry = 0`. With those settings the broker will not buffer any messages while a the client is offline and will loose any subscriptions on a client disconnect. 
+[.specitem,oft-sid="req~up-transport-mqtt5-establish-connection~1",oft-needs="impl,utest"]
+--
+To establish an MQTT connection to a broker it *MUST* be possible for a UTransport to configure the `cleanSession` and `sessionExpiry` with values according to the MQTT specification. 
+
+Those values have some important consequences and the following table summarize them shortly:
+
+[cols="1,1,1"]
+|===
+| cleanSession | sessionExpiry | Note
+| true | 0 | Previous session data is deleted and no persistent data (messages, subscribtions) if UTransport gets disconnected
+| true | t | Previous session data is deleted and new session will buffer data for time `t`
+| false | t | Previous session data (subscribtions, messages) resumed and resumed session will buffer data for time `t`
+|===
+
+Using a UTransport from the cloud side to connect to an MQTT broker we recommend to use `cleanSession=true` and `sessionExpiry=0` because we assume that there will always be at least one UTransport connected from the cloud which can handle messages so there is no need for buffering. 
+
+Establishing an mqtt5 UTransport from a device there is no general recommendation. Using `cleanSession=true` and `sessionExpiry=0` might be best for scaling since it reduces the load on the MQTT broker. Doing this one needs to take special care for offline devices. Using `cleanSession=true` and `sessionExpiry=t` might stress the broker but the broker helps when dealing with offline devices.
+
+--
 
 === Reconnection
-If a connection is lost the UTransport *MUST* try to reconnect to the MQTT broker. The client *SHOULD* implement a backoff retry strategy to avoid overloading the broker. If the client connected with `cleanSession = true` then after a successful reconnect the UTransport *MUST* re-register all the previosly registred UListener.
+[.specitem,oft-sid="req~up-transport-mqtt5-reconnection~1",oft-needs="impl,utest"]
+--
+If a connection is lost the UTransport *MUST* try to reconnect to the MQTT broker.  If on successfull reconnect the broker sends the `sessionPresent=false` flag then the UTransport *MUST* re-register all the previosly registred UListener. 
+--
+
+[.specitem,oft-sid="req~up-transport-mqtt5-reconnection-backoff~1",oft-needs="impl,utest"]
+--
+The client *MUST* implement a backoff strategy in order not to overload the MQTT broker. It *MUST* be possible to inject this strategy into the UTransport. The UTransport *MUST* implement the default strategy where the n+1-th reconnect is done after the n-th after a pause given by the following table:
+
+[cols="1,1,1,1,1,1,1"]
+|===
+|  Reconnect attempt: | 1 | 2 | 3 | 4 | 5 | 5+
+|  Pause              | 500ms | 1s | 2s | 4s | 10s | 10s
+|===
+
+--
