@@ -261,7 +261,7 @@ Establishing an mqtt5 UTransport from a device there is no general recommendatio
 === Reconnection
 [.specitem,oft-sid="req~up-transport-mqtt5-reconnection~1",oft-needs="impl,utest"]
 --
-If a connection is lost the UTransport *MUST* try to reconnect to the MQTT broker.  If on successfull reconnect the broker sends the `sessionPresent=false` flag then the UTransport *MUST* re-register all the previosly registred UListener. 
+If a connection is lost, the UTransport *MUST* try to reconnect to the MQTT broker.  If on successfull reconnect the broker sends the `sessionPresent=false` flag, the UTransport *MUST* re-subscribe to all previously subscribed topics. 
 --
 
 [.specitem,oft-sid="req~up-transport-mqtt5-reconnection-backoff~1",oft-needs="impl,utest"]
