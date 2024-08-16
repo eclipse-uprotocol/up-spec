@@ -1,6 +1,8 @@
 = uProtocol Language Library
 :toc:
 :sectnums:
+:up-l1-ref: xref:up-l1/README.adoc[uProtocol Transport Layer interface]
+:up-l2-ref: xref:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API]
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
@@ -31,17 +33,17 @@ A language library
 
 [.specitem,oft-sid="req~up-language-transport-api~1",oft-needs="impl",oft-title="Library declares Transport Layer API"]
 --
-* *MUST* declare the language specific link:up-l1/README.adoc[uProtocol Transport Layer interface], such that the interface can be implemented by the transport libraries.
+* *MUST* declare the language specific {up-l1-ref}, such that the interface can be implemented by the transport libraries.
 --
 
 [.specitem,oft-sid="req~up-language-comm-api~1",oft-needs="impl",oft-title="Library declares Communication Layer API"]
 --
-* *MUST* declare the language specific link:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API], such that the interface *MAY* be implemented by the transport libraries.
+* *MUST* declare the language specific {up-l2-ref}, such that the interface *MAY* be implemented by the transport libraries.
 --
 
 [.specitem,oft-sid="req~up-language-comm-api-default-impl~1",oft-needs="impl,utest",oft-title="Library implements Communication Layer API"]
 --
-* *MUST* provide a default implementation of link:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API] based on the (abstract) Transport Layer API.
+* *MUST* provide a default implementation of {up-l2-ref} based on the (abstract) Transport Layer API.
 --
 
 [.specitem,oft-sid="dsn~up-language-naming~1",oft-title="Library follows naming pattern"]
@@ -51,12 +53,12 @@ A language library
 
 [.specitem,oft-sid="dsn~up-language-structure~1",oft-title="Library uses uProtocol namespace"]
 --
-* *MUST* use the programming language specific namespace concept, if availabe, to indicate that the library belongs to the _uProtocol_ project. If the language supports hierarchical namespaces (like Java does), then `org.eclipse.uprotocol` *SHOULD* be used. Otherwise, a namespace of `uprotocol` *MUST* be used*.
+* *MUST* use the programming language specific namespace concept, if availabe, to indicate that the library belongs to the _uProtocol_ project. If the language supports hierarchical namespaces (like Java does), then `org.eclipse.uprotocol` *SHOULD* be used. Otherwise, a namespace of `uprotocol` *MUST* be used.
 --
 
 [.specitem,oft-sid="req~up-language-documentation~1",oft-needs="uman",oft-title="Library contains adequate README file"]
 --
-* *MUST* contain a `README.adoc` that explains how to build and use the library. 
+* *MUST* contain a `README` file that explains how to build and use the library.
 --
 
 === Test & CI
