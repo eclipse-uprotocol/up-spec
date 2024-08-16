@@ -240,16 +240,16 @@ When MQTT5 (broker) is used for D2D communication, the topic shall consist of on
 === Establishing a connection
 [.specitem,oft-sid="req~up-transport-mqtt5-establish-connection~1",oft-needs="impl,utest"]
 --
-To establish an MQTT connection to a broker it *MUST* be possible for a UTransport to configure the `cleanSession` and `sessionExpiry` with values according to the MQTT specification. 
+To establish an MQTT connection to a broker it *MUST* be possible for a UTransport to configure the `cleanSession` and `sessionExpiry` settings.
 
-Those values have some important consequences and the following table summarize them shortly:
+Those values have some important consequences summarized shortly:
 
 [cols="1,1,1"]
 |===
-| cleanSession | sessionExpiry | Note
-| true | 0 | Previous session data is deleted and no persistent data (messages, subscribtions) if UTransport gets disconnected
-| true | t | Previous session data is deleted and new session will buffer data for time `t`
-| false | t | Previous session data (subscribtions, messages) resumed and resumed session will buffer data for time `t`
+| cleanSession | sessionExpiry | Consequence
+| true | 0 | Previous session data is deleted and state like messages, subscribtions etc. is lost if UTransport gets disconnected
+| true | t>0 | Previous session data is deleted and new session will buffer data for time `t` if connection is lost
+| false | t | Previous session including subscribtions, unreceived messages etc. is resumed and session will buffer data for time `t` if connection is lost
 |===
 
 Using a UTransport from the cloud side to connect to an MQTT broker we recommend to use `cleanSession=true` and `sessionExpiry=0` because we assume that there will always be at least one UTransport connected from the cloud which can handle messages so there is no need for buffering. 
