@@ -21,6 +21,8 @@ import "google/protobuf/descriptor.proto";
 option java_package = "org.eclipse.uprotocol";
 option java_multiple_files = true;
 
+// Enables generation of generic service attributes in C++
+option cc_generic_services = true;
 
 /////////////////////////////////////////////////////////
 // RESERVED UPROTOCOL OPTION IDS

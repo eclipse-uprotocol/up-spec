@@ -24,6 +24,9 @@ option java_package = "org.eclipse.uprotocol.core.utwin.v2";
 option java_outer_classname = "UTwinProto";
 option java_multiple_files = true;
 
+// Enables generation of generic service attributes in C++
+option cc_generic_services = true;
+
 // uTwin Service interface definition
 service uTwin {
   option (uprotocol.service_name) = "core.utwin"; // Service name
