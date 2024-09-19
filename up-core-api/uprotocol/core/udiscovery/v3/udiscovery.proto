@@ -22,6 +22,9 @@ option java_package = "org.eclipse.uprotocol.core.udiscovery.v3";
 option java_outer_classname = "UDiscoveryProto";
 option java_multiple_files = true;
 
+// Enables generation of generic service attributes in C++
+option cc_generic_services = true;
+
 // Platform USE Discovery Service Interface
 service uDiscovery {
   option (uprotocol.service_name) = "core.udiscovery"; // Service name
