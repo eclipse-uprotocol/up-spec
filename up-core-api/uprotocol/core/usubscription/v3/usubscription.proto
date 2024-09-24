@@ -123,8 +123,9 @@ message SubscriberInfo {
   // uE subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
   uprotocol.v1.UUri uri = 1;
 
-  // Any additional device specific subscriber information
-  repeated google.protobuf.Any details = 2;
+  // DEPRECATED: Any additional device specific subscriber information
+  // repeated google.protobuf.Any details = 2;
+  reserved 2;
 }
 
 
@@ -174,8 +175,9 @@ message SubscriptionRequest {
   // uProtocol uri topic to subscribe too
   uprotocol.v1.UUri topic = 1;
 
-  // Subscribers's information (who is calling Subscribe)
-  SubscriberInfo subscriber = 2;
+  // DEPRECATED: Subscribers's information (who is calling Subscribe) is not needed
+  //SubscriberInfo subscriber = 2;
+  reserved 2;
 
   // Additional subscription attributes
   SubscribeAttributes attributes = 3;
@@ -202,8 +204,9 @@ message UnsubscribeRequest {
   // Topic to be unsubscribed to
   uprotocol.v1.UUri topic = 1;
 
-  // Subscriber identification
-  SubscriberInfo subscriber = 2;
+  // DEPRECATED 0Subscriber identification is not needed
+  // SubscriberInfo subscriber = 2;
+  reserved 2;
 }
 
 // The (empty) response message representing the successful execution of the Unsubscribe operation.
@@ -284,8 +287,10 @@ message NotificationsRequest {
   // Topic to register/unregister to receive subscription change notifications
   uprotocol.v1.UUri topic = 1;
 
-  // Subscribers's information
-  SubscriberInfo subscriber = 2;
+  // DEPRECATED: Subscribers's information not used as only non-subscribers will call
+  // this API (i.e. producers)
+  // SubscriberInfo subscriber = 2;
+  reserved 2;
 }
 
 // The (empty) response message representing the successful execution of the

@@ -30,7 +30,7 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version `0.11.0` to ensure the interoperability in different language bindings.
+We **MUST** use Zenoh version `1.0.0-alpha.6` to ensure the interoperability in different language bindings.
 
 === UPClientZenoh initialization
 
@@ -65,18 +65,8 @@ Now the version is always 0x01.
 
 ==== Message Type
 
-There are 4 kinds of message types in uProtocol (publish, notification, request, response).
-Different message types **MUST** use different Zenoh API.
+There are 4 kinds of message types in uProtocol (publish, notification, request, response), all of said messages are sent using the zenoh `put()` API meaning we shall use the pub/sub infrastructure only of zenoh and not the queryable APIs.
 
-[cols="1,1"]
-|===
-| uProtocol message type | Zenoh API
-
-| publish | put
-| notification | put
-| request | get (query)
-| response | reply (queryable)
-|===
 
 ==== Priority Mapping (uProtocol to Zenoh):
 
@@ -93,9 +83,6 @@ Different message types **MUST** use different Zenoh API.
 | CS6 | REAL_TIME
 |===
 
-==== TTL
-
-While sending Request messages, TTL **MUST** be mapped to the timeout configuration in Zenoh query.
 
 === Payload
 

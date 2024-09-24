@@ -272,15 +272,15 @@ impl UUri {
 
 == Pattern Matching
 
-[.specitem,oft-sid="dsn~uri-pattern-matching~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-pattern-matching~2",oft-needs="impl,utest"]
 --
 A UUri can be used to define a _pattern_ that other UUris can then be matched against.
 For that purpose, a UUri
 
-* *MAY* have its `authority_name` set to the `*` (`U+002A`, Asterisk) character in order to match _any_ (including _no_) authority,
-* *MAY* have the _service ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ type,
-* *MAY* have the _service instance ID_ part of its `ue_id` set to `0x0000` in order to match _any_ instance,
-* *MAY* have its `ue_version_major` set to `0xFF` in order to match _any_ version,
+* *MAY* have its `authority_name` set to the `*` (`U+002A`, Asterisk) character in order to match _any_ (including _no_) authority.
+* *MAY* have the _service ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ service type.
+* *MAY* have the _service instance ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ service instance. `0x0000` is the default instance ID used when there is only a single instance of a service.
+* *MAY* have its `ue_version_major` set to `0xFF` in order to match _any_ version.
 * *MAY* have its `resource_id` set to `0xFFFF` in order to match _any_ resource.
 
 A _candidate_ UUri _matches_ a particular _pattern_ UUri if all of the candidate UUri's properties match the pattern UUri's corresponding properties according to the rules defined by the predicates below.
@@ -302,7 +302,7 @@ def: matches_entity_type(candidate : UUri) : Boolean =
   self.service_type() = candidate.service_type()
 
 def: matches_entity_instance(candidate : UUri) : Boolean =
-  self.service_instance() = 0x0000_0000
+  self.service_instance() = 0xFFFF_0000
   or
   self.service_instance() = candidate.service_instance()
 
@@ -312,9 +312,9 @@ def: matches_entity_version(candidate : UUri) : Boolean =
   self.ue_version_major = candidate.ue_version_major
 
 def: matches_resource(candidate : UUri) : Boolean =
-  self.instance_id = 0xFFFF
+  self.resource_id = 0xFFFF
   or
-  self.instance_id = candidate.instance_id
+  self.resource_id = candidate.resource_id
 
 def: matches(candidate : UUri) : Boolean =
   self.matches_authority(candidate)
@@ -341,7 +341,7 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "192.168.1.100",
-  ue_id: 0x0000_FFFF                // any instance, any service
+  ue_id: 0xFFFF_FFFF                // any instance, any service
   ue_version_major: 0xFF,           // any
   resource_id: 0xFFFF               // any
 }
@@ -371,7 +371,7 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "*",       // any
-  ue_id: 0x0000_0000,        // any instance of service 0x0000
+  ue_id: 0xFFFF_0000,        // any instance of service 0x0000
   ue_version_major: 0x03,
   resource_id: 0xFFFF        // any
 }
@@ -400,7 +400,7 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "",        // local
-  ue_id: 0x0000_0000,        // any instance of service 0x0000
+  ue_id: 0x0000_0000,        // default instance of service 0x0000
   ue_version_major: 0xFF,    // any
   resource_id: 0x0001
 }
@@ -417,7 +417,7 @@ But not these:
 [example]
 ----
 //vcu.other.device/0/3/1     // non-local authority
-/1/3/3                       // wrong resource
+/0/3/3                       // wrong resource
 ----
 
 == Best Practices

@@ -48,6 +48,12 @@ A service consumer invoking this operation will then receive a `UMessage` with a
 
 == Service Implementation
 
-In case of _successful_ execution of a service operation, a service provider *MUST* put the operation's response Protobuf Message into the xref:umessage.adoc[response UMessage]'s `payload` and *MUST* set its `commstatus` attribute to value `OK`.
+In case of _successful_ execution of a service operation, a service provider:
 
-In case of _erroneous_ execution, a service provider *SHOULD* put a xref:../up-core-api/uprotocol/v1/ustatus.proto[UStatus Message] into the xref:umessage.adoc[response UMessage]'s `payload` and set its `commstatus` attribute to the same value as the UStatus' `code` property.
+* *MUST* put the operation's response Protobuf Message into the response xref:umessage.adoc[`UMessage`]'s `payload`
+* *MAY* set `commstatus` attribute (of the response message) to value `UCode.OK` to indicate successful execution. If the `commstatus` attribute is not set, it is assumed to be `UCode.OK`.
+
+In case of _erroneous_ execution a service provider:
+
+* *MUST* set the `commstatus` attribute of the response xref:umessage.adoc[`UMessage`] to the appropriate xref:../up-core-api/uprotocol/v1/ucode.proto[`UCode`] value indicating the failure reason. 
+* *SHOULD* populate the response xref:umessage.adoc[`UMessage`] `payload` with xref:../up-core-api/uprotocol/v1/ustatus.proto[`UStatus`] message that contains additional failure information (ex. message, details). The `UCode` from `commstatus` *MUST* be the same as that of `UStatus`.
