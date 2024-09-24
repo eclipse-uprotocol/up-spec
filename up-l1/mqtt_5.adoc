@@ -235,5 +235,43 @@ When MQTT5 (broker) is used for D2D communication, the topic shall consist of on
 ===== Sending a Message
 `UTransport::send(UMessage)` translates to the MQTT publish to topic `{UMessage.source.authority_name}/{UMessage.sink.authority_name}`
 
+== MQTT5 Connection handling
 
+=== Establishing a connection
+[.specitem,oft-sid="req~up-transport-mqtt5-establish-connection~1",oft-needs="impl,utest"]
+--
+To establish an MQTT connection to a broker it *MUST* be possible for a UTransport to configure the `cleanSession` and `sessionExpiry` settings.
 
+Those values have some important consequences summarized shortly:
+
+[cols="1,1,1"]
+|===
+| cleanSession | sessionExpiry | Consequence
+| true | 0 | Previous session data is deleted and state like messages, subscribtions etc. is lost if UTransport gets disconnected
+| true | t>0 | Previous session data is deleted and new session will buffer data for time `t` if connection is lost
+| false | t | Previous session including subscribtions, unreceived messages etc. is resumed and session will buffer data for time `t` if connection is lost
+|===
+
+Using a UTransport from the cloud side to connect to an MQTT broker we recommend to use `cleanSession=true` and `sessionExpiry=0` because we assume that there will always be at least one UTransport connected from the cloud which can handle messages so there is no need for buffering. 
+
+Establishing an mqtt5 UTransport from a device there is no general recommendation. Using `cleanSession=true` and `sessionExpiry=0` might be best for scaling since it reduces the load on the MQTT broker. Doing this one needs to take special care for offline devices. Using `cleanSession=true` and `sessionExpiry=t` might stress the broker but the broker helps when dealing with offline devices.
+
+--
+
+=== Reconnection
+[.specitem,oft-sid="req~up-transport-mqtt5-reconnection~1",oft-needs="impl,utest"]
+--
+If a connection is lost, the UTransport *MUST* try to reconnect to the MQTT broker.  If on successfull reconnect the broker sends the `sessionPresent=false` flag, the UTransport *MUST* re-subscribe to all previously subscribed topics. 
+--
+
+[.specitem,oft-sid="req~up-transport-mqtt5-reconnection-backoff~1",oft-needs="impl,utest"]
+--
+The UTransport *MUST* implement an exponential backoff strategy as defined in the following table.
+
+[cols="1,1,1,1,1,1,1"]
+|===
+|  Reconnect attempt | 1 | 2 | 3 | 4 | 5 | 5+
+|  Pause              | 500ms | 1s | 2s | 4s | 10s | 10s
+|===
+
+--
