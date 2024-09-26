@@ -1,0 +1,128 @@
+= uDiscovery Client APIs
+:toc: preamble
+:sectnums:
+:source-highlighter: highlight.js
+:discovery-proto-ref: xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
+:up-l2-ref: xref:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API]
+
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+In the following document we will elaborate on the design and requirements for the uDiscovery service client facing APIs.
+
+.Client APIs
+[#client-api]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+Client ->> UDiscoveryService: FindService()
+
+Client ->> UDiscoveryService: FindServiceTopics()
+----
+
+In <<client-api>> above, _Client_ represents the client-facing APIs to talk to uDiscovery database that can be found in the various language libraries such as https://github.com/eclipse-uprotocol/up-cpp[up-cpp], https://github.com/eclipse-uprotocol/up-java[up-java], etc..  that are used to find services and their topics. 
+
+== Client Facing APIs
+
+The client facing APIs of uDiscovery provide the means for uEs to discover services (where they are located, versions, etc...), and topic metadata that a service produces (method id and permissions, publish topic message formats, etc...). The API is declared in the {discovery-proto-ref}.
+
+[.specitem,oft-sid="dsn~discovery-client-apis~1",oft-needs="impl"]
+--
+Each link:../languages.adoc[uProtocol Language Library] *MUST* implement the client-side APIs of {discovery-proto-ref} using the {up-l2-ref} RpcClient. 
+--
+
+=== FindServices()
+
+The FindServices() API is used to find the authority(ies), instance(s), and version(s) of services based on the passed URI. The only mandatory portion of the URI that must be passed is the ue_id, the rest can be discovered. When you pass the wildcard for authority_name, the search will be done up to the domain, in order to search in the central discovery database, you must set `search_central=true`.
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-notfound~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.NOT_FOUND` if no service matching the passed URI was found. 
+--
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-invalid-argument~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.INVALID_ARGUMENT` if: 
+  * `search_central==true` and `authority_name` does not contain the wildcard `*`.
+  * `UUri` is empty
+  
+--
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-permission-denied~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.PERMISSION_DENIED` if the caller is not permitted to query for that service.
+--
+
+==== Example Use Cases
+
+ Below are example string URIs that could be passed to the API.
+
+.FindServices() Examples
+[#findservices-examples, cols="1,1,3", options="header", width="80%"]
+|===
+| URI | `search_central` | Description
+
+| `up:/FFFF1234/FF/0` | false | Find local instances & versions of service 1234.
+| `up://*/FFFF1234/FF/0` | false | Find instances & versions of service 1234 within a domain.
+| `up://*/FFFF0004/FF/0` | true | Find instances & versions of service 4 that are globally addressable.
+| `up://*/11234/2/0` | false | Find the authority_name for version 2 & instance 1 of service 1234.
+
+|===
+
+
+=== GetServiceTopics()
+
+The GetServiceTopics() API is used to fetch metadata about one or more topics (depending on what is passed in the UUri) so clients can know more metadata about the topic(s). Wildcard ue_id and/or resource_id can be used to fetch multiple `UServiceTopic` information. The `UServiceTopic` contains topic metadata such as the minimum permission level required to read from the topic, message name, payload format (how the message is encoded) and more.
+
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-notfound~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.NOT_FOUND` if no topic matching the URI was found.
+--
+
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-invalid-argument~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.INVALID_ARGUMENT` if the URI passed in is not a valid xref:../../../basics/uri.adoc[uProtocol UUri].
+--
+
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-permission-denied~1",oft-needs="impl,test"]
+--
+* *MUST* return a `UCode.PERMISSION_DENIED` if the caller is not permitted to query for that topic.
+--
+
+==== Example Use Cases
+
+Below are example use cases for the API when passed certain URIs (shown in string form) along with the expected results.
+
+.GetServiceTopics() Examples
+[#getservicetopics-examples, cols="1,3", options="header", width="80%"]
+|===
+| URI | Description
+
+| `up:/1234/2/8000` | Return the `UServiceTopic` for topic 8000 of service 1234 version 2.
+
+| `up:/1234/2/FFFF` | Return repeated list of `UServiceTopic` for all tpoics from service 1234 version 2.
+
+|===
+
+
+
+NOTE: Please refer to the {discovery-proto-ref} for details of the UDiscovery Client APIs.
+
