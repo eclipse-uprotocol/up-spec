@@ -1,0 +1,253 @@
+= uDiscovery Service
+:toc: preamble
+:sectnums:
+:source-highlighter: highlight.js
+:client-proto-ref: xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
+:replicator-proto-ref: xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery_replicator.proto]
+
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+UDiscovery provides the means for uEs to discover services (and their metadata), for local and remote services. Implementation of uDiscovery takes inspiration from Domain Name System (DNS) principles in that we store and cache queries and replicate local information to more centralized databases. The local uDiscovery service acts as the first point of contact for discovery and then the discovery service looks up at the domain level service for information about services across a domain (i.e. vehicle). The central instance of uDiscovery service  is the last point of contact for global searches of services.
+
+UDiscovery Service implements two sets of APIs:
+
+- *Client APIs ({client-proto-ref}):* Used by uEs to find services and their topic metadata, and for recursive lookups at the domain and central levels.
+
+- *Replication API ({replicator-proto-ref}):* Used Internally by uDiscovery services to add, update, or delete service metadata from local, domain, and/or central service instances.
+
+<<udiscovery-design>> below provides an overview of the design and use of the Client and Replication APIs to implement the uDiscovery business logic.
+
+.uProtocol Discovery Design
+[#udiscovery-design]
+image::design.drawio.svg[Overview]
+
+=== Terms
+
+- *Fully Qualified Service URI (FQURI):* A URI that contains all the information needed to uniquely identify a service. A fully qualified service URI contains the following information:
+  - *ue_id:* The unique identifier of the service (both the instance and service ID portions).
+  - *authority_name:* The name of the authority that hosts the service.
+  - *ue_version_major:* The version of the service.
+  - *resource_id:* The resource ID (value of 0 is used to indicate the default ID for the service).
+
+
+== Client APIs
+
+In the following section we will elaborate on the service-side requirements for the uDiscover service when it serves the client facing APIs defined in the {client-proto-ref}.
+
+=== FindServices()
+
+A client uE invokes `FindServices()` to get meta data (authority, version, instance ID) of (deployed) service instances of a given type.```
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-invalid~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
+--
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-notfound~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.NOT_FOUND` if no service matching the URI was found.
+--
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-permission~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.PERMISSION_DENIED` if the caller is not permitted to query for that service.
+--
+
+[.specitem,oft-sid="dsn~discovery-findservices-error-internal~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.INTERNAL` if an internal error occurs (database is corrupted).
+--
+
+
+
+=== FindServiceTopics()
+
+`FindServiceTopics()` is used to fetch metadata about one or more topics based on the passed `UUri`. Clients call this API to get additional information about the topic(s) such as the message format, id, permission level, etc.
+
+[.specitem,oft-sid="dsn~discovery-findservicetopics-error-invalid~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
+--
+
+[.specitem,oft-sid="dsn~discovery-findservicetopics-error-notfound~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.NOT_FOUND` if no topic matching the URI was found.
+--
+
+[.specitem,oft-sid="dsn~discovery-findservicetopics-error-permission~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.PERMISSION_DENIED` if the caller is not permitted to query for that topic(s).
+--
+
+[.specitem,oft-sid="dsn~discovery-findservicetopics-error-internal~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.INTERNAL` if an internal error occurs (database is corrupted).
+--
+
+=== Recursive Lookups
+
+Recursive lookups happen when the client sets the following information in the request message of the FindService() or FindServiceTopics() API. wishes to To recursively lookup up to the domain (or central) levels, the client calling the API :
+[.specitem,oft-sid="dsn~discovery-recursive-authority-wildcard~1",oft-needs="impl,test"]
+--
+*  `authority_name` *MUST* contain the wildcard `*`.
+--
+
+If `search_central` inside of the `FindServicesRequest` or `GetServiceTopicsRequest` is `true``:
+[.specitem,oft-sid="dsn~discovery-recursive-central~1",oft-needs="impl,test"]
+--
+* *MUST* search recursively up to and including the central instance.
+--
+
+UDiscovery services perform a recursive search when the local or domain instance calls `FindService()` or `FindServiceTopics()` API and then propagates the response back to the client.
+
+[.specitem,oft-sid="dsn~discovery-recursive-async~1",oft-needs="impl,test"]
+--
+* The original local search *MUST ONLY* return the response message when the recursive search has completed.
+--
+
+[.specitem,oft-sid="dsn~discovery-recursive-internal~1",oft-needs="impl,test"]
+--
+* The uDiscovery service *MUST* cache the results of the recursive search for the duration `ttl` that is returned in the response message.
+--
+
+
+.Recursive Search to Central
+[#recursive-search-central]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+Client ->> Local-UDiscovery: FindService()
+Local-UDiscovery ->> Domain-UDiscovery: FindService()
+Domain-UDiscovery ->> Central-UDiscovery: FindService()
+Central-UDiscovery -->> Domain-UDiscovery: FindServicesResponse
+Domain-UDiscovery -->> Local-UDiscovery: FindServicesResponse
+Local-UDiscovery -->> Client: FindServicesResponse
+----
+
+
+== Replication API
+
+
+=== SetServiceTopics()
+The `SetServiceTopics()` API is used by the uDiscovery business logic to add, update, or remove information recursively between the local, domain, and central instances. The API is passed `SetServiceTopicsRequest` containing a repeated list of `UServiceTopicInfo` and `ttl` for when the info will expire. The function returns `SetServiceTopicsResponse` message if the method was successfully processed or it returns `UStatus` containing the error values specified below. 
+
+[.specitem,oft-sid="dsn~discovery-replication-client~1",oft-needs="impl"]
+--
+* link:../languages.adoc[uProtocol Language Libraries] *MUST NOT* implement the client-side of {replicator-proto-ref} API as these APIs are only used internally by uDiscovery business logic.
+--
+
+To replicate new or updated `UServiceTopic` metadata:
+[.specitem,oft-sid="dsn~discovery-setservicetopic-update~1",oft-needs="impl,test"]
+--
+* `ttl` value in `SetServiceTopicsRequest` *MUST* be set to the duration the metadata is valid for or absent from the message to indicate the metadata is valid forever.
+--
+
+To replicate removal of `UServiceTopic` metadata:
+[.specitem,oft-sid="dsn~discovery-setservicetopic-remove~1",oft-needs="impl,test"]
+--
+* `ttl` value in `SetServiceTopicsRequest` *MUST* be set to 0.
+--
+
+`SetServiceTopics()` Failure Reasons:
+
+[.specitem,oft-sid="dsn~discovery-setservicetopic-error-invalid~1",oft-needs="impl,test"]
+--
+*MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
+--
+  
+[.specitem,oft-sid="dsn~discovery-setservicetopic-error-permission~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.PERMISSION_DENIED` if the caller is not uDiscovery service in the correct recursive order (i.e. local -> domain -> central).
+* *MAY* grant access to deployment specific uEs such as a the software manager that installs or removes uEs.
+--
+
+[.specitem,oft-sid="dsn~discovery-setservicetopic-error-notfound~1",oft-needs="impl,test"]
+--
+* *MUST* return `UCode.NOT_FOUND` if no topic matching the URI was found when the `UServiceTopic` is being removed (i.e. `ttl=0`).
+--
+
+
+
+.Replication API Design
+[#udiscovery-replication-design]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+OTAClient ->> Local-UDiscovery: SetServiceTopics()
+Local-UDiscovery -->> OTAClient: SetServiceTopicsResponse
+
+Local-UDiscovery ->> Domain-UDiscovery: SetServiceTopics()
+Domain-UDiscovery -->> Local-UDiscovery: SetServiceTopicsResponse
+
+Domain-UDiscovery ->> Central-UDiscovery: SetServiceTopics()
+Central-UDiscovery -->> Domain-UDiscovery: SetServiceTopicsResponse
+----
+
+
+== Implementation Consideration
+
+It is possible the information in domain or central instances might become out of sync with what is stored in the other instances. In order to rectify this situation:
+
+[.specitem,oft-sid="dsn~discovery-data-reconciliation~1",oft-needs="impl,test"]
+--
+* Domain and central instances *MUST* ensure that the information within its database is accurate and up to date and reconcile any differences periodically using the client and replication APIs described in this specification.
+--
+
+[.specitem,oft-sid="dsn~discovery-data-reconciliation-frequency~1",oft-needs="impl,test"]
+--
+* *MUST* provide an implementation of data reconciliation using the above APIs where the frequency of reconciliation is customizable so the deployment can adjust the frequency based on the deployment needs.
+--
+
+[.specitem,oft-sid="dsn~discovery-data-reconciliation-data~1",oft-needs="impl,test"]
+--
+* When reconciling data, the data fetched *MUST* be used in lieu of current cached data. 
+--
+
+[.specitem,oft-sid="dsn~discovery-data-reconciliation-not-found~1",oft-needs="impl,test"]
+--
+* If `GetServiceTopics()` returns `UCode.NOT_FOUND` for data we had in our local instance, we *MUST* flush the local cache and then replicate the deletion. we fetch information to reconcile the data If the reconciliation fails, the service *MUST* log the error and continue to use the current cached data.
+--
+
+<<udiscovery-reconciliation>> below provides an example of the domain instance reconciling with local instance and then propagating the change to the central instance. In the example the reconciliation (determining if the data is out of sync or not) happens in the `ReconcileData()` function.
+
+.Reconciliation Example
+[#udiscovery-reconciliation]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+participant Local-UDiscovery
+participant Domain-UDiscovery
+participant Central-UDiscovery
+
+Domain-UDiscovery ->> Local-UDiscovery: GetServiceTopics()
+Local-UDiscovery -->> Domain-UDiscovery: GetServiceTopicsResponse
+Domain-UDiscovery ->> Domain-UDiscovery: ReconcileData()
+
+Domain-UDiscovery ->> Central-UDiscovery: SetServiceTopics()
+Central-UDiscovery -->> Domain-UDiscovery: SetServiceTopicsResponse
+----
+
+
