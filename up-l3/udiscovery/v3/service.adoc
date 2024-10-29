@@ -211,17 +211,17 @@ It is possible the information in domain or central instances might become out o
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation~1",oft-needs="impl,test"]
 --
-* Domain and central instances *MUST* ensure that the information within its database is accurate and up to date and reconcile any differences periodically using the client and replication APIs described in this specification.
+* Domain and central instances *MUST* ensure that the information within their databases is accurate and up to date and reconcile any differences periodically using the client and replication APIs described in this specification.
 --
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation-frequency~1",oft-needs="impl,test"]
 --
-* *MUST* provide an implementation of data reconciliation using the above APIs where the frequency of reconciliation is customizable so the deployment can adjust the frequency based on the deployment needs.
+* Domain and central instances *MUST* provide an implementation of data reconciliation using the above APIs where the frequency of reconciliation is customizable so the deployment can adjust the frequency based on the deployment needs.
 --
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation-data~1",oft-needs="impl,test"]
 --
-* When reconciling data, the data fetched *MUST* be used in lieu of current cached data. 
+* When reconciling data, a client *MUST* replace corresponding data in its local cache with the fetched data. 
 --
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation-not-found~1",oft-needs="impl,test"]
