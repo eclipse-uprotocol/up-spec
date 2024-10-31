@@ -2,8 +2,8 @@
 :toc: preamble
 :sectnums:
 :source-highlighter: highlight.js
-:client-proto-ref: xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
-:replicator-proto-ref: xref:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery_replicator.proto]
+:client-proto-ref: link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery.proto]
+:replicator-proto-ref: link:../../../up-core-api/uprotocol/core/udiscovery/v3/udiscovery.proto[udiscovery_replicator.proto]
 
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -47,9 +47,9 @@ image::design.drawio.svg[Overview]
   - *resource_id:* The resource ID (value of 0 is used to indicate the default ID for the service).
 
 
-== Client APIs
+== uDiscovery APIs
 
-In the following section we will elaborate on the service-side requirements for the uDiscover service when it serves the client facing APIs defined in the {client-proto-ref}.
+In the following section we will elaborate on the service-side requirements for the uDiscover service when it serves the uDiscovery APIs defined in the {client-proto-ref}.
 
 === FindServices()
 
@@ -77,33 +77,33 @@ A client uE invokes `FindServices()` to get meta data (authority, version, insta
 
 
 
-=== FindServiceTopics()
+=== GetServiceTopics()
 
-`FindServiceTopics()` is used to fetch metadata about one or more topics based on the passed `UUri`. Clients call this API to get additional information about the topic(s) such as the message format, id, permission level, etc.
+`GetServiceTopics()` is used to fetch metadata about one or more topics based on the passed `UUri`. Clients call this API to get additional information about the topic(s) such as the message format, id, permission level, etc.
 
-[.specitem,oft-sid="dsn~discovery-findservicetopics-error-invalid~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-invalid~1",oft-needs="impl,test"]
 --
 * *MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
 --
 
-[.specitem,oft-sid="dsn~discovery-findservicetopics-error-notfound~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-notfound~1",oft-needs="impl,test"]
 --
 * *MUST* return `UCode.NOT_FOUND` if no topic matching the URI was found.
 --
 
-[.specitem,oft-sid="dsn~discovery-findservicetopics-error-permission~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-permission~1",oft-needs="impl,test"]
 --
 * *MUST* return `UCode.PERMISSION_DENIED` if the caller is not permitted to query for that topic(s).
 --
 
-[.specitem,oft-sid="dsn~discovery-findservicetopics-error-internal~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-getservicetopics-error-internal~1",oft-needs="impl,test"]
 --
 * *MUST* return `UCode.INTERNAL` if an internal error occurs (database is corrupted).
 --
 
 === Recursive Lookups
 
-Recursive lookups happen when the client sets the following information in the request message of the FindService() or FindServiceTopics() API. wishes to To recursively lookup up to the domain (or central) levels, the client calling the API :
+Recursive lookups happen when the client sets the following information in the request message of the FindService() or GetServiceTopics() API. wishes to To recursively lookup up to the domain (or central) levels, the client calling the API :
 [.specitem,oft-sid="dsn~discovery-recursive-authority-wildcard~1",oft-needs="impl,test"]
 --
 *  `authority_name` *MUST* contain the wildcard `*`.
@@ -115,7 +115,7 @@ If `search_central` inside of the `FindServicesRequest` or `GetServiceTopicsRequ
 * *MUST* search recursively up to and including the central instance.
 --
 
-UDiscovery services perform a recursive search when the local or domain instance calls `FindService()` or `FindServiceTopics()` API and then propagates the response back to the client.
+UDiscovery services perform a recursive search when the local or domain instance calls `FindService()` or `GetServiceTopics()` API and then propagates the response back to the client.
 
 [.specitem,oft-sid="dsn~discovery-recursive-async~1",oft-needs="impl,test"]
 --
@@ -226,7 +226,8 @@ It is possible the information in domain or central instances might become out o
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation-not-found~1",oft-needs="impl,test"]
 --
-* If `GetServiceTopics()` returns `UCode.NOT_FOUND` for data we had in our local instance, we *MUST* flush the local cache and then replicate the deletion. we fetch information to reconcile the data If the reconciliation fails, the service *MUST* log the error and continue to use the current cached data.
+* Cached data *MUST* be flush if `GetServiceTopics()` returns `UCode.NOT_FOUND`, this indicates the information is no longer present upstream. 
+If the reconciliation fails, the service *MUST* log the error and continue to use the current cached data.
 --
 
 <<udiscovery-reconciliation>> below provides an example of the domain instance reconciling with local instance and then propagating the change to the central instance. In the example the reconciliation (determining if the data is out of sync or not) happens in the `ReconcileData()` function.

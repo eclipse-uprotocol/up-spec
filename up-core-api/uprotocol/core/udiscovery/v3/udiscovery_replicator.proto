@@ -28,10 +28,10 @@ option java_multiple_files = true;
 // information in the uDiscovery database. This API is for internal (to UDiscovery service) use only and 
 // not accessible for client uEs to use.
  service UDiscoveryReplicator {
-  option (uprotocol.service_name) = "core.udiscovery"; // Service name
-  option (uprotocol.service_version_major) = 3;
+  option (uprotocol.service_name) = "core.udiscovery_replicator"; // Service name
+  option (uprotocol.service_version_major) = 1;
   option (uprotocol.service_version_minor) = 0;
-  option (uprotocol.service_id) = 1;
+  option (uprotocol.service_id) = 2;
 
 
   // Add, update, or remove one or more UServiceTopic from the Udiscovery database.
@@ -63,4 +63,3 @@ message SetServiceTopicsRequest {
 
 // Empty message returned from SetServiceTopics when the command returned successfully
 message SetServiceTopicsResponse {}
- 
