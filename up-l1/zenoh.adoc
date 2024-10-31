@@ -30,14 +30,14 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version `1.0.0-alpha.6` to ensure the interoperability in different language bindings.
+We **MUST** use Zenoh version `1.0.0` to ensure the interoperability in different language bindings.
 
-=== UPClientZenoh initialization
+=== UPTransportZenoh initialization
 
-While initializing up-client library, we **MUST** include the following information.
+While initializing up-transport library, we **MUST** include the following information.
 
 * Zenoh Config: If users want to configure how Zenoh works, they can adjust the configuration.
-* UAuthority: The authority might be omitted in local UUri, and we need this to derive the Zenoh key.
+* UUri: The local UUri we are using, and we need this to derive the Zenoh key.
 
 === UAttribute Mapping
 
@@ -45,9 +45,9 @@ Zenoh supports user attachment.
 We **MUST** send additional information with the mechanism, for example, UAttribute.
 This reduces the unnecessary serialization on payload, which mostly takes time.
 
-User attachment supports non-unique key-value pairs, which means one key can include several values.
-In this case, the order of the values matters.
-To decrease the network overhead, we **MUST** keep the key empty and put the value in the order according to the following table.
+Since the type of user attachment is ZBytes in Zenoh, we **MUST** transform UAttribute into ZBytes.
+To keep the flexibility of updating UAttributes in the future, we also reserve 1 byte to represent the version.
+Therefore, the format of user attachment will be like following:
 
 [cols="1,1"]
 |===
@@ -59,9 +59,7 @@ To decrease the network overhead, we **MUST** keep the key empty and put the val
 | UAttribute object encoded into protobuf
 |===
 
-We use 1 byte to represent the UAttribute version.
-The version field will keep the flexibility of updating UAttribute in the future.
-Now the version is always 0x01.
+Note that the only supported version now is 0x01.
 
 ==== Message Type
 
