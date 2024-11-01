@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
 The Transport & Session Layer is responsible for bidirectional point-2-point communication between uEntities (uE). 
 The purpose of this layer of uProtocol is to define a common API for sending and receiving messages across different transport protocols like Eclipse Zenoh, MQTT 5 or Android Binder, runtime environments like Android, Linux or MCUs, and programming languages like Java, Rust, Python or C/C++.
 
-This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's link:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by link:../upclient.adoc[uProtocol Client libraries].
+This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's link:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by _uProtocol Transport Libraries_.
 
 The Transport Layer API is defined using UML2 notation.
 

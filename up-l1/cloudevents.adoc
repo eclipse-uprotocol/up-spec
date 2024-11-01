@@ -43,22 +43,19 @@ The metadata contained in an event covers questions like
 
 Support for using CloudEvents is available for many programming languages by means of corresponding SDKs.
 
-=== Event Format and Transport Binding
-
-The https://cloudevents.io/[CloudEvents] project has defined a set *Formats* which describe how events can be expressed using https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf] or https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/avro-format.md[Apache Avro].
+The https://cloudevents.io/[CloudEvents] project has defined a set of *Formats* which describe how events can be expressed using https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf] or https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/avro-format.md[Apache Avro].
 
 The accompanying *Bindings* describe how events can be sent via well-known transport protocols like https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[HTTP], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[MQTT] etc.
 
-
+[.specitem,oft-sid="dsn~cloudevents-umessage-mapping~1",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
 == uMessage Mapping
 
-uProtocol uses link:umessage.adoc[UMessages] to exchange information between uEntities.
+uProtocol uses xref:../basics/umessage.adoc[UMessages] to exchange information between uEntities.
 The following sections define the mapping between UMessages and CloudEvents.
 
 === uAttributes Mapping
 
-The table below defines the mapping of uAttributes to CloudEvent attributes.
-This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] which use CloudEvents for the binding to a particular transport protocol.
+The table below defines the mapping of uAttributes to CloudEvent attributes. This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
 
 .Mapping of uAttributes to CloudEvent properties
 [width="100%",cols="12%,8%,10%,70%",options="header",]
@@ -74,7 +71,7 @@ This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] w
 |String
 a|CloudEvent specification version. This is *NOT* the uProtocol version
 
-* MUST be set to `1.0`
+* *MUST* be set to `1.0`
 
 
 |`type`
@@ -82,7 +79,7 @@ a|CloudEvent specification version. This is *NOT* the uProtocol version
 |String
 a|The type of the message
 
-* MUST be set to the value of the `uprotocol.ce_name` option defined for the
+* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
 
 
@@ -91,7 +88,7 @@ link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
 |String
 a|Unique identifier for the message
 
-* MUST be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
+* *MUST* be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
 
 
 |`source`
@@ -99,7 +96,7 @@ a|Unique identifier for the message
 |Uri-Reference
 a|The origin (address) of the message
 
-* MUST be set to either the long or short form link:uri.adoc[serialization of the URI]
+* *MUST* be set to either the long or short form xref:../basics/uri.adoc[serialization of the URI]
 
 
 |`sink`
@@ -107,15 +104,15 @@ a|The origin (address) of the message
 |Uri-Reference
 a|The destination (address) of the message
 
-* MUST be set to either the long or short form link:uri.adoc[serialization of the URI]
+* *MUST* be set to either the long or short form xref:../basics/uri.adoc[serialization of the URI]
 
 
 |`priority`
 |`priority`
 |String
-a| The message's priority as defined by link:qos.adoc[QoS].
+a| The message's priority as defined by xref:../basics/qos.adoc[QoS].
 
-* MUST be set to the value of the `uprotocol.ce_name` option defined for the
+* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
 
 
@@ -133,7 +130,7 @@ a|The service consumer's access token.
 |`permission_level`
 |`plevel`
 |Integer
-|The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
+|The service consumer's permission level as defined in xref:../basics/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
 
 
 |`reqid`
@@ -171,7 +168,7 @@ The sections below define the mapping of uPayload to CloudEvent attributes.
 
 The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the Protobuf Format. The table below defines specific values to use for the different UMessage payload types.
 
-This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] which use the Protobuf Event Format for the binding to a particular transport protocol.
+This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
@@ -214,12 +211,11 @@ This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] w
 
 |===
 
-
 ==== Mapping to CloudEvent JSON Format
 
 The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the JSON Format. The table below defines specific values to use for the different UMessage payload types.
 
-This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] which use the JSON Event Format for the binding to a particular transport protocol.
+This mapping *MUST* be used by uProtocol Transport Libraries which use the JSON Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
@@ -264,8 +260,7 @@ This mapping MUST be used by link:../upclient.adoc[uProtocol Client Libraries] w
 
 ==== Additional Recommendations
 
-Data and CloudEvents *SHOULD* only be serialized once when it is to be transported over link:README.adoc#_utransport_interface[UTransport Interface]
-
+CloudEvents *SHOULD* only be serialized when they are about to be sent via the xref:README.adoc#_utransport[UTransport interface]
 
 == Examples
 
