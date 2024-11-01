@@ -50,13 +50,12 @@ The accompanying *Bindings* describe how events can be sent via well-known trans
 [.specitem,oft-sid="dsn~cloudevents-umessage-mapping~1",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
 == uMessage Mapping
 
-uProtocol uses xref:umessage.adoc[UMessages] to exchange information between uEntities.
+uProtocol uses xref:../basics/umessage.adoc[UMessages] to exchange information between uEntities.
 The following sections define the mapping between UMessages and CloudEvents.
 
 === uAttributes Mapping
 
-The table below defines the mapping of uAttributes to CloudEvent attributes.
-This mapping *MUST* be used by xref:../upclient.adoc[uProtocol Client Libraries] which use CloudEvents for the binding to a particular transport protocol.
+The table below defines the mapping of uAttributes to CloudEvent attributes. This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
 
 .Mapping of uAttributes to CloudEvent properties
 [width="100%",cols="12%,8%,10%,70%",options="header",]
@@ -81,7 +80,7 @@ a|CloudEvent specification version. This is *NOT* the uProtocol version
 a|The type of the message
 
 * *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
-xref:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
+link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
 
 
 |`id`
@@ -169,7 +168,7 @@ The sections below define the mapping of uPayload to CloudEvent attributes.
 
 The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the Protobuf Format. The table below defines specific values to use for the different UMessage payload types.
 
-This mapping MUST be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
+This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
@@ -216,7 +215,7 @@ This mapping MUST be used by uProtocol Transport Libraries which use the Protobu
 
 The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the JSON Format. The table below defines specific values to use for the different UMessage payload types.
 
-This mapping MUST be used by uProtocol Transport Libraries which use the JSON Event Format for the binding to a particular transport protocol.
+This mapping *MUST* be used by uProtocol Transport Libraries which use the JSON Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
