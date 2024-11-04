@@ -46,9 +46,6 @@ service uDiscovery {
   // Find Services. 
   //
   // Discover authorities, instances, and versions of services based on the passed URI.
-  // The only mandatory portion of the URI that must be passed is the ue_id, the rest can be discovered.
-  // When you pass the wildcard for authority_name, the search will be done up to the domain, in order to seach 
-  // in the central discovery database, you must set search_central=true.
   rpc FindServices(FindServicesRequest) returns (FindServicesResponse) {
     option (uprotocol.method_id) = 1;
   }
@@ -72,8 +69,7 @@ service uDiscovery {
 // Example might be to get information about a specific topic, all topics for a service (using wildcard resource_id),
 // or all topics for all services for a given device (using wildcard ue_id and resource_id)
 message GetServiceTopicsRequest {
-  // The URI of the topics that we would like to query. for example, 
-  // to fetch a specific topic, we would set 
+  // The URI of the topics that we would like to query.
   uprotocol.v1.UUri topic = 1;
 
   // Recursively search up to the central level when true, otherwise only search up to the domain level
@@ -98,8 +94,8 @@ message ServiceTopicInfo {
 
   // How long the topic metadata is valid for in seconds.
   // If the metadata is older than this value, the client SHOULD re-fetch the metadata.
-  // If the field is missed or the value is 0, the client MAY assume the metadata lives forever.
-  optional uint32 ttl = 3;
+  // Metadata lives forever if the value is 0 (default).
+  uint32 ttl = 3;
 }
 
 
