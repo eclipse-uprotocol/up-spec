@@ -24,13 +24,13 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-UDiscovery provides the means for uEs to discover services (and their metadata), for local and remote services. Implementation of uDiscovery takes inspiration from Domain Name System (DNS) principles in that we store and cache queries and replicate local information to more centralized databases. The local uDiscovery service acts as the first point of contact for discovery and then the discovery service looks up at the domain level service for information about services across a domain (i.e. vehicle). The central instance of uDiscovery service  is the last point of contact for global searches of services.
+UDiscovery provides the means for uEntities (uEs) to discover local and remote service instances and their metadata. The uDiscovery design takes inspiration from Domain Name System (DNS) principles in that uDiscovery instances are also organized in a tree structure and information is replicated and cached along the branches of the tree. Each uDiscovery instance first tries to respond to queries from its local data but can also delegate the query to its parent node if requested by the client. In a typical deployment, the tree has (at least) three levels. Each device in a vehicle has its own uDiscovery service instance. These represent the leaf nodes of the tree. Each vehicle also has a _domain_ level uDiscovery service instance. These form the middle-level nodes of the tree. Finally, a central uDiscovery service instance, usually running in a back end, sits at the root of the tree.
 
 UDiscovery Service implements two sets of APIs:
 
-- *Client APIs ({client-proto-ref}):* Used by uEs to find services and their topic metadata, and for recursive lookups at the domain and central levels.
+- *Client APIs ({client-proto-ref}):* Used by uEs to find services and their topic metadata.
 
-- *Replication API ({replicator-proto-ref}):* Used Internally by uDiscovery services to add, update, or delete service metadata from local, domain, and/or central service instances.
+- *Replication API ({replicator-proto-ref}):* Used internally by uDiscovery service instances to add, update, or delete service metadata along the branches of the uDiscovery tree.
 
 <<udiscovery-design>> below provides an overview of the design and use of the Client and Replication APIs to implement the uDiscovery business logic.
 
@@ -41,15 +41,15 @@ image::design.drawio.svg[Overview]
 === Terms
 
 - *Fully Qualified Service URI (FQURI):* A URI that contains all the information needed to uniquely identify a service. A fully qualified service URI contains the following information:
-  - *ue_id:* The unique identifier of the service (both the instance and service ID portions).
   - *authority_name:* The name of the authority that hosts the service.
+  - *ue_id:* The unique identifier of the service (both the _instance_ and _service ID_ parts).
   - *ue_version_major:* The version of the service.
   - *resource_id:* The resource ID (value of 0 is used to indicate the default ID for the service).
 
 
 == uDiscovery APIs
 
-In the following section we will elaborate on the service-side requirements for the uDiscover service when it serves the uDiscovery APIs defined in the {client-proto-ref}.
+In the following section we will elaborate on the requirements for implementing the server-side of {client-proto-ref}.
 
 === FindServices()
 
@@ -57,7 +57,7 @@ A client uE invokes `FindServices()` to get meta data (authority, version, insta
 
 [.specitem,oft-sid="dsn~discovery-findservices-error-invalid~1",oft-needs="impl,test"]
 --
-* *MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
+* *MUST* return `UCode.INVALID_ARGUMENT` if the passed in URI is not a valid xref:../../../basics/uri.adoc[uProtocol URI].
 --
 
 [.specitem,oft-sid="dsn~discovery-findservices-error-notfound~1",oft-needs="impl,test"]
@@ -83,7 +83,7 @@ A client uE invokes `FindServices()` to get meta data (authority, version, insta
 
 [.specitem,oft-sid="dsn~discovery-getservicetopics-error-invalid~1",oft-needs="impl,test"]
 --
-* *MUST* return `UCode.INVALID_ARGUMENT` if the URI passed does not contain a valid ue_id or a FQURI.
+* *MUST* return `UCode.INVALID_ARGUMENT` if the passed in URI is not a valid xref:../../../basics/uri.adoc[uProtocol URI].
 --
 
 [.specitem,oft-sid="dsn~discovery-getservicetopics-error-notfound~1",oft-needs="impl,test"]
@@ -103,7 +103,7 @@ A client uE invokes `FindServices()` to get meta data (authority, version, insta
 
 === Recursive Lookups
 
-Recursive lookups happen when the client sets the following information in the request message of the FindService() or GetServiceTopics() API. wishes to To recursively lookup up to the domain (or central) levels, the client calling the API :
+Recursive lookups happen when the client sets the following information in the request message of the FindService() or GetServiceTopics() API:
 [.specitem,oft-sid="dsn~discovery-recursive-authority-wildcard~1",oft-needs="impl,test"]
 --
 *  `authority_name` *MUST* contain the wildcard `*`.
@@ -124,7 +124,7 @@ UDiscovery services perform a recursive search when the local or domain instance
 
 [.specitem,oft-sid="dsn~discovery-recursive-internal~1",oft-needs="impl,test"]
 --
-* The uDiscovery service *MUST* cache the results of the recursive search for the duration `ttl` that is returned in the response message.
+* A uDiscovery service instance *MUST NOT* cache the result of a recursive search for longer than the duration indicated in the `ttl` attribute from the parent uDiscovery instance's response message.
 --
 
 
@@ -148,7 +148,7 @@ Local-UDiscovery -->> Client: FindServicesResponse
 
 
 === SetServiceTopics()
-The `SetServiceTopics()` API is used by the uDiscovery business logic to add, update, or remove information recursively between the local, domain, and central instances. The API is passed `SetServiceTopicsRequest` containing a repeated list of `UServiceTopicInfo` and `ttl` for when the info will expire. The function returns `SetServiceTopicsResponse` message if the method was successfully processed or it returns `UStatus` containing the error values specified below. 
+The `SetServiceTopics()` API is used by uDiscovery service instances to add, update or remove information along branches in the uDiscovery instance tree. The `SetServiceTopicsRequest` message contains a list of `UServiceTopicInfo` and corresponding `ttl` for when the info will expire. The `SetServiceTopicsResponse` message indicates the outcome of the operation. 
 
 [.specitem,oft-sid="dsn~discovery-replication-client~1",oft-needs="impl"]
 --
