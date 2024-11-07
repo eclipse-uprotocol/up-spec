@@ -141,10 +141,8 @@ Local-UDiscovery -->> Client: FindServicesResponse
 === SetServiceTopics()
 The `SetServiceTopics()` API is used by uDiscovery service instances to add, update or remove information along branches in the uDiscovery instance tree. The `SetServiceTopicsRequest` message contains a list of `UServiceTopicInfo` and corresponding `ttl` for when the info will expire. The `SetServiceTopicsResponse` message indicates the outcome of the operation. 
 
-[.specitem,oft-sid="dsn~discovery-replication-client~1",oft-needs="impl"]
---
+
 * link:../languages.adoc[uProtocol Language Libraries] *MUST NOT* implement the client-side of {replicator-proto-ref} API as these APIs are only used internally by uDiscovery business logic.
---
 
 To replicate new or updated `UServiceTopic` metadata:
 [.specitem,oft-sid="dsn~discovery-setservicetopic-update~1",oft-needs="impl,test"]
@@ -200,9 +198,9 @@ Central-UDiscovery -->> Domain-UDiscovery: SetServiceTopicsResponse
 
 It is possible the information in domain or central instances might become out of sync with what is stored in the other instances. In order to rectify this situation:
 
-[.specitem,oft-sid="dsn~discovery-data-reconciliation~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-data-reconciliation~child1",oft-needs="impl,test"]
 --
-* Domain and central instances *MUST* ensure that the information within their databases is accurate and up to date and reconcile any differences periodically using the client and replication APIs described in this specification.
+* Child nodes *MUST* re-sync with their parent node when there is a change (ex. reset, add/remove of information, etc...), this ensures reconciliation only happens in one direction, from the child to the parent.
 --
 
 [.specitem,oft-sid="dsn~discovery-data-reconciliation-frequency~1",oft-needs="impl,test"]
