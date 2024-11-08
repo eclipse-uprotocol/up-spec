@@ -1,0 +1,33 @@
+/*
+ * SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ * 
+ * This program and the accompanying materials are made available under
+ * the terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-License-Identifier: Apache-2.0
+ */
+syntax = "proto3";
+
+package uprotocol.core.ustreamer.v1;
+
+import "uprotocol/uoptions.proto";
+
+option java_package = "org.eclipse.uprotocol.core.ustreamer.v1";
+option java_outer_classname = "UStreamerProto";
+option java_multiple_files = true;
+
+// Enables generation of generic service attributes in C++
+option cc_generic_services = true;
+
+// uStreamer Service
+service uTwin {
+  option (uprotocol.service_name) = "core.ustreamer"; // Service name
+  option (uprotocol.service_version_major) = 1;
+  option (uprotocol.service_version_minor) = 0;
+  option (uprotocol.service_id) = 4;
+}

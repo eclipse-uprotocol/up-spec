@@ -32,7 +32,7 @@ service uTwin {
   option (uprotocol.service_name) = "core.utwin"; // Service name
   option (uprotocol.service_version_major) = 2;
   option (uprotocol.service_version_minor) = 0;
-  option (uprotocol.service_id) = 26;
+  option (uprotocol.service_id) = 3;
 
   // A uE calls this API to retrieve the last uMessages for a given set of topics.<br>
   // What is returned is a list of MessageResponse with the status for message retrieval
