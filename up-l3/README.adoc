@@ -64,3 +64,35 @@ This special purpose built uEs are required to implement uProtocol and must be p
 |link:utwin/v2/README.adoc[*v2*]
 |Local cache of published events
 |===
+
+
+== Name & Number Registry
+
+In the following section we will elaborate on requirements for assigning names and numbers (ids) to uEs to avoid name space and number collisions.
+
+=== Reserved uE IDs
+
+.Reserved ue_ids
+[width="75%",cols="25%,75%",options="header",]
+|===
+|`ue_id` |Requirement
+
+| *`0x0`* | uSubscription
+| *`0x1`* | uDiscovery Client APIs
+| *`0x2`* | uDiscovery Replication APIs
+| *`0x3`* | uTwin
+| *`0x4`* | uStreamer
+| *`0x5-0xFF`* | Reserved for Eclipse-uProtocol
+| *`0x100 - 0xFFF`* | Reserved for link:https://covesa.global/project/uservices/[COVESA-uServices]
+| *`0x1000 - 0x7FFF`* | Reserved for future use
+| *`0x8000 - 0xFFFE`* | Vendor specific
+| *`0xFFFF`* | Reserved
+
+|===
+
+* uProtocol uE names and numbers *MUST* be declared in protos and added to xref:../up-core-api/uprotocol/core/README.adoc[up-core-api].
+
+=== Names
+
+ * uProtocol defined names *MUST* have `core.` prefix
+ * Vendor specific uE names *SHOULD* have the vendor name in the prefix, ex. `volvo.`, 'bmw', etc...
