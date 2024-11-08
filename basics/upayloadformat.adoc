@@ -28,7 +28,7 @@ The following table provides an overview of the payload formats supported by uPr
 
 | `UPAYLOAD_FORMAT_UNSPECIFIED`
 | N/A
-| Payload format was not specified so we cannot assume a format and automatically deserialize the payload, the client needs to know what payload format is,
+| The payload format is unknown. Clients will need to have gained knowledge about the concrete encoding and semantics of the payload by means of an out-of-band mechanism.
 
 
 |`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
