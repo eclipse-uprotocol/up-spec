@@ -124,8 +124,7 @@ enum UPriority {
 
 // The format for the data stored in the UMessage.
 enum UPayloadFormat {
-    // Payload format was not is not set,
-    // per specification, assumption is UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
+    // Payload format was not specified.
     UPAYLOAD_FORMAT_UNSPECIFIED = 0;
 
     // Payload is an Any protobuf message that contains the packed payload

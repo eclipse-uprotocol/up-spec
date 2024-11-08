@@ -26,6 +26,11 @@ The following table provides an overview of the payload formats supported by uPr
 |===
 |UPayloadFormat |MIME Type |Payload encoding
 
+| `UPAYLOAD_FORMAT_UNSPECIFIED`
+| N/A
+| Payload format was not specified so we cannot assume a format and automatically deserialize the payload, the client needs to know what payload format is,
+
+
 |`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
 |`application/x-protobuf`
 |The message payload *MUST* be the network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload. 
