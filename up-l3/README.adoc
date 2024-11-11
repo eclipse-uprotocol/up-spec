@@ -64,3 +64,32 @@ This special purpose built uEs are required to implement uProtocol and must be p
 |link:utwin/v2/README.adoc[*v2*]
 |Local cache of published events
 |===
+
+
+== Name & Number Registry
+
+uProtocol URIs (UUri) contain a uEntity Identifier (`ue_id`) to refer to a particular service _type_. The `ue_id` is a 32 bit unsigned integer of which the least significant 16 bit are used to indicate the service type.
+
+The following section defines sub-ranges of the 16 bit service type address space to be used for different purposes. This will make sure that custom service types defined in a private scope can co-exist with standard uProtocol service types without ambiguities and interference.
+
+=== uEntity ID Ranges
+
+.Reserved ue_ids
+[width="75%",cols="25%,75%",options="header",]
+|===
+| ID Range | Purpose
+
+| *`0x0000 - 0x00FF`* | Eclipse uProtocol services
+| *`0x0100 - 0x0FFF`* |  link:https://covesa.global/project/uservices/[COVESA uServices]
+| *`0x1000 - 0x7FFF`* | Future use
+| *`0x8000 - 0xFFFE`* | Vendor specific services
+| *`0xFFFF`* | Reserved
+
+|===
+
+* uProtocol uE names and numbers *MUST* be declared in protos and added to xref:../up-core-api/uprotocol/core/README.adoc[up-core-api].
+
+=== Names
+
+ * uProtocol defined names *MUST* have `core.` prefix
+ * Vendor specific uE names *SHOULD* have the vendor name in the prefix, ex. `volvo.`, 'bmw', etc...
