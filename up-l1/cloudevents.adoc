@@ -47,7 +47,7 @@ The https://cloudevents.io/[CloudEvents] project has defined a set of *Formats* 
 
 The accompanying *Bindings* describe how events can be sent via well-known transport protocols like https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[HTTP], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[MQTT] etc.
 
-[.specitem,oft-sid="dsn~cloudevents-umessage-mapping~1",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
+[.specitem,oft-sid="dsn~cloudevents-umessage-mapping~2",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
 == uMessage Mapping
 
 uProtocol uses xref:../basics/umessage.adoc[UMessages] to exchange information between uEntities.
@@ -55,7 +55,7 @@ The following sections define the mapping between UMessages and CloudEvents.
 
 === uAttributes Mapping
 
-The table below defines the mapping of uAttributes to CloudEvent attributes. This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
+The table below defines the mapping of uAttributes to CloudEvent attributes. This mapping *MUST* be used by uProtocol Transport Libraries which use CloudEvents for binding to a particular transport protocol.
 
 .Mapping of uAttributes to CloudEvent properties
 [width="100%",cols="12%,8%,10%,70%",options="header",]
@@ -155,7 +155,7 @@ a|A code indicating an error that has occurred during the delivery of either an 
 |`payload_format`
 |`pformat`
 |Integer
-|The value of the UPayloadFormat that is used to indicate the encoding of the payload
+|The value of the UPayloadFormat that is used to indicate the encoding of the payload (if any). The concrete mapping rules are defined in <<ce-formats>>.
 
 |===
 
@@ -163,6 +163,8 @@ a|A code indicating an error that has occurred during the delivery of either an 
 === uPayload Mapping
 
 The sections below define the mapping of uPayload to CloudEvent attributes.
+
+NOTE: The custom `pformat` property is used to indicate the payload type instead of the standard `datacontenttype` property defined by CloudEvents. Its value is set to the integer value assigned to the link:../up-core-api/uprotocol/uattributes.proto[UPayloadFormat]. This helps to reduce the size of the resulting data structure.
 
 ==== Mapping to CloudEvent Protobuf Format
 
@@ -172,40 +174,45 @@ This mapping *MUST* be used by uProtocol Transport Libraries which use the Proto
 
 [%autowidth]
 |===
-|UPayload Type |CE `datacontenttype` |CE `dataschema` |CE Property to map Payload Data to
+|UPayloadFormat |CE `pformat` |CE `dataschema` |CE Property to map Payload Data to
+
+|`UPAYLOAD_FORMAT_UNSPECIFIED`
+|`-`
+|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
+|`binary_data`
 
 |`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
-|`-`
-|`-`
+|`0x01`
+|*MAY* be set to `type.googleapis.com/google.protobuf.Any`
 |`proto_data`
 
 |`UPAYLOAD_FORMAT_PROTOBUF`
-|`application/protobuf`
-|*SHOULD* be set to a URI-Reference identifying the schema that the data adheres to
+|`0x02`
+|*SHOULD* be set to the protobuf's type URL
 |`proto_data`
 
 |`UPAYLOAD_FORMAT_JSON`
-|`application/json`
+|`0x03`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`text_data`
 
 |`UPAYLOAD_FORMAT_SOMEIP`
-|`application/x-someip`
+|`0x04`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`binary_data`
 
 |`UPAYLOAD_FORMAT_SOMEIP_TLV`
-|`application/x-someip_tlv`
+|`0x05`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`binary_data`
 
 |`UPAYLOAD_FORMAT_RAW`
-|`application/octet-stream`
+|`0x06`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`binary_data`
 
 |`UPAYLOAD_FORMAT_TEXT`
-|`text/plain`
+|`0x07`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`text_data`
 
@@ -219,40 +226,45 @@ This mapping *MUST* be used by uProtocol Transport Libraries which use the JSON 
 
 [%autowidth]
 |===
-|UPayloadFormat |CE `datacontenttype` |CE `dataschema` |CE Property to map Payload to
+|UPayloadFormat |CE `pformat` |CE `dataschema` |CE Property to map Payload to
+
+|`UPAYLOAD_FORMAT_UNSPECIFIED`
+|`-`
+|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
+|`data_base64`
 
 |`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
-|`-`
-|`-`
+|`0x01`
+|*MAY* be set to `type.googleapis.com/google.protobuf.Any`
 |`data_base64`
 
 |`UPAYLOAD_FORMAT_PROTOBUF`
-|`application/protobuf`
-|*SHOULD* be set to a URI-Reference identifying the schema that the data adheres to
+|`0x02`
+|*SHOULD* be set to the protobuf's type URL
 |`data_base64`
 
 |`UPAYLOAD_FORMAT_JSON`
-|`application/json`
+|`0x03`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`data`
 
 |`UPAYLOAD_FORMAT_SOMEIP`
-|`application/x-someip`
+|`0x04`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`data_base64`
 
 |`UPAYLOAD_FORMAT_SOMEIP_TLV`
-|`application/x-someip_tlv`
+|`0x05`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`data_base64`
 
 |`UPAYLOAD_FORMAT_RAW`
-|`application/octet-stream`
+|`0x06`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`data_base64`
 
 |`UPAYLOAD_FORMAT_TEXT`
-|`text/plain`
+|`0x07`
 |*MAY* be set to a URI-Reference identifying the schema that the data adheres to
 |`data`
 
@@ -267,7 +279,7 @@ CloudEvents *SHOULD* only be serialized when they are about to be sent via the x
 The following examples are using the CloudEvent JSON Format.
 
 === Publish
-[source]
+[source, json]
 ----
 {
     "specversion": "1.0",
@@ -276,13 +288,13 @@ The following examples are using the CloudEvent JSON Format.
     "type": "pub.v1",
     "priority": "CS1",
     "ttl": 10000,
-    "datacontenttype": "text/plain",
+    "pformat": 7,
     "data": "open"
 }
 ----
 
 === Notification
-[source]
+[source, json]
 ----
 {
     "specversion": "1.0",
@@ -290,7 +302,7 @@ The following examples are using the CloudEvent JSON Format.
     "source": "//VCU.VIN/body.access/1/door.front_left#Door",
     "sink": "//VCU.VIN/companion.app/1/status.update",
     "type": "not.v1",
-    "datacontenttype": "application/json",
+    "pformat": 3,
     "data": {
         "subject": "door.front_left",
         "status": "open"
@@ -299,7 +311,7 @@ The following examples are using the CloudEvent JSON Format.
 ----
 
 === Request
-[source]
+[source, json]
 ----
 {
     "specversion": "1.0",
@@ -309,13 +321,14 @@ The following examples are using the CloudEvent JSON Format.
     "type": "req.v1",
     "priority": "CS4",
     "ttl": 50000,
+    "pformat": 1,
     "data_base64": "... base64 encoded serialization of UpdateDoorRequest packed
                         in google.protobuf.Any ..."
 }
 ----
 
 === Response
-[source]
+[source, json]
 ----
 {
     "specversion": "1.0",
@@ -326,7 +339,7 @@ The following examples are using the CloudEvent JSON Format.
     "priority": "CS4",
     "reqid": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
     "ttl": 50000,
-    "datacontenttype": "application/protobuf",
+    "pformat": 2,
     "dataschema": "type.googleapis.com/google.rpc.Status",
     "data_base64": "... base64 encoded serialization of google.rpc.Status ..."
 }
