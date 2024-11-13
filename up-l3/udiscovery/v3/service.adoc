@@ -100,10 +100,10 @@ Recursive lookups happen when the client sets the following information in the r
 *  `authority_name` *MUST* contain the wildcard `*`.
 --
 
-If `search_central` inside of the `FindServicesRequest` or `GetServiceTopicsRequest` is `true``:
+If the `recursive` flag of a `FindServicesRequest` or `GetServiceTopicsRequest` is set to `true`:
 [.specitem,oft-sid="dsn~discovery-recursive-central~1",oft-needs="impl,test"]
 --
-* *MUST* search recursively up to and including the central instance.
+* *MUST* search recursively along the branch within the uDiscovery service instance hierarchy up to and including the root node of the tree.
 --
 
 UDiscovery services perform a recursive search when the local or domain instance calls `FindService()` or `GetServiceTopics()` API and then propagates the response back to the client.

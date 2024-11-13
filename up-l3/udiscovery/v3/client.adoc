@@ -51,7 +51,7 @@ Each link:../languages.adoc[uProtocol Language Library] *MUST* implement the cli
 
 === FindServices()
 
-The FindServices() API is used to find the authority(ies), instance(s), and version(s) of services based on the passed URI. The only mandatory portion of the URI that must be passed is the ue_id, the rest can be discovered. When you pass the wildcard for authority_name, the search will be done up to the domain, in order to search in the central discovery database, you must set `search_central=true`.
+The FindServices() API is used to find service instances matching search criteria like authority, instance ID and (major) version. The only mandatory part of the provided (search) URI is the uEntity ID (`ue_id`), the rest can be discovered. The `recursive` flag can be used to include the uDiscovery service instance's parent nodes in the search.
 
 [.specitem,oft-sid="dsn~discovery-findservices-error-notfound~1",oft-needs="impl,test"]
 --
@@ -61,7 +61,7 @@ The FindServices() API is used to find the authority(ies), instance(s), and vers
 [.specitem,oft-sid="dsn~discovery-findservices-error-invalid-argument~1",oft-needs="impl,test"]
 --
 * *MUST* return a `UCode.INVALID_ARGUMENT` if: 
-  * `search_central==true` and `authority_name` does not contain the wildcard `*`.
+  * `recursive==true` and `authority_name` does not contain the wildcard `*`.
   * `UUri` is empty
   
 --
@@ -78,11 +78,11 @@ The FindServices() API is used to find the authority(ies), instance(s), and vers
 .FindServices() Examples
 [#findservices-examples, cols="1,1,3", options="header", width="80%"]
 |===
-| URI | `search_central` | Description
+| URI | `recursive` | Description
 
 | `up:/FFFF1234/FF/0` | false | Find local instances & versions of service 1234.
-| `up://*/FFFF1234/FF/0` | false | Find instances & versions of service 1234 within a domain.
-| `up://*/FFFF0004/FF/0` | true | Find instances & versions of service 4 that are globally addressable.
+| `up://*/FFFF1234/FF/0` | false | Find instances & versions of service 1234 that are known to the local uDiscovery service instance.
+| `up://*/FFFF0004/FF/0` | true | Find instances & versions of service 4 that are known to the local uDiscovery service instance or any of its parent nodes.
 | `up://*/11234/2/0` | false | Find the authority_name for version 2 & instance 1 of service 1234.
 
 |===

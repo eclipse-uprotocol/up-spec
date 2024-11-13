@@ -72,8 +72,8 @@ message GetServiceTopicsRequest {
   // The URI of the topics that we would like to query.
   uprotocol.v1.UUri topic = 1;
 
-  // Recursively search up to the central level when true, otherwise only search up to the domain level
-  bool search_central = 2;
+  // Recursively search up to the root node of the uDiscovery tree
+  bool recursive = 2;
 }
 
 
@@ -104,8 +104,8 @@ message FindServicesRequest {
   // The Uri to look up
   uprotocol.v1.UUri uri = 1;
 
-  // Recursively search up to the central level when true, otherwise only search up to the domain level
-  bool search_central = 2;
+  // Recursively search up to the root node of the uDiscovery tree
+  bool recursive = 2;
 }
 
 
