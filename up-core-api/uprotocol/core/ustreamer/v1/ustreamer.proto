@@ -25,7 +25,7 @@ option java_multiple_files = true;
 option cc_generic_services = true;
 
 // uStreamer Service
-service uTwin {
+service uStreamer {
   option (uprotocol.service_name) = "core.ustreamer"; // Service name
   option (uprotocol.service_version_major) = 1;
   option (uprotocol.service_version_minor) = 0;
