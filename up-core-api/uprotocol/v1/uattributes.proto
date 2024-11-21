@@ -70,27 +70,32 @@ message UAttributes {
 // uProtocol defines different types of messages.
 // Using the message type, validation can be performed to ensure transport
 // validity of the data in the {@link UAttributes}.
+//
+// The "up-" prefix used in the uprotocol.ce_name options has been introduced
+// to allow distinguishing between existing CloudEvents being exchanged by
+// legacy systems using a predecessor of Eclipse uProtocol and CloudEvents
+// conforming to the mapping rules defined in the Eclipse uProtocol specification.
 enum UMessageType {
     // Unspecified message type
     UMESSAGE_TYPE_UNSPECIFIED = 0;
 
     // Publish
     // A message that is used to notify all interested consumers of an event that has occurred.
-    UMESSAGE_TYPE_PUBLISH = 1 [(uprotocol.ce_name) = "pub.v1"];
+    UMESSAGE_TYPE_PUBLISH = 1 [(uprotocol.ce_name) = "up-pub.v1"];
 
     // RPC Request
     // A message that is used by a service consumer to invoke one of a service provider's methods with some input data, expecting the service
     // provider to reply with a response message.
-    UMESSAGE_TYPE_REQUEST = 2 [(uprotocol.ce_name) = "req.v1"];
+    UMESSAGE_TYPE_REQUEST = 2 [(uprotocol.ce_name) = "up-req.v1"];
 
     // RPC Response
     // A message that is used by a service provider to send the outcome of processing a request message
     // from a servcice consumer.
-    UMESSAGE_TYPE_RESPONSE = 3 [(uprotocol.ce_name) = "res.v1"];
+    UMESSAGE_TYPE_RESPONSE = 3 [(uprotocol.ce_name) = "up-res.v1"];
 
     // Notification
     // A message that is used to inform a specific consumer about an event that has occurred.
-    UMESSAGE_TYPE_NOTIFICATION = 4 [(uprotocol.ce_name) = "not.v1"];
+    UMESSAGE_TYPE_NOTIFICATION = 4 [(uprotocol.ce_name) = "up-not.v1"];
 }
 
 
