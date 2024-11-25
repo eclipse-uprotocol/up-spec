@@ -33,10 +33,10 @@ uProtocol supports the architecture patterns defined in the table below to imple
 
 |*RPC* |At-least-once |When uE requires acknowledgement from the receiver  a|
 * If the client-side business logic requires retry policy, it *MUST* implement the retry policy
-* Server-side business logic *MUST* implement Idempotency for remote procedural calls
-* Dispatchers that are unable to deliver req.v1, *MUST* generate a _delivery failure res.v1_ and send it back to the Sender uE
+* Server-side business logic *MUST* implement Idempotency for service operations.
+* Dispatchers that are unable to deliver an RPC request message, *MUST* generate a _delivery failure_ and return it back to the client uE
 
-|*Publication* |At-most-once |When uE wishes to publish an CE to multiple consumers (a.k.a. "fire & forget") a|
+|*Publication* |At-most-once |When uE wishes to publish an CE to multiple consumers (a.k.a. _fire & forget_) a|
 * Dispatcher *MUST* provide access to CEs that have failed to be delivered (DLT defined in a later section), for both the Sender and/or Receiver uE business logic
 
 |*Notification* |At-most-once |When a uE wishes to notify a specific uE (a.k.a a publication with a destination) |

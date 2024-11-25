@@ -83,28 +83,28 @@ When a dispatcher is unable to dispatch an event for a given reason (queue full,
 |*google.rpc.Code* |*Reason*
 
 |`*UNAVAILABLE*`
-|The req.v1 has expired due to the downstream uE was unavailable (ex. uDevice was disconnected). uE that issued the req.v1 MAY retry with back-off
+|The service is not available (at the moment), e.g. because the device that the service is deployed to is being restarted. The client MAY retry the request but SHOULD use an exponential back-off for doing so.
 
 |`*DEADLINE_EXCEEDED*`
-|CE has timed out per the ttl attribute specifications defined in req.v1 event
+|The time-to-live set in the client's request has expired.
 
 |`*PERMISSION_DENIED*`
-|source is not permitted to access sink
+|The client is not authorized to invoke the service operation.
 
 |`*UNAUTHENTICATED*`
-|source does not have valid authentication credentials (ex. uE's identity does not match the source attribute)
+|The credentials provided by the client could not be verified, e.g. because the client's identity does not match the source attribute.
 
 |`*RESOURCE_EXHAUSTED*`
-|The dispatcher ran out of resources (buffer full)
+|The dispatcher ran out of resources, e.g. because a message queue's maximum capacity has been reached.
 
 |`*INVALID_ARGUMENT*`
-|Invalid CE header attributes not covered above (ex. any mal-formatted attributes)
+|The service can not process the request message, e.g. because an attribute or the payload does not have the expected format.
 
 |`*UNKNOWN*`
-|An unknown (but not critical) error has occurred
+|An unknown (but not critical) error has occurred.
 
 |`*INTERNAL*`
-|There is a serious error has occurred not described by error codes mentioned above
+|A serious error has occurred that is not covered by any of the error codes mentioned above.
 !===
 
 <<rpc-error-flow>> figure below illustrates the sequence of messages for RPC flows and the role dispatchers play in error handling.
