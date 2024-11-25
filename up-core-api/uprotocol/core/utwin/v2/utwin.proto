@@ -42,16 +42,6 @@ service uTwin {
   rpc GetLastMessages(GetLastMessagesRequest) returns (GetLastMessagesResponse) {
     option (uprotocol.method_id) = 1;
   }
-
-  // A call to SetLasMessage (typically from uBus) to update the uTwin internal cache
-  // with a message for a given topic (UMessage.source).
-  // If setting the value fails, the response is a UStatus with code
-  // - INVALID_ARGUMENT if uTwin encountered an issue with UMessage content (source field in particular)
-  // - PERMISSION_DENIED if requesting uE does not have permission to access the Topic
-  // - RESOURCE_EXHAUSTED if uTwin has no more memory available to store new UMessages
-  rpc SetLastMessage(SetLastMessageRequest) returns (SetLastMessageResponse) {
-    option (uprotocol.method_id) = 2;
-  }
 }
 
 
@@ -78,11 +68,3 @@ message GetLastMessagesResponse {
   // List of one or more messages and the results for fetching the message per topic
   repeated MessageResponse responses = 2;
 }
-
-// The request message for the SetLastMessage operation.
-message SetLastMessageRequest {
-  uprotocol.v1.UMessage message = 1;
-}
-
-// The (empty) response message representing the successful execution of the SetLastMessage operation.
-message SetLastMessageResponse {}
