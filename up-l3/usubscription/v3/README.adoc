@@ -498,11 +498,30 @@ When receiving a `Reset()` call from a source that is not another uSubscription 
 
 In the following section, we will elaborate on the various subscription flows for local and remote topics. When a consumer subscribes to a remote topic, it is the responsibility of the (local) uSubscription service to relay the subscription request to the remote uSubscription service as can be seen in the sequence diagrams below.
 
-NOTE: Throughout this section we will use the sample topic `//Device1/uexample/1/resource#Event` to illustrate the various sequences. The above-mentioned topic will be replaced with `_topic_` in the diagrams
+There are different types of messages passed between uEntities (_Request_/_Response_, _Publish_, _Notify_), this is how they are represented in the following sequence diagrams:
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+    participant App1
+    participant App2
+
+    rect rgb(245, 245, 245)
+    App1->>+App2: Request
+    App2-->>-App1: Response
+    end
+    rect rgb(230, 230, 230)
+    App1-)App2: Publish
+    end
+    rect rgb(215, 215, 215)
+    App1--)App2: Notify
+    end
+----
 
 === Subscription
 
-Subscription flow will show how a subscriber can subscribe to the example topic when uApp is on the same device (local subscriptions) or remote device (remote subscriptions).
+Subscription flow will show how a subscriber can subscribe to a topic when uApp is on the same device (local subscriptions) or remote device (remote subscriptions).
 
 ==== Within a uDevice
 
