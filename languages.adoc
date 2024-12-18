@@ -2,7 +2,7 @@
 :toc:
 :sectnums:
 :up-l1-ref: xref:up-l1/README.adoc[uProtocol Transport Layer interface]
-:up-l2-ref: xref:up-l2/README.adoc[uProtocol Communication Layer (uP-L2) API]
+:up-l2-ref: xref:up-l2/README.adoc[uProtocol Communication Layer API]
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
@@ -22,8 +22,13 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-uProtocol Language specific libraries (_libraries_) are written for a given programming language (ex. Java, C++, etc...) to implement the protocol and are the primary library that is used by applications and services (uEs) to communicate with other uEs. The _libraries_ declare the API for the uProtocol Transport (uP-L1) and Communication Layers (uP-L2) and provide a generic implementation of the latter.
+uProtocol _Language Libraries_ are written for specific programming languages like Java, C++ or Rust to provide the basic data types and functionality that is needed by uEntities like Applications and Services to interact with each other. The libraries declare the API for the uProtocol Transport and Communication Layers and provide a generic implementation of the Communication Layer API.
 
+.Class Diagram
+[#up-libraries]
+image:up_libraries.drawio.svg[width=100%]
+
+uProtocol _Transport Libraries_ are written for specific programming languages to provide the binding of uProtocol to concrete transport protocols like MQTT, Eclipse Zenoh or SOME/IP.
 
 == Requirements
 
@@ -103,9 +108,3 @@ A language library
 --
 * *MUST* resolve and include external dependencies as part of the build process only.
 --
-
-== Class Diagram
-
-.Class Diagram
-[#up-libraries]
-image:up_libraries.drawio.svg[width=640]

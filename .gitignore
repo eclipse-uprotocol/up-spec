@@ -1,3 +1,4 @@
+**/*.bkp
 .idea/
 .vscode/
 uprotocol-spec.iml
