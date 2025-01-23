@@ -50,121 +50,85 @@ An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* conta
 | N/A
 | User Property [key: _uP_]
 a| The uProtocol version being used
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-version~1",oft-needs="impl,utest"]
---
+
 * *MUST* be set to the (major) version of the uProtocol specification that the message mapping adheres to. At the time of writing, the version is `1`.
 * Message consumers *MAY* use this property to determine that the (PUBLISH) packet contains a uProtocol message.
---
 
 | _id_
 | User Property [key: _1_]
 a| The unique identifier of the message
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-id~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
---
 
 | _type_
 | User Property [key: _2_]
 a| The message type
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-type~1",oft-needs="impl,utest"]
---
-* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
+* *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
---
 
 | _source_
 | User Property [key: _3_]
 a| The origin (address) of the message
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-source~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the link:../basics/uri.adoc#uri-definition[string serialization of the UUri]
---
 
 | _sink_
 | User Property [key: _4_]
 a| The destination (address) of the message
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-sink~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the link:../basics/uri.adoc#uri-definition[string serialization of the UUri]
---
 
 | _priority_
 | User Property [key: _5_]
 a| The message's priority as defined in link:../basics/qos.adoc[QoS doc]
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-priority~1",oft-needs="impl,utest"]
---
-* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
+* *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
---
 
 | _ttl_
 | _Message Expiry Interval_
 a| The amount of time after which this message MUST NOT be delivered/processed anymore
     
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-ttl~2",oft-needs="impl,utest"]
---
 * *MUST* be set to _ceil(ttl/1000)_.
---
 
 | _permissionLevel_
 | User Property [key: _7_]
 a| The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-permission-level~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[CAP] value's decimal string representation. 
---
 
 | _commStatus_
-| User Property [key: _8_] 
+| User Property [key: _8_]
 a| A UCode indicating an error that has occurred during the delivery of either an RPC Request or Response message
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-comm-status~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the link:../up-core-api/uprotocol/v1/ustatus.proto[UCode enum] integer value's decimal string representation.
---
 
 | _reqId_
-| User Property [key: _9_] 
+| _Correlation Data_
 a| The identifier that a service consumer can use to correlate an RPC response message with its RPC request
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-req-id~1",oft-needs="impl,utest"]
---
-* *MUST* be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
---
+* *MUST* be set to the UUID's 16 byte representation in big endian order.
 
 | _token_
-| User Property [key: _10_] 
+| User Property [key: _10_]
 a| The service consumer's access token
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-token~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the token value.
---
 
 | _traceparent_
-| User Property [key: _11_] 
+| User Property [key: _11_]
 a| A tracing identifier to use for correlating messages across the system
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-traceparent~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the traceparent value.
---
 
 | _payload_format_
-| User Property [key: _12_] 
-a| The format for the data stored in the UMessage
+| _Content Type_
+a| The type of data contained in the message's payload
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attribute-payload-format~1",oft-needs="impl,utest"]
---
 * *MUST* be set to the link:../up-core-api/uprotocol/v1/uattributes.proto[UPayloadFormat enum] integer value's decimal string representation.
---
+
+Note that the enum's integer value is used instead of the _uprotocol.mime_type_ option's value in order to reduce the overall size of the PUBLISH packet.
 
 |===
 
@@ -172,7 +136,7 @@ a| The format for the data stored in the UMessage
 
 [.specitem,oft-sid="dsn~up-transport-mqtt5-payload-mapping~1",oft-needs="impl,utest"]
 --
-An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's `payload` field.
+An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
 --
 
 
