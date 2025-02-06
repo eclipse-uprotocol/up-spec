@@ -30,7 +30,7 @@ For more information, please visit https://projects.eclipse.org/projects/iot.zen
 
 === Zenoh Version
 
-We **MUST** use Zenoh version `1.0.0` to ensure the interoperability in different language bindings.
+We **MUST** use Zenoh version `1.0.0` or above to ensure the interoperability in different language bindings.
 
 === UPTransportZenoh initialization
 
@@ -90,15 +90,15 @@ The data is sent with Zenoh directly without further processing.
 
 UUri are transformed into Zenoh key expressions following the format defined below.
 The format of Zenoh key **MUST** be 
-`up/[source.authority_name]/[source.ue_id]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_id]/[sink.ue_version_major]/[sink.resource_id]`
+`up/[source.authority_name]/[source.ue_type]/[source.ue_instance]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version_major]/[sink.resource_id]`
 
 * `up/`: Zenoh key **MUST** always start with `up/`, which can be used to identify the uProtocol traffic.
 * `authority_name`: The authority_name defined in link:../basics/uri.adoc#3-mapping-to-uri[URI spec] is mapped into Zenoh key directly.
 If the authority_name is omitted in UUri, it **MUST** be filled with UAuthority which is initialized while creating UPClienZenoh.
-* `ue_id`, `ue_version_major` and `resource_id`: They **MUST** be mapped to the upper-case base16 encoding.
+* `ue_type`, `ue_instance`, `ue_version_major` and `resource_id`: They **MUST** be mapped to the upper-case base16 encoding without any leading 0.
 
 Note that in Publish use case, there is no sink UURI.
-We **MUST** use `{}` to replace the empty `authority_name`, `ue_id`, `ue_version_major`, and `resource_id`.
+We **MUST** use `{}` to replace the empty `authority_name`, `ue_type`, `ue_instance`, `ue_version_major`, and `resource_id`.
 
 Take some examples:
 
@@ -106,11 +106,11 @@ Take some examples:
 |===
 | Use Case | Source | Sink | Zenoh Key
 
-| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
-| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/3/80CD/{}/{}/{}/{}
-| Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/20EF/4/0 | up/192.168.1.100/10AB/3/80CD/192.168.1.101/20EF/4/0
-| Receive all Notifications | //+++*+++/FFFF/FF/FFFF | //192.168.1.101/20EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/20EF/4/0
-| Send Request | //my-host1/10AB/3/0 | //my-host2/20EF/4/B | up/my-host1/10AB/3/0/my-host2/20EF/4/B
-| Receive all Requests | //+++*+++/FFFF/FF/FFFF | //my-host2/20EF/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/20EF/4/B
-| Receive all messages to a device | //+++*+++/FFFF/FF/FFFF | //[::1]/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/[::1]/+++*+++/+++*+++/+++*+++
+| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}
+| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}
+| Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/300EF/4/0 | up/192.168.1.100/10AB/0/3/80CD/192.168.1.101/EF/3/4/0
+| Receive all Notifications | //+++*+++/FFFF/FF/FFFF | //192.168.1.101/300EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/EF/3/4/0
+| Send Request | //my-host1/403AB/3/0 | //my-host2/CD/4/B | up/my-host1/3AB/4/3/0/my-host2/CD/0/4/B
+| Receive all Requests | //+++*+++/FFFF/FF/FFFF | //my-host2/CD/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/CD/0/4/B
+| Receive all messages to a device | //+++*+++/FFFF/FF/FFFF | //[::1]/FFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/[::1]/+++*+++/+++*+++/+++*+++/+++*+++
 |===
