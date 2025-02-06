@@ -106,8 +106,8 @@ Take some examples:
 |===
 | Use Case | Source | Sink | Zenoh Key
 
-| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}
-| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}
+| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}/{}
+| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}/{}
 | Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/300EF/4/0 | up/192.168.1.100/10AB/0/3/80CD/192.168.1.101/EF/3/4/0
 | Receive all Notifications | //+++*+++/FFFF/FF/FFFF | //192.168.1.101/300EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/EF/3/4/0
 | Send Request | //my-host1/403AB/3/0 | //my-host2/CD/4/B | up/my-host1/3AB/4/3/0/my-host2/CD/0/4/B
