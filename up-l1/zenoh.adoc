@@ -20,99 +20,249 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-Zero Overhead Network Protocol.
+[Eclipse Zenoh](https://zenoh.io) (/zeno/) is a pub/sub/query protocol unifying data in motion, data at rest and computations. It elegantly blends traditional pub/sub with geo distributed storage, queries and computations, while retaining a level of time and space efficiency that is well beyond any of the mainstream stacks.
 
-Zenoh /zeno/ is a pub/sub/query protocol unifying data in motion, data at rest and computations. It elegantly blends traditional pub/sub with geo distributed storage, queries and computations, while retaining a level of time and space efficiency that is well beyond any of the mainstream stacks.
+This document defines how uProtocol messages can be exchanged by means of Zenoh _Resources_.
 
-For more information, please visit https://projects.eclipse.org/projects/iot.zenoh or https://zenoh.io/
+== Zenoh Version
 
-== Specifications
+[.specitem,oft-sid="dsn~up-transport-zenoh-protocol-version~1",oft-needs="impl"]
+--
+Each transport implementing this specification **MUST** use major version `1` of the Zenoh protocol in order to ensure interoperability of different language libraries.
+--
 
-=== Zenoh Version
+== UMessage Mapping
 
-We **MUST** use Zenoh version `1.0.0` or above to ensure the interoperability in different language bindings.
+A uProtocol message consists of _UAttributes_ and optional payload. The following sections define how these are mapped to/from Zenoh Resources.
 
-=== UPTransportZenoh initialization
+=== UAttributes
 
-While initializing up-transport library, we **MUST** include the following information.
+[.specitem,oft-sid="dsn~up-transport-zenoh-attributes-mapping~1",oft-needs="impl,utest"]
+--
+The value of a Zenoh Resource that is used to convey a uProtocol message *MUST* contain _attachments_ as defined in <<uAttributes Mapping to Zenoh Attachments>>.
+--
 
-* Zenoh Config: If users want to configure how Zenoh works, they can adjust the configuration.
-* UUri: The local UUri we are using, and we need this to derive the Zenoh key.
-
-=== UAttribute Mapping
-
-Zenoh supports user attachment.
-We **MUST** send additional information with the mechanism, for example, UAttribute.
-This reduces the unnecessary serialization on payload, which mostly takes time.
-
-Since the type of user attachment is ZBytes in Zenoh, we **MUST** transform UAttribute into ZBytes.
-To keep the flexibility of updating UAttributes in the future, we also reserve 1 byte to represent the version.
-Therefore, the format of user attachment will be like following:
-
-[cols="1,1"]
+.uAttributes Mapping to Zenoh Attachments
+[%autowidth]
 |===
 | order | value
 
 | 1
-| UAttribute version (1 byte)
+a| *MUST* be set to a single byte representing the UProtocol major version (`0x01` at the time of writing)
+
 | 2
-| UAttribute object encoded into protobuf
+a| *MUST* be set to the bytes representing the protobuf encoding of the UAttributes object as defined by link:../up-core-api/uprotocol/v1/uattributes.proto
+
 |===
 
-Note that the only supported version now is 0x01.
 
 ==== Message Type
 
-There are 4 kinds of message types in uProtocol (publish, notification, request, response), all of said messages are sent using the zenoh `put()` API meaning we shall use the pub/sub infrastructure only of zenoh and not the queryable APIs.
 
+[.specitem,oft-sid="dsn~up-transport-zenoh-message-type-mapping~1",oft-needs="impl,utest"]
+--
+All types of uProtocol messages *MUST* be transferred using Zenoh's pub/sub API only. Zenoh's Queryable API *MUST NOT* be used.
+--
 
-==== Priority Mapping (uProtocol to Zenoh):
+==== Message Priority
+
+[.specitem,oft-sid="dsn~up-transport-zenoh-message-priority-mapping~1",oft-needs="impl,utest"]
+--
+The uProtocol and Zenoh message priority levels *MUST* be mapped according to the following table:
 
 [cols="1,1"]
 |===
-| uProtocol priority | Zenoh Priority
+| uProtocol Priority | Zenoh Priority
 
-| CS0 | BACKGROUND
-| CS1 | DATA_LOW
-| CS2 | DATA
-| CS3 | DATA_HIGH
-| CS4 | INTERACTIVE_LOW
-| CS5 | INTERACTIVE_HIGH
-| CS6 | REAL_TIME
+| `CS0` | `BACKGROUND`
+| `CS1` | `DATA_LOW`
+| `CS2` | `DATA`
+| `CS3` | `DATA_HIGH`
+| `CS4` | `INTERACTIVE_LOW`
+| `CS5` | `INTERACTIVE_HIGH`
+| `CS6` | `REAL_TIME`
 |===
+--
 
+=== Payload Mapping
 
-=== Payload
+[.specitem,oft-sid="dsn~up-transport-zenoh-payload-mapping~1",oft-needs="impl,utest"]
+--
+A Zenoh message that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
+--
 
-The data is sent with Zenoh directly without further processing.
+== Zenoh Key Structure
 
-=== URI Mapping
+Message producers publish messages to the Zenoh network using _keys_. Other clients can indicate their interest in particular keys or patterns in order to receive the messages that are being published using matching keys.
 
-UUri are transformed into Zenoh key expressions following the format defined below.
-The format of Zenoh key **MUST** be 
-`up/[source.authority_name]/[source.ue_type]/[source.ue_instance]/[source.ue_version_major]/[source.resource_id]/[sink.authority_name]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version_major]/[sink.resource_id]`
+The Zenoh _key expression_ that is used to transfer a uProtocol message is derived from the message's `source` and `sink` attributes.
 
-* `up/`: Zenoh key **MUST** always start with `up/`, which can be used to identify the uProtocol traffic.
-* `authority_name`: The authority_name defined in link:../basics/uri.adoc#3-mapping-to-uri[URI spec] is mapped into Zenoh key directly.
-If the authority_name is omitted in UUri, it **MUST** be filled with UAuthority which is initialized while creating UPClienZenoh.
-* `ue_type`, `ue_instance`, `ue_version_major` and `resource_id`: They **MUST** be mapped to the upper-case base16 encoding without any leading 0.
+[.specitem,oft-sid="dsn~up-transport-zenoh-key-expr~1",oft-needs="impl,utest"]
+--
+The key expression of a Zenoh message containing a _Publish_ UMessage **MUST** consist of the following segments:
 
-Note:
+`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/{}/{}/{}/{}/{}`
 
-* In Publish use case, there is no sink UURI. We **MUST** use `{}` to replace the empty `authority_name`, `ue_type`, `ue_instance`, `ue_version_major`, and `resource_id`.
-* The wildcard values in each part of UUri is mapped to the asterisk (+++*+++).
+The key expression of a Zenoh message containing a _Notification_, _RPC Request_ or _RPC Response_ UMessage **MUST** consist of the following segments:
 
-Take some examples:
+`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
 
-[%autowidth]
+Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the topic's segments.
+--
+
+=== Examples
+
+The examples below assume that the local entity's authority name is `device1`.
+
+.Publishing an event on a topic
+--
+[cols="2,8"]
 |===
-| Use Case | Source | Sink | Zenoh Key
+|*Source URI*
+|`up:/10AB/3/80CD`
 
-| Send Publish | /10AB/3/80CD (If publisher's authority is 192.168.1.100) | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}/{}
-| Subscribe messages | //192.168.1.100/10AB/3/80CD | - | up/192.168.1.100/10AB/0/3/80CD/{}/{}/{}/{}/{}
-| Send Notification | //192.168.1.100/10AB/3/80CD | //192.168.1.101/300EF/4/0 | up/192.168.1.100/10AB/0/3/80CD/192.168.1.101/EF/3/4/0
-| Receive all Notifications | //+++*+++/FFFFFFFF/FF/FFFF | //192.168.1.101/300EF/4/0 | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/192.168.1.101/EF/3/4/0
-| Send Request | //my-host1/403AB/3/0 | //my-host2/CD/4/B | up/my-host1/3AB/4/3/0/my-host2/CD/0/4/B
-| Receive all Requests | //+++*+++/FFFFFFFF/FF/FFFF | //my-host2/CD/4/B | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/my-host2/CD/0/4/B
-| Receive all messages to a device | //+++*+++/FFFFFFFF/FF/FFFF | //[::1]/FFFFFFFF/FF/FFFF | up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/[::1]/+++*+++/+++*+++/+++*+++/+++*+++
+|*Sink URI*
+|-
+
+|*Zenoh Key*
+|`up/device1/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|===
+--
+
+.Sending a Notification to another uEntity
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up://device1/10AB/3/80CD`
+
+|*Sink URI*
+|`up://device2/300EF/4/0`
+
+|*Zenoh Key*
+|`up/device1/10AB/0/3/80CD/device2/EF/3/4/0`
+|===
+--
+
+.Sending an RPC Request to a service provider
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up:/403AB/3/0`
+
+|*Sink URI*
+|`up://device2/CD/4/B`
+
+|*Zenoh Key*
+|`up/device1/3AB/4/3/0/device2/CD/0/4/B`
+|===
+--
+
+.Subscribe to a specific topic
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://device2/10AB/3/80CD`
+
+|*Sink Filter*
+|-
+
+|*Zenoh Key*
+|`up/device2/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|===
+--
+
+.Receive all Notifications for a local uEntity instance
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://+++*+++/FFFFFFFF/FF/FFFF`
+
+|*Sink Filter*
+|`up:/300EF/4/0`
+
+|*Zenoh Key*
+|`up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/device1/EF/3/4/0`
+|===
+--
+
+.Receive all RPC Requests from all instances of a specific uEntity type
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://+++*+++/FFFF05A1/2/FFFF`
+
+|*Sink Filter*
+|`up://device1/300EF/4/B18`
+
+|*Zenoh Key*
+|`up/+++*+++/5A1/+++*+++/2/+++*+++/device1/EF/3/4/B18`
+|===
+--
+
+.Receive all messages destined to the local authority
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://+++*+++/FFFFFFFF/FF/FFFF`
+
+|*Sink Filter*
+|`up://device1/FFFFFFFF/FF/FFFF`
+
+|*Zenoh Key*
+|`up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/device1/+++*+++/+++*+++/+++*+++/+++*+++`
+|===
+--
+
+== UUri Encoding Rules
+
+The table below contains the rules for encoding a UUri's fields into a Zenoh key expression's segments.
+
+[cols="2,2,6"]
+|===
+| Key Segment
+| UUri Field
+| Encoding
+
+|`authority`
+|`authority_name`
+a| The segment *MUST* contain the (UTF8) string representation of the 
+
+1. `*` (`U+002A`, Asterisk) character, if the authority name is the xref:../basics/uri.adoc#pattern-matching[wildcard authority].
+2. name of the host/authority that the (local) uEntity is running on, if authority name is empty.
+3. authority name, otherwise.
+
+|`ue_type`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
+
+|`ue_instance`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
+
+|`ue_version`
+|`ue_version_major`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity major version is the xref:../basics/uri.adoc#pattern-matching[wildcard version].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
+
+|`resource`
+|`resource_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the resource identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard resource ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
+
 |===
