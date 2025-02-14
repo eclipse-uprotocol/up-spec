@@ -107,8 +107,56 @@ The key expression of a Zenoh message containing a _Notification_, _RPC Request_
 
 `up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
 
-Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the topic's segments.
+Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the key expression's segments.
 --
+
+=== UUri Encoding Rules
+
+The table below contains the rules for encoding a UUri's fields into a Zenoh key expression's segments.
+
+[cols="2,2,6"]
+|===
+| Key Expression Segment
+| UUri Field
+| Encoding
+
+|`authority`
+|`authority_name`
+a| The segment *MUST* contain the (UTF8) string representation of the 
+
+1. `*` (`U+002A`, Asterisk) character, if the authority name is the xref:../basics/uri.adoc#pattern-matching[wildcard authority].
+2. name of the host/authority that the (local) uEntity is running on, if authority name is empty.
+3. authority name, otherwise.
+
+|`ue_type`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
+
+|`ue_instance`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
+
+|`ue_version`
+|`ue_version_major`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the uEntity major version is the xref:../basics/uri.adoc#pattern-matching[wildcard version].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
+
+|`resource`
+|`resource_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+1. `*` (`U+002A`, Asterisk) character, if the resource identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard resource ID].
+2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
+
+|===
 
 === Examples
 
@@ -218,51 +266,3 @@ The examples below assume that the local entity's authority name is `device1`.
 |`up/+++*+++/+++*+++/+++*+++/+++*+++/+++*+++/device1/+++*+++/+++*+++/+++*+++/+++*+++`
 |===
 --
-
-== UUri Encoding Rules
-
-The table below contains the rules for encoding a UUri's fields into a Zenoh key expression's segments.
-
-[cols="2,2,6"]
-|===
-| Key Segment
-| UUri Field
-| Encoding
-
-|`authority`
-|`authority_name`
-a| The segment *MUST* contain the (UTF8) string representation of the 
-
-1. `*` (`U+002A`, Asterisk) character, if the authority name is the xref:../basics/uri.adoc#pattern-matching[wildcard authority].
-2. name of the host/authority that the (local) uEntity is running on, if authority name is empty.
-3. authority name, otherwise.
-
-|`ue_type`
-|`ue_id`
-a| The segment *MUST* contain the (UTF8) string representation of the
-
-1. `*` (`U+002A`, Asterisk) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
-
-|`ue_instance`
-|`ue_id`
-a| The segment *MUST* contain the (UTF8) string representation of the
-
-1. `*` (`U+002A`, Asterisk) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
-
-|`ue_version`
-|`ue_version_major`
-a| The segment *MUST* contain the (UTF8) string representation of the
-
-1. `*` (`U+002A`, Asterisk) character, if the uEntity major version is the xref:../basics/uri.adoc#pattern-matching[wildcard version].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
-
-|`resource`
-|`resource_id`
-a| The segment *MUST* contain the (UTF8) string representation of the
-
-1. `*` (`U+002A`, Asterisk) character, if the resource identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard resource ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
-
-|===
