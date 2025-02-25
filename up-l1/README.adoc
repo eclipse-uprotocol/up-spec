@@ -134,9 +134,11 @@ NOTE: The above strategy for retrying failed attempts to send a message results 
 * *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UMessage failed validation
 --
 
-[.specitem,oft-sid="req~utransport-send-error-permission-denied~1",oft-needs="dsn"]
+[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn"]
 --
-* *MUST* fail with a `UCode.PERMISSION_DENIED` if a non-streamer client tries to send a message with `UAttributes.source` that is different than the source address associated with the transport, this is to avoid address spoofing.
+* *MUST* fail with a `UCode.PERMISSION_DENIED` if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
++
+In general, an implementation of this specification will run in the same process as the client code and thus has no way of objectively asserting the client's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. Most transports (like MQTT brokers or Eclipse Zenoh) will also support the definition of rules for authorizing an authenticated client. These mechanisms *MAY* then be used to implement this requirement.
 --
 
 [mermaid]
