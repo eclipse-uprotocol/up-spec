@@ -1,7 +1,7 @@
 = uProtocol Language Library
 :toc:
 :sectnums:
-:up-l1-ref: xref:up-l1/README.adoc[uProtocol Transport Layer interface]
+:up-l1-ref: xref:up-l1/README.adoc[uProtocol Transport Layer API]
 :up-l2-ref: xref:up-l2/README.adoc[uProtocol Communication Layer API]
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -36,75 +36,60 @@ uProtocol _Transport Libraries_ are written for specific programming languages t
 
 A language library
 
-[.specitem,oft-sid="req~up-language-transport-api~1",oft-needs="impl",oft-title="Library declares Transport Layer API"]
---
-* *MUST* declare the language specific {up-l1-ref}, such that the interface can be implemented by the transport libraries.
---
-
-[.specitem,oft-sid="req~up-language-comm-api~1",oft-needs="impl",oft-title="Library declares Communication Layer API"]
---
-* *MUST* declare the language specific {up-l2-ref}, such that the interface *MAY* be implemented by the transport libraries.
---
-
-[.specitem,oft-sid="req~up-language-comm-api-default-impl~1",oft-needs="impl,utest",oft-title="Library implements Communication Layer API"]
---
-* *MUST* provide a default implementation of {up-l2-ref} based on the (abstract) Transport Layer API.
---
-
-[.specitem,oft-sid="dsn~up-language-naming~1",oft-title="Library follows naming pattern"]
+[.specitem,oft-sid="dsn~up-language-naming~1",oft-title="Library follows naming pattern",oft-tags="LanguageLibrary"]
 --
 * *MUST* be named according to pattern `up-[LANGUAGE]`, e.g. `up-rust` or `up-python`.
 --
 
-[.specitem,oft-sid="dsn~up-language-structure~1",oft-title="Library uses uProtocol namespace"]
+[.specitem,oft-sid="dsn~up-language-structure~1",oft-title="Library uses uProtocol namespace",oft-tags="LanguageLibrary"]
 --
 * *MUST* use the programming language specific namespace concept, if availabe, to indicate that the library belongs to the _uProtocol_ project. If the language supports hierarchical namespaces (like Java does), then `org.eclipse.uprotocol` *SHOULD* be used. Otherwise, a namespace of `uprotocol` *MUST* be used.
 --
 
-[.specitem,oft-sid="req~up-language-documentation~1",oft-needs="uman",oft-title="Library contains adequate README file"]
+[.specitem,oft-sid="req~up-language-documentation~1",oft-needs="uman",oft-title="Library contains adequate README file",oft-tags="LanguageLibrary"]
 --
 * *MUST* contain a `README` file that explains how to build and use the library.
---
-
-=== Test & CI
-
-A language library
-
-[.specitem,oft-sid="req~up-language-test-coverage~1",oft-title="Library has sufficient test coverage"]
---
-* *SHOULD* contain a test suite that covers 100% of all code and specifications defined in <<Content>>
---
-
-[.specitem,oft-sid="req~up-language-ci-build~1",oft-needs="impl",oft-title="CI asserts that library can be built"]
---
-* *MUST* use a CI workflow that prevents pull requests from being merged if they cannot be built.
---
-
-[.specitem,oft-sid="req~up-language-ci-test~1",oft-needs="impl",oft-title="CI asserts that test suite passes"]
---
-* *MUST* use a CI workflow that prevents pull requests from being merged if the library's test suite does not pass.
---
-
-[.specitem,oft-sid="req~up-language-ci-linter~1",oft-needs="impl",oft-title="CI asserts that code complies with linting rules"]
---
-* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not comply with the project's code linting rules.
---
-
-[.specitem,oft-sid="req~up-language-ci-api-docs~1",oft-needs="impl",oft-title="CI asserts that code contains API documentation"]
---
-* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not contain proper API documentation.
 --
 
 === Build
 
 A language library
 
-[.specitem,oft-sid="req~up-language-build-sys~1",oft-needs="impl",oft-title="Library uses common build system"]
+[.specitem,oft-sid="req~up-language-build-sys~1",oft-needs="impl",oft-title="Library uses common build system",oft-tags="LanguageLibrary"]
 --
 * *MUST* employ an existing build system that is commonly used for the given programming language.
 --
 
-[.specitem,oft-sid="req~up-language-build-deps~1",oft-needs="impl",oft-title="Library build system resolves dependencies"]
+[.specitem,oft-sid="req~up-language-build-deps~1",oft-needs="impl",oft-title="Library build system resolves dependencies",oft-tags="LanguageLibrary"]
 --
 * *MUST* resolve and include external dependencies as part of the build process only.
+--
+
+=== Test & CI
+
+A language library
+
+[.specitem,oft-sid="req~up-language-test-coverage~1",oft-title="Library has sufficient test coverage",oft-tags="LanguageLibrary,NiceToHave"]
+--
+* *SHOULD* contain a test suite that covers 100% of all code and specifications defined in <<Content>>
+--
+
+[.specitem,oft-sid="req~up-language-ci-build~1",oft-needs="impl",oft-title="CI asserts that library can be built",oft-tags="LanguageLibrary"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if they cannot be built.
+--
+
+[.specitem,oft-sid="req~up-language-ci-test~1",oft-needs="impl",oft-title="CI asserts that test suite passes",oft-tags="LanguageLibrary"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's test suite does not pass.
+--
+
+[.specitem,oft-sid="req~up-language-ci-linter~1",oft-needs="impl",oft-title="CI asserts that code complies with linting rules",oft-tags="LanguageLibrary"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not comply with the project's code linting rules.
+--
+
+[.specitem,oft-sid="req~up-language-ci-api-docs~1",oft-needs="impl",oft-title="CI asserts that code contains API documentation",oft-tags="LanguageLibrary"]
+--
+* *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not contain proper API documentation.
 --
