@@ -149,7 +149,7 @@ UTransport implementations
 
 [.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn,impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
+* *MUST* fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
 +
 In general, an implementation of this specification will run in the same process as the client code and thus has no way of objectively asserting the client's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. Most transports (like MQTT brokers or Eclipse Zenoh) will also support the definition of rules for authorizing an authenticated client. These mechanisms *MAY* then be used to implement this requirement.
 --
@@ -289,16 +289,17 @@ UTransport implementations
 +
 [#valid-source-sink-filters]
 .Valid Source/Sink Resource IDs
-[%autowidth]
+[cols="4,^1,^1"]
 |===
-| Use Case | source `resource_id` | sink `resource_id` | Publish | Notification | Request | Response
+| Use Case | source `resource_id` | sink `resource_id`
 
-| Listen for messages published to a particular topic | [8000-FFFE] |   None   |    X    |              |         |
-| Listen for notifications from a specific resource | [8000-FFFE] |     0    |         |      X       |         |
-| Listen for RPC requests to a specific operation |      0      | [1-7FFF] |         |              |    X    |
-| Listen for RPC responses from a specific operation |   [1-7FFF]  |     0    |         |              |         |    X
-| Listen for all incoming notifications and responses |     FFFF    |     0    |         |      X       |         |    X
-| Listen for all incoming notifications, RPC requests, and responses |     FFFF    |   FFFF   |         |      X       |    X    |    X
+| Listen for events published to a particular topic | [8000-FFFE] | None
+| Listen for events published to any topic | FFFF | None
+| Listen for notifications from a specific resource | [8000-FFFE] | 0
+| Listen for RPC requests to a specific operation | 0 | [1-7FFF]
+| Listen for RPC responses from a specific operation | [1-7FFF] | 0
+| Listen for all incoming notifications and responses | FFFF | 0
+| Listen for all incoming notifications, RPC requests, and responses | FFFF | FFFF
 |===
 --
 

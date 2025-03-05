@@ -69,11 +69,6 @@ A language library
 
 A language library
 
-[.specitem,oft-sid="req~up-language-test-coverage~1",oft-title="Library has sufficient test coverage",oft-tags="LanguageLibrary,NiceToHave"]
---
-* *SHOULD* contain a test suite that covers 100% of all code and specifications defined in <<Content>>
---
-
 [.specitem,oft-sid="req~up-language-ci-build~1",oft-needs="impl",oft-title="CI asserts that library can be built",oft-tags="LanguageLibrary"]
 --
 * *MUST* use a CI workflow that prevents pull requests from being merged if they cannot be built.
@@ -92,4 +87,9 @@ A language library
 [.specitem,oft-sid="req~up-language-ci-api-docs~1",oft-needs="impl",oft-title="CI asserts that code contains API documentation",oft-tags="LanguageLibrary"]
 --
 * *MUST* use a CI workflow that prevents pull requests from being merged if the library's source code does not contain proper API documentation.
+--
+
+[.specitem,oft-sid="req~up-language-test-coverage~1",oft-title="CI determines code coverage",oft-tags="LanguageLibrary"]
+--
+* *MUST* use a CI workflow that determines the code coverage of the test suite on a regular basis and fails if the coverage falls below a configured threshold. Implementers *SHOULD* strive for 100% coverage.
 --
