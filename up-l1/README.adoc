@@ -1,5 +1,5 @@
 = Transport & Session Layer (uP-L1)
-:toc:
+:toc: preamble
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -18,10 +18,12 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
+== Overview
+
 The Transport & Session Layer is responsible for bidirectional point-2-point communication between uEntities (uE). 
 The purpose of this layer of uProtocol is to define a common API for sending and receiving messages across different transport protocols like Eclipse Zenoh, MQTT 5 or Android Binder, runtime environments like Android, Linux or MCUs, and programming languages like Java, Rust, Python or C/C++.
 
-This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's link:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by _uProtocol Transport Libraries_.
+This specification defines the transport layer's abstract API which is mapped to supported programming languages by means of uProtocol's xref:../languages.adoc[language specific libraries]. The API is _implemented_ for particular transport protocols and programming languages by _uProtocol Transport Libraries_.
 
 The Transport Layer API is defined using UML2 notation.
 
@@ -53,15 +55,21 @@ class LocalUriProvider {
 UTransport ..> UListener
 ----
 
-NOTE: The data types used in the following sections are defined in link:../basics/README.adoc[uProtocol Basic Types].
+NOTE: The data types used in the following sections are defined in xref:../basics/README.adoc[uProtocol Basic Types].
 
 == UListener
 
 A uEntity registers a `UListener` with the transport in order to process (incoming) messages that are of interest to the uEntity.
 
+[.specitem,oft-sid="dsn~ulistener-declaration~1",oft-needs="impl",oft-tags="LanguageLibrary"]
+--
+Each language library *MUST* declare the UListener interface using corresponding programming language specific means.
+--
+
+[#on-receive]
 === OnReceive
 
-A transport invokes this method for each newly arrived message that matches the criteria specified as part of <<register-listener,registering the listener>>.
+A <<UTransport>> implementation invokes this method for each newly arrived message that matches the criteria specified during <<register-listener,registration of the listener>>.
 
 [source]
 ----
@@ -69,12 +77,12 @@ onReceive(message: UMessage)
 ----
 
 .onReceive Parameters
-[width="100%",cols="15%,15%,70%"]
+[width="100%",cols="1,1,5"]
 |===
 |Parameter | Type | Description
 
 | message
-| link:../basics/umessage.adoc[UMessage]
+| xref:../basics/umessage.adoc[UMessage]
 | The newly received message.
 
 |===
@@ -96,6 +104,11 @@ deactivate L
 
 This is the main entry point into a transport's messaging functionality.
 
+[.specitem,oft-sid="dsn~utransport-declaration~1",oft-needs="impl",oft-tags="LanguageLibrary"]
+--
+Each language library *MUST* declare the UTransport interface using corresponding programming language specific means.
+--
+
 [#send]
 === Send
 
@@ -107,12 +120,12 @@ send(message: UMessage)
 ----
 
 .Send Parameters
-[width="100%",cols="15%,25%,60%"]
+[width="100%",cols="1,1,5"]
 |===
 |Parameter | Type | Description
 
 | message
-| link:../basics/umessage.adoc[UMessage]
+| xref:../basics/umessage.adoc[UMessage]
 | The message to send.
 |===
 
@@ -122,23 +135,30 @@ On the other hand, unsuccessful completion of this method does not necessarily m
 
 NOTE: The above strategy for retrying failed attempts to send a message results in https://www.cloudcomputingpatterns.org/at_least_once_delivery/[at-least-once delivery]. Recipient(s) of these messages should therefore be https://www.cloudcomputingpatterns.org/idempotent_processor/[Idempotent Processors].
 
-*Requirements for UTransport Implementations:*
+UTransport implementations
 
-[.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 * *MUST* preserve all of the message's meta data and payload during transmission
 --
 
-[.specitem,oft-sid="dsn~utransport-send-error-invalid-parameter~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-send-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UMessage failed validation
+* *MUST* fail invocations of <<send>> with a `UCode.INVALID_ARGUMENT`, if the passed UMessage failed validation.
 --
 
-[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn"]
+[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn,impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.PERMISSION_DENIED` if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
+* *MUST* fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
 +
 In general, an implementation of this specification will run in the same process as the client code and thus has no way of objectively asserting the client's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. Most transports (like MQTT brokers or Eclipse Zenoh) will also support the definition of rules for authorizing an authenticated client. These mechanisms *MAY* then be used to implement this requirement.
+--
+
+[.specitem,oft-sid="req~utransport-send-qos-mapping~1",oft-needs="impl,utest,uman",oft-tags="TransportLayerImpl"]
+--
+* *MUST* document if and how the implementation maps the xref:../basics/qos.adoc[UMessage Service Classes] to an existing corresponding mechanism for message prioritization of the underlying transport protocol.
++
+NOTE: An implementation *MAY* also completely ignore the service class and handle all messages equally, regardless of service class.
 --
 
 [mermaid]
@@ -169,36 +189,36 @@ receive(sourceFilter: UUri, sinkFilter: UUri [0..1]) : UMessage
 ----
 
 .Receive Parameters
-[width="100%",cols="15%,25%,60%"]
+[width="100%",cols="1,1,5"]
 |===
 |Parameter | Type | Description
 
 | sourceFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The _source_ address pattern that messages need to match.
 
 | sinkFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The _sink_ address pattern that messages need to match. If omitted, a message **MUST NOT** contain any sink address in order to match.
 
 | result
-| UMessage
+| xref:../basics/umessage.adoc[UMessage]
 | The least recent message that matches the given filter criteria and has not expired yet.
 
 |===
 
 This method implements the _pull_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
 
-*Requirements for UTransport Implementations:*
+UTransport implementations
 
-[.specitem,oft-sid="dsn~utransport-receive-error-unimplemented~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-receive-error-unimplemented~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* return `UCode.UNIMPLEMENTED` if the transport does not support the _pull_ <<delivery-method, delivery method>>
+* *MUST* fail invocations of <<receive>> with a `UCode.UNIMPLEMENTED`, if the transport does not support the _pull_ <<delivery-method, delivery method>>.
 --
 
-[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* return a `UCode.NOT_FOUND` if there are no matching messages available
+* *MUST* fail invocations of <<receive>> with a `UCode.NOT_FOUND`, if there are no matching messages available.
 --
 
 [mermaid]
@@ -232,16 +252,16 @@ registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListene
 ----
 
 .registerListener Parameters
-[width="100%",cols="15%,15%,70%"]
+[width="100%",cols="1,1,5"]
 |===
 |Parameter | Type | Description
 
 | sourceFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The _source_ address pattern that messages need to match.
 
 | sinkFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The _sink_ address pattern that messages need to match. If omitted, a message must not contain any sink address in order to match.
 
 | listener
@@ -250,43 +270,62 @@ registerListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListene
 |===
 
 This API is used to implement the _push_ <<delivery-method, delivery method>> on top of the underlying communication protocol.
-After this method has completed successfully, the given listener will be invoked for each message that matches the given source and sink filter patterns according to the rules defined by the link:../basics/uri.adoc[UUri specification].
 
-*Requirements for UTransport Implementations:*
+UTransport implementations
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-unimplemented~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
---
-
-[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest"]
---
-* *MUST* fail with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners is reached
+* *MUST* fail invocations of <<register-listener>> with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="req~utransport-registerlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
+* *MUST* fail invocations of <<register-listener>> with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners supported by the transport has already been registered.
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* support registering more than one listener for any given address patterns
+* *MUST* fail invocations of <<register-listener>> with a `UCode.INVALID_ARGUMENT`, if the source and sink filter arguments' resource IDs do not match any of the entries from the table below:
++
+[#valid-source-sink-filters]
+.Valid Source/Sink Resource IDs
+[cols="4,^1,^1"]
+|===
+| Use Case | source `resource_id` | sink `resource_id`
+
+| Listen for events published to a particular topic | [8000-FFFE] | None
+| Listen for events published to any topic | FFFF | None
+| Listen for notifications from a specific resource | [8000-FFFE] | 0
+| Listen for RPC requests to a specific operation | 0 | [1-7FFF]
+| Listen for RPC responses from a specific operation | [1-7FFF] | 0
+| Listen for all incoming notifications and responses | FFFF | 0
+| Listen for all incoming notifications, RPC requests, and responses | FFFF | FFFF
+|===
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+* *MUST* support registering more than one listener for any given address filter patterns
 --
   
-[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* support registering the same listener for multiple address patterns
---
-
-[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman"]
---
-* *MUST* document the maximum supported number of listeners per address pattern.
+* *MUST* support registering the same listener for multiple address filter patterns
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman",oft-tags="TransportLayerImpl"]
 --
-* *MUST* be idempotent, multiple calls to said API with the same parameters *MUST* have the same effect as a single call.
+* *MUST* document the maximum supported number of listeners per address filter pattern.
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+* *MUST* make sure that multiple calls to <<register-listener>> with the same parameters have the same effect as a single call.
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-start-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+* *MUST* deliver matching messages to a successfully registered listener. This means that for each message that the transport receives _after_ <<register-listener>> has completed successfully, and which matches the listener's source and sink filter criteria according to the xref:../basics/uri.adoc#pattern-matching[UUri pattern matching rules], the transport *MUST* invoke the listener's <<on-receive>> method _at least once_.
 --
 
 
@@ -304,6 +343,8 @@ activate T
 opt error
 alt push not supported
 T--)C : error : UStatus(UCode.UNIMPLEMENTED)
+else invalid filter syntax
+T--)C : error : UStatus(UCode.INVALID_ARGUMENT)
 else max listeners exceeded
 T--)C : error : UStatus(UCode.RESOURCE_EXHAUSTED)
 else other
@@ -313,31 +354,11 @@ end
 deactivate T
 ----
 
-In RegisterListener API, we have the source and sink `UUri` in the arguments.
-However, not all the combinations of source and sink `UUri` are valid.
-
-The following table are the valid combinations, which maps to the corresponding user case.
-
-[%autowidth]
-|===
-| source `resource_id` | sink `resource_id` | Publish | Notification | Request | Response | Use Case
-
-| [8000-FFFE] |   None   |    V    |              |         |         | A uE listens for a specific published message 
-| [8000-FFFE] |     0    |         |      V       |         |         | A uE listens for a specific notification message
-|      0      | [1-7FFF] |         |              |    V    |         | A uE listens for a specific request 
-|   [1-7FFF]  |     0    |         |              |         |    V    | A uE listens for a specific response
-|     FFFF    |     0    |         |      V       |         |    V    | A uE listens for all notifications and responses 
-|     FFFF    |   FFFF   |         |      V       |    V    |    V    | uStreamer listens for all notifications, requests, and responses
-|===
-
-Note that other combinations not in the table *MUST* never be used in RegisterListener API.
-
 Sometimes it's necessary to distinguish the message types which should be listened to.
-We can get the message types by reorganizing the table above to the following one.
 
 [%autowidth]
 |===
-| Message Type | Possible resource_id combinations {src_resource_id, sink_resource_id}
+| Message Type | Possible resource ID combinations `{source resource_id, sink resource_id}`
 
 | Publish      | {[8000-FFFE], None}
 | Notification | {[8000-FFFE], 0}, {FFFF, 0}, {FFFF, FFFF}
@@ -349,7 +370,6 @@ We can get the message types by reorganizing the table above to the following on
 === UnregisterListener
 
 Clients use this method to unregister a previously registered listener.
-After this method has returned successfully, the listener will no longer be invoked for any (matching) messages.
 
 [source]
 ----
@@ -357,16 +377,16 @@ unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListe
 ----
 
 .RegisterListener Parameters
-[width="100%",cols="15%,25%,60%"]
+[width="100%",cols="1,1,5"]
 |===
 |Parameter | Type | Description
 
 | sourceFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The source address pattern that the listener had been registered for.
 
 | sinkFilter
-| link:../basics/uri.adoc[UUri]
+| xref:../basics/uri.adoc[UUri]
 | The sink address pattern that the listener had been registered for.
 
 | listener
@@ -374,19 +394,26 @@ unregisterListener(sourceFilter: UUri, sinkFilter: UUri [0..1], listener: UListe
 | The listener to be unregistered.
 |===
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-unimplemented~1",oft-needs="impl,utest"]
+UTransport implementations
+
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-unimplemented~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
+* *MUST* fail invocations of <<unregister-listener>> with a `UCode.UNIMPLEMENTED`, if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.NOT_FOUND`, if no such listener had been registered before
+* *MUST* fail invocations of <<unregister-listener>> with a `UCode.NOT_FOUND`, if no such listener had been registered before.
 --
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail with a `UCode.INVALID_ARGUMENT` if the passed UUri failed validation
+* *MUST* fail invocations of <<unregister-listener>> with a `UCode.INVALID_ARGUMENT`, if the source and sink filter arguments' resource IDs do not match any of entries from <<valid-source-sink-filters>>.
+--
+
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-stop-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+* *MUST NOT* deliver any messages to a successfully unregistered listener.
 --
 
 .Unregistering a Listener
@@ -405,6 +432,8 @@ alt push not supported
 T--)C : error : UStatus(UCode.UNIMPLEMENTED)
 else no such listener
 T--)C : error : UStatus(UCode.NOT_FOUND)
+else invalid filter syntax
+T--)C : error : UStatus(UCode.INVALID_ARGUMENT)
 else other
 T--)C : error : UStatus
 end
@@ -416,14 +445,20 @@ deactivate T
 
 A uEntity can use the `LocalUriProvider` to create URIs representing the uEntity's local resources during runtime. This information can then be used in messages to be sent to other uEntities.
 
-A `UTransport` implementation can use the `LocalUriProvider` to determine the uEntity's authority during runtime. This information can might be useful for normalizing _local_ URIs passed into the Transport Layer API methods with authority information.
+A `UTransport` implementation can use the `LocalUriProvider` to determine the uEntity's authority during runtime. This information might be useful for normalizing _local_ URIs passed into the Transport Layer API methods which do not contain an _authority name_.
+
+[.specitem,oft-sid="dsn~localuriprovider-declaration~1",oft-needs="impl",oft-tags="LanguageLibrary"]
+--
+Each language library *MUST* declare the LocalUriProvider interface using corresponding programming language specific means.
+--
 
 === GetAuthority
 
 A uEntity invokes this method to get its own authority.
 
-[.specitem,oft-sid="req~utransport-localuriprovider-getauthority~1",oft-needs="dsn"]
+[.specitem,oft-sid="dsn~localuriprovider-getauthority~1",oft-needs="impl,utest",oft-tags="LocalUriProvider"]
 --
+The value returned by an implementation *MUST* be the uEntity's (fixed) local _authority name_.
 Implementations *MAY* use any appropriate mechanism to determine the local authority during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
 
@@ -431,13 +466,9 @@ Implementations *MAY* use any appropriate mechanism to determine the local autho
 
 A uEntity invokes this method to get the address that it expects incoming Notification or RPC Response messages to be sent to.
 
-[.specitem,oft-sid="dsn~utransport-localuriprovider-getsource-uri-segments~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~localuriprovider-getsource-uri-segments~1",oft-needs="impl,utest",oft-tags="LocalUriProvider"]
 --
-The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and _resource ID_ `0x0000`.
---
-
-[.specitem,oft-sid="req~utransport-localuriprovider-getsource-runtime~1",oft-needs="dsn"]
---
+The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_, _major version_ and _resource ID_ `0x0000`.
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
 
@@ -445,44 +476,42 @@ Implementations *MAY* use any appropriate mechanism to determine these values du
 
 A uEntity invokes this method to get a resource specific address to publish messages to or that it expects incoming RPC Request messages to be sent to.
 
-[.specitem,oft-sid="dsn~utransport-localuriprovider-getresource~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~localuriprovider-getresource~1",oft-needs="impl,utest",oft-tags="LocalUriProvider"]
 --
-The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_ and _major version_ and the passed in _resource ID_.
---
-  
-[.specitem,oft-sid="req~utransport-localuriprovider-getresource-runtime~1",oft-needs="dsn"]
---
+The address returned by an implementation *MUST* consist of the uEntity's (fixed) _authority_, _identifier_, _major version_ and the passed in _resource ID_.
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
 
 [#delivery-method]
 == Message Delivery
 
-[.specitem,oft-sid="dsn~utransport-delivery-methods~1",oft-needs="impl,utest"]
+UTransport implementations
+
+[.specitem,oft-sid="dsn~utransport-delivery-methods~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-* *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both
+* *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both.
 --
   
-[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="uman"]
+[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="uman",oft-tags="TransportLayerImpl"]
 --
-* *MUST* document the delivery methods they support
+* *MUST* document the delivery methods they support.
 --
 
 
 == Communication Protocol Binding
 
-Communication protocols like MQTT, HTTP define a specific Protocol Data Unit (PDU) for conveying control information and user data. A uProtocol Client implements the Transport Layer API defined above on top of such a communication protocol.
+Communication protocols like MQTT or HTTP define a specific Protocol Data Unit (PDU) for conveying control information and user data. A uProtocol Client implements the Transport Layer API defined above on top of such a communication protocol.
 
 A _communication protocol binding_ defines how the uProtocol Transport Layer API maps to the communication protocol's message exchange pattern(s) and how uProtocol messages are mapped to the protocol's PDU. Many communication protocols distinguish between a message's metadata and the (raw) payload. This is often reflected by the structure of the protocol's PDU. For example, HTTP supports _header_ fields and a _body_ which can be used to convey a uProtocol message's attributes and payload respectively.
 
 uProtocol defines bindings to the following communication protocols:
 
-* link:binder.adoc[*Android Binder*]
-* link:zenoh.adoc[*Eclipse Zenoh*]
-* link:ecal.adoc[*Eclipse ECAL*]
-* link:p3comm.adoc[*Eclipse P3Comm*]
-* link:mqtt_5.adoc[*MQTT*]
-* link:http.adoc[*HTTP*]
-* link:someip.adoc[*SOME/IP*]
+* xref:binder.adoc[*Android Binder*]
+* xref:zenoh.adoc[*Eclipse Zenoh*]
+* xref:ecal.adoc[*Eclipse ECAL*]
+* xref:p3comm.adoc[*Eclipse P3Comm*]
+* xref:mqtt_5.adoc[*MQTT 5*]
+* xref:http.adoc[*HTTP*]
+* xref:someip.adoc[*SOME/IP*]
 
 

@@ -1,5 +1,5 @@
 = Communication Layer APIs
-:toc:
+:toc: preamble
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -20,12 +20,12 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-The Communication Layer APIs provide the common language specific interfaces for the pub/sub, notification, and RPC patterns supported by uProtocol implementations. The interfaces are declared in the link:../languages.adoc[language-specific uProtocol libraries] and as such are merely described at a high level in this document to allow the language-specific libraries to declare the interface signatures using appropriate programming language constructs.
+The Communication Layer APIs provide the common language specific interfaces for the pub/sub, notification, and RPC patterns supported by uProtocol implementations. The interfaces are declared in the xref:../languages.adoc[language-specific uProtocol libraries] and as such are merely described at a high level in this document to allow the language-specific libraries to declare the interface signatures using appropriate programming language constructs.
 
 == Interfaces
 
 .Communication Layer Interfaces
-[#messaging-apis, cols="1,1,3",options="header"]
+[#messaging-apis, cols="1,1,3"]
 |===
 |Messaging Pattern | Interface Name | Purpose
 
@@ -60,16 +60,36 @@ a| Register & unregister notification Listeners.
 
 |===
 
-* link:../languages.adoc[language-specific uProtocol libraries (Language Libraries)] *MUST* declare the Communication Layer APIs.
+Implementations of the <<messaging-apis>>
 
-*  Language Libraries *MUST* package (group) the <<messaging-apis>> into a folder (package/namespace) called `communication`.
+[.specitem,oft-sid="dsn~communication-layer-impl-async~1",oft-needs="impl,utest",oft-tags="CommunicationLayerImpl"]
+--
+* *MUST* be non-blocking and *SHOULD* be asynchronous.
+--
 
-* Language Libraries *MUST* provide a _default_ implementation of the <<messaging-apis>> based on the link:../up-l1/README.adoc[Transport Level APIs].
+[.specitem,oft-sid="dsn~communication-layer-impl-error-handling~1",oft-needs="impl,utest",oft-tags="CommunicationLayerImpl"]
+--
+* *MUST* adhere to the xref:../basics/error_model.adoc[uProtocol Error Model] for error handling for the respective APIs.
+--
 
-* *MUST* follow the link:../basics/error_model.adoc[uProtocol Error Model] for error handling for the respective APIs.
+* *MAY* use _Exceptions_ or other language-specific error handling mechanisms to indicate an erroneous outcome of a method invocation.
 
-* The API *MUST* be non-blocking and *SHOULD* be asynchronous. 
 
-* *MAY* use Exceptions or other language-specific error handling mechanisms to report errors vs returning successfully.
+Each xref:../languages.adoc[language-specific uProtocol library (Language Library)]
 
-NOTE: For more details of the language specific communication APIs, please consult your respective language-specific uProtocol library documentation.
+[.specitem,oft-sid="dsn~communication-layer-api-declaration~1",oft-needs="impl",oft-tags="LanguageLibrary"]
+--
+* *MUST* declare the <<messaging-apis>> using corresponding programming language specific means.
+--
+
+[.specitem,oft-sid="dsn~communication-layer-api-namespace~1",oft-needs="impl",oft-tags="LanguageLibrary"]
+--
+* *MUST* package (group) the <<messaging-apis>> into a folder (package/namespace) called `communication`.
+--
+
+[.specitem,oft-sid="dsn~communication-layer-impl-default~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* provide a _default_ implementation of the <<messaging-apis>> based on the (abstract) xref:../up-l1/README.adoc[Transport Level API].
+--
+
+NOTE: Additional information regarding implementation can be found in the respective language-specific uProtocol library documentation.

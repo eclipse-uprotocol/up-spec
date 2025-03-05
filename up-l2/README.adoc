@@ -1,5 +1,4 @@
 = Communication Layer (uP-L2)
-:toc:
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -18,17 +17,19 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-uProtocol Communication layer (uP-L2) defines the message patterns (pub/sub, notification, and RPC) APIs used by applications & services (uEs), as well as the routing and dispatching rules for transmitting said communication messages across distributed heterogeneous systems. 
+== Overview
+
+The uProtocol Communication Layer (uP-L2) defines the message patterns (pub/sub, notification, and RPC) and APIs used by uEntities (applications & services), as well as the routing and dispatching rules for transferring messages across distributed heterogeneous systems. 
 
 .uP-L2 Sections
-[width="80%",cols="30%,70%",options="header"]
+[cols="1,4"]
 |===
 |Section | Description
 
-| link:dispatchers/README.adoc[*Dispatchers*]
-| uEs that are responsible for dispatching/forwarding messages between uEs and between uDevices.
-
-| link:api.adoc[*APIs*]
+| xref:api.adoc[*APIs*]
 |  Communication Layer API that allows uEntity developers (applications and/or services) to employ the pub/sub, notification and RPC messaging patterns.
+
+| xref:dispatchers/README.adoc[*Dispatchers*]
+| Dedicated components that are responsible for dispatching/forwarding messages between uprotocol Entities and Devices.
 
 |===

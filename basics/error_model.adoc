@@ -1,5 +1,5 @@
 = uProtocol Error Model (UStatus)
-:toc:
+:toc: preamble
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -18,20 +18,75 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
+== Overview
+
 uProtocol supports invoking operations on (remote) service providers by means of _Remote Procedure Calls_ (RPC).
 In order to do so, a client uEntity (service consumer) sends an xref:uattributes.adoc#request-attributes[RPC Request message] to the service provider and waits for a corresponding xref:uattributes.adoc#response-attributes[RPC Response message] which conveys the outcome of the invocation of the operation.
 
 In general, an RPC can succeed or fail from the service consumer's point of view. In the former case, the response message contains the data/information that is the result of successfully processing the input data conveyed in the request message. In the latter case, the response message contains details regarding the reason why processing of the request message has failed.
 
-uProtocol follows Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model]. In particular, a service consumer *MUST* consider an RPC as _failed_ if the `commstatus` property contained in the xref:uattributes.adoc#response-attributes[response message attributes] has a value other than `OK`. In that case the response message's payload *MUST* be a serialized xref:../up-core-api/uprotocol/v1/ustatus.proto[UStatus] containing detail information about the reason for failure.
+uProtocol follows Google's https://cloud.google.com/apis/design/errors[protocol-agnostic API error model]. The following sections describe how this model is applied to uProtocol service definitions and implementations.
+
+[#data-model-definition]
+== Data Model
+
+A UStatus contains detail information about an error that has occurred while a service provider has processed an RPC Request message. The diagram below shows the UStatus class and its properties using UML2 notation.
+
+.UStatus Data Model
+[#ustatus-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+
+class UStatus {
+  message: String[0..1]
+  details: Object[*]
+}
+
+class UCode {
+  <<Enumeration>>
+  OK
+  CANCELLED
+  UNKNOWN
+  INVALID_ARGUMENT
+  DEADLINE_EXCEEDED
+  NOT_FOUND
+  ALREADY_EXISTS
+  PERMISSION_DENIED
+  UNAUTHENTICATED
+  RESOURCE_EXHAUSTED
+  FAILED_PRECONDITION
+  ABORTED
+  OUT_OF_RANGE
+  UNIMPLEMENTED
+  INTERNAL
+  UNAVAILABLE
+  DATA_LOSS
+}
+
+UStatus--> "0..1" UCode : code
+----
+
+Each xref:../languages.adoc[uProtocol Language Library]
+
+[.specitem,oft-sid="req~ustatus-data-model-impl~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* implement the <<ustatus-data-model>> using the language specific type system.
+--
+
+[.specitem,oft-sid="req~ustatus-data-model-proto~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* support writing and reading of an instance of the <<ustatus-data-model>> to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/ustatus.proto[ustatus.proto].
+--
 
 == Service Interface Design
 
-uProtocol uses https://protobuf.dev/programming-guides/proto3/#services[Protobuf] for defining a service provider's operations. Based on the error model defined above, the _Protobuf Message_ defined/used as the response of an operation *SHOULD* only contain the data/information that represents the outcome of _successful_ execution of the operation.
+uProtocol uses https://protobuf.dev/programming-guides/proto3/#services[Protobuf] for defining a service provider's operations. In order to comply with the chosen error model, the _Protobuf Message_ defined/used as the response of an operation *SHOULD* only contain the data/information that represents the outcome of _successful_ execution of the operation.
 
-If an operation does not return any data/information on successful execution, the operation *SHOULD* use a dedicated empty response Message:
+If an operation does not return any data/information on successful execution, the operation *SHOULD* use a dedicated empty response message:
 
-[example]
+[source,proto3]
 ----
 service HvacService {
   rpc SetTemperature(SetTemperatureRequest) returns (SetTemperatureResponse);
@@ -44,16 +99,30 @@ message SetTemperatureRequest {
 message SetTemperatureResponse {}
 ----
 
-A service consumer invoking this operation will then receive a `UMessage` with an empty payload.
+A service consumer invoking this operation will then receive a `UMessage` with an empty payload if the operation has succeeded.
 
-== Service Implementation
+== Service Provider Implementation
 
-In case of _successful_ execution of a service operation, a service provider:
+[.specitem,oft-sid="dsn~service-error-model-success-response~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
+--
+In case of _successful_ execution of a service operation, a service provider
 
 * *MUST* put the operation's response Protobuf Message into the response xref:umessage.adoc[`UMessage`]'s `payload`
-* *MAY* set `commstatus` attribute (of the response message) to value `UCode.OK` to indicate successful execution. If the `commstatus` attribute is not set, it is assumed to be `UCode.OK`.
+* *MAY* set the response message's `commstatus` attribute to value `UCode.OK` to indicate successful execution. If the `commstatus` attribute is not set, it is assumed to be `UCode.OK`.
+--
 
-In case of _erroneous_ execution a service provider:
+[.specitem,oft-sid="dsn~service-error-model-error-response~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
+--
+In case of _erroneous_ execution, a service provider
 
-* *MUST* set the `commstatus` attribute of the response xref:umessage.adoc[`UMessage`] to the appropriate xref:../up-core-api/uprotocol/v1/ucode.proto[`UCode`] value indicating the failure reason. 
-* *SHOULD* populate the response xref:umessage.adoc[`UMessage`] `payload` with xref:../up-core-api/uprotocol/v1/ustatus.proto[`UStatus`] message that contains additional failure information (ex. message, details). The `UCode` from `commstatus` *MUST* be the same as that of `UStatus`.
+* *MUST* set the `commstatus` attribute of the response xref:umessage.adoc[`UMessage`] to the <<ustatus-data-model,UCode>> value other than `UCode.OK` which most closely matches the reason for failure.
+* *SHOULD* populate the response xref:umessage.adoc[`UMessage`] `payload` with a <<ustatus-data-model,UStatus>> that contains additional failure information (e.g. message, details). The `code` property value of the `UStatus` in the payload *MUST* be the same as the value of the response message's `commstatus` attribute.
+--
+
+== Service Consumer Implementation
+
+[.specitem,oft-sid="dsn~service-error-model-failed-rpc~1",oft-needs="impl,utest",oft-tags="ServiceConsumer"]
+--
+A service consumer *MUST* consider an RPC as _failed_, if the `commstatus` property contained in the xref:uattributes.adoc#response-attributes[response message attributes] has a value other than `UCode.OK`.
+In that case, the consumer *SHOULD* try to extract a <<ustatus-data-model,UStatus>> from the response message's payload and make it available to application code.
+--

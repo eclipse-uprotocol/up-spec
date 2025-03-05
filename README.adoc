@@ -27,21 +27,39 @@ uProtocol is a communication protocol that enables software (uEs) to easily comm
 
 To achieve the above mentioned objectives, we have split the specifications into sections (folders) that are:
 
- * link:basics/README.adoc[*The Basics:*] Foundational principles and concepts of uProtocol (ex. such as addressing, IDs, message header definitions, etc...). 
+ * xref:basics/README.adoc[*The Basics:*] Foundational principles and concepts of uProtocol (ex. such as addressing, IDs, message header definitions, etc...). 
 
- * link:up-l1/README.adoc[*Transport layer (uP-L1):*] Common interface for sending and receiving of messages intended to be implemented employing a particular communication middleware technology (ex. MQTT, SOME/IP, HTTP, Zenoh, etc...).
+ * xref:up-l1/README.adoc[*Transport layer (uP-L1):*] Common interface for sending and receiving of messages intended to be implemented employing a particular communication middleware technology (ex. MQTT, SOME/IP, HTTP, Zenoh, etc...).
 
- * link:up-l2/[*Communication Layer (uP-L2):*] The common transport agnostic, programming language specific, API for the publisher/subscriber, notification, and RPC messaging patterns used by application/service developers to communicate with each other.
+ * xref:up-l2/README.adoc[*Communication Layer (uP-L2):*] The common transport agnostic, programming language specific, API for the publisher/subscriber, notification, and RPC messaging patterns used by application/service developers to communicate with each other.
 
-* link:up-l3/[*Application Layer (uP-L3):*] Service contracts for subscription management, service/device discovery, and event caching that is common across all deployments (implementations) of uProtocol.
+* xref:up-l3/README.adoc[*Application Layer (uP-L3):*] Service contracts for subscription management, service/device discovery, and event caching that is common across all deployments (implementations) of uProtocol.
 
 
 == How to get started?
 
-It is always best to start with link:basics/README.adoc[_the basics_] to familiarize yourself with common terminology used with uProtocol. 
+It is always best to start with xref:basics/README.adoc[_the basics_] to familiarize yourself with common terminology used with uProtocol. 
 
-If you're a developer who would like to use uProtocol in your application or service, please refer to the appropriate language library (ex. up-cpp, up-java, up-rust, etc..) `README.adoc`. 
+If you're a developer who would like to use uProtocol in your application or service, please refer to the appropriate language library's (ex. up-cpp, up-java, up-rust, etc..) `README.adoc`.
 
-If you would like to contribute to uProtocol to develop a new language library or transport implementation, please checkout the link:CONTRIBUTING.adoc[CONTRIBUTING.adoc].
+If you would like to contribute to uProtocol to develop a new language library or transport implementation, please checkout the xref:CONTRIBUTING.adoc[CONTRIBUTING.adoc].
 
+== Tracing Requirements
 
+Implementers of the uProtocol specification are encouraged to use link:https://github.com/itsallcode/openfasttrace[OpenFastTrace] (OFT) for making sure that they actually cover all requirements from the specification that are relevant for the implemented component.
+
+The link:https://github.com/eclipse-uprotocol/ci-cd[uProtocol CI/CD repository] contains a reusable GitHub Action workflow for link:https://github.com/eclipse-uprotocol/ci-cd/.github/workflows/trace-requirements.yaml[tracing requirements] which can be used for that purpose. The link:https://github.com/eclipse-uprotocol/up-rust[uProtocol Rust Language Library] also makes use of this workflow in its link:https://github.com/eclipse-uprotocol/up-rust/.github/workflows/nightly.yaml[nightly build] and can serve as a blueprint.
+
+The uProtocol specification documents contain a lot of requirements that are defined as OFT specification items, which cover all aspects of uProtocol. In most cases, only of a subset of these requirements will be relevant/applicable for specific components. In order to make it easier for component developers to filter out these relevant requirements, the specification items that define more specific aspects of uProtocol have been _tagged_ with corresponding labels. When running OpenFastTrace to trace the requirements, these labels can be used to filter out the relevant specification items.
+
+.OpenFastTrace Specification Item Tags
+[cols="1,3"]
+|===
+| Tag Value | Description
+
+| `CommunicationLayerImpl` | Requirements that need to be covered by concrete implementations of xref:up-l2/api.adoc[uProtocol's Communication Layer API]
+| `LanguageLibrary` | Requirements that need to be covered by xref:languages.adoc[uProtocol Language Libraries]
+| `ServiceConsumer` | Requirements that need to be covered by uEntities that invoke service operations via uProtocol
+| `ServiceProvider` | Requirements that need to be covered by uEntities that provide service operations to be invoked via uProtocol
+| `TransportLayerImpl` | Requirements that need to be covered by concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API]
+|===
