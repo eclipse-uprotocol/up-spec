@@ -1,5 +1,5 @@
 = uPermissions
-:toc:
+:toc: preamble
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -22,19 +22,19 @@ SPDX-License-Identifier: Apache-2.0
 == Overview
 
 The following specification shall elaborate on the policies governing access to specific topics,methods, and services used by uProtocol, they are:
-* *Code-based Permissions (CAPs):* Based on identity of the code requesting such access 
 
-* Token-based Access Permissions (TAP): Based on identity of the person or device (typically represented by a system account and based on the information in said account) requesting such access 
+* *Code-based Permissions (CAPs):* Based on identity of the code requesting such access 
+* *Token-based Access Permissions (TAP):* Based on identity of the person or device (typically represented by a system account and based on the information in said account) requesting such access 
 
 Throughout this document we will use the <<perm-terms>> below:
 
 .Permissions Terms
-[#perm-terms,width="100%",cols="35%,65%"]
+[#perm-terms,cols="1,3"]
 |===
 | Term | Description
 
 |*Permission Artifact (uPA)*
-|A resource or service that is accessible via uProtocol  identified by a URI.
+|A resource or service that is accessible via uProtocol identified by a URI.
 
 |*Permission Level (uPL)*
 |An integer value of 0 to N, the latter being the most permissive, reflecting the expected level of trust associated with the code claiming permissions. Used by <<Code-Based Access Permissions (CAPs)>>.
@@ -84,6 +84,7 @@ Services declare their uPLs as google.protobuf CustomOptions within their protos
 
 .uProtocol options for CAPs
 [#cap-options]
+[cols="1,5"]
 |===
 | google.protobuf Extension |Description
 
@@ -102,7 +103,7 @@ NOTE: *MUST* assumes the most permissive level, N, if the the declarations above
 
 
 === Client Declaration of uPLs
-Claimed level of a uE is also handled by link:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the link:../up-l1/README.adoc[uTransport] implementation.
+Claimed level of a uE is also handled by xref:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the xref:../up-l1/README.adoc[uTransport] implementation.
 
 When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../../up-core-api/uprotocol/uattributes.proto[uAttributes `permission_level`].
 

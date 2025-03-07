@@ -18,7 +18,6 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-
 In the following section we will outline fundamental rules for naming conventions for uProtocol things like uDomains, uDevices, and uEs, these names are used to address the uThings by distributed apps and services.
 
 == uEs
@@ -43,7 +42,7 @@ image::namespace.drawio.svg[Namespace]
 |Value |Description |RFC2119
 
 |core |Core uProtocol required uEs (ex. uDiscovery, uSubscription)
-|* *MUST* be declared in link:../up-l3/README.adoc[uP-L3 Specifications]
+|* *MUST* be declared in xref:../up-l3/README.adoc[uP-L3 Specifications]
 
 |===
 

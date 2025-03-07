@@ -18,7 +18,6 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-
 In the following section we will introduce event delivery policies and methods that will be referred throughout this document. Event delivery requirements shall be covered in their respective layers of uProtocol in subsequent sections,
 
 == Policies
@@ -31,13 +30,13 @@ Below are a high level summary of well known delivery policies:
 |Terms |Definition
 
 |*At most once delivery policy*
-|The producer will send messages at most one time, and will not try sending them again if it receives an error or timeout message, example is UDP transport layer protocol.  Maps to MQTT QoS level 0.
+|The producer will send messages at most one time, and will not try sending them again if it receives an error or timeout message, example is UDP transport layer protocol. Maps to MQTT QoS 0.
 
 |*At-least-once delivery policy*
 |For each message that is attempted to be sent, multiple attempts are made to deliver the message such that at least one succeeds; this means that messages may be duplicated but *not lost*
 
 |https://www.cloudcomputingpatterns.org/exactly_once_delivery/[*Exactly-once delivery policy*]
-|Upon creation, each message is associated with a unique message identifier. This identifier is used to filter message duplicates during their traversal from sender to receiver. Maps to MQTT QOS 2 – Only Once (guaranteed)
+|Upon creation, each message is associated with a unique message identifier. This identifier is used to filter message duplicates during their traversal from sender to receiver. Maps to MQTT QoS 2.
 
 |https://www.cloudcomputingpatterns.org/transaction_based_delivery/[*Transaction-based delivery policy*]
 |The https://www.cloudcomputingpatterns.org/message_oriented_middleware/[Message-oriented Middleware] and the client reading a message from a queue participate in a transaction.
