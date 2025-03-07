@@ -61,5 +61,8 @@ The uProtocol specification documents contain a lot of requirements that are def
 | `LanguageLibrary` | Requirements that need to be covered by xref:languages.adoc[uProtocol Language Libraries]
 | `ServiceConsumer` | Requirements that need to be covered by uEntities that invoke service operations via uProtocol
 | `ServiceProvider` | Requirements that need to be covered by uEntities that provide service operations to be invoked via uProtocol
-| `TransportLayerImpl` | Requirements that need to be covered by concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API]
+| `TransportLayerImpl` | Requirements that need to be covered by all concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API]
+| `TransportLayerImplPull` | Requirements that need to be covered by concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API] supporting the the xref:up-l1/README.adoc#delivery-method[pull message delivery] method
+| `TransportLayerImplPush` | Requirements that need to be covered by concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API] supporting the the xref:up-l1/README.adoc#delivery-method[push message delivery] method
+
 |===

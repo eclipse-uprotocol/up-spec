@@ -147,14 +147,14 @@ UTransport implementations
 * *MUST* fail invocations of <<send>> with a `UCode.INVALID_ARGUMENT`, if the passed UMessage failed validation.
 --
 
-[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn,impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
 --
 * *MUST* fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
 +
 In general, an implementation of this specification will run in the same process as the client code and thus has no way of objectively asserting the client's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. Most transports (like MQTT brokers or Eclipse Zenoh) will also support the definition of rules for authorizing an authenticated client. These mechanisms *MAY* then be used to implement this requirement.
 --
 
-[.specitem,oft-sid="req~utransport-send-qos-mapping~1",oft-needs="impl,utest,uman",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-send-qos-mapping~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
 --
 * *MUST* document if and how the implementation maps the xref:../basics/qos.adoc[UMessage Service Classes] to an existing corresponding mechanism for message prioritization of the underlying transport protocol.
 +
@@ -216,7 +216,7 @@ UTransport implementations
 * *MUST* fail invocations of <<receive>> with a `UCode.UNIMPLEMENTED`, if the transport does not support the _pull_ <<delivery-method, delivery method>>.
 --
 
-[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPull"]
 --
 * *MUST* fail invocations of <<receive>> with a `UCode.NOT_FOUND`, if there are no matching messages available.
 --
@@ -278,12 +278,12 @@ UTransport implementations
 * *MUST* fail invocations of <<register-listener>> with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* fail invocations of <<register-listener>> with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners supported by the transport has already been registered.
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* fail invocations of <<register-listener>> with a `UCode.INVALID_ARGUMENT`, if the source and sink filter arguments' resource IDs do not match any of the entries from the table below:
 +
@@ -303,27 +303,27 @@ UTransport implementations
 |===
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-number-of-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* support registering more than one listener for any given address filter patterns
 --
   
-[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* support registering the same listener for multiple address filter patterns
 --
 
-[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* document the maximum supported number of listeners per address filter pattern.
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* make sure that multiple calls to <<register-listener>> with the same parameters have the same effect as a single call.
 --
 
-[.specitem,oft-sid="dsn~utransport-registerlistener-start-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-registerlistener-start-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* deliver matching messages to a successfully registered listener. This means that for each message that the transport receives _after_ <<register-listener>> has completed successfully, and which matches the listener's source and sink filter criteria according to the xref:../basics/uri.adoc#pattern-matching[UUri pattern matching rules], the transport *MUST* invoke the listener's <<on-receive>> method _at least once_.
 --
@@ -401,17 +401,17 @@ UTransport implementations
 * *MUST* fail invocations of <<unregister-listener>> with a `UCode.UNIMPLEMENTED`, if the transport does not support the _push_ <<delivery-method>>. In that case, the <<register-listener>> method *MUST* also fail accordingly.
 --
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* fail invocations of <<unregister-listener>> with a `UCode.NOT_FOUND`, if no such listener had been registered before.
 --
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-error-invalid-parameter~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* fail invocations of <<unregister-listener>> with a `UCode.INVALID_ARGUMENT`, if the source and sink filter arguments' resource IDs do not match any of entries from <<valid-source-sink-filters>>.
 --
 
-[.specitem,oft-sid="dsn~utransport-unregisterlistener-stop-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~utransport-unregisterlistener-stop-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST NOT* deliver any messages to a successfully unregistered listener.
 --
@@ -482,19 +482,30 @@ The address returned by an implementation *MUST* consist of the uEntity's (fixed
 Implementations *MAY* use any appropriate mechanism to determine these values during runtime, e.g. by means of a configuration file, environment variables or a central registry.
 --
 
-[#delivery-method]
 == Message Delivery
+
+uProtocol distinguishes between the following message delivery methods:
+
+[#delivery-method]
+.Message Delivery Methods
+[cols="1,7"]
+|===
+|Method |Definition
+
+|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Push*]
+|Data is pushed by the sender to the receiver.
+
+
+|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Pull/Poll*]
+|Data is pulled in by the receiver. This is done periodically at certain intervals, because the receiver (usually) does not know when new data will be available.
+
+|===
 
 UTransport implementations
 
-[.specitem,oft-sid="dsn~utransport-delivery-methods~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-delivery-methods~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
 --
 * *MUST* support at least one of _push_ or _pull_ delivery methods and *MAY* support both.
---
-  
-[.specitem,oft-sid="req~utransport-delivery-methods-docs~1",oft-needs="uman",oft-tags="TransportLayerImpl"]
---
-* *MUST* document the delivery methods they support.
 --
 
 
