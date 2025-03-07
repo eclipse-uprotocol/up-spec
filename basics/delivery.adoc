@@ -44,19 +44,3 @@ Below are a high level summary of well known delivery policies:
 |https://www.cloudcomputingpatterns.org/timeout_based_delivery/[*Time-out delivery policy*]
 |Timeout-based delivery service assures that a client receives a message before being deleted from a message queue. This is done by not deleting the message immediately after a client has read it, but only marking is as being invisible. After the client has read a message, it sends an acknowledgment to the message queue and the message is deleted.
 |===
-
-== Event Delivery Methods
-
-.Event Delivery Methods
-[width="100%",cols="17%,83%",options="header",]
-|===
-|Term |Definition
-
-|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Push*]
-|Data is pushed from the Sender to the Receiver
-
-
-|https://peterdaugaardrasmussen.com/2021/02/26/polling-vs-pushing-data/[*Poll/Pull*]
-|Data is pulled from the Sender to the Receiver. This is done at certain intervals, the receiver does not know when new data is available. You may say that the receiver *pulls* the data, the distinction between polling and pulling is that polling is done at certain intervals to see if there is new data available.
-
-|===
