@@ -1,5 +1,5 @@
 = SOME/IP
-:toc:
+:toc: preamble
 :toclevels: 3
 :sectnums:
 
@@ -53,14 +53,15 @@ A search engine usually finds the correct document based on the reference number
 
 == Transport Layer Translation
 
-link:./README.adoc#utransport[Transport layer (uP-L1)] specifies how link:../basics/umessage.adoc[uMessages] are sent and received over a "wire" between *uEs* or between devices. In this section we will cover the SOME/IP communication protocol binding and event mapping.
+xref:./README.adoc#utransport[Transport layer (uP-L1)] specifies how xref:../basics/umessage.adoc[uMessages] are sent and received over a _wire_ between *uEs* or between devices. In this section we will cover the SOME/IP communication protocol binding and event mapping.
 
 Mapping of uTransport APIs to SOME/IP specific library *APIs* shall not be covered in this document given there are multiple open source libraries available for SOME/IP.
 
 Although some limitations of *vsomeip* library are mentioned bellow as *NOTES*.
 
 === UUris
-link:../basics/uri.adoc[`UUri`] is translated to SOME/IP attributes per <<uri-mapping>> table below.
+
+xref:../basics/uri.adoc[`UUri`] is translated to SOME/IP attributes per <<uri-mapping>> table below.
 
 .UUri Mapping
 [[uri-mapping]]
@@ -100,7 +101,7 @@ NOTES::
 
 === UAttributes
 
-The following sections highlight the mapping of link:../basics/uattributes.adoc[UAttributes] to *SOME/IP* fields.
+The following sections highlight the mapping of xref:../basics/uattributes.adoc[UAttributes] to *SOME/IP* fields.
 
 ==== Common UMessage Attributes
 
@@ -126,7 +127,7 @@ The following sections highlight the mapping of link:../basics/uattributes.adoc[
 
 Check `ttl` link:#note-ttl[NOTE] below.
 
-| payload_format | SOME/IP specification however does not have an equivalent field for link:../basics/upayloadformat.adoc[UPayloadFormat].
+| payload_format | SOME/IP specification however does not have an equivalent field for xref:../basics/uattributes.adoc#payload-format[UPayloadFormat].
 
 It is assumed that the payload is serialized in the format that the other end knows how to deserialize (i.e. it is fixed per topic). As such, when converting between uProtocol and SOME/IP, the `payload_format` field *SHOULD* be ignored (left at the default or `UPAYLOAD_FORMAT_UNSPECIFIED`).
 |===
@@ -140,7 +141,7 @@ or ignoring the `RESPONSE`.
 [[uuid-mapping]]
 ==== UUIDs
 
-link:../basics/uuid.adoc[uProtocol UUID] specifications create a unique identifier for each message along with timestamp information.
+xref:../basics/uuid.adoc[uProtocol UUID] specifications create a unique identifier for each message along with timestamp information.
 
 The *UUid* is used for correlate between request and response as well. SOME/IP instead defines the `RequestID` as 16 bit `ClientID` + 16 bit `SessionID` (that is incremented). `[PRS_SOMEIP_00046]`
 
@@ -216,7 +217,7 @@ NOTES::
 
 ==== Communication Status
 
-<<commstatus-error-mapping>> below provides the mapping of link:../basics/uattributes.adoc[UAttributes] `commstatus` `UCode` codes to SOME/IP error codes `[PRS_SOMEIP_0019]`.
+<<commstatus-error-mapping>> below provides the mapping of xref:../basics/uattributes.adoc[UAttributes] `commstatus` `UCode` codes to SOME/IP error codes `[PRS_SOMEIP_0019]`.
 
 .UCode to SOME/IP Error Code Mapping
 [[commstatus-error-mapping]]

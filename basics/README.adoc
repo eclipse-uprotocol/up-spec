@@ -20,15 +20,14 @@ SPDX-License-Identifier: Apache-2.0
 
 The following are the foundational requirements for uProtocol specifications:
 
-* *link:namespace.adoc[Naming Conventions]*
-* *link:versioning.adoc[Versioning]*
-* *link:uri.adoc[Addressing (UUri)]*
-* *link:error_model.adoc[Error Model (UStatus, UCode)]*
-* *link:uuid.adoc[Unique Universal Identifier (UUID)]*
-* *link:qos.adoc[Quality of Service & Priority (UPriority)]*
-* *link:uattributes.adoc[uProtocol Attributes (UAttributes)]*
-* *link:umessage.adoc[uProtocol Message (UMessage)]*
-* *link:upayloadformat.adoc[uProtocol Payload Format (UPayloadFormat)]*
-* *link:delivery.adoc[Event Delivery]*
-* *link:permissions.adoc[Permissions]*
-
+* *xref:namespace.adoc[Naming Conventions]*
+* *xref:versioning.adoc[Versioning]*
+* *xref:uri.adoc[Addressing (UUri)]*
+* *xref:error_model.adoc[Error Model (UStatus, UCode)]*
+* *xref:uuid.adoc[Unique Universal Identifier (UUID)]*
+* *xref:qos.adoc[Quality of Service & Priority (UPriority)]*
+* *xref:uattributes.adoc[uProtocol Attributes (UAttributes)]*
+* *xref:umessage.adoc[uProtocol Message (UMessage)]*
+* *xref:upayloadformat.adoc[uProtocol Payload Format (UPayloadFormat)]*
+* *xref:delivery.adoc[Event Delivery]*
+* *xref:permissions.adoc[Permissions]*
