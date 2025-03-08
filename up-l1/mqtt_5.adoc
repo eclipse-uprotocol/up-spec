@@ -1,6 +1,7 @@
 = MQTT 5 Transport Protocol
 :toc: preamble
 :sectnums:
+:stem: latexmath
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
@@ -87,10 +88,21 @@ a| The message's priority as defined in link:../basics/qos.adoc[QoS doc]
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
 
 | _ttl_
-| _Message Expiry Interval_
-a| The amount of time after which this message MUST NOT be delivered/processed anymore
+| User Property [key: _6_] +
+_Message Expiry Interval_
 
-* *MUST* be set to _ceil(ttl/1000)_.
+a| The amount of time after which this message must no be delivered/processed anymore
+    
+The _Message Expiry Interval_ property *MUST* be set to
+
+stem:[expiry := ceil(ttl/1000)].
+
+The User Property *MUST* be set to the value of _ttl_ if, and only if
+
+stem:[ttl \bmod 1000 > 0].
+
+This is necessary to retain the original value for the receiving end, because the MQTT message expiry interval has second granularity only.
+If the TTL is a multiple of 1000, i.e. has second granularity as well, then it is sufficient to set the _Message Expiry Interval_, from which the receiving side can derive the original TTL.
 
 | _permissionLevel_
 | User Property [key: _7_]
