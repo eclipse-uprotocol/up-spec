@@ -1,4 +1,4 @@
-= uProtocol Message (uMessage)
+= uProtocol Message (UMessage)
 :toc:
 :sectnums:
 
@@ -20,6 +20,34 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-UMessage is the top-level message type for the uProtocol. It consists of link:uattributes.adoc[message metadata] and (optional) data (payload).
+uProtocol entities communicate with each other by means of exchanging `UMessages`. A uEntity can for example publish an event to a topic or invoke a remote service provider's operations using a UMessage. Please refer to the xref:../up-l2/README.adoc[uProtocol Communication Layer API] for details.
 
-NOTE: Please refer to link:../up-core-api/uprotocol/v1/umessage.proto[umessage.proto] for more details.
+[#data-model-definition]
+== Data Model
+
+A UMessage consists of xref:uattributes.adoc[UAttributes] holding the message's meta data and (optional) payload as shown in the class diagram below (using UML2 notation).
+
+.UMessage Data Model
+[#umessage-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+
+class UMessage {
+  attributes: UAttributes
+  payload : byte[*]
+}
+----
+
+Each xref:../languages.adoc[uProtocol Language Library]
+
+[.specitem,oft-sid="req~umessage-data-model-impl~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* implement the <<umessage-data-model>> using the language specific type system.
+--
+
+[.specitem,oft-sid="req~umessage-data-model-proto~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* support writing and reading of an instance of the <<umessage-data-model>> to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/umessage.proto[umessage.proto].
+--

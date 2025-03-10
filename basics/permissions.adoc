@@ -23,7 +23,7 @@ SPDX-License-Identifier: Apache-2.0
 
 The following specification shall elaborate on the policies governing access to specific topics,methods, and services used by uProtocol, they are:
 
-* *Code-based Permissions (CAPs):* Based on identity of the code requesting such access 
+* *Code-based Permissions (CAPs):* Based on identity of the code requesting such access
 * *Token-based Access Permissions (TAP):* Based on identity of the person or device (typically represented by a system account and based on the information in said account) requesting such access 
 
 Throughout this document we will use the <<perm-terms>> below:
@@ -50,18 +50,15 @@ Permissions for sensitive topics are explicitly requested by client entities in 
 
 NOTE: Definition of sensitive topic vs non-sensitive topic along with uPLs are not covered in this specification and are platform/ecosystem specific.
 
-
 uPLs are also considered during the client entity’s installation, which will fail if for any of the uPAs declared by the entity its level is less that that of the entity itself. Permission claims not resolved to any specific uPA are logged, but otherwise ignored by the implementations.
 
 For pre-installed client entities only runtime enforcement is applied.
 
-
 IMPORTANT: The runtime enforcement of CAPs is implementation specific and not covered by this specifications.
 
-CAP assumes that the link:../up-l1/README.adoc[uTransport] implementation provides a means to determine client’s uPL.
+CAP assumes that the xref:../up-l1/README.adoc[uTransport] implementation provides a means to determine client’s uPL.
 
 NOTE: The importance of permissions will vary between implementations. The key initially will be a robust solution for CAPs covering clients residing in-vehicle devices (i.e. Android & Linux implementations). We do not expect CAPs to be applicable to less dynamic and more controlled environments such as mechatronic, Mobile or Cloud implementations.
-
 
 === CAPs vs Android AOSP Permissions
 
@@ -75,10 +72,9 @@ While inspired by Android’s permission, CAPs under the current proposal are di
 
 * In Android application of permissions can be affected by specifics of client’s and server’s signatures. No such consideration is proposed for uPerms at this point in time
 
-
 === Service Declaration of uPLs
 
-Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in link:../up-core-api/uprotocol/uoptions.proto[uoptions.proto] and their purpose is defined in <<cap-options>> below. 
+Services declare their uPLs as google.protobuf CustomOptions within their protos. The options are declared in link:../up-core-api/uprotocol/uoptions.proto[uoptions.proto] and their purpose is defined in <<cap-options>> below.
 
 * uPL value *MUST* be an integer, 0 to N, where N is the most permissive level. The default value is 0.
 
@@ -103,9 +99,10 @@ NOTE: *MUST* assumes the most permissive level, N, if the the declarations above
 
 
 === Client Declaration of uPLs
+
 Claimed level of a uE is also handled by xref:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the xref:../up-l1/README.adoc[uTransport] implementation.
 
-When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../../up-core-api/uprotocol/uattributes.proto[uAttributes `permission_level`].
+When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../up-core-api/uprotocol/v1/uattributes.proto[uAttributes `permission_level`].
 
 uEs that do not have proto defintions (i.e. applications),  claimed uPLs using a implementation specific manor like Android's manifest file. See <<Example using Android>> for an example.
 
@@ -147,8 +144,6 @@ In the string resources directory of the APK we may then have a file with the fo
 
 Such entries in the manifest will allow the client access to any topics of the BodyAccess service and two methods explicitly specified, as they are both level 1, thus requiring an explicit claim.
 
-
-
 == Token Based Access Permissions(TAPs)
 
 Token-based access permissions (TAPs) are policies governing access to specific methods, topics, and services, based on identity of the person or vehicle (domain), typically represented by a system account and based on the information in said account.
@@ -161,10 +156,11 @@ Implementations of TAP are generally platform/vendor specific, as such the follo
 * *Verification:* How the platform (and/or services) verifies the validity of said token (i.e. signature verification, etc...)
 
 === Scope
+
 Scope is the list of artifacts that the caller (who has the token) are allowed to access. The scope is a list of uPA URIs.
 
 === Sending Tokens
 
-Tokens are passed by the called to the transport (and then carried throughout the network) by populating the link:../../up-core-api/uprotocol/uattributes.proto[`token`] uAttributes header field.
+Tokens are passed by the called to the transport (and then carried throughout the network) by populating the link:../up-core-api/uprotocol/v1/uattributes.proto[`token`] uAttributes header field.
 
 

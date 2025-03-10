@@ -278,6 +278,14 @@ UTransport implementations
 * *MUST* fail invocations of <<register-listener>> with a `UCode.UNIMPLEMENTED` if the transport does not support the _push_ <<delivery-method, delivery method>>. In that case, the <<unregister-listener, unregisterListener>> method *MUST* also fail accordingly.
 --
 
+[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="impl,utest,uman",oft-tags="TransportLayerImplPush"]
+--
+* *MUST* provide means to configure upper limits for
+** the overall number of listeners that can be registered and
+** the number of listeners that can be registered per address filter pattern.
+* *SHOULD* use a reasonable default value for both limits.
+--
+
 [.specitem,oft-sid="dsn~utransport-registerlistener-error-resource-exhausted~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* fail invocations of <<register-listener>> with a `UCode.RESOURCE_EXHAUSTED`, if the maximum number of listeners supported by the transport has already been registered.
@@ -311,11 +319,6 @@ UTransport implementations
 [.specitem,oft-sid="dsn~utransport-registerlistener-listener-reuse~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* support registering the same listener for multiple address filter patterns
---
-
-[.specitem,oft-sid="req~utransport-registerlistener-max-listeners~1",oft-needs="uman",oft-tags="TransportLayerImplPush"]
---
-* *MUST* document the maximum supported number of listeners per address filter pattern.
 --
 
 [.specitem,oft-sid="dsn~utransport-registerlistener-idempotent~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]

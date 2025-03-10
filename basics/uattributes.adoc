@@ -1,5 +1,5 @@
-= uProtocol Attributes (uAttributes)
-:toc:
+= uProtocol Attributes (UAttributes)
+:toc: preamble
 :sectnums:
 :stem: latexmath
 
@@ -21,13 +21,86 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview 
 
-UAttributes contain metadata describing a particular message's purpose, content and processing requirements.
+UAttributes contain meta data describing a particular message's purpose, content and processing requirements.
 
-NOTE: Please refer to link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto] for the latest version of the UAttributes data model.
+[#data-model-definition]
+== Data Model
+
+The diagram below shows the UAttributes class and its properties using UML2 notation.
+
+NOTE: The UCode, UUri and UUID classes are defined in detail in xref:error_model.adoc[Error Model Specification], xref:uri.adoc[UUri Specification] and xref:uuid.adoc[UUID Specification] respectively.
+
+.UAttributes Data Model
+[#uattributes-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+
+class UAttributes {
+  id: UUID
+  source: UUri
+  sink: UUri [0..1]
+  ttl : UInt32 [0..1]
+  commstatus: UCode [0..1]
+  permissionLevel: UInt32 [0..1]
+  requestId: UUID [0..1]
+  token: String [0..1]
+  traceparent: String [0..1]
+}
+
+class UMessageType {
+  <<Enumeration>>
+  Publish
+  Notification
+  RPC Request
+  RPC Response
+}
+
+class UPriority {
+  <<Enumeration>>
+  CS0
+  CS1
+  CS2
+  CS3
+  CS4
+  CS5
+  CS6
+}
+
+class UPayloadFormat {
+  <<Enumeration>>
+  UPAYLOAD_FORMAT_UNSPECIFIED
+  UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY
+  UPAYLOAD_FORMAT_PROTOBUF
+  UPAYLOAD_FORMAT_JSON
+  UPAYLOAD_FORMAT_SOMEIP
+  UPAYLOAD_FORMAT_SOMEIP_TLV
+  UPAYLOAD_FORMAT_RAW
+  UPAYLOAD_FORMAT_TEXT
+  UPAYLOAD_FORMAT_SHM
+}
+
+UAttributes-->UMessageType : type
+UAttributes--> "0..1" UPriority : priority
+UAttributes--> "0..1" UPayloadFormat : payloadFormat
+----
+
+Each xref:../languages.adoc[uProtocol Language Library]
+
+[.specitem,oft-sid="req~uattributes-data-model-impl~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* implement the <<uattributes-data-model>> using the language specific type system.
+--
+
+[.specitem,oft-sid="req~uattributes-data-model-proto~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* support writing and reading of an instance of the <<uattributes-data-model>> to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto].
+--
 
 uProtocol defines four types of messages:
 
-[%autowidth]
+[cols="1,5"]
 |===
 |Type |Description
 
@@ -57,40 +130,39 @@ The following table defines attributes that are used for all message types:
 |Name |Type |Mandatory |Description
 
 |`id`
-|link:uuid.adoc[UUID]
+|xref:uuid.adoc[UUID]
 |yes
 a|
-[.specitem,oft-sid="dsn~up-attributes-id~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-id~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 Every message *MUST* have a unique message identifier. The timestamp contained in the UUID is used as the message's creation time.
 --
 
 |`priority`
-|link:qos.adoc[UPriority]
+|xref:qos.adoc[UPriority]
 |no
 a|
-The QoS level that this message should be processed/delivered with. 
-[.specitem,oft-sid="dsn~up-attributes-priority~1",oft-needs="impl,utest"]
+The QoS level that this message should be processed/delivered with.
+[.specitem,oft-sid="dsn~up-attributes-priority~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-A consumer *MUST* assume a message to have the link:qos.adoc#default-priority[default priority] if not set explicitly.
+A consumer *MUST* assume a message to have the xref:qos.adoc#default-priority[default priority] if not set explicitly.
 --
 
 |`ttl`
-|`unsigned integer`
+|`UInt32`
 |no
 a|
 The amount of time (in milliseconds) after which this message is no longer delivered/processed.
-[.specitem,oft-sid="dsn~up-attributes-ttl-timeout~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-ttl-timeout~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-A consumer *MUST NOT* process an expired message. A message is expired if the TTL is > `0` and the consumer's current time is _after_ the message's creation time _plus_ its TTL.
+A consumer *MUST NOT* process an expired message. A message is expired if the TTL is > `0` and the consumer's current time is _after_ the message's creation time _plus_ its TTL:
+
+stem:[expired := t_{current} > t_{id} + ttl]
 --
-[.specitem,oft-sid="dsn~up-attributes-ttl~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-ttl~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 A consumer *MUST* not consider a message expired if it has a TTL value of `0`.
 --
-
-
-stem:[t_{current} > t_{id} + ttl]
 
 |`traceparent`
 |https://w3c.github.io/trace-context/#traceparent-header[W3C Trace Context Level 3, traceparent]
@@ -98,19 +170,19 @@ stem:[t_{current} > t_{id} + ttl]
 a|
 A tracing identifier to use for correlating messages across the system. Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md[CloudEvents distributed tracing extension].
 
-[.specitem,oft-sid="dsn~up-attributes-traceparent~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-traceparent~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MAY* contain traceparent attribute.
+* *MUST* either be empty or contain a valid https://w3c.github.io/trace-context/#traceparent-header[traceparent].
 --
 
 
-|`payload format`
-|link:upayloadformat.adoc[UPayloadFormat]
+|`payloadFormat`
+|<<payload-format,UPayloadFormat>>
 |no
 a|The format of the payload (data).
-[.specitem,oft-sid="dsn~up-attributes-payload-format~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-payload-format~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MAY* contain payload format attribute.
+* *MUST NOT* contain a value if the message has no payload.
 --
 
 |===
@@ -122,35 +194,42 @@ The following table defines attributes that are used for publish messages in add
 
 [%autowidth]
 |===
-|Attribute |Mandatory |Description
+|Attribute |Type |Mandatory |Description
 
 |`type`
+|<<uattributes-data-model,UMessageType>>
 |yes
 a| 
-[.specitem,oft-sid="dsn~up-attributes-publish-type~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-publish-type~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 *MUST* be set to `UMESSAGE_TYPE_PUBLISH`.
 --
 
 |`source`
+|xref:uri.adoc[UUri]
 |yes
-a|A link:uri.adoc[UUri] representing the topic that this message is published to.
+a|The topic that this message is published to.
 
-[.specitem,oft-sid="dsn~up-attributes-publish-source~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-publish-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFE]`.
 --
 
 |`sink`
-|no (see Description)
-a|A link:uri.adoc[UUri] representing the receiver of this published message. This information is 
-only required when we are sending the published event between devices through a streamer. A uEntity sending a Publish message is not required to populate this information.
+|xref:uri.adoc[UUri]
+|no
+a|The receiver of this published message. This information is only required when the message is to be forwarded between devices through a streamer. A uEntity sending a Publish message is not required to populate this information.
 
-[.specitem,oft-sid="dsn~up-attributes-publish-sink~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-publish-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MAY* be present in the message. If present, the UUri *MUST* only contain the `authority_name` field.
 --
 
+|`priority`
+|xref:qos.adoc[UPriority]
+|yes
+a|
+The QoS level that this message should be processed/delivered with.
 |===
 
 [#notification-attributes]
@@ -160,30 +239,33 @@ The following table defines attributes that are used for notification messages i
 
 [%autowidth]
 |===
-|Attribute |Mandatory |Description
+|Attribute |Type |Mandatory |Description
 
 |`type`
+|<<uattributes-data-model,UMessageType>>
 |yes
 a|
-[.specitem,oft-sid="dsn~up-attributes-notification-type~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-notification-type~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 *MUST* be set to `UMESSAGE_TYPE_NOTIFICATION`.
 --
 |`source`
+|xref:uri.adoc[UUri]
 |yes
 a|
 A link:uri.adoc[UUri] representing the component that this notification originates from.
 
-[.specitem,oft-sid="dsn~up-attributes-notification-source~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-notification-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to a value in range `[0x8000, 0xFFFE]`.
 --
 
 |`sink`
+|xref:uri.adoc[UUri]
 |yes
 a|A link:uri.adoc[UUri] representing the receiver of this notification.
 
-[.specitem,oft-sid="dsn~up-attributes-notification-sink~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-notification-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to `0`.
 --
@@ -197,69 +279,76 @@ The following table defines attributes that are used for RPC request messages in
 
 [%autowidth]
 |===
-|Attribute |Mandatory |Description
+|Attribute |Type |Mandatory |Description
 
 |`type`
+|<<uattributes-data-model,UMessageType>>
 |yes
 a|
-[.specitem,oft-sid="dsn~up-attributes-request-type~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-type~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 *MUST* be set to `UMESSAGE_TYPE_REQUEST`.
 --
 
 |`source`
+|xref:uri.adoc[UUri]
 |yes
 a|The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
 
-[.specitem,oft-sid="dsn~up-attributes-request-source~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to `0`.
 --
 
 |`sink`
+|xref:uri.adoc[UUri]
 |yes
 a|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
 
-[.specitem,oft-sid="dsn~up-attributes-request-sink~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to a value in range `[1, 0x7FFF]`.
 --
 
 |`priority`
+|xref:qos.adoc[UPriority]
 |yes
 a|The link:qos.adoc[QoS] level that this message should be processed/delivered with.
 
-[.specitem,oft-sid="dsn~up-attributes-request-priority~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-priority~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MUST* be set to `UPRIORITY_CS4` or higher.
 --
 
 
 |`ttl`
+|`UInt32`
 |yes
 a|The amount of time (in milliseconds) after which this request message should no longer be delivered to or processed by a service provider.
 
-[.specitem,oft-sid="dsn~up-attributes-request-ttl~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-ttl~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MUST* be set to a value > 0
 --
 
-|`permission_level`
+|`permissionLevel`
+|`UInt32`
 |no
-a|The service consumer's permission level as defined in link:permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)].
+a|The service consumer's permission level.
 
-[.specitem,oft-sid="dsn~up-attributes-permission-level~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-permission-level~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MAY* contain permission level attribute.
+* *MUST* be empty or contain a vaild permission level as defined in xref:permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)].
 --
 
 |`token`
+|`String`
 |no
-a|The service consumer's access token as defined in link:permissions.adoc#_token_based_access_permissionstaps[Token-Based uE Access Permissions (TAPs)].
+a|The service consumer's access token.
 
-[.specitem,oft-sid="dsn~up-attributes-request-token~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-request-token~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MAY* contain token attribute.
+* *MUST* be empty or contain a token as defined in xref:permissions.adoc#_token_based_access_permissionstaps[Token-Based uE Access Permissions (TAPs)].
 --
 
 |===
@@ -271,66 +360,119 @@ The following table defines attributes that are used for RPC response messages i
 
 [%autowidth]
 |===
-|Attribute |Mandatory |Description
+|Attribute |Type |Mandatory |Description
 
 |`type`
+|<<uattributes-data-model,UMessageType>>
 |yes
 a|
-[.specitem,oft-sid="dsn~up-attributes-response-type~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-response-type~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 *MUST* be set to `UMESSAGE_TYPE_RESPONSE`.
 --
 
 |`source`
+|xref:uri.adoc[UUri]
 |yes
 a|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
 
-[.specitem,oft-sid="dsn~up-attributes-response-source~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-response-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to a value in range `[1, 0x7FFF]`.
 --
 
 |`sink`
+|xref:uri.adoc[UUri]
 |yes
 a|The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
 
-[.specitem,oft-sid="dsn~up-attributes-response-sink~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-response-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * The UUri's `resource_id` *MUST* be set to `0`.
 --
 
-|`reqid`
+|`requestId`
+|xref:uuid.adoc#data-model-definition[UUID]
 |yes
-|The `id` property value of the request message that this is the response to.
+a|
+
+[.specitem,oft-sid="dsn~up-attributes-response-correlation-id~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
+--
+* *MUST* be set to the value of the `id` property of the request message that this is the response to.
+--
 
 |`priority`
+|xref:qos.adoc[UPriority]
 |yes
 a|
 The link:qos.adoc[QoS] level that this message should be processed/delivered with. 
 
-[.specitem,oft-sid="dsn~up-attributes-response-reqid~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-response-reqid~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
 --
 * *MUST* be the same value as that of the corresponding request message's `priority` attribute.
 --
 
 |`ttl`
-|no
+|`UInt32`
+|yes
 a|
 The amount of time after which this response message should no longer be delivered to or processed by the service consumer.
 
-[.specitem,oft-sid="dsn~up-attributes-response-ttl~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~up-attributes-response-ttl~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
 --
 * *MUST* be the same value as that of the corresponding request message's `ttl` attribute.
 --
 
 |`commstatus`
+|xref:error_model.adoc#data-model-definition[UCode]
 |no
-a|A link:../up-core-api/uprotocol/v1/ustatus.proto[UCode] indicating an error that has occurred during the delivery of either the RPC request or response message. A value of `0` or no value indicates that no communication error has occurred.
-
-[.specitem,oft-sid="dsn~up-attributes-response-commstatus~1",oft-needs="impl,utest"]
---
-* *MUST* contain commstatus attribute if the request message was not delivered successfully or the server was unable to process the request.
---
+a|The outcome of the RPC. No value or `UCode.OK` indicate successful invocation of the operation. All other values indicate that invocation was unsuccessful. The concrete value indicates the type of error that has occurred.
 
 |===
 
+[#payload-format]
+== Payload Format
+
+The following table provides an overview of the payload formats supported by uProtocol.
+
+[%autowidth]
+|===
+|UPayloadFormat |MIME Type |Payload encoding
+
+| `UPAYLOAD_FORMAT_UNSPECIFIED`
+| N/A
+| The payload format is unknown. Clients will need to have gained knowledge about the concrete encoding and semantics of the payload by means of an out-of-band mechanism.
+
+
+|`UPAYLOAD_FORMAT_PROTOBUF_WRAPPED_IN_ANY`
+|`application/x-protobuf`
+|The network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload. 
+
+|`UPAYLOAD_FORMAT_PROTOBUF`
+|`application/protobuf`
+|The network byte order serialization of the protobuf structure representing the payload data.
+
+|`UPAYLOAD_FORMAT_JSON`
+|`application/json`
+|The network byte order UTF-8 encoding of a JSON structure representing the payload data.
+
+|`UPAYLOAD_FORMAT_SOMEIP`
+|`application/x-someip`
+|The network byte order serialization of SOME/IP payload data.
+
+|`UPAYLOAD_FORMAT_SOMEIP_TLV`
+|`application/x-someip_tlv`
+|The network byte order serialization of SOME/IP TLV payload data.
+
+|`UPAYLOAD_FORMAT_RAW`
+|`application/octet-stream`
+|A byte array representing the payload data.
+
+|`UPAYLOAD_FORMAT_TEXT`
+|`text/plain`
+|The network byte order UTF-8 encoding of a unicode string representing the payload data.
+
+|`UPAYLOAD_FORMAT_SHM`
+|`application/x-shm`
+|The network byte order address of a shared memory segment.
+|===
