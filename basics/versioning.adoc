@@ -26,13 +26,17 @@ Built into the protocol will be a mechanism to version different parts of the pr
 
 === MAJOR
 
-* *MUST* start with 1 fo the initial release
+The `MAJOR` part of an artifact's version
 
-* *MUST* increment when the interface, API, specification is not backwards compatible
+* *MUST* be `1` for its initial release
+
+* *MUST* be incremented when the artifact is being changed in a not backwards compatible way
 
 === MINOR
 
-* *MUST* increment when the service/protocol interfaces updates are backwards compatible
+The `MINOR` part of an artifact's version
+
+* *MUST* be incremented when artifact is being changed in a backwards compatible way
 
 Backwards compatibility is baked into the protobuf specifications and as such updating the service proto file should only force an update to the MINOR
 
@@ -40,14 +44,14 @@ Backwards compatibility is baked into the protobuf specifications and as such up
 
 === Messages
 
-link:../up-l2/README.adoc[uP-L2 Messages] *MUST* contain a version such that the serialization and deserialization between devices of said message can be done.
+xref:../up-l2/README.adoc[uP-L2 Messages] *MUST* contain a version such that the serialization and deserialization between devices of said message can be done.
 
 === uEs
 
 Interfaces for uEs are declared in proto files. Protobuf builds in backwards and forwards compatibility support into the IDL so a server and client may be updated independently of each other without breaking the communication or serialization/deserialization of generated code.
 
 If the uE declares an interface in proto:
-* *MUST* have their `MAJOR.MINOR` version values specified (declared) inside their proto file per link:../up-l3/README.adoc[uP-L3 Specifications]
+* *MUST* have their `MAJOR.MINOR` version values specified (declared) inside their proto file per xref:../up-l3/README.adoc[uP-L3 Specifications]
 
 
 === Distribution

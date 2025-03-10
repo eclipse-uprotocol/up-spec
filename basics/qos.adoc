@@ -17,6 +17,8 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
+== Overview
+
 uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocol therefore supports priority based message processing at the xref:../up-l1/README.adoc[Transport] and xref:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
 
 For this purpose, each xref:umessage.adoc[UMessage] is assigned to one of the following service classes:
@@ -35,8 +37,5 @@ For this purpose, each xref:umessage.adoc[UMessage] is assigned to one of the fo
 |*CS6* |Safety Critical |Network control
 |===
 
-These classes are represented by the values of the link:../up-core-api/uprotocol/v1/uattributes.proto[UPriority protobuf enum].
-
 [#default-priority]
-* A UMessage *MAY* be assigned _explicitly_ to a service class by setting the message's xref:uattributes.adoc#common-attributes[`priority`] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.
-* link:../upclient.adoc[uProtocol Client Libraries] *SHOULD* map the message's service class to a corresponding mechanism of the underlying transport protocol, if available.
+A UMessage *MAY* be assigned _explicitly_ to a service class by setting the message's xref:uattributes.adoc#common-attributes[`priority`] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.

@@ -1,5 +1,5 @@
 = UUID
-:toc:
+:toc: preamble
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -19,18 +19,18 @@ SPDX-License-Identifier: Apache-2.0
 ----
 
 == Overview
-Universal Unique Identifiers (UUID) are used in uProtocol to uniquely identify link:umessage.adoc[`UMessages`]. The UUID includes a timestamp used to verify the liveliness of a message (ex. if a type of message should expire or not).  For more explanation of the use cases for the uProtocol UUID, please refer to link:uattributes.adoc[UAttributes Specifications].
 
-[.specitem,oft-sid="dsn~uuid-spec~1",oft-needs="impl,utest"]
---
- * *MUST* be a https://www.rfc-editor.org/rfc/rfc9562#name-uuid-version-7[UUIDv7] per https://www.rfc-editor.org/rfc/rfc9562[RFC 9562].
---
-    
+Universal Unique Identifiers (UUID) are used in uProtocol to uniquely identify instances of xref:umessage.adoc[`UMessage`]. The UUID includes a timestamp which can be used to determine if the message has already expired and therefore should not be processed anymore. For more explanation of the use cases for the uProtocol UUID, please refer to xref:uattributes.adoc[UAttributes Specifications].
 
-The UUID may be represented in one of the following formats:
+[.specitem,oft-sid="dsn~uuid-spec~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+The UUIDs contained in xref:uattributes.adoc[UAttributes] *MUST* be of type https://www.rfc-editor.org/rfc/rfc9562#name-uuid-version-7[UUIDv7] as defined by https://www.rfc-editor.org/rfc/rfc9562[RFC 9562].
+--
+
+A uProtocol UUID may be represented in one of the following formats:
 
  * An instantiation of the <<Data Model>> in a supported programming language
- * or as a "hex-and-dash" string defined in https://www.rfc-editor.org/rfc/rfc9562#name-uuid-format[RFC 9562]
+ * or as a _hex-and-dash_ string defined in https://www.rfc-editor.org/rfc/rfc9562#name-uuid-format[RFC 9562]
 
 
 [#data-model-definition]
@@ -51,9 +51,20 @@ class UUID {
 }
 ----
 
-[.specitem,oft-sid="req~uuid-proto~1",oft-needs="impl,utest"]
+Each xref:../languages.adoc[uProtocol Language Library]
+
+[.specitem,oft-sid="req~uuid-type~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-Each link:../languages.adoc[uProtocol Language Library] *MUST* support writing and reading of an instance of the data model to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uuid.proto[uuid.proto].
+* *MUST* implement the <<uuid-data-model>> using the language specific type system.
 --
 
+[.specitem,oft-sid="req~uuid-proto~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* support writing and reading of an instance of the <<uuid-data-model>> to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uuid.proto[uuid.proto].
+--
+
+[.specitem,oft-sid="req~uuid-hex-and-dash~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* *MUST* support writing and reading of an instance of the <<uuid-data-model>> to/from its _hex-and-dash_ string representation as defined in https://www.rfc-editor.org/rfc/rfc9562#name-uuid-format[RFC 9562].
+--
 
