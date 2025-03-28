@@ -407,7 +407,7 @@ a|
 a|
 The link:qos.adoc[QoS] level that this message should be processed/delivered with. 
 
-[.specitem,oft-sid="dsn~up-attributes-response-reqid~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
+[.specitem,oft-sid="dsn~up-attributes-response-priority~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
 --
 * *MUST* be the same value as that of the corresponding request message's `priority` attribute.
 --
