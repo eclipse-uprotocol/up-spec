@@ -23,16 +23,20 @@ Feature: Efficient binary encoding of endpoint identifiers (UUri)
     using https://www.protobufpal.com/ based on the UUri proto3 definition from the
     uProtocol specification.
 
+    Note that comparing the serialized Protobuf to the byte sequence is not feasible
+    due to the fact that Proto serialization is not intended/designed to be canonical,
+    as outlined here: https://protobuf.dev/programming-guides/serialization-not-canonical/
+
     Given a UUri having authority <authority_name>
     And having entity identifier <entity_id>
     And having major version <version>
     And having resource identifier <resource_id>
     When serializing the UUri to its protobuf wire format
-    Then the resulting byte sequence is <protobuf>
-    And the original UUri can be recreated from the protobuf wire format
+    Then the original UUri can be recreated from the protobuf wire format
+    And the same UUri can be deserialized from <byte_sequence>
 
     Examples:
-      | authority_name | entity_id  | version | resource_id | protobuf                                         |
+      | authority_name | entity_id  | version | resource_id | byte_sequence                                    |
       | ""             | 0x00000001 |    0x01 |      0xa1fb |                                 1001180120fbc302 |
       | "my_vin"       | 0x10000001 |    0x02 |      0x001a |             0a066d795f76696e1081808080011802201a |
       | "*"            | 0x00000101 |    0xa0 |      0xa1fb |                       0a012a10810218a00120fbc302 |

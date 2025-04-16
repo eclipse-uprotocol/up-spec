@@ -23,11 +23,15 @@ Feature: Efficient binary encoding of uProtocol UUIDs
     using https://www.protobufpal.com/ based on the UUID proto3 definition from the
     uProtocol specification.
 
+    Note that comparing the serialized Protobuf to the byte sequence is not feasible
+    due to the fact that Proto serialization is not intended/designed to be canonical,
+    as outlined here: https://protobuf.dev/programming-guides/serialization-not-canonical/
+
     Given a UUID having MSB <uuid_msb> and LSB <uuid_lsb>
     When serializing the UUID to its protobuf wire format
-    Then the resulting byte sequence is <protobuf>
-    And the original UUID can be recreated from the protobuf wire format
+    Then the original UUID can be recreated from the protobuf wire format
+    And the same UUID can be deserialized from <byte_sequence>
 
     Examples:
-      | uuid_msb           | uuid_lsb           | protobuf                             |
+      | uuid_msb           | uuid_lsb           | byte_sequence                        |
       | 0x0000000000017000 | 0x8010101010101a1a | 090070010000000000111a1a101010101080 |
