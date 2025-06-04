@@ -198,7 +198,7 @@ Central-UDiscovery -->> Domain-UDiscovery: SetServiceTopicsResponse
 
 It is possible the information in domain or central instances might become out of sync with what is stored in the other instances. In order to rectify this situation:
 
-[.specitem,oft-sid="dsn~discovery-data-reconciliation~child~1",oft-needs="impl,test"]
+[.specitem,oft-sid="dsn~discovery-data-reconciliation-child~1",oft-needs="impl,test"]
 --
 * Child nodes *MUST* re-sync with their parent node when there is a change (ex. reset, add/remove of information, etc...), this ensures reconciliation only happens in one direction, from the child to the parent.
 --
