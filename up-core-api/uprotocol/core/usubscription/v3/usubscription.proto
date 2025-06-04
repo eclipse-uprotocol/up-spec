@@ -215,23 +215,21 @@ message UnsubscribeResponse {}
 // Passed to FetchSubscribers such that we can obtain a list of subscribers to
 // a particular topic
 message FetchSubscribersRequest {
+  reserved 2;
+
   // Topic we wish to find the subscribers for
   uprotocol.v1.UUri topic = 1;
-
-  // Offset in the fetch requests
-  optional uint32 offset = 2;
 }
 
 
 // Returned from FetchSubscribers(), this message contains a repeated list of
 // SubscriberInfo
 message FetchSubscribersResponse {
-  reserved 3;
+  reserved 2, 3;
   // List of subscribers
   repeated SubscriberInfo subscribers = 1;
 
   // Set to true if the batch did not return all records
-  optional bool has_more_records = 2;
 }
 
 
@@ -257,6 +255,8 @@ message Subscription {
 
 
 message FetchSubscriptionsRequest {
+  reserved 3;
+
   oneof request {
     // Topic to register/unregister to receive subscription change notifications
     uprotocol.v1.UUri topic = 1;
@@ -264,19 +264,15 @@ message FetchSubscriptionsRequest {
     // Subscribers's information
     SubscriberInfo subscriber = 2;
   }
-
-  // Offset in the fetch requests
-  optional uint32 offset = 3;
 }
 
 
 // Results from FetchSubscriptions() API
 message FetchSubscriptionsResponse {
+  reserved 2;
+
   // Repeated list of subscriptions for a subscriber
   repeated Subscription subscriptions = 1;
-
-  // Set to true if the batch did not return all records
-  optional bool has_more_records = 2;
 }
 
 
