@@ -78,6 +78,11 @@ The uSubscription service `Subscribe()` function *MUST* implement the correspond
 
 [.specitem,oft-sid="req~usubscription-subscribe~1",oft-needs="impl,utest"]
 ****
+When a client calls the `Subscribe()` function, uSubscription service *MUST* start tracking the client as a subscriber to the topic provided with the function call.
+****
+
+[.specitem,oft-sid="req~usubscription-subscribe-persistency~1",oft-needs="impl,utest"]
+****
 When a client calls the `Subscribe()` function, uSubscription service *MUST* persistenly (across service restarts) store the client as a subscriber of the provided topic.
 ****
 
@@ -98,7 +103,7 @@ When a client calls the `Subscribe()` function for a topic that it is already su
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration-extension~1",oft-needs="impl,utest"]
 ****
-When a client calls the `Subscribe()` function for a topic that it is already subscribed to where the value in the `expire` field of `SubscriptionRequest.attributes` exceeds the current expiration time, uSubscription service *MUST* update the expiration time of the subscription with the new value.
+When a client calls the `Subscribe()` function for a topic that it is already subscribed to where the value in the `expire` field of `SubscriptionRequest.attributes` differs from the current expiration time, uSubscription service *MUST* update the expiration time of the subscription with the new value.
 ****
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote~1",oft-needs="impl,utest"]
@@ -286,11 +291,6 @@ If the list of subscriptions returned in response to a `FetchSubscriptions()` ca
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-stable-sorting~1",oft-needs="impl,utest"]
 ****
 Subscription entries returned by subsequent calls to the `FetchSubscriptions()` function *MUST* be in identical order.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-has-more-records~1",oft-needs="impl,utest"]
-****
-If the list of subscriptions returned in response to a `FetchSubscriptions()` call does not contain all existing subscription relationships, uSubscription service *MUST* set the `has_more_records` field of the `FetchSubscriptionsResponse` to `true`.
 ****
 
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-offset~1",oft-needs="impl,utest"]
