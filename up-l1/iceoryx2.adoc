@@ -1,0 +1,336 @@
+= iceoryx2
+:toc: preamble
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+ 
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+https://iceoryx.io[Eclipse iceoryx2&trade;] is an efficient, and ultra-low latency inter-process communication middleware. The library is designed to provide you with fast and reliable zero-copy and lock-free inter-process communication mechanisms.
+
+This document defines how uProtocol messages can be exchanged by means of iceoryx2 _Services_.
+
+== iceoryx2 Version
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-protocol-version~1",oft-needs="impl",oft-tags="TransportLayerImpl"]
+--
+Each transport implementing this specification **MUST** use version `0.6.1` of the iceoryx2 protocol in order to ensure interoperability of different language libraries.
+--
+
+== MessagingPattern
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-messaging-pattern~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+All types of uProtocol messages *MUST* be transferred using iceoryx2's PublishSubscribe MessagingPattern only. iceoryx2's RequestResponse API *MUST NOT* be used.
+--
+
+== UMessage Mapping
+
+A uProtocol message consists of _UAttributes_ and optional payload. The following sections define how these are mapped to/from iceoryx2 Services.
+
+=== UAttributes
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-attributes-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+The value of a iceoryx2 Service that is used to convey a uProtocol message *MUST* have a https://docs.rs/iceoryx2/0.6.1/iceoryx2/service/builder/publish_subscribe/struct.Builder.html#method.user_header[user header] as defined in <<uAttributes Mapping to iceoryx2 custom header>>.
+--
+
+==== uAttributes Mapping to iceoryx2 user header
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+struct UProtocolHeader {
+    id: UUid,
+    type: MessageType,
+    source: UUri,
+    sink: UUri,
+    ttl: u32,
+    permission_level: u32,
+    commstatus: UStatus,
+    reqid: UUid,
+    token: FixedSizeByteString<255>,
+    traceparent: FixedSizeByteString<255>,
+    payload_format: UPayloadFormat,
+}
+----
+
+==== Uuid type for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+struct UUid {
+    msb: u64,
+    lsb: u64,
+}
+----
+
+==== MessageType enum for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+enum MessageType {
+    Unspecified = 0,
+    Publish = 1,
+    Request = 2,
+    Response = 3,
+    Notification = 4,
+}
+----
+
+==== UUri for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+struct UUri {
+    authority_name: FixedSizeByteString<255>,
+    ue_id: u32,
+    ue_major_version: u32,
+    resource_id: u32,
+}
+----
+
+==== UPriority enum for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+enum UPriority {
+    Unspecified = 0,
+    CS0 = 1,
+    CS1 = 2,
+    CS2 = 3,
+    CS3 = 4,
+    CS4 = 5,
+    CS5 = 6,
+    CS6 = 7,
+}
+----
+
+==== UStatus for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+struct UStatus {
+    code: UCode,
+    message: FixedSizeByteString<255>,
+    // leaving details empty intentionally as with
+    // as with iceoryx2 shared-memory, zero-copy
+    // we must have a fixed size in memory
+}
+----
+
+==== UCode enum for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+enum UCode {
+    Ok = 0,
+    Cancelled = 1,
+    Unknown = 2,
+    InvalidArgument = 3,
+    DeadlineExceeded = 4,
+    NotFound = 5,
+    AlreadyExists = 6,
+    PermissonDenied = 7,
+    Unauthenticated = 16,
+    ResourceExhausted = 8,
+    FailedPrecondition = 9,
+    Aborted = 10,
+    OutOfRange = 11,
+    Unimplemented = 12,
+    Internal = 13,
+    Unavailable = 14,
+    DataLoss = 15,
+}
+----
+
+==== UPayloadFormat enum for iceoryx2
+
+[source,rust]
+----
+#[repr(C)]
+#[derive(ZeroCopySend)]
+enum UPayloadFormat {
+    Unspecified = 0,
+    ProtoBufWrappedInAny = 1,
+    ProtoBuf = 2,
+    Json = 3,
+    Someip = 4,
+    SomeipTlv = 5,
+    Raw = 6,
+    Text = 7,
+    Shm = 8,
+}
+----
+
+
+==== Message Priority
+
+TODO(plevasseur@gmail.com): I don't see mention of a way to set priority natively for a Service in the iceoryx2 docs.
+
+=== Payload Mapping
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+An iceoryx2 message that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
+--
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-mapping~2",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-copy and shared-memory compatible (i.e. be fixed in size, contain no pointers, and so on).
+--
+
+== iceoryx2 Service Name Structure
+
+Message producers publish messages to the iceory2 inter-process communication using _Service Names_. Other clients can indicate their interest in particular  or patterns in order to receive the messages that are being published using matching keys.
+
+The iceoryx2 _Service Name_ that is used to transfer a uProtocol message is derived from the message's `source` and `sink` attributes.
+
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-service-name~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+The ServiceName of an iceoryx2 message containing a _Publish_ UMessage **MUST** consist of the following segments:
+
+`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/{}/{}/{}/{}/{}`
+
+The ServiceName of an iceoryx2 message containing a _Notification_, _RPC Request_ or _RPC Response_ UMessage **MUST** consist of the following segments:
+
+`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
+
+Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the key expression's segments.
+--
+
+=== UUri Encoding Rules
+
+The table below contains the rules for encoding a UUri's fields into an iceoryx2 ServiceName's segments.
+
+TODO(plevasseur@gmail.com): I don't see mention of the ability to have a wildcard in a ServiceName in the iceoryx2 docs. If I'm wrong, will need to revise to add wildcards in below.
+
+[cols="2,2,6"]
+|===
+| ServiceName Segment
+| UUri Field
+| Encoding
+
+|`authority`
+|`authority_name`
+a| The segment *MUST* contain the (UTF8) string representation of the 
+
+1. name of the host/authority that the (local) uEntity is running on, if authority name is empty.
+2. authority name, otherwise.
+
+|`ue_type`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
+
+|`ue_instance`
+|`ue_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
+
+|`ue_version`
+|`ue_version_major`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
+
+|`resource`
+|`resource_id`
+a| The segment *MUST* contain the (UTF8) string representation of the
+
+the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
+
+|===
+
+=== Examples
+
+The examples below assume that the local entity's authority name is `device1`.
+
+.Publishing an event on a topic
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up:/10AB/3/80CD`
+
+|*Sink URI*
+|-
+
+|*iceoryx2 ServiceName*
+|`up/device1/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|===
+--
+
+.Sending a Notification to another uEntity
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up://device1/10AB/3/80CD`
+
+|*Sink URI*
+|`up://device2/300EF/4/0`
+
+|*iceoryx2 ServiceName*
+|`up/device1/10AB/0/3/80CD/device2/EF/3/4/0`
+|===
+--
+
+.Sending an RPC Request to a service provider
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up:/403AB/3/0`
+
+|*Sink URI*
+|`up://device2/CD/4/B`
+
+|*iceoryx2 ServiceName*
+|`up/device1/3AB/4/3/0/device2/CD/0/4/B`
+|===
+--
+
+.Subscribe to a specific topic
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://device2/10AB/3/80CD`
+
+|*Sink Filter*
+|-
+
+|*iceoryx2 ServiceName*
+|`up/device2/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|===
+--
