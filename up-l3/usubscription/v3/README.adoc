@@ -227,21 +227,6 @@ When receiving a `FetchSubscribers()` request that contains a topic that
 a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
 ****
 
-[.specitem,oft-sid="req~usubscription-fetch-subscribers-stable-sorting~1",oft-needs="impl,utest"]
-****
-Subscriber entries returned by subsequent calls to the `FetchSubscribers()` function *MUST* be in identical order.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscribers-has-more-records~1",oft-needs="impl,utest"]
-****
-If the list of subscribers returned in response to a `FetchSubscribers()` call does not contain all existing subscription relationships, uSubscription service *MUST* set the `has_more_records` field of the `FetchSubscribersResponse` to `true`.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscribers-offset~1",oft-needs="impl,utest"]
-****
-When a client calls the `FetchSubscribers()` function with an `offset` argument, the list of subscribers returned by uSubscription service *MUST* omit all subscriber entries up to the provided offset.
-****
-
 [#fetch-subscriptions-operation]
 === FetchSubscriptions()
 
@@ -281,21 +266,6 @@ When receiving a `FetchSubscriptions()` request that contains a subscriber URI t
 * contains a _wildcard_ resource ID,
 
 a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-has-more-records~1",oft-needs="impl,utest"]
-****
-If the list of subscriptions returned in response to a `FetchSubscriptions()` call does not contain all existing subscription relationships, uSubscription service *MUST* set the `has_more_records` field of the `FetchSubscriptionsResponse` to `true`.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-stable-sorting~1",oft-needs="impl,utest"]
-****
-Subscription entries returned by subsequent calls to the `FetchSubscriptions()` function *MUST* be in identical order.
-****
-
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-offset~1",oft-needs="impl,utest"]
-****
-When a client calls the `FetchSubscriptions()` function with an `offset` argument, the list of subscriptions returned by uSubscription service *MUST* omit all subscription relationship entries up to the provided offset.
 ****
 
 [#usubscription-topic]
