@@ -137,7 +137,7 @@ NOTE: The above strategy for retrying failed attempts to send a message results 
 
 UTransport implementations
 
-[.specitem,oft-sid="dsn~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-send-preserve-data~1",oft-needs="dsn",oft-tags="TransportLayerImpl"]
 --
 * *MUST* preserve all of the message's meta data and payload during transmission
 --
