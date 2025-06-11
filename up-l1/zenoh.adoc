@@ -37,7 +37,7 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 === UAttributes
 
-[.specitem,oft-sid="dsn~up-transport-zenoh-attributes-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-zenoh-attributes-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 The value of a Zenoh Resource that is used to convey a uProtocol message *MUST* contain _attachments_ as defined in <<uAttributes Mapping to Zenoh Attachments>>.
 --
@@ -66,13 +66,13 @@ All types of uProtocol messages *MUST* be transferred using Zenoh's pub/sub API 
 
 ==== Message Priority
 
-[.specitem,oft-sid="dsn~up-transport-zenoh-message-priority-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-zenoh-message-priority-mapping~1",oft-covers="req~utransport-send-qos-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-The uProtocol and Zenoh message priority levels *MUST* be mapped according to the following table:
+The uProtocol service classes *MUST* be mapped to Zenoh message priority levels as follows:
 
 [cols="1,1"]
 |===
-| uProtocol Priority | Zenoh Priority
+| uProtocol Service Class | Zenoh Message Priority
 
 | `CS0` | `BACKGROUND`
 | `CS1` | `DATA_LOW`
@@ -81,12 +81,13 @@ The uProtocol and Zenoh message priority levels *MUST* be mapped according to th
 | `CS4` | `INTERACTIVE_LOW`
 | `CS5` | `INTERACTIVE_HIGH`
 | `CS6` | `REAL_TIME`
+| `UNSPECIFIED` | `DATA_LOW`
 |===
 --
 
 === Payload Mapping
 
-[.specitem,oft-sid="dsn~up-transport-zenoh-payload-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-zenoh-payload-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 A Zenoh message that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
 --

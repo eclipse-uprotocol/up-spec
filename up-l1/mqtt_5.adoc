@@ -36,7 +36,7 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 === UAttributes
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>> for those and only those of the UMessage's attributes which have a non-empty value.
 --
@@ -82,7 +82,7 @@ a| The destination (address) of the message
 
 | _priority_
 | User Property [key: _5_]
-a| The message's priority as defined in link:../basics/qos.adoc[QoS doc]
+a| The message's service class as defined in link:../basics/qos.adoc[QoS doc]
 
 * *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
@@ -146,7 +146,7 @@ Note that the enum's integer value is used instead of the _uprotocol.mime_type_ 
 
 === Payload
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-payload-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-mqtt5-payload-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
 --
