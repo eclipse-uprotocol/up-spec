@@ -46,7 +46,7 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 [.specitem,oft-sid="dsn~up-transport-iceoryx2-attributes-mapping~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-The value of a iceoryx2 Service that is used to convey a uProtocol message *MUST* have a https://docs.rs/iceoryx2/0.6.1/iceoryx2/service/builder/publish_subscribe/struct.Builder.html#method.user_header[user header] as defined in <<uAttributes Mapping to iceoryx2 custom header>>.
+The value of a iceoryx2 Service that is used to convey a uProtocol message *MUST* have a https://docs.rs/iceoryx2/0.6.1/iceoryx2/service/builder/publish_subscribe/struct.Builder.html#method.user_header[user header] as defined in <<uAttributes Mapping to iceoryx2 user header>>.
 --
 
 ==== uAttributes Mapping to iceoryx2 user header
