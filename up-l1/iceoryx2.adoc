@@ -31,7 +31,7 @@ This document defines how uProtocol messages can be exchanged by means of iceory
 Each transport implementing this specification **MUST** use version `0.6.1` of the iceoryx2 protocol in order to ensure interoperability of different language libraries.
 --
 
-== MessagingPattern
+== iceoryx2 MessagingPattern
 
 [.specitem,oft-sid="dsn~up-transport-iceoryx2-messaging-pattern~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
