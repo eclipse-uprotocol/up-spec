@@ -66,3 +66,7 @@ The uProtocol specification documents contain a lot of requirements that are def
 | `TransportLayerImplPush` | Requirements that need to be covered by concrete implementations of xref:up-l1/README.adoc[uProtocol's Transport Layer API] supporting the the xref:up-l1/README.adoc#delivery-method[push message delivery] method
 
 |===
+
+=== Gherkin Feature Files
+
+Along with the specification itself, this repository contains Gherkin Features and Scenarios, defined in files with a `.feature` suffix, which can be used with test frameworks like [Cucumber](https://cucumber.io/) to assert compliance of implementations with the uProtocol specification. Not all parts of the specification are covered (yet), but we intend to add Scenario descriptions so that more and more of the requirements defined in the specification will be covered over time.
