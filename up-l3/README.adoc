@@ -31,30 +31,30 @@ uProtocol supports the architecture patterns defined in the table below to imple
 |===
 |Architecture Pattern |Delivery Policy |Description |Requirements
 
-|*RPC* |At-least-once |When uE requires acknowledgement from the receiver  a|
+|*RPC* |At-least-once |When uEntity requires acknowledgement from the receiver  a|
 * If the client-side business logic requires retry policy, it *MUST* implement the retry policy
 * Server-side business logic *MUST* implement Idempotency for service operations.
-* Dispatchers that are unable to deliver an RPC request message, *MUST* generate a _delivery failure_ and return it back to the client uE
+* Dispatchers that are unable to deliver an RPC request message, *MUST* generate a _delivery failure_ and return it back to the client uEntity
 
-|*Publication* |At-most-once |When uE wishes to publish an CE to multiple consumers (a.k.a. _fire & forget_) a|
-* Dispatcher *MUST* provide access to CEs that have failed to be delivered (DLT defined in a later section), for both the Sender and/or Receiver uE business logic
+|*Publication* |At-most-once |When uEntity wishes to publish an CE to multiple consumers (a.k.a. _fire & forget_) a|
+* Dispatcher *MUST* provide access to CEs that have failed to be delivered (DLT defined in a later section), for both the Sender and/or Receiver uEntity business logic
 
-|*Notification* |At-most-once |When a uE wishes to notify a specific uE (a.k.a a publication with a destination) |
+|*Notification* |At-most-once |When a uEntity wishes to notify a specific uEntity (a.k.a a publication with a destination) |
 |===
 
 
-== Core uProtocol uEs
+== Core uProtocol uEntities
 
-This special purpose built uEs are required to implement uProtocol and must be present on each uDevice. 
+This special purpose built uEntities are required to implement uProtocol and must be present on each uDevice. 
 
-.Core uEs
+.Core uEntities
 [width="100%",cols="20%,10,70%",options="header",]
 |===
-|uE |Ver |Description
+|uEntity |Ver |Description
 
 |*uSubscription*
 |link:usubscription/v3/README.adoc[*v3*]
-|Subscription management service that is responsible for managing subscriptions between uEs to realize the publisher/subscriber design pattern.
+|Subscription management service that is responsible for managing subscriptions between uEntities to realize the publisher/subscriber design pattern.
 
 |*uDiscovery*
 |link:udiscovery/v3/README.adoc[*v3*]
@@ -87,9 +87,9 @@ The following section defines sub-ranges of the 16 bit service type address spac
 
 |===
 
-* uProtocol uE names and numbers *MUST* be declared in protos and added to xref:../up-core-api/uprotocol/core/README.adoc[up-core-api].
+* uProtocol uEntity names and numbers *MUST* be declared in protos and added to xref:../up-core-api/uprotocol/core/README.adoc[up-core-api].
 
 === Names
 
  * uProtocol defined names *MUST* have `core.` prefix
- * Vendor specific uE names *SHOULD* have the vendor name in the prefix, ex. `volvo.`, 'bmw', etc...
+ * Vendor specific uEntity names *SHOULD* have the vendor name in the prefix, ex. `volvo.`, 'bmw', etc...

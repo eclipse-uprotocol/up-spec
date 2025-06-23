@@ -100,11 +100,11 @@ NOTE: *MUST* assumes the most permissive level, N, if the the declarations above
 
 === Client Declaration of uPLs
 
-Claimed level of a uE is also handled by xref:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the xref:../up-l1/README.adoc[uTransport] implementation.
+Claimed level of a uEntity is also handled by xref:../up-l1/README.adoc[uTransport]. Implementations will determine the claimed level of the caller in a secure manner, and this will also be done differently depending on the xref:../up-l1/README.adoc[uTransport] implementation.
 
-When the calling uE permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../up-core-api/uprotocol/v1/uattributes.proto[uAttributes `permission_level`].
+When the calling uEntity permission level needs to be carried across different uTransport implementations, or across hops (i.e. across dispatchers such as the uBus), the callers permission level is placed in link:../up-core-api/uprotocol/v1/uattributes.proto[uAttributes `permission_level`].
 
-uEs that do not have proto defintions (i.e. applications),  claimed uPLs using a implementation specific manor like Android's manifest file. See <<Example using Android>> for an example.
+uEntities that do not have proto defintions (i.e. applications),  claimed uPLs using a implementation specific manor like Android's manifest file. See <<Example using Android>> for an example.
 
 ==== Example using Android
 
@@ -147,7 +147,7 @@ Such entries in the manifest will allow the client access to any topics of the B
 == Token Based Access Permissions(TAPs)
 
 Token-based access permissions (TAPs) are policies governing access to specific methods, topics, and services, based on identity of the person or vehicle (domain), typically represented by a system account and based on the information in said account.
-TAP is generally more restrictive than CAPs as the scope of TAP is larger (user/domain vs single uE level).
+TAP is generally more restrictive than CAPs as the scope of TAP is larger (user/domain vs single uEntity level).
 
 Implementations of TAP are generally platform/vendor specific, as such the following is not specified:
 

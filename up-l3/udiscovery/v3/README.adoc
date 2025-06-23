@@ -21,11 +21,11 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-The purpose of uDiscovery Service is for uEs to be able to find services (their location, version, instances, etc...), and lookup a service's topic metadata (ex. message format, id, name, permission level, etc...). 
+The purpose of uDiscovery Service is for uEntities to be able to find services (their location, version, instances, etc...), and lookup a service's topic metadata (ex. message format, id, name, permission level, etc...). 
 
 The specification shall be split up into two parts:
 
-1. xref:client.adoc[Client APIs]: APIs used by uEs to find services and their topic metadata
+1. xref:client.adoc[Client APIs]: APIs used by uEntities to find services and their topic metadata
 2. xref:server.adoc[Service Implementation]: Internal design and implementation details for how UDiscovery service will serve the client APIs and replicate the information between the local, domain, and central service instances.
 
 

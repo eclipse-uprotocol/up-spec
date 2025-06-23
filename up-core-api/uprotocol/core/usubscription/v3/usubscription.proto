@@ -88,7 +88,7 @@ service uSubscription {
   // ned to call this API if its database is flushed or corrupted (ex. factory
   // reset).
   // **__NOTE:__** This is a private API only for uSubscription services,
-  // uEs can call Unsubscribe() to flush their own subscriptions.
+  // uEntities can call Unsubscribe() to flush their own subscriptions.
   rpc Reset(ResetRequest) returns (ResetResponse) {
     option (uprotocol.method_id) = 9;
   }
@@ -120,7 +120,7 @@ message SubscribeAttributes {
 // Subscriber Identification Information
 message SubscriberInfo {
   // subscriber URI containig the names and numbers of the
-  // uE subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
+  // uEntities subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
   uprotocol.v1.UUri uri = 1;
 
   // DEPRECATED: Any additional device specific subscriber information
@@ -297,7 +297,7 @@ message NotificationsResponse {}
 // This Update message is sent from uSusbcription on the topic:
 // '/core.usubscription/3/subscriptions#Update' whenever there is a change to
 // a subscription. Subscribers automatically receive this notification along with
-// any uE that called RegisterForNotifications().
+// any uEntities that called RegisterForNotifications().
 message Update {
   // Subscribed topic whos state has changed
   uprotocol.v1.UUri topic = 1;

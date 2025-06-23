@@ -42,7 +42,7 @@ In <<client-api>> above, _Client_ represents the client-facing APIs to talk to u
 
 == Client Facing APIs
 
-The client facing APIs of uDiscovery provide the means for uEs to discover services (where they are located, versions, etc...), and topic metadata that a service produces (method id and permissions, publish topic message formats, etc...). The API is declared in the {discovery-proto-ref}.
+The client facing APIs of uDiscovery provide the means for uEntities to discover services (where they are located, versions, etc...), and topic metadata that a service produces (method id and permissions, publish topic message formats, etc...). The API is declared in the {discovery-proto-ref}.
 
 [.specitem,oft-sid="dsn~discovery-client-apis~1",oft-needs="impl"]
 --

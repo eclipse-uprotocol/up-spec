@@ -27,7 +27,7 @@ option cc_generic_services = true;
 // Client facing APIs to the uProtocol Discovery Service.
 // 
 // The uDiscovery service is used to store information about devices and services namely their
-// addresses (in URI format), and properties of topics. This API is used by clients (uEs) to
+// addresses (in URI format), and properties of topics. This API is used by clients (uEntities) to
 // access the information within the database. Clients talk to their local uDiscovery service
 // which, if unable to find what it is looking for, queries the central database to find the information.
 // The UDiscovery service instances form a hierarchy where the local uDiscovery service is the first point of contact

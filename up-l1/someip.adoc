@@ -53,7 +53,7 @@ A search engine usually finds the correct document based on the reference number
 
 == Transport Layer Translation
 
-xref:./README.adoc#utransport[Transport layer (uP-L1)] specifies how xref:../basics/umessage.adoc[uMessages] are sent and received over a _wire_ between *uEs* or between devices. In this section we will cover the SOME/IP communication protocol binding and event mapping.
+xref:./README.adoc#utransport[Transport layer (uP-L1)] specifies how xref:../basics/umessage.adoc[uMessages] are sent and received over a _wire_ between *uEntities* or between devices. In this section we will cover the SOME/IP communication protocol binding and event mapping.
 
 Mapping of uTransport APIs to SOME/IP specific library *APIs* shall not be covered in this document given there are multiple open source libraries available for SOME/IP.
 

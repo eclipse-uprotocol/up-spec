@@ -130,7 +130,7 @@ a|The service consumer's access token.
 |`permission_level`
 |`plevel`
 |Integer
-|The service consumer's permission level as defined in xref:../basics/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
+|The service consumer's permission level as defined in xref:../basics/permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)]
 
 
 |`reqid`

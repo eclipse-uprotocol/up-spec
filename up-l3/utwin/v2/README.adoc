@@ -20,21 +20,21 @@ SPDX-License-Identifier: Apache-2.0
 
 == Purpose
 
-In uProtocol, uEs rely on other uEs that expose services, named uServices. These uServices publish information, named events, on Topics, through the implementations of uProtocol. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without being exposed externally).
+In uProtocol, uEntities (might be abbreviated as `uE`, especially in diagrams) rely on other uEntities that expose services, named uServices. These uServices publish information, named events, on Topics, through the implementations of uProtocol. These events can be considered to represent updates to the uService _state._ The collection of last published event of each Topic of a uService therefore represents the current "public state" of the uService (public because some more internal states might exist without being exposed externally).
 
-An event published on a uDevice is propagated to all other uDevices that have at least one uE subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEs running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEs in the sense that uE's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uE. <<utwin-overview>> figure below provides a visual description of the context.
+An event published on a uDevice is propagated to all other uDevices that have at least one uEntity subscribed to the corresponding Topic, but only to those devices, These events can therefore be stored on the received devices "for free", i.e. without requiring a dedicated transmission. Storing the last event received per-topic, on each uDevice, therefore enables access without re-transmission overhead/cost/latency for uEntities running on the same device devices that wish to retrieve the last state of a uService, i.e. the last event published on a Topic. Implementing such storage mechanism essentially implements a digital twin mechanism for uEntities in the sense that uEntity's last known states are stored in all uDevice that are subscribed to the uService, and accessible by local uEntity. <<utwin-overview>> figure below provides a visual description of the context.
 
 .uTwin
 [#utwin-overview]
 image::utwin.drawio.svg[uTwin]
 
-A uE requiring information/state from a uService will therefore subscribe to Topics of interest created by that uService. Consequently, once a uE is _connected_ *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uE to receive the "last known state" (published while the uE was not connected) of the uServices it relies on. A uE _connects_ for the following reasons:
+A uEntity requiring information/state from a uService will therefore subscribe to Topics of interest created by that uService. Consequently, once a uEntity is _connected_ *and* _subscribed to uServices it requires_, it will receive any state update (of interest, i.e. to which it subscribed). The unresolved issue is to define a mechanism that enables a uEntity to receive the "last known state" (published while the uEntity was not connected) of the uServices it relies on. A uEntity _connects_ for the following reasons:
 
 * Executed for the first time after installation
-* Connected to a new uService (e.g. cloud uE connecting to a new vehicle that enrolled to the service provided by the cloud uE)
-* uE restarting for whatever reason (uE crash, ignition off, system in deep sleep)
+* Connected to a new uService (e.g. cloud uEntity connecting to a new vehicle that enrolled to the service provided by the cloud uEntity)
+* uEntity restarting for whatever reason (uEntity crash, ignition off, system in deep sleep)
 
-The mechanism aimed at providing "last known uService state" to uEs requiring it is also known as digital twin. While  this mechanism is usually used for replication of a state in remote devices (e.g. IoT device state replicated in Cloud), in our context, we also need a similar mechanism to deliver such last known state to local uEs. <<last-known-state-use-cases>> below illustrates the usefulness of the uTwin:
+The mechanism aimed at providing "last known uService state" to uEntities requiring it is also known as digital twin. While  this mechanism is usually used for replication of a state in remote devices (e.g. IoT device state replicated in Cloud), in our context, we also need a similar mechanism to deliver such last known state to local uEntities. <<last-known-state-use-cases>> below illustrates the usefulness of the uTwin:
 
 .Example Last-Known-State Use Cases
 [width="100%",cols="30%,25%,24%,21%",options="header",]
@@ -122,7 +122,7 @@ The implementation of `GetLastEvent()` *MUST* enforce permissions associated wit
 A call to SetLastMessage (typically from a uBus) to update the uTwin internal cache with a message for a given topic (UMessage.source). Return value status.Code is one of:
 - OK if UMessage was successfully stored in uTwin
 - INVALID argument if uTwin encountered an issue with UMessage content (source field in particular)
-- PERMISSION_DENIED if requesting uE does not have permission to access the Topic
+- PERMISSION_DENIED if requesting uEntity does not have permission to access the Topic
 - RESOURCE_EXHAUSTED if uTwin has no more memory available to store new UMessages
 
 === Remote last known state
@@ -135,7 +135,7 @@ While uTwin is a standalone functional entity, for implementation purposes it *M
 
 == Implementation Principle
 
-The basic idea of uTwin is to store pairs of (Topic, CE), Topic (i.e. in the format of an uri, therefore including the device name, publishing uE and resource) being used as a key for queries.
+The basic idea of uTwin is to store pairs of (Topic, CE), Topic (i.e. in the format of an uri, therefore including the device name, publishing uEntity and resource) being used as a key for queries.
 
 One uTwin instance per device is created. The uBus of each device is responsible to feed the uTwin database by calling `SetLastMessage()` for each *incoming* CE with `type=pub` that it routes, therefore achieving the desired behavior of a creating a cache of all received events on the device.
 
@@ -145,12 +145,12 @@ NOTE: *MUST* store ingress (to the uBus) published events; egress are merge copi
 
 Access to a Topic is done with subscriptions. The intrinsic property of a subscription is that all events published, to said topic, will be received by the subscriber.
 
-In some cases, a uE might require one-time access to a Topic, that is, to receive only the last event published on a Topic, without receiving future events that will be published. uTwin can be used for this purpose. There are 4 possible cases in this scenario:
+In some cases, a uEntity might require one-time access to a Topic, that is, to receive only the last event published on a Topic, without receiving future events that will be published. uTwin can be used for this purpose. There are 4 possible cases in this scenario:
 
-* *The requested Topic(s) is already subscribed by another uE running on the same device:*
+* *The requested Topic(s) is already subscribed by another uEntity running on the same device:*
   ** The last published message(s) has already been stored in the uTwin instance for the device, and as a result, can simply be returned when requested by `GetLastMessages()`
 
-* *The requested Topic has _never_ been subscribed by any uE running on the same device:*
+* *The requested Topic has _never_ been subscribed by any uEntity running on the same device:*
   **No event has ever been stored for said Topic because no event has ever been received! One property of any uTwin instance is that it automatically stores the last event of _all_ active Topics of the device it runs on, as long as there is _at least_ one subscriber of this Topic.
   **To retrieve the last published event, the remote uTwin sends a rpc request to the uTwin instance running on the device where the service publishing the data runs. Otherwise, the uTwin could return an error, indicating that no such event is stored in the uTwin instance
 

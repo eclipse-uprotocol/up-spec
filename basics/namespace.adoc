@@ -18,11 +18,11 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-In the following section we will outline fundamental rules for naming conventions for uProtocol things like uDomains, uDevices, and uEs, these names are used to address the uThings by distributed apps and services.
+In the following section we will outline fundamental rules for naming conventions for uProtocol things like uDomains, uDevices, and uEntities, these names are used to address the uThings by distributed apps and services.
 
-== uEs
+== uEntities
 
-* All uEs *MUST* have a name
+* All uEntities *MUST* have a name
 * *MUST* be unique across feature/function
 * *MUST* uniquely define a feature(-set), independently of its deployment (where a specific instance is running)
 * *MUST* be made up of unreserved characters per RFC3986 Appendix A: +
@@ -34,19 +34,19 @@ ALPHA / DIGIT / "-" / "." / "_" / "~"
 image::namespace.drawio.svg[Namespace]
 
 * CATEGORY, SUB CATEGORIES, and NAMES *MUST* be separated by  the "." delimitator (ex. core.udiscovery)
-* *MUST NOT* assign uE name from the reserved categories are defined in below:
+* *MUST NOT* assign uEntity name from the reserved categories are defined in below:
 
 .Reserved Categories
 [width=100%,cols="15%,40%,45%",options="header",]]
 |===
 |Value |Description |RFC2119
 
-|core |Core uProtocol required uEs (ex. uDiscovery, uSubscription)
+|core |Core uProtocol required uEntities (ex. uDiscovery, uSubscription)
 |* *MUST* be declared in xref:../up-l3/README.adoc[uP-L3 Specifications]
 
 |===
 
-NOTE: TODO: Registry of names for uEs
+NOTE: TODO: Registry of names for uEntities
 
 == uDevice
 

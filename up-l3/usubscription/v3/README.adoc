@@ -43,7 +43,7 @@ The remainder of this document defines the use cases, interfaces, state machines
 
 In a distributed pubsub network, there exist two subscription scenarios: local subscriptions and remote subscriptions. 
 
-In the local case a client subscribes to messages published by a uEntity on the same transport network, both parties using the same pubsub implementation. For instance, imagine an MQTT broker used by publishers and subscribers, all deployed within the same system context.
+In the local case a client subscribes to messages published by a uEntity (might be abbreviated as `uE`, especially in diagrams) on the same transport network, both parties using the same pubsub implementation. For instance, imagine an MQTT broker used by publishers and subscribers, all deployed within the same system context.
 
 In contrast, a remote subscription scenario involves publishers and subscribers using different pubsub implementations and/or being located on different systems. For instance, a client interacting with a co-located MQTT broker to subscribe to messages that originate from a low-level mechatronics device, being published via SOME/IP.
 
@@ -332,20 +332,20 @@ NOTE: `SUBSCRIBE_PENDING` and `UNSUBSCRIBE_PENDING` states only apply to link:#u
 |State |Description |Entry |Action |Exit
 
 | `*UNSUBSCRIBED*`
-|Subscriber uE is not subscribed to the topic
+|Subscriber uEntity is not subscribed to the topic
 a|* Subscriber unsubscribed
 |
 a|* `Subscribe(topic)` is called by a consumer
 
 | `*SUBSCRIBED*`
-|Subscriber uE is subscribed to the topic
+|Subscriber uEntity is subscribed to the topic
 a|* Subscription request has been processed and accepted
 |
 a|* Subscriber calls `Unsubscribe(topic)`
 
 |`*SUBSCRIBE_PENDING*`
 |Subscription is pending, awaiting acknowledgement from the remote uSubscription service
-a|* 1st Subscriber uE has called `Subscribe(topic)` to a remote topic
+a|* 1st Subscriber uEntity has called `Subscribe(topic)` to a remote topic
 a|* Forward a subscription request to the destination device uSubscription service
 a|* Received a (positive) response from the remote uSubscription service
 
@@ -451,7 +451,7 @@ Subscribe (and unsubscribe) to remote topics are handled by RPC calls between uS
 [#reset-operation]
 == Reset
 
-This is a private API, to be used only between uSubscription services. Regular uEs can call Unsubscribe() to flush their own subscriptions.
+This is a private API, to be used only between uSubscription services. Regular uEntities can call Unsubscribe() to flush their own subscriptions.
 
 [.specitem,oft-sid="dsn~usubscription-reset-protobuf~1",oft-needs="impl"]
 ****

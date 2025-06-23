@@ -24,11 +24,11 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-UDiscovery provides the means for uEntities (uEs) to discover local and remote service instances and their metadata. The uDiscovery design takes inspiration from Domain Name System (DNS) principles in that uDiscovery instances are also organized in a tree structure and information is replicated and cached along the branches of the tree. Each uDiscovery instance first tries to respond to queries from its local data but can also delegate the query to its parent node if requested by the client. In a typical deployment, the tree has (at least) three levels. Each device in a vehicle has its own uDiscovery service instance. These represent the leaf nodes of the tree. Each vehicle also has a _domain_ level uDiscovery service instance. These form the middle-level nodes of the tree. Finally, a central uDiscovery service instance, usually running in a back end, sits at the root of the tree.
+UDiscovery provides the means for uEntities (might be abbreviated as `uE`, especially in diagrams) to discover local and remote service instances and their metadata. The uDiscovery design takes inspiration from Domain Name System (DNS) principles in that uDiscovery instances are also organized in a tree structure and information is replicated and cached along the branches of the tree. Each uDiscovery instance first tries to respond to queries from its local data but can also delegate the query to its parent node if requested by the client. In a typical deployment, the tree has (at least) three levels. Each device in a vehicle has its own uDiscovery service instance. These represent the leaf nodes of the tree. Each vehicle also has a _domain_ level uDiscovery service instance. These form the middle-level nodes of the tree. Finally, a central uDiscovery service instance, usually running in a back end, sits at the root of the tree.
 
 UDiscovery Service implements two sets of APIs:
 
-- *Client APIs ({client-proto-ref}):* Used by uEs to find services and their topic metadata.
+- *Client APIs ({client-proto-ref}):* Used by uEntities to find services and their topic metadata.
 
 - *Replication API ({replicator-proto-ref}):* Used internally by uDiscovery service instances to add, update, or delete service metadata along the branches of the uDiscovery tree.
 
@@ -53,7 +53,7 @@ In the following section we will elaborate on the requirements for implementing 
 
 === FindServices()
 
-A client uE invokes `FindServices()` to get meta data (authority, version, instance ID) of (deployed) service instances of a given type.```
+A client uEntity invokes `FindServices()` to get meta data (authority, version, instance ID) of (deployed) service instances of a given type.```
 
 [.specitem,oft-sid="dsn~discovery-findservices-error-invalid~1",oft-needs="impl,test"]
 --
@@ -166,7 +166,7 @@ To replicate removal of `UServiceTopic` metadata:
 [.specitem,oft-sid="dsn~discovery-setservicetopic-error-permission~1",oft-needs="impl,test"]
 --
 * *MUST* return `UCode.PERMISSION_DENIED` if the caller is not uDiscovery service in the correct recursive order (i.e. local -> domain -> central).
-* *MAY* grant access to deployment specific uEs such as a the software manager that installs or removes uEs.
+* *MAY* grant access to deployment specific uEntities such as a the software manager that installs or removes uEntities.
 --
 
 [.specitem,oft-sid="dsn~discovery-setservicetopic-error-notfound~1",oft-needs="impl,test"]
@@ -174,7 +174,7 @@ To replicate removal of `UServiceTopic` metadata:
 * *MUST* return `UCode.NOT_FOUND` if no topic matching the URI was found when the `UServiceTopic` is being removed (i.e. `ttl=0`).
 --
 
-<<udiscovery-replication-design>> below illustrates how data is replicated using a trusted OTA (_over-the-air_) uE that is responsible for installing or removing applications for said device. 
+<<udiscovery-replication-design>> below illustrates how data is replicated using a trusted OTA (_over-the-air_) uEntity that is responsible for installing or removing applications for said device. 
 
 .Replication API Design
 [#udiscovery-replication-design]

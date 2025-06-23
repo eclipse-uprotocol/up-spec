@@ -46,11 +46,11 @@ Backwards compatibility is baked into the protobuf specifications and as such up
 
 xref:../up-l2/README.adoc[uP-L2 Messages] *MUST* contain a version such that the serialization and deserialization between devices of said message can be done.
 
-=== uEs
+=== uEntities
 
-Interfaces for uEs are declared in proto files. Protobuf builds in backwards and forwards compatibility support into the IDL so a server and client may be updated independently of each other without breaking the communication or serialization/deserialization of generated code.
+Interfaces for uEntities are declared in proto files. Protobuf builds in backwards and forwards compatibility support into the IDL so a server and client may be updated independently of each other without breaking the communication or serialization/deserialization of generated code.
 
-If the uE declares an interface in proto:
+If the uEntity declares an interface in proto:
 * *MUST* have their `MAJOR.MINOR` version values specified (declared) inside their proto file per xref:../up-l3/README.adoc[uP-L3 Specifications]
 
 
