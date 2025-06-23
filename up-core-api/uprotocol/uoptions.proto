@@ -66,7 +66,7 @@ extend google.protobuf.ServiceOptions {
   // Semantic 2.0 minor versioning
   optional uint32 service_version_minor = 51103;
 
-  // Code Access Permission (CAP) Level for the uE
+  // Code Access Permission (CAP) Level for the uEntity
   optional uint32 service_permission_level = 51104;
 
   // Service declared published topics

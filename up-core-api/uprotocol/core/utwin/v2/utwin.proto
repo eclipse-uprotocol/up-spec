@@ -34,7 +34,7 @@ service uTwin {
   option (uprotocol.service_version_minor) = 0;
   option (uprotocol.service_id) = 3;
 
-  // A uE calls this API to retrieve the last uMessages for a given set of topics.<br>
+  // A uEntity calls this API to retrieve the last uMessages for a given set of topics.<br>
   // What is returned is a list of MessageResponse with the status for message retrieval
   // and the event itself if uTwin was able to fetch it. uTwin will also return
   // status for those messages that it was unable to fetch (i.e. due to NOT_FOUND

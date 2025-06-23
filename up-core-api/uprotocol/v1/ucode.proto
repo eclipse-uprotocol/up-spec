@@ -38,29 +38,29 @@ enum UCode {
 
   // Operation cannot be completed because the requested entity was not
   // found (ex. database lookup and the data is not found)
-  // Calling uE *MAY* retry the operation with back-off
+  // Calling uEntity *MAY* retry the operation with back-off
   NOT_FOUND = 5;
 
-  // The calling uE requested to add/create something that already exists
+  // The calling uEntity requested to add/create something that already exists
   // (ex. add to a database something that is already there)
   ALREADY_EXISTS = 6;
 
-  // The calling uE is authenticated but not permitted to call the API
+  // The calling uEntity is authenticated but not permitted to call the API
   PERMISSION_DENIED = 7;
 
-  // The calling uE does not have valid authentication credentials for the API
+  // The calling uEntity does not have valid authentication credentials for the API
   UNAUTHENTICATED = 16;
 
   // The resource being accessed has been exhausted (ex. out of disk space, etc...)
   RESOURCE_EXHAUSTED = 8;
 
   // The system (service) is in a state that it cannot handle the request
-  // Calling uEs *SHOULD NOT* retry till the system state has been corrected
+  // Calling uEntities *SHOULD NOT* retry till the system state has been corrected
   FAILED_PRECONDITION = 9;
 
   // The operation was aborted, typically due to a concurrency issue such as
   // a sequencer check failure or transaction abort
-  // Calling uEs *MAY* retry but at a higher frequency than UNAVAILABLE
+  // Calling uEntities *MAY* retry but at a higher frequency than UNAVAILABLE
   ABORTED = 10;
 
   // A caller would typically iterating through the results from said API
@@ -74,7 +74,7 @@ enum UCode {
   INTERNAL = 13;
 
   // The operation is currently unavailable
-  // Calling uEs *MAY* retry with back-off
+  // Calling uEntities *MAY* retry with back-off
   UNAVAILABLE = 14;
 
   // When an unrecoverable data loss or corruption has occurred

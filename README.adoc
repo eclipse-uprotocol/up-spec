@@ -23,7 +23,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-uProtocol is a communication protocol that enables software (uEs) to easily communicate with each other running in distributed systems. The protocol is designed to be lightweight, efficient, easy to use, and run on top of any other communication middleware (transport) such as SOME/IP, MQTT, zenoh, HTTP, etc...
+uProtocol is a communication protocol that enables software applications (uEntities) to easily communicate with each other running in distributed systems. The protocol is designed to be lightweight, efficient, easy to use, and run on top of any other communication middleware (transport) such as SOME/IP, MQTT, zenoh, HTTP, etc...
 
 To achieve the above mentioned objectives, we have split the specifications into sections (folders) that are:
 

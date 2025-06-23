@@ -338,7 +338,7 @@ a|The service consumer's permission level.
 
 [.specitem,oft-sid="dsn~up-attributes-permission-level~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MUST* be empty or contain a vaild permission level as defined in xref:permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)].
+* *MUST* be empty or contain a vaild permission level as defined in xref:permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)].
 --
 
 |`token`
@@ -348,7 +348,7 @@ a|The service consumer's access token.
 
 [.specitem,oft-sid="dsn~up-attributes-request-token~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MUST* be empty or contain a token as defined in xref:permissions.adoc#_token_based_access_permissionstaps[Token-Based uE Access Permissions (TAPs)].
+* *MUST* be empty or contain a token as defined in xref:permissions.adoc#_token_based_access_permissionstaps[Token-Based uEntity Access Permissions (TAPs)].
 --
 
 |===

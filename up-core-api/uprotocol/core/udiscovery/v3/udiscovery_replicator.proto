@@ -26,7 +26,7 @@ option java_multiple_files = true;
   
 // UDiscovery Replicator is a set of APIs that are used internal to UDiscovery to populate and replicate
 // information in the uDiscovery database. This API is for internal (to UDiscovery service) use only and 
-// not accessible for client uEs to use.
+// not accessible for client uEntities to use.
  service UDiscoveryReplicator {
   option (uprotocol.service_name) = "core.udiscovery_replicator"; // Service name
   option (uprotocol.service_version_major) = 1;

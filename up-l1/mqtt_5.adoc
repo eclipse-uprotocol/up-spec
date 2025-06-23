@@ -106,7 +106,7 @@ If the TTL is a multiple of 1000, i.e. has second granularity as well, then it i
 
 | _permissionLevel_
 | User Property [key: _7_]
-a| The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uE Access Permissions (CAPs)]
+a| The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)]
 
 * *MUST* be set to the link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[CAP] value's decimal string representation. 
 

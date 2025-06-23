@@ -49,7 +49,7 @@ The table below helps to illustrate the various use cases for uProtocol.
 
 |*Architecture Patterns* a|
 * *MUST* support publisher/subscriber, observer (notification), and RPC architecture design patterns
-* *MUST* provide the same mechanism for pub/sub and RPC regardless of the device the uE runs on
+* *MUST* provide the same mechanism for pub/sub and RPC regardless of the device the uEntity runs on
 
 |*Follow Clean Architecture Principles* a|
 * *MUST* point dependencies inward

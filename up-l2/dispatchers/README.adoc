@@ -20,30 +20,30 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-Like IP packets, xref:../../basics/umessage.adoc[uProtocol messages] (UMessage) have a source and a sink attribute which indicate the origin and the destination of the message respectively. These attributes are used to route UMessages from one uProtocol Entity (uE) to the next if the destination is not the receiving uE.
+Like IP packets, xref:../../basics/umessage.adoc[uProtocol messages] (UMessage) have a source and a sink attribute which indicate the origin and the destination of the message respectively. These attributes are used to route UMessages from one uProtocol Entity (uEntity) to the next if the destination is not the receiving uEntity.
 
 NOTE: The terms _dispatcher_ and _router_ will be used synonymously in the remainder of the document.
 
-A UMessage contains data (the payload) as well as meta data describing the nature of the payload. One of the core principles of uProtocol is that the data portion of a UMessage does not need to be examined by message routers, this is very similar to how most Internet standards work today. Only the source uE that originally created the message and the sink uE(s) which will eventually consume the message need to understand/analyze the payload of the UMessage.
+A UMessage contains data (the payload) as well as meta data describing the nature of the payload. One of the core principles of uProtocol is that the data portion of a UMessage does not need to be examined by message routers, this is very similar to how most Internet standards work today. Only the source uEntity that originally created the message and the sink uEntity(s) which will eventually consume the message need to understand/analyze the payload of the UMessage.
 
-To be able to forward/dispatch/route UMessages through the network, we must define specific purpose built uEs to perform these tasks (ex. Ethernet switches, IP routers, etc...). Platform uEs that are responsible for event dispatching and implementing the communication layer are described in the sections below. We will elaborate on these specific uEs in the Platform uEs section below.
+To be able to forward/dispatch/route UMessages through the network, we must define specific purpose built uEntities to perform these tasks (ex. Ethernet switches, IP routers, etc...). Platform uEntities that are responsible for event dispatching and implementing the communication layer are described in the sections below. We will elaborate on these specific uEntities in the Platform uEntities section below.
 
 .Dispatchers
 [width=100%",cols="30%,70%"]
 |===
-|Dispatcher uEs | Description
+|Dispatcher uEntities | Description
 
 |*uBus*
-|Message bus that dispatches UMessages between uEs over a common transport. It provides multicast and forwarding functionality (works like a network switch)
+|Message bus that dispatches UMessages between uEntities over a common transport. It provides multicast and forwarding functionality (works like a network switch)
 
 |*uStreamer*
 |Provides Device-2-Device UMessage routing either using the same or different transport protocols , i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router)
 
 |*Cloud Gateway*
-|A uE that sits at the edge of the cloud to connect non-cloud devices (ex. vehicles, phones, etc...) to the cloud
+|A uEntity that sits at the edge of the cloud to connect non-cloud devices (ex. vehicles, phones, etc...) to the cloud
 
 |*Device Proxy Router (DPR)*
-|A uE that proxies UMessages between devices that are not able to directly communicate with each other
+|A uEntity that proxies UMessages between devices that are not able to directly communicate with each other
 |===
 
 .Dispatchers
@@ -53,7 +53,7 @@ image::dispatchers.drawio.svg[Dispatchers]
 
 In this section we will elaborate on the requirements of the platform Dispatchers (uBus, uStreamer, etc...) and their role in message delivery. Dispatchers build upon the transport layer delivery requirement assumptions.
 
-NOTE: These communication layer requirements are still for point-2-point uE communication to and from a dispatcher
+NOTE: These communication layer requirements are still for point-2-point uEntity communication to and from a dispatcher
 
 * *MUST* support At-least-once delivery policy, this means that the dispatcher will make every attempt to dispatch the UMessage to the intended Receiver
   ** *MUST* queue UMessages not successfully acknowledged (transport level at-least-once delivery confirmation described above)
@@ -67,7 +67,7 @@ NOTE: These communication layer requirements are still for point-2-point uE comm
 * UMessages that cannot be delivered *MUST* be sent to the Dead Letter topic (DLT)
   ** DLT *MUST* include at least the UMessage header, SHOULD contain the full UMessage
   ** DLT *MUST* include the reason for the failed delivery attempt using  error codes defined in google.rpc.Code
-  ** uEs MUST be able to subscribe to the DLT to be notified of message deliver failures
+  ** uEntities MUST be able to subscribe to the DLT to be notified of message deliver failures
 * *MUST* forward attributes from the UMessage header
 
 If the uP-L1 delivery method is push:

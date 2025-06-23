@@ -73,28 +73,24 @@ _socket_ is also used for the software endpoint of node-internal https://en.wiki
 |*C2D* |Cloud-2-Device Communication
 |*D2C* |Device-2-Cloud Communication
 |*D2D* |Device-2-Device Communication
-|*uDevice* |Independent software execution environment that will implement uProtocol and contain a collection of uEs along with dispatcher(s)
+|*uDevice* |Independent software execution environment that will implement uProtocol and contain a collection of uEntities along with dispatcher(s)
 |*Device Proxy Router (DPR)* |Proxies D2D communication when devices are unable to connect directly with each other
 |*uDomain* |Collection of uDevices using DNS nomenclature
 |*Message* |Protobuf defined data structure used for communication in the uProtocol
 |*Property* |An attribute, quality, or characteristic of a uThing that are stored in the uDiscovery database
 |*Resources* a|
 Something that can be manipulated/controlled/exposed by a service. Resources are unique when prepended with device and service.
-
 *Static Topic:* Resource that is declared in the service proto in Resource enum and known at compile time (ex. door, window, etc...)
-
 *Dynamic Topic:* Created at runtime and not defined in the service proto (ex. geo-fence locations)
-
-|*uBus* |Message bus that dispatches CEs between uEs over a common transport. It provides multicast and forwarding functionality (works like a network switch) 
-|*uStreamer* |Device-2-Device event dispatcher to enable seamless communication between uEs on different devices whom might talk different transport layer protocols. Performs various additional functionality such as file transfer, event buffering and more. i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router) 
-|*uDiscovery* |Provides a means for uEs to discover each other, their location (address), properties, and more.
+|*uBus* |Message bus that dispatches CEs between uEntities over a common transport. It provides multicast and forwarding functionality (works like a network switch) 
+|*uStreamer* |Device-2-Device event dispatcher to enable seamless communication between uEntities on different devices which might talk different transport layer protocols. Performs various additional functionality such as file transfer, event buffering and more. i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router) 
+|*uDiscovery* |Provides a means for uEntities to discover each other, their location (address), properties, and more.
 |*Topic* |What applications subscribe to and services publish to. It is represented as a uProtocol URI containing authority, sw entity, and resource information
-|*uApplication* |A uE that performs the role of consumer
-|*uService* |A uE that performs the role of producer whos interfaces are defined with a protobuf IDL
+|*uApplication* |A uEntity that acts as a _service consumer_
+|*uService* |A uEntity that acts as a _service provider_. The interface describing the provided service operations is defined by means of [proto3](https://protobuf.dev/)
 |*uThing* |URI addressable stuff that can be accessed by the uProtocol. Examples of uThings are devices, domains, service, and resources.
-
 |*Cloud Gateway* |Component that lives in the cloud that devices connect with to communicate with the Back-office domain/device
-|*uE* |Pronounced "_You-We_" is a piece of software that communicates to another uEs using uProtocol
+|*uEntity* |A piece of software that communicates with other uEntities using uProtocol; might be abbreviated as `uE` especially in diagrams.
 |*uP-L1* |uProtocol Transport & Session Layer
 |*uP-L2* |uProtocol Communication Layer
 |*uP-L3* |uProtocol Application Layer

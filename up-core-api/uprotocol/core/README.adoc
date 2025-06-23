@@ -22,7 +22,7 @@ Core uProtocol services interfaces to define:
 |File |Description
 
 |link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
-|Contract for dynamically discovery uThings (other uEs, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+|Contract for dynamically discovering uThings (other uEntities, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
 
 |link:usubscription/v3/usubscription.proto[*usubscription.proto*]
 |Contract for publishers and subscribers to subscribe/publish to topics
