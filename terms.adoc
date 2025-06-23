@@ -86,7 +86,7 @@ Something that can be manipulated/controlled/exposed by a service. Resources are
 |*uStreamer* |Device-2-Device event dispatcher to enable seamless communication between uEntities on different devices which might talk different transport layer protocols. Performs various additional functionality such as file transfer, event buffering and more. i.e. when events need to move form one transport to the next it flows through the streamer (can be equated to an IP router) 
 |*uDiscovery* |Provides a means for uEntities to discover each other, their location (address), properties, and more.
 |*Topic* |What applications subscribe to and services publish to. It is represented as a uProtocol URI containing authority, sw entity, and resource information
-|*uApplication* |A uEntity that performs the role of consumer
+|*uApplication* |A uEntity that acts as a _service consumer_
 |*uService* |A uEntity that performs the role of producer whos interfaces are defined with a protobuf IDL
 |*uThing* |URI addressable stuff that can be accessed by the uProtocol. Examples of uThings are devices, domains, service, and resources.
 |*Cloud Gateway* |Component that lives in the cloud that devices connect with to communicate with the Back-office domain/device
