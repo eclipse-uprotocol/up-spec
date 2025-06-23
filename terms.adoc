@@ -87,7 +87,7 @@ Something that can be manipulated/controlled/exposed by a service. Resources are
 |*uDiscovery* |Provides a means for uEntities to discover each other, their location (address), properties, and more.
 |*Topic* |What applications subscribe to and services publish to. It is represented as a uProtocol URI containing authority, sw entity, and resource information
 |*uApplication* |A uEntity that acts as a _service consumer_
-|*uService* |A uEntity that performs the role of producer whos interfaces are defined with a protobuf IDL
+|*uService* |A uEntity that acts as a _service provider_. The interface describing the provided service operations is defined by means of [proto3](https://protobuf.dev/)
 |*uThing* |URI addressable stuff that can be accessed by the uProtocol. Examples of uThings are devices, domains, service, and resources.
 |*Cloud Gateway* |Component that lives in the cloud that devices connect with to communicate with the Back-office domain/device
 |*uEntity* |A piece of software that communicates with other uEntities using uProtocol; might be abbreviated as `uE` especially in diagrams.
