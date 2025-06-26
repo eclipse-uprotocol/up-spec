@@ -204,7 +204,7 @@ The examples below assume that the local entity's authority name is `device1`.
 |`up://device1/CD/4/B`
 
 |*iceoryx2 ServiceName*
-|`up/device1/3AB/4/3/0/device1/CD/0/4/B`
+|`up/device1/CD/0/4/B`
 |===
 --
 
