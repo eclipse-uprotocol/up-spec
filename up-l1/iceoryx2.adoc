@@ -108,7 +108,7 @@ The ServiceName for sending a _Publish_ UMessage **MUST** consist of the followi
 
 `up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]`
 
-The ServiceName of an iceoryx2 message containing a _Notification_ or _RPC Response_ UMessage **MUST** consist of the following segments:
+The ServiceName for sending a _Notification_ or _RPC Response_ UMessage **MUST** consist of the following segments:
 
 `up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
 
