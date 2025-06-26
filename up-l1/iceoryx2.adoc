@@ -104,7 +104,7 @@ The iceoryx2 _ServiceName_ that is used to transfer a uProtocol message is deriv
 
 [.specitem,oft-sid="dsn~up-transport-iceoryx2-service-name~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-The ServiceName of an iceoryx2 message containing a _Publish_ UMessage **MUST** consist of the following segments:
+The ServiceName for sending a _Publish_ UMessage **MUST** consist of the following segments:
 
 `up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]`
 
