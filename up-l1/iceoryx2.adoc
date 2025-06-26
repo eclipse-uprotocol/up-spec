@@ -98,7 +98,7 @@ An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-co
 
 == iceoryx2 Service Name Structure
 
-Message producers publish messages to the iceory2 inter-process communication using _ServiceNames_. Other clients can indicate their interest in particular patterns in order to receive the messages that are being published using matching ServiceNames.
+Message producers publish messages to the iceory2 inter-process communication using _ServiceNames_. Other clients can then use the same _ServiceName_ to receive the messages that are being published.
 
 The iceoryx2 _ServiceName_ that is used to transfer a uProtocol message is derived from the message's `source` and `sink` attributes.
 
