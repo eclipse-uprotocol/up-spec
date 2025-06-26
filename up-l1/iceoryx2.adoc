@@ -140,8 +140,7 @@ a| The segment *MUST* contain the (UTF8) string representation of the
 |`ue_type`
 |`ue_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
-
-the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
+upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
 
 |`ue_instance`
 |`ue_id`
