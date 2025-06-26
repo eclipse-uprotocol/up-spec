@@ -93,7 +93,15 @@ An iceoryx2 message that is used to convey a uProtocol message *MUST* contain in
 
 [.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-zero-copy~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-copy and shared-memory compatible (i.e. be fixed in size, contain no pointers, and so on).
+An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-copy and shared-memory compatible:
+
+* is self contained, no heap, no pointers to external sources, no handles to external resources (files etc)
+* has a uniform memory representation -> `#[reprpass:[(C)]]`
+* does not use pointers to manage their internal structure
+* and its members don't implement `Drop` explicitly
+* has a `'static` lifetime
+
+The cleanest way to describe this is to say that the payload definition **MUST** have the link:https://docs.rs/iceoryx2/0.6.1/iceoryx2/prelude/trait.ZeroCopySend.html[`ZeroCopySend`] trait implemented for it if written in Rust.
 --
 
 == iceoryx2 Service Name Structure
