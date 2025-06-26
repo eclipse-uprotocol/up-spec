@@ -150,8 +150,7 @@ upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding
 |`ue_version`
 |`ue_version_major`
 a| The segment *MUST* contain the (UTF8) string representation of the
-
-the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
+upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
 
 |`resource`
 |`resource_id`
