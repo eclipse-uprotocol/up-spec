@@ -53,147 +53,36 @@ The value of a iceoryx2 Service that is used to convey a uProtocol message *MUST
 
 [source,rust]
 ----
+const MAX_FEASIBLE_UATTRIBUTES_SERIALIZED_LENGTH: usize = 1000; // choosing ~1000 u8s
+                                                                // somewhat arbitrarily
+                                                                // this should be confirmed
+
 #[repr(C)]
 #[derive(ZeroCopySend)]
 struct UProtocolHeader {
-    id: UUid,
-    type: MessageType,
-    source: UUri,
-    sink: UUri,
-    ttl: u32,
-    permission_level: u32,
-    commstatus: UStatus,
-    reqid: UUid,
-    token: FixedSizeByteString<255>,
-    traceparent: FixedSizeByteString<255>,
-    payload_format: UPayloadFormat,
+    uprotocol_schema_version: u8,
+    uattributes_serialized: FixedSizeVec<u8, MAX_FEASIBLE_UATTRIBUTES_SERIALIZED_LENGTH>
 }
 ----
 
-==== Uuid type for iceoryx2
+.uAttributes Mapping to UProtocolHeader, iceoryx2 User Header
+[%autowidth]
+|===
+| field | value
 
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-struct UUid {
-    msb: u64,
-    lsb: u64,
-}
-----
+| `uprotocol_schema_version`
+a| *MUST* be set to a single byte representing the UProtocol major version (`0x01` at the time of writing)
 
-==== MessageType enum for iceoryx2
+| `uattributes_serialized`
+a| *MUST* be set to the bytes representing the protobuf encoding of the UAttributes object as defined by the link:../up-core-api/uprotocol/v1/uattributes.proto[UAttributes Protocol Buffers definition]
 
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-enum MessageType {
-    Unspecified = 0,
-    Publish = 1,
-    Request = 2,
-    Response = 3,
-    Notification = 4,
-}
-----
+|===
 
-==== UUri for iceoryx2
-
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-struct UUri {
-    authority_name: FixedSizeByteString<255>,
-    ue_id: u32,
-    ue_major_version: u32,
-    resource_id: u32,
-}
-----
-
-==== UPriority enum for iceoryx2
-
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-enum UPriority {
-    Unspecified = 0,
-    CS0 = 1,
-    CS1 = 2,
-    CS2 = 3,
-    CS3 = 4,
-    CS4 = 5,
-    CS5 = 6,
-    CS6 = 7,
-}
-----
-
-==== UStatus for iceoryx2
-
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-struct UStatus {
-    code: UCode,
-    message: FixedSizeByteString<255>,
-    // leaving details empty intentionally as with
-    // as with iceoryx2 shared-memory, zero-copy
-    // we must have a fixed size in memory
-}
-----
-
-==== UCode enum for iceoryx2
-
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-enum UCode {
-    Ok = 0,
-    Cancelled = 1,
-    Unknown = 2,
-    InvalidArgument = 3,
-    DeadlineExceeded = 4,
-    NotFound = 5,
-    AlreadyExists = 6,
-    PermissonDenied = 7,
-    Unauthenticated = 16,
-    ResourceExhausted = 8,
-    FailedPrecondition = 9,
-    Aborted = 10,
-    OutOfRange = 11,
-    Unimplemented = 12,
-    Internal = 13,
-    Unavailable = 14,
-    DataLoss = 15,
-}
-----
-
-==== UPayloadFormat enum for iceoryx2
-
-[source,rust]
-----
-#[repr(C)]
-#[derive(ZeroCopySend)]
-enum UPayloadFormat {
-    Unspecified = 0,
-    ProtoBufWrappedInAny = 1,
-    ProtoBuf = 2,
-    Json = 3,
-    Someip = 4,
-    SomeipTlv = 5,
-    Raw = 6,
-    Text = 7,
-    Shm = 8,
-}
-----
-
+_Known limitations_: Using a `FixedSizeVec` in the header containing a serialization of the entire `UAttributes` is wasteful and unnecessarily makes every message larger than it really need be most of the time. The approach chosen here was chosen primarily for expediency and simplicity of implementation. It should be possible to optimize this significantly. Some low-hanging fruit: use custom structs for entirety of `UAttributes` in User Header, make use of `Option<T>` to cut down on size when e.g. not using token or traceparent.
 
 ==== Message Priority
 
-TODO(plevasseur@gmail.com): I don't see mention of a way to set priority natively for a Service in the iceoryx2 docs.
+Currently not a clear path to map from uProtocol message priority to iceoryx2 QoS (Quality of Service). Skip for current revision.
 
 === Payload Mapping
 
@@ -209,28 +98,31 @@ An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-co
 
 == iceoryx2 Service Name Structure
 
-Message producers publish messages to the iceory2 inter-process communication using _Service Names_. Other clients can indicate their interest in particular Services or patterns in order to receive the messages that are being published using matching names.
+Message producers publish messages to the iceory2 inter-process communication using _ServiceNames_. Other clients can indicate their interest in particular patterns in order to receive the messages that are being published using matching ServiceNames.
 
-The iceoryx2 _Service Name_ that is used to transfer a uProtocol message is derived from the message's `source` and `sink` attributes.
+The iceoryx2 _ServiceName_ that is used to transfer a uProtocol message is derived from the message's `source` and `sink` attributes.
 
 [.specitem,oft-sid="dsn~up-transport-iceoryx2-service-name~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 The ServiceName of an iceoryx2 message containing a _Publish_ UMessage **MUST** consist of the following segments:
 
-`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/{}/{}/{}/{}/{}`
+`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]`
 
-The ServiceName of an iceoryx2 message containing a _Notification_, _RPC Request_ or _RPC Response_ UMessage **MUST** consist of the following segments:
+The ServiceName of an iceoryx2 message containing a _Notification_ or _RPC Response_ UMessage **MUST** consist of the following segments:
 
 `up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
 
+The ServiceName of an iceoryx2 message containing an _RPC Request_ UMessage **MUST** consist of the following segments:
+
+`up/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
+
 Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the key expression's segments.
+
 --
 
 === UUri Encoding Rules
 
 The table below contains the rules for encoding a UUri's fields into an iceoryx2 ServiceName's segments.
-
-TODO(plevasseur@gmail.com): I don't see mention of the ability to have a wildcard in a ServiceName in the iceoryx2 docs. If I'm wrong, will need to revise to add wildcards in below.
 
 [cols="2,2,6"]
 |===
@@ -280,13 +172,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up:/10AB/3/80CD`
+|`up://10AB/3/80CD`
 
 |*Sink URI*
 |-
 
 |*iceoryx2 ServiceName*
-|`up/device1/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|`up/device1/10AB/0/3/80CD`
 |===
 --
 
@@ -298,10 +190,10 @@ The examples below assume that the local entity's authority name is `device1`.
 |`up://device1/10AB/3/80CD`
 
 |*Sink URI*
-|`up://device2/300EF/4/0`
+|`up://device1/300EF/4/0`
 
 |*iceoryx2 ServiceName*
-|`up/device1/10AB/0/3/80CD/device2/EF/3/4/0`
+|`up/device1/10AB/0/3/80CD/device1/EF/3/4/0`
 |===
 --
 
@@ -310,27 +202,63 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up:/403AB/3/0`
+|`up://403AB/3/0`
 
 |*Sink URI*
-|`up://device2/CD/4/B`
+|`up://device1/CD/4/B`
 
 |*iceoryx2 ServiceName*
-|`up/device1/3AB/4/3/0/device2/CD/0/4/B`
+|`up/device1/3AB/4/3/0/device1/CD/0/4/B`
 |===
 --
 
-.Subscribe to a specific topic
+.Sending an RPC Response to a service client
+--
+[cols="2,8"]
+|===
+|*Source URI*
+|`up://device1/CD/4/B`
+
+|*Sink URI*
+|`up://device1/403AB/3/0`
+
+|*iceoryx2 ServiceName*
+|`up/device1/CD/0/4/B/device1/3AB/4/3/0`
+|===
+--
+
+.Subscribe to a specific Publish topic
 --
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://device2/10AB/3/80CD`
+|`up://device1/10AB/3/80CD`
 
 |*Sink Filter*
 |-
 
 |*iceoryx2 ServiceName*
-|`up/device2/10AB/0/3/80CD/{}/{}/{}/{}/{}`
+|`up/device1/10AB/0/3/80CD`
 |===
 --
+
+.Subscribe to all Request messages for a given invokable method pointed to this uEntity
+--
+[cols="2,8"]
+|===
+|*Source Filter*
+|`up://*/FFFFFFFF/FF/FFFF`
+
+|*Sink Filter*
+|`up://device1/CD/4/B`
+
+|*iceoryx2 ServiceName*
+|`up/device1/CD/4/B`
+|===
+--
+
+Note that subscribing to all Request messages pointed to this uEntity for a given invokable method
+means that we **MUST** determine the source in order to send Response messages.
+
+The source UUri **MUST** be determined by deserializing the `uatributes_serialized` in the UProtocolHeader
+and then creating the appropriate fully-qualified ServiceName.
