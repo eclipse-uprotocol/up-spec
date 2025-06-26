@@ -91,7 +91,7 @@ Currently not a clear path to map from uProtocol message priority to iceoryx2 Qo
 An iceoryx2 message that is used to convey a uProtocol message *MUST* contain in its payload the unaltered value of the UMessage's _payload_ field.
 --
 
-[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-mapping~2",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-zero-copy~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-copy and shared-memory compatible (i.e. be fixed in size, contain no pointers, and so on).
 --
