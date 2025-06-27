@@ -101,8 +101,6 @@ An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-co
 * has a lifetime of the entire program duration
 --
 
-[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-zero-copy-rust~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
---
 The cleanest way to describe this is to say that the payload definition **MUST** have the link:https://docs.rs/iceoryx2/0.6.1/iceoryx2/prelude/trait.ZeroCopySend.html[`ZeroCopySend`] trait implemented for it if written in Rust.
 
 That encapsulates the following additional properties in Rust:
@@ -110,7 +108,6 @@ That encapsulates the following additional properties in Rust:
 * Rust `enum` and `struct` are marked  as `#[reprpass:[(C)]]`
 * members don't implement `Drop` explicitly
 * has a `'static` lifetime
---
 
 == iceoryx2 Service Name Structure
 
