@@ -70,7 +70,7 @@ struct UProtocolHeader {
 |===
 | field | value
 
-| `uprotocol_schema_version`
+| `uprotocol_major_version`
 a| *MUST* be set to a single byte representing the UProtocol major version (`0x01` at the time of writing)
 
 | `uattributes_serialized`
