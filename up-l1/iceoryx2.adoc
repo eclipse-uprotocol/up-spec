@@ -78,7 +78,7 @@ a| *MUST* be set to the bytes representing the protobuf encoding of the UAttribu
 
 |===
 
-_Known limitations_: Using a `FixedSizeVec` in the header containing a serialization of the entire `UAttributes` is wasteful and unnecessarily makes every message larger than it really need be most of the time. The approach chosen here was chosen primarily for expediency and simplicity of implementation. It should be possible to optimize this significantly. Some low-hanging fruit: use custom structs for entirety of `UAttributes` in User Header, make use of `Option<T>` to cut down on size when e.g. not using token or traceparent.
+_Known limitations_: Using a `FixedSizeVec` in the header containing a serialization of the entire `UAttributes` is wasteful and unnecessarily makes every message larger than it really need be most of the time. The approach chosen here was chosen primarily for expediency and simplicity of implementation. It should be possible to optimize this significantly. Some low-hanging fruit: use custom structs for entirety of `UAttributes` in User Header, make use of `Option<T>` to cut down on size when e.g. not using `token` or `traceparent`.
 
 ==== Message Priority
 
@@ -96,12 +96,20 @@ An iceoryx2 message that is used to convey a uProtocol message *MUST* contain in
 An iceoryx2 message that is used to convey a uProtocol message *MUST* be zero-copy and shared-memory compatible:
 
 * is self contained, no heap, no pointers to external sources, no handles to external resources (files etc)
-* has a uniform memory representation -> `#[reprpass:[(C)]]`
+* has a uniform memory representation
 * does not use pointers to manage their internal structure
-* and its members don't implement `Drop` explicitly
-* has a `'static` lifetime
+* has a lifetime of the entire program duration
+--
 
+[.specitem,oft-sid="dsn~up-transport-iceoryx2-payload-zero-copy-rust~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
 The cleanest way to describe this is to say that the payload definition **MUST** have the link:https://docs.rs/iceoryx2/0.6.1/iceoryx2/prelude/trait.ZeroCopySend.html[`ZeroCopySend`] trait implemented for it if written in Rust.
+
+That encapsulates the following additional properties in Rust:
+
+* Rust `enum` and `struct` are marked  as `#[reprpass:[(C)]]`
+* members don't implement `Drop` explicitly
+* has a `'static` lifetime
 --
 
 == iceoryx2 Service Name Structure
