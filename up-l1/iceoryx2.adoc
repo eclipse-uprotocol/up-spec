@@ -71,7 +71,7 @@ struct UProtocolHeader {
 | field | value
 
 | `uprotocol_major_version`
-a| *MUST* be set to a single byte representing the UProtocol major version (`0x01` at the time of writing)
+a| *MUST* be set to a single byte representing the uProtocol major version (`0x01` at the time of writing)
 
 | `uattributes_serialized`
 a| *MUST* be set to the bytes representing the protobuf encoding of the UAttributes object as defined by the link:../up-core-api/uprotocol/v1/uattributes.proto[UAttributes Protocol Buffers definition]
