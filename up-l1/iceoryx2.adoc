@@ -60,7 +60,7 @@ const MAX_FEASIBLE_UATTRIBUTES_SERIALIZED_LENGTH: usize = 1000; // choosing ~100
 #[repr(C)]
 #[derive(ZeroCopySend)]
 struct UProtocolHeader {
-    uprotocol_schema_version: u8,
+    uprotocol_major_version: u8,
     uattributes_serialized: FixedSizeVec<u8, MAX_FEASIBLE_UATTRIBUTES_SERIALIZED_LENGTH>
 }
 ----
