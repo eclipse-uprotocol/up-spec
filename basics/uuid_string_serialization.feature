@@ -18,7 +18,7 @@ Feature: String representation of uProtocol UUIDs
     string representation of a UUID instance as specified by uProtocol's UUID
     specification.
 
-    [utest->dsn~uuid-spec~1]
+    [utest->req~uuid-hex-and-dash~1]
 
     Given a UUID having MSB <uuid_msb> and LSB <uuid_lsb>
     When serializing the UUID to a hyphenated string
@@ -36,7 +36,7 @@ Feature: String representation of uProtocol UUIDs
     In particular, it should not be possible to create UUIDs having the wrong version
     or variant identifier.
 
-    [utest->dsn~uuid-spec~1]
+    [utest->req~uuid-hex-and-dash~1]
 
     Given a UUID string representation <uuid_string>
     When deserializing the hyphenated string to a UUID
