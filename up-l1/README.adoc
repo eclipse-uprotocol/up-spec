@@ -147,11 +147,15 @@ UTransport implementations
 * *MUST* fail invocations of <<send>> with a `UCode.INVALID_ARGUMENT`, if the passed UMessage failed validation.
 --
 
-[.specitem,oft-sid="req~utransport-send-error-permission-denied~2",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="req~utransport-send-prevent-address-spoofing~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
 --
-* *MUST* fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if a non-streamer client tries to send a message with a `UAttributes.source` that differs from the source address associated with the transport in anything but the _resource ID_. This is to avoid address spoofing.
+* *MUST* provide means to prevent consumers from processing of messages with a xref:../basics/uattributes.adoc#data-model-definition[source address] that does not match the identity of the uEntity that the message being sent originates from.
 +
-In general, an implementation of this specification will run in the same process as the client code and thus has no way of objectively asserting the client's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. Most transports (like MQTT brokers or Eclipse Zenoh) will also support the definition of rules for authorizing an authenticated client. These mechanisms *MAY* then be used to implement this requirement.
+In general, an implementation of this specification will run in the same process as the uEntity code and thus has no way of objectively asserting the uEntity's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. In most of these cases, the messaging infrastructure (like MQTT brokers or Eclipse Zenoh) also support the definition of authenticated clients' authorities by means of _Access Control Lists_ (ACLs). These mechanisms *MAY* then be used to implement this requirement.
++
+Implementations *SHOULD* fail invocations of <<send>> with a `UCode.PERMISSION_DENIED`, if the message can be determined to be in violation of any of the uEntity's configured authorities _at the time of sending_. Otherwise, implementations *MUST* succeed the invocation and *MAY* rely on the messaging infrastructure to (silently) ignore the message.
++
+NOTE: Certain uEntities like the xref:../up-l2/dispatchers/README.adoc[uStreamer component] are actually _intended_ to consume and forward messages that originate from other uEntities. However, even in this case a mechanism as described above may be used to restrict the uStreamer's ability to forward only those messages that match its defined forwarding rules.
 --
 
 [.specitem,oft-sid="req~utransport-send-qos-mapping~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
@@ -331,6 +335,16 @@ UTransport implementations
 * *MUST* deliver matching messages to a successfully registered listener. This means that for each message that the transport receives _after_ <<register-listener>> has completed successfully, and which matches the listener's source and sink filter criteria according to the xref:../basics/uri.adoc#pattern-matching[UUri pattern matching rules], the transport *MUST* invoke the listener's <<on-receive>> method _at least once_.
 --
 
+[.specitem,oft-sid="req~utransport-registerlistener-prevent-unauthorized-access~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
+--
+* *MUST* provide means to prevent a uEntity using this transport from consuming messages that it is not authorized to process.
++
+In general, an implementation of this specification will run in the same process as the uEntity code and thus has no way of objectively asserting the uEntity's authorities _on its own_. However, most transports will support or require clients to provide credentials for authentication as part of establishing a connection or sending messages. In most of these cases, the messaging infrastructure (like MQTT brokers or Eclipse Zenoh) also support the definition of authenticated clients' authorities by means of _Access Control Lists_ (ACLs). These mechanisms *MAY* then be used to implement this requirement.
++
+Implementations *SHOULD* fail invocations of <<register-listener>> with a `UCode.PERMISSION_DENIED`, if the source and/or sink filters can be determined to be in violation of any of the uEntity's configured authorities _at the time of registering the listener_. Otherwise, implementations *MUST* succeed the invocation and *MAY* rely on the messaging infrastructure to (silently) ignore any messages that the uEntity is not authorized to process.
++
+NOTE: Certain uEntities like the xref:../up-l2/dispatchers/README.adoc[uStreamer component] are actually _intended_ to consume and forward messages that originate from other uEntities. However, even in this case a mechanism as described above may be used to restrict the uStreamer's ability to forward only those messages that match its defined forwarding rules.
+--
 
 .Registering a Listener
 [mermaid]
