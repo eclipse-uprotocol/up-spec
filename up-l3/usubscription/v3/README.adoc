@@ -375,7 +375,7 @@ Subscription change notifications *MUST* use topic `SubscriptionChange` with res
 
 === Default subscriber notifications
 
-[.specitem,oft-sid="dsn~usubscription-change-notification-topic~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~usubscription-change-notification-update~1",oft-needs="impl,utest"]
 ****
 If a subscriber-topic relationship changes, uSubscription service *MUST* send a corresponding `Update()` notification to the topic subscriber.
 ****
