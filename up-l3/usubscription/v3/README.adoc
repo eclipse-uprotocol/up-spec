@@ -71,7 +71,7 @@ In addition to performing the actions necessary to subscribe to and receive mess
 [#subscribe-operation]
 === Subscribe()
 
-[.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
@@ -150,7 +150,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 [#unsubscribe-operation]
 === Unsubscribe()
 
-[.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
@@ -205,7 +205,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 [#fetch-subscribers-operation]
 === FetchSubscribers()
 
-[.specitem,oft-sid="dsn~usubscription-fetch-subscribers-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-fetch-subscribers-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `FetchSubscribers()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
@@ -230,7 +230,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 [#fetch-subscriptions-operation]
 === FetchSubscriptions()
 
-[.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `FetchSubscriptions()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
@@ -387,7 +387,7 @@ uEntities may register with uSusbcription service to be directly sent subscripti
 [#register-for-notifications-operation]
 ==== RegisterForNotifications()
 
-[.specitem,oft-sid="dsn~usubscription-register-notifications-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-register-notifications-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `RegisterForNotifications()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
@@ -412,7 +412,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 [#unregister-for-notifications-operation]
 ==== UnregisterForNotifications()
 
-[.specitem,oft-sid="dsn~usubscription-unregister-notifications-protobuf~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~usubscription-unregister-notifications-protobuf~1",oft-needs="impl,utest"]
 ****
 The uSubscription service `UnregisterForNotifications()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
 ****
