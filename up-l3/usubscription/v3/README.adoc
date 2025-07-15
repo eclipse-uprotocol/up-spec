@@ -1,6 +1,12 @@
 = uSubscription
-:toc:
+:toc: preamble
 :sectnums:
+:usubscription_proto_link: link:../../../up-core-api/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]
+:communication_layer_api_ref: xref:../../../up-l2/api.adoc[Communication Layer API] 
+:uuri_ref: xref:../../../basics/uri.adoc[uProtocol URI]
+:ucode_link: link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`]
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
 SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
@@ -16,15 +22,13 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
-
 ****
 This specification defines formal requirements for the implementation of a uProtocol uSubscription service. Requirements are highlighted by a frame, like this.
 ****
 
 == Overview
 
-The https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern[Publish&Subscribe ("pubsub") architecture pattern] allows the decoupling of senders and receives of messages on the levels of code-dependency, sender-receiver relationship, deployment context, network topology and even temporal coincidence. There exist a large number of implementations of this pattern for all sorts of domains and requirements, both in open source and proprietary development models.
+The https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern[Publish & Subscribe (_pubsub_) architecture pattern] allows the decoupling of senders and receives of messages on the levels of code-dependency, sender-receiver relationship, deployment context, network topology and even temporal coincidence. There exist a large number of implementations of this pattern for all sorts of domains and requirements, both in open source and proprietary development models.
 
 The purpose of uProtocol is to be the overarching service fabric/backbone of an automotive service landscape that extends from in-vehicle mechatronics devices and in-vehicle high-compute systems all the way up to cloud-based backend services and mobile-device companion applications. As such, uProtocol needs to be integrative towards any specific pubsub implementation that might be used in such a broad scenario (ex. MQTT, Eclipse Zenoh, DDS, SOME/IP, etc): uProtocol requires the facilities to implement a distributed publish-subscribe architecture.
 
@@ -54,14 +58,14 @@ The `uSubscription` service component provides this bookkeeping capability.
 [#usubscription-publisher]
 == Publisher
 
-A _Publisher_ is a uEntity that sends messages to a _topic_, thus making the information available to other uEntities interested in the topic. Publishers typically use the xref:../../../up-l2/api.adoc[Communication Layer API] for this purpose. 
+A _Publisher_ is a uEntity that sends messages to a _topic_, thus making the information available to other uEntities interested in the topic. Publishers typically use the {communication_layer_api_ref} for this purpose. 
 
 A Publisher in a uProtocol network usually does not perform any additional actions beyond what is necessary to publish messages to the transport it is connected to.
 
 [#usubscription-subscriber]
 == Subscriber
 
-A _Subscriber_ is a uEntity that is interested in a particular _topic_ and wants to receive messages that have been published to that topic by other uEntities. Subscribers typically use the xref:../../../up-l2/api.adoc[Communication Layer API] for this purpose.
+A _Subscriber_ is a uEntity that is interested in a particular _topic_ and wants to receive messages that have been published to that topic by other uEntities. Subscribers typically use the {communication_layer_api_ref} for this purpose.
 
 [.specitem,oft-sid="dsn~usubscription-interaction-subscriber~1"]
 ****
@@ -73,7 +77,7 @@ In addition to performing the actions necessary to subscribe to and receive mess
 
 [.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-subscribe~1",oft-needs="impl,utest"]
@@ -139,12 +143,12 @@ When a client calls the `Subscribe()` function, uSubscription service *MUST* gen
 [.specitem,oft-sid="dsn~usubscription-subscribe-invalid-topic~1",oft-needs="impl,utest"]
 ****
 When receiving a `Subscribe()` request that contains a topic that
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#unsubscribe-operation]
@@ -152,7 +156,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 
 [.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-unsubscribe~1",oft-needs="impl,utest"]
@@ -194,12 +198,12 @@ When the last client subscribed to a topic calls the `Unsubscribe()` function on
 ****
 When receiving a `Unsubscribe()` request that contains a topic that
 
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#fetch-subscribers-operation]
@@ -207,7 +211,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 
 [.specitem,oft-sid="dsn~usubscription-fetch-subscribers-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `FetchSubscribers()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `FetchSubscribers()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-fetch-subscribers~1",oft-needs="impl,utest"]
@@ -219,12 +223,12 @@ When a client calls the `FetchSubscribers()` function, uSubscription service *MU
 ****
 When receiving a `FetchSubscribers()` request that contains a topic that
 
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#fetch-subscriptions-operation]
@@ -232,7 +236,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 
 [.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `FetchSubscriptions()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `FetchSubscriptions()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-by-subscriber~1",oft-needs="impl,utest"]
@@ -249,29 +253,29 @@ When a client calls the `FetchSubscriptions()` function with a topic UURI argume
 ****
 When receiving a `FetchSubscriptions()` request that contains a topic that
 
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-invalid-subscriber~1",oft-needs="impl,utest"]
 ****
 When receiving a `FetchSubscriptions()` request that contains a subscriber URI that
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#usubscription-topic]
 == Topics
 
-A topic identifies the message resource that a link:#usubscription-subscriber[Subscriber] wants to subscribe to. Topic are expressed in xref:../../../basics/uri.adoc[uProtocol URI] format.
+A topic identifies the message resource that a link:#usubscription-subscriber[Subscriber] wants to subscribe to. Topic are expressed in {uuri_ref} format.
 
 [.specitem,oft-sid="dsn~usubscription-uri-version-major~1",oft-needs="impl,utest"]
 ****
@@ -321,7 +325,7 @@ stateDiagram-v2
 
 [.specitem,oft-sid="dsn~usubscription-state-machine~1",oft-needs="impl,utest"]
 ****
-uSubscription service *MUST* implement subscription state transisitions of client-topic subscription relationships according to the above xref:uusubscription-state-machine[state diagram].
+uSubscription service *MUST* implement subscription state transisitions of client-topic subscription relationships according to the above xref:usubscription-state-machine[state diagram].
 ****
 
 NOTE: `SUBSCRIBE_PENDING` and `UNSUBSCRIBE_PENDING` states only apply to link:#usubscription-local-remote-subscriptions[remote topic subscriptions], more details provided below.
@@ -365,12 +369,12 @@ When the subscription state of a client-topic relationship changes, uSubscriptio
 
 [.specitem,oft-sid="dsn~usubscription-change-notification-type~1",oft-needs="impl,utest"]
 ****
-Subscription change notifications *MUST* be of type https://github.com/eclipse-uprotocol/up-spec/blob/da5ca97d3a7541d2fcd52ed010bc3bcca92e46cb/up-core-api/uprotocol/core/usubscription/v3/usubscription.proto#L302[Update].
+Subscription change notifications *MUST* be messages of type `Update` as defined in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="dsn~usubscription-change-notification-topic~1",oft-needs="impl,utest"]
 ****
-Subscription change notifications *MUST* use topic `SubscriptionChange` with resource id `0x8000`, as per https://github.com/eclipse-uprotocol/up-spec/blob/da5ca97d3a7541d2fcd52ed010bc3bcca92e46cb/up-core-api/uprotocol/core/usubscription/v3/usubscription.proto#L38[the protobuf definition].
+Subscription change notifications *MUST* be published on topic `SubscriptionChange` with resource id `0x8000` as defined in {usubscription_proto_link}.
 ****
 
 === Default subscriber notifications
@@ -382,14 +386,14 @@ If a subscriber-topic relationship changes, uSubscription service *MUST* send a 
 
 === Custom notifications
 
-uEntities may register with uSusbcription service to be directly sent subscription change notifications when the subscription state of specific topics changes.
+uEntities may register with uSubscription service to be directly sent subscription change notifications when the subscription state of specific topics changes.
 
 [#register-for-notifications-operation]
 ==== RegisterForNotifications()
 
 [.specitem,oft-sid="dsn~usubscription-register-notifications-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `RegisterForNotifications()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `RegisterForNotifications()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-register-notifications~1",oft-needs="impl,utest"]
@@ -401,12 +405,12 @@ uSubscription service *MUST* send subscription change notification messages to c
 ****
 When receiving a `RegisterForNotifications()` request that contains a topic that
 
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#unregister-for-notifications-operation]
@@ -414,7 +418,7 @@ a uSubscription service *MUST* return a failure status message with link:../../.
 
 [.specitem,oft-sid="dsn~usubscription-unregister-notifications-protobuf~1",oft-needs="impl,utest"]
 ****
-The uSubscription service `UnregisterForNotifications()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `UnregisterForNotifications()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-unregister-notifications~1",oft-needs="impl,utest"]
@@ -426,12 +430,12 @@ uSubscription service *MUST* stop sending subscription change notifications to c
 ****
 When receiving a `UnregisterForNotifications()` request that contains a topic that
 
-* is not a valid xref:../../../basics/uri.adoc[uProtocol URI] or
+* is not a valid {uuri_ref} or
 * contains a _wildcard_ authority or
 * contains a _wildcard_ uEntity ID (`ue_id`) or
 * contains a _wildcard_ resource ID,
 
-a uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `INVALID_ARGUMENT`.
+a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 == Timeout & Retry Logic
@@ -455,7 +459,7 @@ This is a private API, to be used only between uSubscription services. Regular u
 
 [.specitem,oft-sid="dsn~usubscription-reset-protobuf~1",oft-needs="impl"]
 ****
-The uSubscription service `Reset()` function *MUST* implement the corresponding protobuf definition in link:../up-core-api/uprotocol/core/uSubscription/v3/usubscription.proto[usubscription.proto].
+The uSubscription service `Reset()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 ****
 
 [.specitem,oft-sid="req~usubscription-reset~1",oft-needs="impl,utest"]
@@ -465,7 +469,7 @@ When the `Reset()` function is called, the uSubscription service *MUST* flush al
 
 [.specitem,oft-sid="req~usubscription-reset-only-usubscription~1",oft-needs="impl,utest"]
 ****
-When receiving a `Reset()` call from a source that is not another uSubscription services (i.e. from source URIs where uEntity ID (`ue_id`) does not equal _0x0_), uSubscription service *MUST* return a failure status message with link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`] `PERMISSION_DENIED`.
+When receiving a `Reset()` call from a source that is not another uSubscription services (i.e. from source URIs where uEntity ID (`ue_id`) does not equal _0x0_), uSubscription service *MUST* return a failure status message with {ucode_link} `PERMISSION_DENIED`.
 ****
 
 == uSubscription Sequences
