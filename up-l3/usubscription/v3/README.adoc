@@ -464,7 +464,11 @@ The uSubscription service `Reset()` function *MUST* implement the corresponding 
 
 [.specitem,oft-sid="req~usubscription-reset~1",oft-needs="impl,utest"]
 ****
-When the `Reset()` function is called, the uSubscription service *MUST* flush all stored subscription information, including any persistently stored subscriptions.
+When a client invokes the uSubscription service's `Reset()` operation, uSubscription service *MUST* (in this order)
+
+1. clear all local and remote subscription state, including any associated persistence store
+2. clear the list of uEntities that have registered for subscription change notifications (via `RegisterForNotifications()`), including any associated persistence store
+3. send `Update` messages to each client subscribed to a topic or that has registered for notifications about a topic, with a subscription state of `UNSUBSCRIBED`
 ****
 
 [.specitem,oft-sid="req~usubscription-reset-only-usubscription~1",oft-needs="impl,utest"]
