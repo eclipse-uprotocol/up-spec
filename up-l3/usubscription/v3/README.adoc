@@ -469,14 +469,18 @@ When the `Reset()` function is called, the uSubscription service *MUST* flush al
 
 [.specitem,oft-sid="req~usubscription-reset-notification~1",oft-needs="impl,utest"]
 ****
-When the `Reset()` function is called, after stored subscription information is flushed, uSubscription service *MUST* notify all subscribers and uEntities that registered for change notifications about the reset, by sending a messages of type `Update` for each subscribed/registered topic, with a subscription state of `UNSUBSCRIBED`.
+When the `Reset()` function is called, uSubscription service *MUST* notify all subscribers and uEntities that registered for change notifications:
+
+* after flushing stored subscription information (so that subsequent (re)subscribe requests do not get lost with the reset)
+* by sending messages of type `Update` for each subscribed/registered topic, with a subscription state of `UNSUBSCRIBED`
 ****
 
 [.specitem,oft-sid="req~usubscription-reset-notification-clients~1",oft-needs="impl,utest"]
 ****
-When the `Reset()` function is called, after all stored subscription information has been flushed and before `Update` notifications are sent, uSubscription service *MUST* clear the list of uEntities that have registered for subscription change notification messages (via `RegisterForNotifications()`), including any persistently stored registrations.
-****
+When the `Reset()` function is called, uSubscription service *MUST* clear the list of uEntities that have registered for subscription change notification messages (via `RegisterForNotifications()`), including any persistently stored registrations:
 
+* before `Update` notifications are sent (so that subsequent (re)register-for-notification requests do not get lost with the reset)
+****
 
 [.specitem,oft-sid="req~usubscription-reset-only-usubscription~1",oft-needs="impl,utest"]
 ****
