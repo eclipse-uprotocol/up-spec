@@ -464,22 +464,11 @@ The uSubscription service `Reset()` function *MUST* implement the corresponding 
 
 [.specitem,oft-sid="req~usubscription-reset~1",oft-needs="impl,utest"]
 ****
-When the `Reset()` function is called, the uSubscription service *MUST* flush all stored subscription information, including any persistently stored subscriptions.
-****
+When a client invokes the uSubscription service's `Reset()` operation, uSubscription service *MUST* (in this order)
 
-[.specitem,oft-sid="req~usubscription-reset-notification~1",oft-needs="impl,utest"]
-****
-When a client invokes the uSubscription service's `Reset()` operation, the service *MUST*
-
-1. Write all current subscription state to the configured persistence store.
-2. Notify all subscribers and all other uEntities that had registered for change notifications about the subscription state being reset. To do so, the service *MUST* send a message of type `Update` with a subscription state of `UNSUBSCRIBED`.
-****
-
-[.specitem,oft-sid="req~usubscription-reset-notification-clients~1",oft-needs="impl,utest"]
-****
-When the `Reset()` function is called, uSubscription service *MUST* clear the list of uEntities that have registered for subscription change notification messages (via `RegisterForNotifications()`), including any persistently stored registrations:
-
-* before `Update` notifications are sent (so that subsequent (re)register-for-notification requests do not get lost with the reset)
+1. clear all local and remote subscription state, including any associated persistence store
+2. clear the list of uEntities that have registered for subscription change notifications (via `RegisterForNotifications()`), including any associated persistence store
+3. send `Update` messages to each client subscribed to a topic or that has registered for notifications about a topic, with a subscription state of `UNSUBSCRIBED`
 ****
 
 [.specitem,oft-sid="req~usubscription-reset-only-usubscription~1",oft-needs="impl,utest"]
