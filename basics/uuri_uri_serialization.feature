@@ -60,26 +60,27 @@ Feature: String representation of endpoint identfiers (UUri)
     Then the attempt fails
 
     Examples:
-      | uri_string                          | reason for failure                     |
-      | ""                                  | not a URI                              |
-      | "/"                                 | not a URI                              |
-      | "//"                                | not a URI                              |
-      | "up:/"                              | not a URI                              |
-      | "up://"                             | not a URI                              |
-      | xy://vcu.my_vin/101/1/A1FB          | unsupported schema                     |
-      | up://""/101/1/A1FB                  | authority name with reserved character |
-      | up://vcu#my-vin/101/1/A1FB          | authority name with reserved character |
-      | up://vcu%my-vin/101/1/A1FB          | authority name with reserved character |
-      | ////1/A1FB                          | missing authority and entity           |
-      | /////A1FB                           | missing authority, entity and version  |
-      | up://vcu.my_vin/101/1/A1FB?foo=bar  | URI with query                         |
-      | up://vcu.my_vin/101/1/A1FB#foo      | URI with fragment                      |
-      | up://vcu.my_vin:1516/101/1/A1FB     | authority with port                    |
-      | up://user:pwd@vcu.my_vin/101/1/A1FB | authority with user info               |
-      | up://"vcu.my-vin"/0/1/A1FB          | invalid entity ID                      |
-      | up:/1G1/1/A1FB                      | non-hex entity ID                      |
-      | up:/123456789/1/A1FB                | entity ID exceeds max length           |
-      | up:/101/G/A1FB                      | non-hex version                        |
-      | /101/123/A1FB                       | version exceeds max length             |
-      | /101/1/G1FB                         | non-hex resource ID                    |
-      | /101/1/12345                        | resource ID exceeds max length         |
+      | uri_string                            | reason for failure                                    |
+      | ""                                    | not a URI                                             |
+      | "  "                                  | not a URI                                             |
+      | "$$"                                  | not a URI                                             |
+      | "up:"                                 | not a URI                                             |
+      | "up:/"                                | not a URI                                             |
+      | "/"                                   | not a URI                                             |
+      | "//"                                  | not a URI                                             |
+      | "//vcu.my_vin"                        | just an authority                                     |
+      | "//VCU"                               | authority with uppercase characters                   |
+      | "////1/A1FB"                          | missing authority and entity                          |
+      | "/////A1FB"                           | missing authority, entity and version                 |
+      | "xy://vcu.my_vin/101/1/A"             | unsupported schema                                    |
+      | "//vcu.my_vin/101/1/A?foo=bar"        | URI with query                                        |
+      | "//vcu.my_vin/101/1/A#foo"            | URI with fragment                                     |
+      | "//vcu.my-vin:1516/101/1/A"           | server-based authority with port                      |
+      | "//user:pwd@vcu.my-vin/101/1/A"       | server-based authority with user info                 |
+      | "//reg_based:1516/101/1/A"            | registry-based authority name with invalid characters |
+      | "up://vcu.my-vin/1G1/1/A1FB"          | non-hex entity ID                                     |
+      | "/123456789/1/A1FB"                   | entity ID exceeds max length                          |
+      | "up:/101/G/A1FB"                      | non-hex version                                       |
+      | "//vcu.my-vin/101/123/A1FB"           | version exceeds max length                            |
+      | "/101/1/G1FB"                         | non-hex resource ID                                   |
+      | "up://vcu.my-vin/101/1/12345"         | resource ID exceeds max length                        |
