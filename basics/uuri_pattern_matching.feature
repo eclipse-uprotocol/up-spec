@@ -27,13 +27,24 @@ Feature: Matching endpoint identifiers (UUri) against patterns
       | uri                         | pattern               |
       | /1/1/A1FB                   | /1/1/A1FB             |
       | /1/1/A1FB                   | //*/1/1/A1FB          |
-      | //vcu.my_vin/1/1/A1FB       | //vcu.my_vin/1/1/A1FB |
-      | /1/1/A1FB                   | //*/1/1/A1FB          |
-      | //vcu.my_vin/1/1/A1FB       | //*/FFFF/1/A1FB       |
+      | /1/1/A1FB                   | /FFFF/1/A1FB          |
+      | /1/1/A1FB                   | //*/FFFF/1/A1FB       |
+      | /1/1/A1FB                   | /FFFFFFFF/1/A1FB      |
       | /1/1/A1FB                   | //*/FFFFFFFF/1/A1FB   |
-      | //vcu.my_vin/1/1/A1FB       | //*/FFFFFFFF/FF/A1FB  |
+      | /1/1/A1FB                   | /1/FF/A1FB            |
+      | /1/1/A1FB                   | //*/1/FF/A1FB         |
+      | /1/1/A1FB                   | /1/1/FFFF             |
+      | /1/1/A1FB                   | //*/1/1/FFFF          |
+      | /1/1/A1FB                   | /FFFFFFFF/FF/FFFF     |
       | /1/1/A1FB                   | //*/FFFFFFFF/FF/FFFF  |
-      | //vcu.my_vin/10A0101/3/A1FB | //*/FFFFFFFF/3/A1FB   |
+      | /10001/1/A1FB               | /10001/1/A1FB         |
+      | /10001/1/A1FB               | //*/10001/1/A1FB      |
+      | /10001/1/A1FB               | /FFFFFFFF/1/A1FB      |
+      | /10001/1/A1FB               | //*/FFFFFFFF/1/A1FB   |
+      | /10001/1/A1FB               | /FFFFFFFF/FF/FFFF     |
+      | /10001/1/A1FB               | //*/FFFFFFFF/FF/FFFF  |
+      | //vcu.my_vin/1/1/A1FB       | //vcu.my_vin/1/1/A1FB |
+      | //vcu.my_vin/1/1/A1FB       | //*/1/1/A1FB          |
 
   Scenario Outline:
     Developers using a uProtocol language library should be able to verify that a specific
@@ -48,8 +59,11 @@ Feature: Matching endpoint identifiers (UUri) against patterns
     Examples:
       | uri                   | pattern               |
       | /1/1/A1FB             | //mcu1/1/1/A1FB       |
-      | //vcu.my_vin/1/1/A1FB | //VCU.my_vin/1/1/A1FB |
       | //vcu.my_vin/1/1/A1FB | //mcu1/1/1/A1FB       |
+      | //vcu/B1A5/1/A1FB     | //vc/FFFFFFFF/FF/FFFF |
+      | /B1A5/1/A1FB          | //*/25B1/FF/FFFF      |
+      | /B1A5/1/A1FB          | //*/FFFFFFFF/2/FFFF   |
+      | /B1A5/1/A1FB          | //*/FFFFFFFF/FF/ABCD  |
       | /B1A5/1/A1FB          | /25B1/1/A1FB          |
       | /B1A5/1/A1FB          | /2B1A5/1/A1FB         |
       | /10B1A5/1/A1FB        | /40B1A5/1/A1FB        |
