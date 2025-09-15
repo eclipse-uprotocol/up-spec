@@ -70,8 +70,10 @@ Feature: String representation of endpoint identfiers (UUri)
       | "//"                                  | not a URI                                             |
       | "//vcu.my_vin"                        | just an authority                                     |
       | "//VCU"                               | authority with uppercase characters                   |
-      | "////1/A1FB"                          | missing authority and entity                          |
-      | "/////A1FB"                           | missing authority, entity and version                 |
+      | "//vcu.my_vin//1/A1FB"                | missing entity ID                                     |
+      | "//vcu.my_vin/101//A1FB"              | missing version                                       |
+      | "//vcu.my_vin/101/1/"                 | missing resource ID                                   |
+      | "up://vcu.my_vin/101/1/A/unexpected"  | too many path segments                                |
       | "xy://vcu.my_vin/101/1/A"             | unsupported schema                                    |
       | "//vcu.my_vin/101/1/A?foo=bar"        | URI with query                                        |
       | "//vcu.my_vin/101/1/A#foo"            | URI with fragment                                     |
