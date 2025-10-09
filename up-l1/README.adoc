@@ -220,9 +220,9 @@ UTransport implementations
 * *MUST* fail invocations of <<receive>> with a `UCode.UNIMPLEMENTED`, if the transport does not support the _pull_ <<delivery-method, delivery method>>.
 --
 
-[.specitem,oft-sid="dsn~utransport-receive-error-notfound~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPull"]
+[.specitem,oft-sid="dsn~utransport-receive-error-notfound~2",oft-needs="impl,utest",oft-tags="TransportLayerImplPull"]
 --
-* *MUST* fail invocations of <<receive>> with a `UCode.NOT_FOUND`, if there are no matching messages available.
+* *MUST* fail invocations of <<receive>> with a `UCode.NOT_FOUND`, if there are no matching messages available. This is also the case if the a package data unit cannot be deserialized into a valid xref:../basics/umessage.adoc[uProtocol message]. Transport implementations *SHOULD* use the validation functionality provided by language libraries for this purpose, if available.
 --
 
 [mermaid]
@@ -333,6 +333,11 @@ UTransport implementations
 [.specitem,oft-sid="dsn~utransport-registerlistener-start-invoking-listeners~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
 --
 * *MUST* deliver matching messages to a successfully registered listener. This means that for each message that the transport receives _after_ <<register-listener>> has completed successfully, and which matches the listener's source and sink filter criteria according to the xref:../basics/uri.adoc#pattern-matching[UUri pattern matching rules], the transport *MUST* invoke the listener's <<on-receive>> method _at least once_.
+--
+
+[.specitem,oft-sid="dsn~utransport-registerlistener-discard-invalid-messages~1",oft-needs="impl,utest",oft-tags="TransportLayerImplPush"]
+--
+* *MUST* discard any inbound transport specific package data unit that cannot be deserialized into a valid xref:../basics/umessage.adoc[uProtocol message]. Transport implementations *SHOULD* use the validation functionality provided by language libraries for this purpose, if available.
 --
 
 [.specitem,oft-sid="req~utransport-registerlistener-prevent-unauthorized-access~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
