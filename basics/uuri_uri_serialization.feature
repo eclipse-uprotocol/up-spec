@@ -21,7 +21,7 @@ Feature: String representation of endpoint identfiers (UUri)
     [utest->dsn~uri-scheme~1]
     [utest->dsn~uri-host-only~2]
     [utest->dsn~uri-authority-mapping~1]
-    [utest->dsn~uri-path-mapping~1]
+    [utest->dsn~uri-path-mapping~2]
 
     Given a UUri having authority <authority_name>
     And having entity identifier <entity_id>
@@ -53,7 +53,7 @@ Feature: String representation of endpoint identfiers (UUri)
     [utest->dsn~uri-scheme~1]
     [utest->dsn~uri-host-only~2]
     [utest->dsn~uri-authority-mapping~1]
-    [utest->dsn~uri-path-mapping~1]
+    [utest->dsn~uri-path-mapping~2]
 
     Given a URI string <uri_string>
     When deserializing the URI to a UUri
