@@ -69,7 +69,6 @@ Feature: String representation of endpoint identfiers (UUri)
       | "/"                                   | not a URI                                             |
       | "//"                                  | not a URI                                             |
       | "//vcu.my_vin"                        | just an authority                                     |
-      | "//VCU"                               | authority with uppercase characters                   |
       | "//vcu.my_vin//1/A1FB"                | missing entity ID                                     |
       | "//vcu.my_vin/101//A1FB"              | missing version                                       |
       | "//vcu.my_vin/101/1/"                 | missing resource ID                                   |
@@ -77,8 +76,11 @@ Feature: String representation of endpoint identfiers (UUri)
       | "xy://vcu.my_vin/101/1/A"             | unsupported schema                                    |
       | "//vcu.my_vin/101/1/A?foo=bar"        | URI with query                                        |
       | "//vcu.my_vin/101/1/A#foo"            | URI with fragment                                     |
+      | "//VCU.my-vin/101/1/A"                | server-based authority with upper-case letters        |
       | "//vcu.my-vin:1516/101/1/A"           | server-based authority with port                      |
       | "//user:pwd@vcu.my-vin/101/1/A"       | server-based authority with user info                 |
+      | "//[2001:db87aa::8]/101/1/A"          | invalid IP literal authority                          |
+      | "//MY_VIN/101/1/A"                    | registry-based authority with uppercase characters    |
       | "//reg_based:1516/101/1/A"            | registry-based authority name with invalid characters |
       | "up://vcu.my-vin/1G1/1/A1FB"          | non-hex entity ID                                     |
       | "/123456789/1/A1FB"                   | entity ID exceeds max length                          |
