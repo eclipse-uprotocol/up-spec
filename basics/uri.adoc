@@ -152,14 +152,14 @@ NOTE: The ABNF fragments above only contain the rules that differ from the origi
 A URI's _authority_ *MUST* be mapped to/from the UUri's `authority_name` property following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2[RFC3986, Section 3.2.2]. In particular, the URI *MUST NOT* contain an _authority_ if `authority_name` is empty and vice versa.
 --
 
-[.specitem,oft-sid="dsn~uri-path-mapping~1",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-path-mapping~2",oft-needs="impl,utest"]
 --
 A URI's _path_ *MUST* be mapped to/from the UUri's `ue_id`, `ue_version_major` and `resource_id` properties.
 
 Each property value *MUST* be mapped to a _segment_ following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.3[RFC3986, Section 3.3].
 
 The `ue_id`, `ue_version_major` and `resource_id` *MUST* be mapped to the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
-of the corresponding property values. Leading zeros (`0`) *SHOULD* be omitted in order to reduce the length of the URI. When creating a UUri from a URI, lower-case base16 encoded values *MAY* be accepted as well in order to improve interoperability. Note that this does not conflict with the rules defined in <<Pattern Matching>>.
+of the corresponding property values. Leading zeros (`0`) *SHOULD* be omitted in order to reduce the length of the URI. When creating a UUri from a URI, lower-case base16 encoded values *MUST* be accepted as well in order to improve interoperability. Note that this does not conflict with the rules defined in <<Pattern Matching>>.
 --
 
 === Examples
