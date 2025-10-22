@@ -26,6 +26,6 @@ The purpose of uDiscovery Service is for uEntities to be able to find services (
 The specification shall be split up into two parts:
 
 1. xref:client.adoc[Client APIs]: APIs used by uEntities to find services and their topic metadata
-2. xref:server.adoc[Service Implementation]: Internal design and implementation details for how UDiscovery service will serve the client APIs and replicate the information between the local, domain, and central service instances.
+2. xref:service.adoc[Service Implementation]: Internal design and implementation details for how UDiscovery service will serve the client APIs and replicate the information between the local, domain, and central service instances.
 
 
