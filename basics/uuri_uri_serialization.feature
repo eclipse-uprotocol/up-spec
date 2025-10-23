@@ -34,6 +34,8 @@ Feature: String representation of endpoint identfiers (UUri)
     Examples:
       | authority_name | entity_id  | version | resource_id | uri_string                      |
       | ""             | 0x00000001 |    0x01 |      0xa1fb | up:/1/1/A1FB                    |
+      | "192.168.1.1"  | 0x00000001 |    0x01 |      0xa1fb | up://192.168.1.1/1/1/A1FB       |
+      | "[2001::7]"    | 0x00000001 |    0x01 |      0xa1fb | up://[2001::7]/1/1/A1FB         |
       | "my_vin"       | 0x10000001 |    0x02 |      0x001a | up://my_vin/10000001/2/1A       |
       | "*"            | 0x00000101 |    0xa0 |      0xa1fb | up://*/101/A0/A1FB              |
       | "mcu1"         | 0x0000FFFF |    0x01 |      0xa1fb | up://mcu1/FFFF/1/A1FB           |
