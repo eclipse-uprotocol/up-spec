@@ -69,4 +69,4 @@ The uProtocol specification documents contain a lot of requirements that are def
 
 === Gherkin Feature Files
 
-Along with the specification itself, this repository contains Gherkin Features and Scenarios, defined in files with a `.feature` suffix, which can be used with test frameworks like [Cucumber](https://cucumber.io/) to assert compliance of implementations with the uProtocol specification. Not all parts of the specification are covered (yet), but we intend to add Scenario descriptions so that more and more of the requirements defined in the specification will be covered over time.
+Along with the specification itself, this repository contains Gherkin Features and Scenarios, defined in files with a `.feature` suffix, which can be used with test frameworks like https://cucumber.io/[Cucumber] to assert compliance of implementations with the uProtocol specification. Not all parts of the specification are covered (yet), but we intend to add Scenario descriptions so that more and more of the requirements defined in the specification will be covered over time.
