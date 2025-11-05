@@ -5,20 +5,23 @@ on:
   pull_request:
     paths:
       - 'up-core-api/**'
-    branches:
-      - '*'
 
 jobs:
   verify-pr:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build and Test with Maven
-      run: mvn -B package
+    - uses: actions/checkout@v4
+    - name: Set up protoc
+      uses: arduino/setup-protoc@v3
+    - name: Generate Java code
+      shell: bash
+      run: |
+        shopt -s globstar
+        target_dir="target/generated-sources/protobuf/java"
+        mkdir -p $target_dir
+        protoc --java_out=$target_dir --proto_path=./up-core-api up-core-api/**/*.proto
+        if [ -z "$(ls -A $target_dir)" ]; then
+          echo "Protoc did not create any files"
+          exit 1
+        fi
