@@ -218,11 +218,12 @@ a|The topic that this message is published to.
 |`sink`
 |xref:uri.adoc[UUri]
 |no
-a|The receiver of this published message. This information is only required when the message is to be forwarded between devices through a streamer. A uEntity sending a Publish message is not required to populate this information.
+a|A xref:../up-l2/dispatchers/README.adoc#dispatcher-types[uStreamer] can set this property to indicate to an underlying transport implementation the authority of remote uEntities that have subscribed to the message's topic. For this purpose, the streamer may add a UUri that:
 
-[.specitem,oft-sid="dsn~up-attributes-publish-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+[.specitem,oft-sid="dsn~up-attributes-publish-sink~2",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-* *MAY* be present in the message. If present, the UUri *MUST* only contain the `authority_name` field.
+* *MUST* contain a non-empty _authority_name_ and
+* *MUST* contain wildcard values for all of the UUri's other fields.
 --
 
 |`priority`
