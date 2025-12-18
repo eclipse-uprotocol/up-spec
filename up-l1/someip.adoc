@@ -46,8 +46,8 @@ NOTE: Given the latest version of SOME/IP specifications from AUTOSAR is not ope
 === AUTOSAR References
 All references below to:
 
-- `[PRS_SOMEIP_XXXXX]` refer to link:https://some-ip.com/standards.shtml[AUTOSAR SOME/IP specification].
-- `[PRS_SOMEIP_SD_XXXXX]` refer to link:https://some-ip.com/standards.shtml[SOME/IP Service Discovery Protocol Specification].
+- `[PRS_SOMEIP_XXXXX]` refer to https://some-ip.com/standards.shtml[AUTOSAR SOME/IP specification].
+- `[PRS_SOMEIP_SD_XXXXX]` refer to https://some-ip.com/standards.shtml[SOME/IP Service Discovery Protocol Specification].
 
 A search engine usually finds the correct document based on the reference number.
 
@@ -113,10 +113,10 @@ The following sections highlight the mapping of xref:../basics/uattributes.adoc[
 
 | id | UUid to SOME/IP `MessageID` as explained in <<uuid-mapping,UUIds>>.
 
-| priority | Not available in SOME/IP. Default UPriority values are used per UMessage type as described in link:../basics/uattributes.adoc[UAttributes].
+| priority | Not available in SOME/IP. Default UPriority values are used per UMessage type as described in xref:../basics/uattributes.adoc[UAttributes].
 
-* SOME/IP `NOTIFICATION` *SHOULD* use the link:../basics/qos.adoc[CS1] priority.
-* SOME/IP `REQUEST` *SHOULD* use link:../basics/qos.adoc[CS4] or higher priority.
+* SOME/IP `NOTIFICATION` *SHOULD* use the xref:../basics/qos.adoc[CS1] priority.
+* SOME/IP `REQUEST` *SHOULD* use xref:../basics/qos.adoc[CS4] or higher priority.
 * SOME/IP `RESPONSE` *MUST* use the priority from its corresponding `REQUEST` message.
 
 | ttl | Should be checked for incoming `UMESSAGE_TYPE_REQUEST` messages.
@@ -125,7 +125,7 @@ The following sections highlight the mapping of xref:../basics/uattributes.adoc[
 * Remaining time from `ttl` *SHOULD* be used to limit the time a `REQUEST` is kept in the cache for correlation with a `RESPONSE`.
 * If needed `ttl=0` *MAY* be used to indicate `REQUEST_NO_RETURN` (currently not allowed)
 
-Check `ttl` link:#note-ttl[NOTE] below.
+Check `ttl` xref:#note-ttl[NOTE] below.
 
 | payload_format | SOME/IP specification however does not have an equivalent field for xref:../basics/uattributes.adoc#payload-format[UPayloadFormat].
 
@@ -197,14 +197,14 @@ Further details of the usage of IDs for the various message types is described <
 [cols=".^m,.^m,.^m,.^m,.^m,.^m,.^m,.^m", options="autowidth"]
 |===
 .2+^.^h| UMessageType .2+^.^h| SOME/IP Type 2+^.^h| MessageID 2+^.^h| RequestID .2+^.^h| Interface Version .2+^.^h| Return Code (commstatus)
-^.^h| ServiceID link:#note-1[^(1)^] ^.^h| MethodID ^.^h| ClientID link:#note-1[^(1)^],link:#note-4[^(4)^] ^.^h| SessionID
+^.^h| ServiceID xref:#note-1[^(1)^] ^.^h| MethodID ^.^h| ClientID xref:#note-1[^(1)^],xref:#note-4[^(4)^] ^.^h| SessionID
 
-| NOTIFICATION link:#note-5[^(5)^] | REQUEST_NO_RETURN (0x01) | sink.ue_id   | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version   |
-| PUBLISH       | NOTIFICATION (0x02)      | source.ue_id  | source.resource_id | sink.ue_id=0  | link:#note-2[^(2)^]       | source.ue_major_version |
-| REQUEST       | REQUEST (0x00)           | sink.ue_id    | sink.resource_id   | source.ue_id  | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version   | OK
+| NOTIFICATION xref:#note-5[^(5)^] | REQUEST_NO_RETURN (0x01) | sink.ue_id   | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version   |
+| PUBLISH       | NOTIFICATION (0x02)      | source.ue_id  | source.resource_id | sink.ue_id=0  | xref:#note-2[^(2)^]       | source.ue_major_version |
+| REQUEST       | REQUEST (0x00)           | sink.ue_id    | sink.resource_id   | source.ue_id  | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version   | OK
 
-.2+.^| RESPONSE .^| RESPONSE (0x80) | sink.ue_id  | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version | OK
-                .^| ERROR (0x81)    | sink.ue_id  | sink.resource_id | source.ue_id | link:#note-2[^(2)^],link:#note-3[^(3)^] | sink.ue_major_version |  <<commstatus-error-mapping,commstatus>>
+.2+.^| RESPONSE .^| RESPONSE (0x80) | sink.ue_id  | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version | OK
+                .^| ERROR (0x81)    | sink.ue_id  | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version |  <<commstatus-error-mapping,commstatus>>
 |===
 
 NOTES::
@@ -245,7 +245,7 @@ Application (or message payload) translation is the process of converting *SOME/
 
 The following section will elaborate only on the translation of *uSubscription* messages to/from *SOME/IP-SD* messages. Subscription state (persistent or not) is handled in the *uSubscription* services and not at the transport layer or this component.
 
-The following section we will elaborate on how Eventgroup Entry types are mapped to link:../up-l3/usubscription/v3/README.adoc[*uSubscription*] messages for the subscribe
+The following section we will elaborate on how Eventgroup Entry types are mapped to xref:../up-l3/usubscription/v3/README.adoc[*uSubscription*] messages for the subscribe
 and unsubscribe flows per `[PRS_SOMEIPSD_00385]`.
 
 ==== Common Fields

@@ -253,7 +253,7 @@ a|
 |xref:uri.adoc[UUri]
 |yes
 a|
-A link:uri.adoc[UUri] representing the component that this notification originates from.
+A xref:uri.adoc[UUri] representing the component that this notification originates from.
 
 [.specitem,oft-sid="dsn~up-attributes-notification-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -263,7 +263,7 @@ A link:uri.adoc[UUri] representing the component that this notification originat
 |`sink`
 |xref:uri.adoc[UUri]
 |yes
-a|A link:uri.adoc[UUri] representing the receiver of this notification.
+a|A xref:uri.adoc[UUri] representing the receiver of this notification.
 
 [.specitem,oft-sid="dsn~up-attributes-notification-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -293,7 +293,7 @@ a|
 |`source`
 |xref:uri.adoc[UUri]
 |yes
-a|The link:uri.adoc[UUri] that the service consumer expects to receive the response message at.
+a|The xref:uri.adoc[UUri] that the service consumer expects to receive the response message at.
 
 [.specitem,oft-sid="dsn~up-attributes-request-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -303,7 +303,7 @@ a|The link:uri.adoc[UUri] that the service consumer expects to receive the respo
 |`sink`
 |xref:uri.adoc[UUri]
 |yes
-a|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
+a|A xref:uri.adoc[UUri] identifying the service provider's method to invoke.
 
 [.specitem,oft-sid="dsn~up-attributes-request-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -313,7 +313,7 @@ a|A link:uri.adoc[UUri] identifying the service provider's method to invoke.
 |`priority`
 |xref:qos.adoc[UPriority]
 |yes
-a|The link:qos.adoc[QoS] level that this message should be processed/delivered with.
+a|The xref:qos.adoc[QoS] level that this message should be processed/delivered with.
 
 [.specitem,oft-sid="dsn~up-attributes-request-priority~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -374,7 +374,7 @@ a|
 |`source`
 |xref:uri.adoc[UUri]
 |yes
-a|The link:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
+a|The xref:uri.adoc[UUri] identifying the method that has been invoked and which this message is the outcome of.
 
 [.specitem,oft-sid="dsn~up-attributes-response-source~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -384,7 +384,7 @@ a|The link:uri.adoc[UUri] identifying the method that has been invoked and which
 |`sink`
 |xref:uri.adoc[UUri]
 |yes
-a|The link:uri.adoc[UUri] that the service consumer expects to receive this response message at.
+a|The xref:uri.adoc[UUri] that the service consumer expects to receive this response message at.
 
 [.specitem,oft-sid="dsn~up-attributes-response-sink~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -405,7 +405,7 @@ a|
 |xref:qos.adoc[UPriority]
 |yes
 a|
-The link:qos.adoc[QoS] level that this message should be processed/delivered with. 
+The xref:qos.adoc[QoS] level that this message should be processed/delivered with. 
 
 [.specitem,oft-sid="dsn~up-attributes-response-priority~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
 --
