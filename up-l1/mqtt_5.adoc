@@ -72,17 +72,17 @@ link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
 | User Property [key: _3_]
 a| The origin (address) of the message
 
-* *MUST* be set to the link:../basics/uri.adoc#uri-definition[string serialization of the UUri]
+* *MUST* be set to the xref:../basics/uri.adoc#uri-definition[string serialization of the UUri]
 
 | _sink_
 | User Property [key: _4_]
 a| The destination (address) of the message
 
-* *MUST* be set to the link:../basics/uri.adoc#uri-definition[string serialization of the UUri]
+* *MUST* be set to the xref:../basics/uri.adoc#uri-definition[string serialization of the UUri]
 
 | _priority_
 | User Property [key: _5_]
-a| The message's service class as defined in link:../basics/qos.adoc[QoS doc]
+a| The message's service class as defined in xref:../basics/qos.adoc[QoS Doc]
 
 * *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
@@ -106,9 +106,9 @@ If the TTL is a multiple of 1000, i.e. has second granularity as well, then it i
 
 | _permissionLevel_
 | User Property [key: _7_]
-a| The service consumer's permission level as defined in link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)]
+a| The service consumer's permission level as defined in xref:../up-l2/permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)]
 
-* *MUST* be set to the link:../up-l2/permissions.adoc#_code_based_access_permissions_caps[CAP] value's decimal string representation. 
+* *MUST* be set to the xref:../up-l2/permissions.adoc#_code_based_access_permissions_caps[CAP] value's decimal string representation. 
 
 | _commStatus_
 | User Property [key: _8_]
@@ -343,28 +343,28 @@ a| The segment *MUST* contain the (UTF8) string representation of the
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
+2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
 
 |`ue_instance`
 |`ue_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
+2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
 
 |`ue_version`
 |`ue_version_major`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity major version is the xref:../basics/uri.adoc#pattern-matching[wildcard version].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
+2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity major version with all leading `0` characters omitted.
 
 |`resource`
 |`resource_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the resource identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard resource ID].
-2. the upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
+2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the resource identifier with all leading `0` characters omitted.
 
 |===
 
@@ -380,7 +380,7 @@ Each transport implementing this specification *MUST* provide means to configure
 Each transport implementing this specification *MUST*
 
 * re-establish a lost connection to an MQTT broker using an exponential backoff strategy.
-* re-subscribe to all previously subscribed topics, if the broker indicates that link:https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901078[no session is present] after successful reconnection.
+* re-subscribe to all previously subscribed topics, if the broker indicates that https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901078[no session is present] after successful reconnection.
 
 The following table provides some guidance for implementation:
 
