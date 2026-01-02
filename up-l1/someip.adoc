@@ -115,8 +115,8 @@ The following sections highlight the mapping of xref:../basics/uattributes.adoc[
 
 | priority | Not available in SOME/IP. Default UPriority values are used per UMessage type as described in xref:../basics/uattributes.adoc[UAttributes].
 
-* SOME/IP `NOTIFICATION` *SHOULD* use the xref:../basics/qos.adoc[CS1] priority.
-* SOME/IP `REQUEST` *SHOULD* use xref:../basics/qos.adoc[CS4] or higher priority.
+* SOME/IP `NOTIFICATION` *SHOULD* use the xref:../basics/upriority.adoc[CS1] priority.
+* SOME/IP `REQUEST` *SHOULD* use xref:../basics/upriority.adoc[CS4] or higher priority.
 * SOME/IP `RESPONSE` *MUST* use the priority from its corresponding `REQUEST` message.
 
 | ttl | Should be checked for incoming `UMESSAGE_TYPE_REQUEST` messages.

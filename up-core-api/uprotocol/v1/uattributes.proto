@@ -99,8 +99,7 @@ enum UMessageType {
 }
 
 
-// uProtocol Priority as defined in
-// https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/qos.adoc[uProtocol Prioritization]
+// Message priority levels.
 enum UPriority {
     // Unspecified priority
     UPRIORITY_UNSPECIFIED = 0;

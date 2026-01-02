@@ -139,13 +139,13 @@ Every message *MUST* have a unique message identifier. The timestamp contained i
 --
 
 |`priority`
-|xref:qos.adoc[UPriority]
+|xref:upriority.adoc[UPriority]
 |no
 a|
-The QoS level that this message should be processed/delivered with.
+The level of priority that this message should be processed/delivered with.
 [.specitem,oft-sid="dsn~up-attributes-priority~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-A consumer *MUST* assume a message to have the xref:qos.adoc#default-priority[default priority] if not set explicitly.
+A consumer *MUST* assume a message to have the xref:upriority.adoc#default-priority[default priority] if not set explicitly.
 --
 
 |`ttl`
@@ -225,12 +225,6 @@ a|A xref:../up-l2/dispatchers/README.adoc#dispatcher-types[uStreamer] can set th
 * *MUST* contain a non-empty _authority_name_ and
 * *MUST* contain wildcard values for all of the UUri's other fields.
 --
-
-|`priority`
-|xref:qos.adoc[UPriority]
-|yes
-a|
-The QoS level that this message should be processed/delivered with.
 |===
 
 [#notification-attributes]
@@ -312,9 +306,9 @@ a|A xref:uri.adoc[UUri] identifying the service provider's method to invoke.
 --
 
 |`priority`
-|xref:qos.adoc[UPriority]
+|xref:upriority.adoc[UPriority]
 |yes
-a|The xref:qos.adoc[QoS] level that this message should be processed/delivered with.
+a|The xref:upriority.adoc[level of priority] that this message should be processed/delivered with.
 
 [.specitem,oft-sid="dsn~up-attributes-request-priority~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
@@ -403,10 +397,10 @@ a|
 --
 
 |`priority`
-|xref:qos.adoc[UPriority]
+|xref:upriority.adoc[UPriority]
 |yes
 a|
-The xref:qos.adoc[QoS] level that this message should be processed/delivered with. 
+The xref:upriority.adoc[level of priority] that this message should be processed/delivered with. 
 
 [.specitem,oft-sid="dsn~up-attributes-response-priority~1",oft-needs="impl,utest",oft-tags="ServiceProvider"]
 --

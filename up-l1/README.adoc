@@ -160,9 +160,9 @@ NOTE: Certain uEntities like the xref:../up-l2/dispatchers/README.adoc[uStreamer
 
 [.specitem,oft-sid="req~utransport-send-qos-mapping~1",oft-needs="dsn,uman",oft-tags="TransportLayerImpl"]
 --
-* *MUST* document if and how the implementation maps the xref:../basics/qos.adoc[UMessage Service Classes] to an existing corresponding mechanism for message prioritization of the underlying transport protocol.
+* *MUST* document if and how the implementation maps the xref:../basics/upriority.adoc[UMessage Priority Classes] to an existing corresponding mechanism for message prioritization of the underlying transport protocol.
 +
-NOTE: An implementation *MAY* also completely ignore the service class and handle all messages equally, regardless of service class.
+NOTE: An implementation *MAY* also handle all messages equally, regardless of priority class.
 --
 
 [mermaid]

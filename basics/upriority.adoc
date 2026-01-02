@@ -1,4 +1,4 @@
-= QoS
+= Message Priority (UPriority)
 :sectnums:
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
@@ -21,21 +21,45 @@ SPDX-License-Identifier: Apache-2.0
 
 uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocol therefore supports priority based message processing at the xref:../up-l1/README.adoc[Transport] and xref:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
 
-For this purpose, each xref:umessage.adoc[UMessage] is assigned to one of the following service classes:
+For this purpose, each xref:umessage.adoc[UMessage] is assigned to exactly one of the following classes:
 
-.QoS Classifications
+.Message Priority Classes
 [cols="1,4,3"]
 |===
 |Class |Description |Typical Use Case
 
-|*CS0* |Low Priority. No bandwidth assurance |File Transfer
-|*CS1* |Standard, undifferentiated application |General (unclassified)
-|*CS2* |Operations, Administration, and Management |Streamer messages (sub, connect, etc…)
-|*CS3* |Multimedia streaming |Video Streaming
-|*CS4* |Real-time interactive |High priority (RPC events)
-|*CS5* |Important |Signaling
-|*CS6* |Safety Critical |Network control
+|*CS0*
+|Low Priority. No bandwidth assurance
+|Bulk data transfer
+
+|*CS1*
+|Default priority
+|Generic, non-specific application level events
+
+|*CS2*
+|Operations, Administration, and Management
+|uSubscription messages (subscribe, etc.)
+
+|*CS3*
+|Multimedia streaming
+|Audio/Video frames
+
+|*CS4*
+|Real-time interactive
+|High priority (RPC messages)
+
+|*CS5*
+|Important
+|Signaling
+
+|*CS6*
+|Safety Critical
+|Network control
 |===
 
 [#default-priority]
-A UMessage *MAY* be assigned _explicitly_ to a service class by setting the message's xref:uattributes.adoc#common-attributes[`priority`] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.
+A UMessage *MAY* be assigned _explicitly_ to a service class by setting the message's xref:uattributes.adoc#common-attributes[_priority_] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.
+
+NOTE: The actual handling of message priority is implementation specific and may depend on the capabilities of the underlying transport protocol. Some transports may not support priority handling at all.
+
+NOTE: The example use cases provided above are intended as guidelines only. uEntities may choose to deviate from these guidelines based on specific application requirements.

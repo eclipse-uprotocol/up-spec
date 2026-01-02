@@ -62,7 +62,7 @@ NOTE: These communication layer requirements are still for point-2-point uEntity
 
 * *MAY* support additional UMessage delivery policies in general or per topic in the future
 * *SHOULD* maintain the (relative) order that messages have been received in, when dispatching messages to receivers
-* *SHOULD* consider a received UMessage's xref:../../basics/qos.adoc[service class] in their message dispatching strategy
+* *SHOULD* consider a received UMessage's xref:../../basics/upriority.adoc[priority class] in their message dispatching strategy
 * *MAY* batch UMessages when delivering to the Receiver
 * UMessages that cannot be delivered *MUST* be sent to the Dead Letter topic (DLT)
   ** DLT *MUST* include at least the UMessage header, SHOULD contain the full UMessage
