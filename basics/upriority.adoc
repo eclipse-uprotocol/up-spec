@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
 
 uProtocol allows messages to be exchanged between uEntities on the same and/or different devices. The network bandwidth and/or CPU cycles available for performing this task may be limited, though. uProtocol therefore supports priority based message processing at the xref:../up-l1/README.adoc[Transport] and xref:../up-l2/README.adoc[Communication Layer] based on https://datatracker.ietf.org/doc/html/rfc4594[RFC4594 - Configuration Guidelines for DiffServ Service Classes].
 
-For this purpose, each xref:umessage.adoc[UMessage] is assigned to exactly one of the following classes:
+For this purpose, each xref:umessage.adoc[UMessage] is assigned exactly one of the following classes:
 
 .Message Priority Classes
 [cols="1,4,3"]
@@ -58,7 +58,7 @@ For this purpose, each xref:umessage.adoc[UMessage] is assigned to exactly one o
 |===
 
 [#default-priority]
-A UMessage *MAY* be assigned _explicitly_ to a service class by setting the message's xref:uattributes.adoc#common-attributes[_priority_] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.
+A UMessage *MAY* have a priority class assigned _explicitly_ by setting the message's xref:uattributes.adoc#common-attributes[_priority_] property to the desired value. If the property is not set, the UMessage belongs to class `CS1` by default.
 
 NOTE: The actual handling of message priority is implementation specific and may depend on the capabilities of the underlying transport protocol. Some transports may not support priority handling at all.
 

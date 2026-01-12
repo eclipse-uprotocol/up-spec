@@ -82,7 +82,7 @@ a| The destination (address) of the message
 
 | _priority_
 | User Property [key: _5_]
-a| The message's service class as defined in xref:../basics/upriority.adoc[Message Priority]
+a| The message's priority class as defined in xref:../basics/upriority.adoc[Message Priority]
 
 * *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
 link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
