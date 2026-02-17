@@ -133,14 +133,14 @@ message SubscriberInfo {
 message SubscriptionStatus {
   enum State {
 
-    UNSUBSCRIBED = 0;         // Default state to indicate not subscribed
+    UNSUBSCRIBED = 0; // Default state to indicate not subscribed
 
-    SUBSCRIBE_PENDING = 1;    // Subscription is pending confirmation from remote
+    SUBSCRIBE_PENDING = 1; // Subscription is pending confirmation from remote
                               // uSubscription Service
 
-    SUBSCRIBED = 2;           // Subscription has been successful
+    SUBSCRIBED = 2; // Subscription has been successful
 
-    UNSUBSCRIBE_PENDING = 3;  // Unsubscribe is pending confirmation from the
+    UNSUBSCRIBE_PENDING = 3; // Unsubscribe is pending confirmation from the
                               // remote uSubscription Service
   }
 
@@ -325,7 +325,7 @@ message Update {
 // *NOTE*: This attribute is an internal platform setting (for now) and not
 // exposed as part of SubscribeAttributes.
 message PassiveMode {
-  bool enable = 1;    // Enable passive subscription mode
+  bool enable = 1; // Enable passive subscription mode
 }
 
 
@@ -336,22 +336,24 @@ message ResetRequest {
   // Reason for the reset
   optional Reason reason = 1;
 
+  // DEPRECATED
   // Reset all subscriptions that are before this time, if omitted, the
   // current time is assumed
-  optional google.protobuf.Timestamp before = 2;
-
+  //optional google.protobuf.Timestamp before = 2;
+  reserved 2;
+  
   // The reason for triggering a reset, this is an optional attribute used
   // to provide insight as to why a reset occurred
   // More reasons will be added as we distill the business logic
   message Reason {
-    Code code = 1;  // Reason code
+    Code code = 1; // Reason code
     optional string message = 2; // Reason message
 
     // Reason code
     enum Code {
-      UNSPECIFIED = 0;  // Default non-specified reason for issuing a reset
-      FACTORY_RESET = 1;  // Factory reset
-      CORRUPTED_DATA = 2;  // Corrupted data
+      UNSPECIFIED = 0; // Default non-specified reason for issuing a reset
+      FACTORY_RESET = 1; // Factory reset
+      CORRUPTED_DATA = 2; // Corrupted data
     }
   }
 }

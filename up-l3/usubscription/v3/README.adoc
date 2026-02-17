@@ -455,7 +455,7 @@ Subscribe (and unsubscribe) to remote topics are handled by RPC calls between uS
 [#reset-operation]
 == Reset
 
-This is a private API, to be used only between uSubscription services. Regular uEntities can call Unsubscribe() to flush their own subscriptions.
+This is a private API, to be used only between uSubscription services. 
 
 [.specitem,oft-sid="dsn~usubscription-reset-protobuf~1",oft-needs="impl,utest"]
 ****
