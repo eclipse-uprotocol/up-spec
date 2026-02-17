@@ -11,6 +11,7 @@
  * SPDX-FileType: SOURCE
  * SPDX-License-Identifier: Apache-2.0
  */
+
 syntax = "proto3";
 
 package uprotocol.core.usubscription.v3;
@@ -24,57 +25,39 @@ option java_package = "org.eclipse.uprotocol.core.usubscription.v3";
 option java_outer_classname = "USubscriptionProto";
 option java_multiple_files = true;
 
-// Enables generation of generic service attributes in C++
+// Enable generation of generic service attributes in C++
 option cc_generic_services = true;
 
-// Subscription Service Interface definition
+// Subscription service interface definition
 service uSubscription {
-  option (uprotocol.service_name) = "core.usubscription"; // Service name
+  option (uprotocol.service_name) = "core.usubscription";
   option (uprotocol.service_version_major) = 3;
   option (uprotocol.service_version_minor) = 0;
   option (uprotocol.service_id) = 0;
 
-  // uSubscription change Notification topic that sends the Update message
+  // uSubscription change Notification topic used for Update messages
   option (uprotocol.notification_topic) = {
     id: 0x8000,
     name: "SubscriptionChange",
     message: "Update"
   };
 
-
-  // A consumer (application) calls this API to subscribe to a topic.
-  // What is passed is the SubscriptionRequest message containing the topic, the
-  // subscriber's name, and any Subscription Attributes. This API returns a
-  // SubscriptionResponse message containing the status of the request along with
-  // any event delivery configuration
-  // required to consume the event. Calling this API also registers the subscriber
-  // to received subscription change notifications if ever the subscription state
-  // changes.
+  // Register the calling client as subscriber to a topic, passing a SubscriptionRequest
+  // message containing the desired topic and optional SubscriptionAttributes. 
+  // * Returns a SubscriptionResponse message containing the status of the request,
+  //   along with any event delivery configuration required to consume the event. 
+  // * Calling this endpoint also registers the subscribing client to receive subscription
+  //   change notifications when the subscription state changes.
   rpc Subscribe(SubscriptionRequest) returns (SubscriptionResponse) {
     option (uprotocol.method_id) = 1;
   }
 
-  // The consumer no longer wishes to subscribe to a topic so it issues an
-  // explicit unsubscribe request.
+  // Unregister the calling susbcriber client from a topic.
+  // * Returns a UnsubscripeResponse message containing the updated status of the subscription.
+  // * Calling this endpoint also unregisters the client from receiving subscription change 
+  //   notifications for this subscription.
   rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {
     option (uprotocol.method_id) = 2;
-  }
-
-  // Fetch a list of subscriptions
-  rpc FetchSubscriptions(FetchSubscriptionsRequest) returns (FetchSubscriptionsResponse) {
-    option (uprotocol.method_id) = 3;
-  }
-
-
-  // Register to receive subscription change notifications that are published on the
-  // 'up:/core.usubscription/3/subscriptions#Update'
-  rpc RegisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
-    option (uprotocol.method_id) = 6;
-  }
-
-  // Unregister for subscription change events
-  rpc UnregisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
-    option (uprotocol.method_id) = 7;
   }
 
   // Fetch a list of subscribers that are currently subscribed to a given topic.
@@ -82,80 +65,81 @@ service uSubscription {
     option (uprotocol.method_id) = 8;
   }
 
-  // Reset subscriptions to and from the uSubscription Service.
-  // This API is used between uSubscription services in order to flush and
-  // reestablish subscriptions between devices. A uSubscription service might
-  // ned to call this API if its database is flushed or corrupted (ex. factory
-  // reset).
-  // **__NOTE:__** This is a private API only for uSubscription services,
-  // uEntities can call Unsubscribe() to flush their own subscriptions.
+  // Fetch a list of subscriptions for a given subscriber or topic.
+  rpc FetchSubscriptions(FetchSubscriptionsRequest) returns (FetchSubscriptionsResponse) {
+    option (uprotocol.method_id) = 3;
+  }
+
+  // Register client to receive subscription change notifications for a given topic.
+  rpc RegisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
+    option (uprotocol.method_id) = 6;
+  }
+
+  // Unregister client from receiving subscription change events for a given topic.
+  rpc UnregisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
+    option (uprotocol.method_id) = 7;
+  }
+
+  // Reset all subscriber-topic registrations of a uSubscription Service.
+  // A (remote) uSubscription service instance might need to use this API if its 
+  // database gets lost or corrupted (ex. during a factory reset).
+  // * This is a private API, to be used only between uSubscription service entities.
   rpc Reset(ResetRequest) returns (ResetResponse) {
     option (uprotocol.method_id) = 9;
   }
 }
 
-
-// Additional subscription configurations information
+// Subscription configuration information
 message SubscribeAttributes {
-  // When the subscription should expire (time in the future.
-  // **__NOTE:__** If this field is missing, assumed to live forever
+  // Define when the subscription should expire (timestamp should be set in the future).
+  // * If this field is missing, the subscription is assumed to remain valid indefinitely.
+  // * If the timestamp is set in the past when evaluated by uSubscription service, no subscription 
+  //   should be registered and an appropriate result message returned to the caller.
   google.protobuf.Timestamp expire = 1;
 
-  // Any additional producer specific information that the consumer must send
-  // inside of a subscription request
+  // Any additional producer specific information that the consumer needs to send
+  // as part of a subscription request
   repeated google.protobuf.Any details = 2;
 
-  // Desired Sampling Period (measured in milliseconds) the subscriber wishes to receive events
-  // for remote only topics. Device dispatchers (i.e. streamers) use this
-  // attribute to reduce the publication rates of events sent between devices.
-  // This attribute is commonly used for mobile/cloud subscribing to vehicle topics
-  // that are published at a high rate.<br>
-  // If the desired sampling period set by the subscriber is lower than the original publisher's
-  // publication period, the attribute is ignored.<br>
-  // **__NOTE:__** If this attribute is missing, the sampling period is set by the publisher.
+  // Desired sampling period (in milliseconds) the subscriber wishes to receive
+  // events in, applicable only for remote topics. Device dispatchers (i.e. streamers) use
+  // this attribute to reduce the publication rate of messages sent between devices.
+  // This attribute is might e.g. be used by mobile/cloud clients subscribing to in-vehicle 
+  // topics that in their original scope are published at a high rate.
+  // * If the desired sampling period is lower than the original publisher's publication period,
+  //   the attribute is ignored.
+  // * If this attribute is missing, the sampling period is chosen by the publisher.
   optional uint32 sample_period_ms = 3;
 }
 
-
-// Subscriber Identification Information
+// Subscriber identification information
 message SubscriberInfo {
-  // subscriber URI containig the names and numbers of the
-  // uEntities subscribing. Example represented in long form: `//device.domain/com.gm.app.hartley`
+  // URI of the subscribing uEntity. Example represented in long form: `//vin.vehicles/A8000/2/0`
+  // * The resource_id field of SubscriberInfo URIs MUST be 0.
+  // * Wildcard URIs are not permitted.
   uprotocol.v1.UUri uri = 1;
 
-  // DEPRECATED: Any additional device specific subscriber information
-  // repeated google.protobuf.Any details = 2;
   reserved 2;
 }
 
-
-// Subscription Status
+// Subscription status
 message SubscriptionStatus {
   enum State {
-
     UNSUBSCRIBED = 0; // Default state to indicate not subscribed
-
-    SUBSCRIBE_PENDING = 1; // Subscription is pending confirmation from remote
-                              // uSubscription Service
-
+    SUBSCRIBE_PENDING = 1; // Subscription is pending confirmation from remote uSubscription service instance
     SUBSCRIBED = 2; // Subscription has been successful
-
-    UNSUBSCRIBE_PENDING = 3; // Unsubscribe is pending confirmation from the
-                              // remote uSubscription Service
+    UNSUBSCRIBE_PENDING = 3; // Unsubscribe is pending confirmation from remote uSubscription service instance
   }
-
-  reserved 2;
-
   // Subscription state
   State state = 1;
+
+  reserved 2;
 
   // The Subscription status message
   string message = 3;
 }
 
-
-// How events will be delivered to the subscriber. Usage of this structure is
-// device-dependent
+// How events will be delivered to the subscriber. Usage of this structure is device-dependent.
 message EventDeliveryConfig {
   // Identifier for the event delivery endpoint, ex. topic name for events to be published to
   // example for Azure uCloud: "SUBSCRIPTION_TOPIC"
@@ -169,140 +153,124 @@ message EventDeliveryConfig {
   map <string, google.protobuf.Any>  attributes = 3;
 }
 
-
-// Passed to Subscribe() contains the subscription request information
+// Passed to Subscribe() endpoint, this message contains the topic to subscribe to.
 message SubscriptionRequest {
-  // uProtocol uri topic to subscribe too
+  // uProtocol URI of the topic to subscribe to
   uprotocol.v1.UUri topic = 1;
 
-  // DEPRECATED: Subscribers's information (who is calling Subscribe) is not needed
-  //SubscriberInfo subscriber = 2;
   reserved 2;
 
   // Additional subscription attributes
   SubscribeAttributes attributes = 3;
 }
 
-
-// Response message from the Subscribe() API
+// Response message for the Subscribe() endpoint.
 message SubscriptionResponse {
   // Current status of the subscription
   SubscriptionStatus status = 1;
 
-  // Any platform (uDevice) specific additional event delivered configuration
-  // information for how the subscriber should consume the published events.
+  // Any platform-specific event delivery configuration on how the subscriber
+  // should consume published events
   EventDeliveryConfig config = 2;
 
-  // Subscription topic passed to SubscriptionRequest
+  // Subscribed topic, as passed to SubscriptionRequest
   uprotocol.v1.UUri topic = 3;
 }
 
-
-// Passed to the Unsubscribe() API, the message contains the topic to unsubscribe
-// to as well as the subscriber identification
+// Passed to the Unsubscribe() endpoint, this message contains the topic to unsubscribe from.
 message UnsubscribeRequest {
-  // Topic to be unsubscribed to
+  // Topic to unsubscribe from
   uprotocol.v1.UUri topic = 1;
 
-  // DEPRECATED 0Subscriber identification is not needed
-  // SubscriberInfo subscriber = 2;
   reserved 2;
 }
 
-// The (empty) response message representing the successful execution of the Unsubscribe operation.
+// The (empty) response message indicating the execution of the Unsubscribe() operation.
 message UnsubscribeResponse {}
 
-// Passed to FetchSubscribers such that we can obtain a list of subscribers to
-// a particular topic
+// Passed to FetchSubscribers() to obtain a list of subscribers to a given topic.
 message FetchSubscribersRequest {
   reserved 2;
 
-  // Topic we wish to find the subscribers for
+  // Topic to list the subscribers for
   uprotocol.v1.UUri topic = 1;
 }
 
 
-// Returned from FetchSubscribers(), this message contains a repeated list of
-// SubscriberInfo
+// Returned from FetchSubscribers(), this message contains a list of SubscriberInfo elements.
 message FetchSubscribersResponse {
-  reserved 2, 3;
   // List of subscribers
   repeated SubscriberInfo subscribers = 1;
 
-  // Set to true if the batch did not return all records
+  reserved 2, 3;
 }
 
 
-// Subscription Message. Contains all the information about a subscription that
-// is returned from FetchSubscriptions() API.
+// Subscription information message that is returned by FetchSubscriptions() endpoint.
 message Subscription {
   // Subscription topic
   uprotocol.v1.UUri topic = 1;
 
-  // Information about the subscriber who changed their subscription
+  // Information about the subscriber
   SubscriberInfo subscriber = 2;
 
   // Current status of the subscription
   SubscriptionStatus status = 3;
 
-  // Subscribers subscription attributes
+  // Subscriber attributes
   SubscribeAttributes attributes = 4;
 
-  // Any platform (uDevice) specific additional event delivered configuration
-  // information for how the subscriber should consume the published events.
+  // Any platform-specific event delivery configuration on how the subscriber
+  // should consume published events
   EventDeliveryConfig config = 5;
 }
 
-
+// Passed to FetchSubscriptions() to obtain a list of Subscription(s) to a particular topic 
+// or from a given subscriber.
 message FetchSubscriptionsRequest {
-  reserved 3;
-
   oneof request {
-    // Topic to register/unregister to receive subscription change notifications
+    // Topic to return subscribed clients for
     uprotocol.v1.UUri topic = 1;
 
-    // Subscribers's information
+    // Subscriber to return topic subscriptions of
     SubscriberInfo subscriber = 2;
   }
+
+  reserved 3;
 }
 
-
-// Results from FetchSubscriptions() API
+// Results from FetchSubscriptions() endpoint, returning a list of Subscription elements.
 message FetchSubscriptionsResponse {
-  reserved 2;
-
-  // Repeated list of subscriptions for a subscriber
+  // List of subscriptions of a subscriber
   repeated Subscription subscriptions = 1;
-}
 
+  reserved 2;
+}
 
 // Passed to the RegisterForSubscriptionChanges() and UnregisterForSubscriptionChanges()
-// APIs this message includes the topic to register for subscription changes as well
-// as information about the subscriber who wishes to receive said notifications
+// endpoints, this message includes the topic to register for subscription change notifications.
 message NotificationsRequest {
-  // Topic to register/unregister to receive subscription change notifications
+  // Topic to register/unregister subscription change notifications for
   uprotocol.v1.UUri topic = 1;
 
-  // DEPRECATED: Subscribers's information not used as only non-subscribers will call
-  // this API (i.e. producers)
-  // SubscriberInfo subscriber = 2;
   reserved 2;
 }
 
-// The (empty) response message representing the successful execution of the
+// The (empty) response message indicating successful execution of the
 // RegisterForSubscriptionChanges and UnregisterForSubscriptionChanges operations.
 message NotificationsResponse {}
 
 // Subscription Update Message.
-// This Update message is sent from uSusbcription on the topic:
-// '/core.usubscription/3/subscriptions#Update' whenever there is a change to
-// a subscription. Subscribers automatically receive this notification along with
-// any uEntities that called RegisterForNotifications().
+// This Update message is sent by uSusbcription service on the topic:
+// `/core.usubscription/3/subscriptions#Update` whenever there is a change to
+// a subscription.
+// Topic subscribers automatically receive this notification directly, as well as any uEntities 
+// that  explicitly called RegisterForNotifications() for the topics inquestion.
 message Update {
-  // Subscribed topic whos state has changed
+  // Topic the subscription state of which has changed
   uprotocol.v1.UUri topic = 1;
 
-  // Information about the subscriber who changed their subscription
+  // Information about the subscriber who requested the subscription change
   SubscriberInfo subscriber = 2;
 
   // Current status of the subscription
@@ -314,8 +282,6 @@ message Update {
   // Service meta-data option definitions - Resources
   enum Resources { subscriptions = 0; }
 }
-
-
 
 // Passive Subscription Mode.
 // Passive subscriptions, in lieu of active ones, do not modify (the state) nor
@@ -329,9 +295,8 @@ message PassiveMode {
 }
 
 
-// Reset Subscriptions Request.
-// Passed in the Reset() API this message contains the reason for the reset as
-// well as the time before which all subscriptions should be reset.
+// Reset subscriptions request
+// This message can provide the reason for the reset request.
 message ResetRequest {
   // Reason for the reset
   optional Reason reason = 1;
@@ -341,10 +306,9 @@ message ResetRequest {
   // current time is assumed
   //optional google.protobuf.Timestamp before = 2;
   reserved 2;
-  
+
   // The reason for triggering a reset, this is an optional attribute used
-  // to provide insight as to why a reset occurred
-  // More reasons will be added as we distill the business logic
+  // to provide insight as to why a reset occurred.
   message Reason {
     Code code = 1; // Reason code
     optional string message = 2; // Reason message
@@ -358,5 +322,5 @@ message ResetRequest {
   }
 }
 
-// The (empty) response message representing the successful execution of the Reset operation.
+// The (empty) response message indicating the successful execution of the Reset operation.
 message ResetResponse {}
