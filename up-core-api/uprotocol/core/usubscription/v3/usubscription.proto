@@ -42,24 +42,6 @@ service uSubscription {
     message: "Update"
   };
 
-  // Register the calling client as subscriber to a topic, passing a SubscriptionRequest
-  // message containing the desired topic and optional SubscriptionAttributes. 
-  // * Returns a SubscriptionResponse message containing the status of the request,
-  //   along with any event delivery configuration required to consume the event. 
-  // * Calling this endpoint also registers the subscribing client to receive subscription
-  //   change notifications when the subscription state changes.
-  rpc Subscribe(SubscriptionRequest) returns (SubscriptionResponse) {
-    option (uprotocol.method_id) = 1;
-  }
-
-  // Unregister the calling susbcriber client from a topic.
-  // * Returns a UnsubscripeResponse message containing the updated status of the subscription.
-  // * Calling this endpoint also unregisters the client from receiving subscription change 
-  //   notifications for this subscription.
-  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {
-    option (uprotocol.method_id) = 2;
-  }
-
   // Fetch a list of subscribers that are currently subscribed to a given topic.
   rpc FetchSubscribers(FetchSubscribersRequest) returns (FetchSubscribersResponse) {
     option (uprotocol.method_id) = 8;
@@ -89,103 +71,37 @@ service uSubscription {
   }
 }
 
-// Subscription configuration information
-message SubscribeAttributes {
-  // Define when the subscription should expire (timestamp should be set in the future).
-  // * If this field is missing, the subscription is assumed to remain valid indefinitely.
-  // * If the timestamp is set in the past when evaluated by uSubscription service, no subscription 
-  //   should be registered and an appropriate result message returned to the caller.
-  google.protobuf.Timestamp expire = 1;
-
-  // Any additional producer specific information that the consumer needs to send
-  // as part of a subscription request
-  repeated google.protobuf.Any details = 2;
-
-  // Desired sampling period (in milliseconds) the subscriber wishes to receive
-  // events in, applicable only for remote topics. Device dispatchers (i.e. streamers) use
-  // this attribute to reduce the publication rate of messages sent between devices.
-  // This attribute is might e.g. be used by mobile/cloud clients subscribing to in-vehicle 
-  // topics that in their original scope are published at a high rate.
-  // * If the desired sampling period is lower than the original publisher's publication period,
-  //   the attribute is ignored.
-  // * If this attribute is missing, the sampling period is chosen by the publisher.
-  optional uint32 sample_period_ms = 3;
-}
-
-// Subscriber identification information
-message SubscriberInfo {
-  // URI of the subscribing uEntity. Example represented in long form: `//vin.vehicles/A8000/2/0`
-  // * The resource_id field of SubscriberInfo URIs MUST be 0.
-  // * Wildcard URIs are not permitted.
-  uprotocol.v1.UUri uri = 1;
-
-  reserved 2;
-}
-
-// Subscription status
 message SubscriptionStatus {
   enum State {
-    UNSUBSCRIBED = 0; // Default state to indicate not subscribed
-    SUBSCRIBE_PENDING = 1; // Subscription is pending confirmation from remote uSubscription service instance
-    SUBSCRIBED = 2; // Subscription has been successful
-    UNSUBSCRIBE_PENDING = 3; // Unsubscribe is pending confirmation from remote uSubscription service instance
+    UNSUBSCRIBED = 0;
+    SUBSCRIBE_PENDING = 1;
+    SUBSCRIBED = 2;
+    UNSUBSCRIBE_PENDING = 3;
   }
-  // Subscription state
   State state = 1;
-
   reserved 2;
-
-  // The Subscription status message
   string message = 3;
 }
 
-// How events will be delivered to the subscriber. Usage of this structure is device-dependent.
-message EventDeliveryConfig {
-  // Identifier for the event delivery endpoint, ex. topic name for events to be published to
-  // example for Azure uCloud: "SUBSCRIPTION_TOPIC"
-  string id = 1;
-
-  // What type of endpoint shall be used to deliver the events for said subscription
-  // example for Azure uCloud: "Microsoft.EventHub/Namespaces/EventHubs"
-  string type = 2;
-
-  // Any additional configuration attributes
-  map <string, google.protobuf.Any>  attributes = 3;
-}
-
-// Passed to Subscribe() endpoint, this message contains the topic to subscribe to.
-message SubscriptionRequest {
-  // uProtocol URI of the topic to subscribe to
+// [dsn->impl:req~usubscription-subscribe-signature~1]
+message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
-
-  reserved 2;
-
-  // Additional subscription attributes
-  SubscribeAttributes attributes = 3;
+  optional uint64 expire_ms = 2;
+  optional uint32 sample_period_ms = 3;
 }
 
-// Response message for the Subscribe() endpoint.
-message SubscriptionResponse {
-  // Current status of the subscription
-  SubscriptionStatus status = 1;
-
-  // Any platform-specific event delivery configuration on how the subscriber
-  // should consume published events
-  EventDeliveryConfig config = 2;
-
-  // Subscribed topic, as passed to SubscriptionRequest
-  uprotocol.v1.UUri topic = 3;
+// [dsn->impl:req~usubscription-subscribe-signature~1]
+message SubscribeResponse {
+  uprotocol.v1.UUri topic = 1;
+  SubscriptionStatus status = 2;
 }
 
-// Passed to the Unsubscribe() endpoint, this message contains the topic to unsubscribe from.
+// [dsn->impl:req~usubscription-unsubscribe-signature~1]
 message UnsubscribeRequest {
-  // Topic to unsubscribe from
   uprotocol.v1.UUri topic = 1;
-
-  reserved 2;
 }
 
-// The (empty) response message indicating the execution of the Unsubscribe() operation.
+// [dsn->impl:req~usubscription-unsubscribe-signature~1]
 message UnsubscribeResponse {}
 
 // Passed to FetchSubscribers() to obtain a list of subscribers to a given topic.
@@ -200,7 +116,7 @@ message FetchSubscribersRequest {
 // Returned from FetchSubscribers(), this message contains a list of SubscriberInfo elements.
 message FetchSubscribersResponse {
   // List of subscribers
-  repeated SubscriberInfo subscribers = 1;
+  repeated uprotocol.v1.UUri subscribers = 1;
 
   reserved 2, 3;
 }
@@ -208,21 +124,11 @@ message FetchSubscribersResponse {
 
 // Subscription information message that is returned by FetchSubscriptions() endpoint.
 message Subscription {
-  // Subscription topic
   uprotocol.v1.UUri topic = 1;
-
-  // Information about the subscriber
-  SubscriberInfo subscriber = 2;
-
-  // Current status of the subscription
+  uprotocol.v1.UUri subscriber = 2;
   SubscriptionStatus status = 3;
-
-  // Subscriber attributes
-  SubscribeAttributes attributes = 4;
-
-  // Any platform-specific event delivery configuration on how the subscriber
-  // should consume published events
-  EventDeliveryConfig config = 5;
+  optional uint64 expire_ms = 4;
+  optional uint32 sample_period_ms = 5;
 }
 
 // Passed to FetchSubscriptions() to obtain a list of Subscription(s) to a particular topic 
@@ -233,7 +139,7 @@ message FetchSubscriptionsRequest {
     uprotocol.v1.UUri topic = 1;
 
     // Subscriber to return topic subscriptions of
-    SubscriberInfo subscriber = 2;
+    uprotocol.v1.UUri subscriber = 2;
   }
 
   reserved 3;
@@ -267,17 +173,11 @@ message NotificationsResponse {}
 // Topic subscribers automatically receive this notification directly, as well as any uEntities 
 // that  explicitly called RegisterForNotifications() for the topics inquestion.
 message Update {
-  // Topic the subscription state of which has changed
   uprotocol.v1.UUri topic = 1;
-
-  // Information about the subscriber who requested the subscription change
-  SubscriberInfo subscriber = 2;
-
-  // Current status of the subscription
+  uprotocol.v1.UUri subscriber = 2;
   SubscriptionStatus status = 3;
-
-  // Subscribers subscription attributes
-  SubscribeAttributes attributes = 4;
+  optional uint64 expire_ms = 4;
+  optional uint32 sample_period_ms = 5;
 
   // Service meta-data option definitions - Resources
   enum Resources { subscriptions = 0; }

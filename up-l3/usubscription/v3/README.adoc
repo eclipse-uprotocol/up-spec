@@ -3,8 +3,8 @@
 :sectnums:
 :usubscription_proto_link: link:../../../up-core-api/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]
 :communication_layer_api_ref: xref:../../../up-l2/api.adoc[Communication Layer API] 
-:uuri_ref: xref:../../../basics/uri.adoc[uProtocol URI]
-:ucode_link: link:../../../up-core-api/uprotocol/v1/ucode.proto[`UCode`]
+:uuri_ref: xref:../../../basics/uri.adoc[UURI]
+:ucode_ref: link:../../../up-core-api/uprotocol/v1/ucode.proto[UCode]
 
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
@@ -42,6 +42,11 @@ A distributed publish-subscribe network requires the following capabilities to b
 
 The remainder of this document defines the use cases, interfaces, state machines and application flows to support cross-system tracking of subscriptions, especially to/from remote systems.
 
+[.specitem,oft-sid="dsn~usubscription-service_name~1",oft-needs="impl,utest"]
+The uSubscription service name *MUST* be `core.usubscription`.
+
+NOTE: The UCode and UUri classes are defined in detail in {ucode_ref} and uProtocol {uuri_ref} specifications.
+
 [#usubscription-local-remote-subscriptions]
 == Local and Remote Subscriptions
 
@@ -68,143 +73,232 @@ A Publisher in a uProtocol network usually does not perform any additional actio
 A _Subscriber_ is a uEntity that is interested in a particular _topic_ and wants to receive messages that have been published to that topic by other uEntities. Subscribers typically use the {communication_layer_api_ref} for this purpose.
 
 [.specitem,oft-sid="dsn~usubscription-interaction-subscriber~1"]
-****
-In addition to performing the actions necessary to subscribe to and receive messages from the transport that they are using, Subscribers in a uProtocol network *MUST* invoke the <<subscribe-operation>> and <<unsubscribe-operation>> operations of their local uSubscription service instance in order to indicate which topics they _subscribe_ to or _unsubscribe_ from.
-****
+In addition to performing the actions necessary to subscribe to and receive messages from the transport that they are using, Subscribers in a uProtocol network are *REQUIRED* to invoke the <<subscribe-operation>> and <<unsubscribe-operation>> operations of their local uSubscription service instance in order to indicate which topics they _subscribe_ to or _unsubscribe_ from.
 
 [#subscribe-operation]
 === Subscribe()
 
-[.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl,utest"]
-****
-The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
-****
+// [.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl,utest"]
+// The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
+
+Register the calling client as subscriber to a topic. 
+
+* Returns the status of the requested subscription. 
+* Calling this endpoint also registers the subscribing client to receive subscription change notifications when the subscription status changes.
+
+[.specitem,oft-sid="dsn~usubscription-subscribe-method_id~1",oft-needs="impl,utest"]
+The uSubscription service `Subscribe()` function *MUST* use the method ID 1.
+
+[.specitem,oft-sid="req~usubscription-subscribe-signature~1",oft-needs="dsn,impl,utest"]
+The uSubscription service `Subscribe()` function *MUST* implement the following message definitions:
+
+.Subscribe() function request parameters
+[#subscribe-request-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+class Subscribe {
+        <<Interface>>
+}
+
+class SubscribeRequest {
+    <<UMessage>>
+    topic : UURI
+    expiry : UInt64[0..1]
+    sample-period : UInt32[0..1]
+}
+class SubscribeResponse {
+    <<UMessage>>
+    topic : UURI
+    status : SubscriptionStatus
+}
+
+Subscribe ..> SubscribeRequest : request message
+Subscribe ..> SubscribeResponse : response message
+----
+
+---
+
+The following table provides detailed descriptions of the SubscribeRequest attributes:
+
+[%autowidth]
+|===
+|Name |Type |Mandatory |Description
+
+|`topic`
+|{uuri_ref}
+|yes
+a|
+--
+uProtocol URI of the topic to subscribe to.
+
+Also refer to xref:topic-uuris[Topic UURIs] regarding specific restrictions on topic UURIs.
+--
+
+|`expiry`
+|UInt64
+|no
+a|
+[.specitem,oft-sid="dsn~usubscription-subscribe-past_expiry~1",oft-needs="impl,utest",oft-tags="uSubscription"]
+--
+Define when the subscription should expire, in millisecond granularity (timestamp should be set in the future).
+
+* If this field is missing, the subscription is assumed to remain valid indefinitely.
+* If the timestamp is set in the past when evaluated by uSubscription service, it *MUST NOT* register the subscription and return `UNSUBSCRIBED` as subscription status.
+--
+
+|`sample-period`
+|UInt32
+|no
+a|
+--
+Desired sampling period (in milliseconds) the subscriber wishes to receive
+events in, applicable only for remote topics. Device dispatchers (i.e. streamers) use
+this attribute to reduce the publication rate of messages sent between devices.
+This attribute is might e.g. be used by mobile/cloud clients subscribing to in-vehicle 
+topics that in their original scope are published at a high rate.
+
+* If the desired sampling period is lower than the original publisher's publication period, the attribute is ignored.
+* If this attribute is missing, the sampling period is chosen by the publisher.
+--
+
+|===
+
+---
+
+The following table provides detailed description of the SubscribeResponse attributes:
+
+[%autowidth]
+|===
+|Name |Type |Description
+
+|`topic`
+|{uuri_ref}
+a|
+--
+Subscribed topic, as passed to SubscriptionRequest
+--
+
+|`status`
+|xref:SubscriptionStatus[SubscriptionStatus]
+a|
+--
+Current status of the subscription.
+--
+
+|===
+
+---
 
 [.specitem,oft-sid="req~usubscription-subscribe~1",oft-needs="impl,utest"]
-****
 When a client calls the `Subscribe()` function, uSubscription service *MUST* start tracking the client as a subscriber to the topic provided with the function call.
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-persistency~1",oft-needs="impl,utest"]
-****
 When a client calls the `Subscribe()` function, uSubscription service *MUST* persistenly (across service restarts) store the client as a subscriber of the provided topic.
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration~1",oft-needs="impl,utest"]
-****
-When the subscription expiration time (defined in the `expire` field of `SubscriptionRequest.attributes`) is exceeded, uSubscription service *MUST* stop tracking the associated client-topic subscription.
-****
+When the subscription expiration time is exceeded, uSubscription service *MUST* stop tracking the associated client-topic subscription.
 
 [.specitem,oft-sid="req~usubscription-subscribe-no-expiration~1",oft-needs="impl,utest"]
-****
 When a subscription request does not specify an expiration time, uSubscription service *MUST* track the associated client-topic subscription indefinitely and persistently (across service restarts).
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-multiple~1",oft-needs="impl,utest"]
-****
 When a client calls the `Subscribe()` function for a topic that it is already subscribed to, uSubscription service *MUST* return a response message containing the current subscription status for this client-topic combination (e.g. `SUBSCRIBED` or `SUBSCRIBE_PENDING`).
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration-extension~1",oft-needs="impl,utest"]
-****
-When a client calls the `Subscribe()` function for a topic that it is already subscribed to where the value in the `expire` field of `SubscriptionRequest.attributes` differs from the current expiration time, uSubscription service *MUST* update the expiration time of the subscription with the new value.
-****
+When a client calls the `Subscribe()` function for a topic that it is already subscribed to where the `expire` field value differs from the current expiration time, uSubscription service *MUST* update the expiration time of the subscription with the new value.
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote~1",oft-needs="impl,utest"]
-****
 When a client makes the first call to `Subscribe()` to a _remote_ topic, i.e. a topic that is not published by a uEntity on the local host, uSubscription service *MUST* establish a remote subscription to that topic by sending a `Subscribe()` request to the (remote) uSubscription service running on the host indicated by the remote topic's _authority_. 
-****
-
-[.specitem,oft-sid="dsn~usubscription-subscribe-remote-subscriber-change~1",oft-needs="impl,utest"]
-****
-uSubscription service *MUST* change the subscriber field to itself (`core.usubscription`) when sending a `Subscribe()` request to a remote uSubscription service. 
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote-pending~1",oft-needs="impl,utest"]
-****
 When uSubscription service sends a `Subscribe()` request to a remote uSubscription service, uSubscription service *MUST* set the subscription state for any client-topic combination involving the subscribed remote topic to `SUBSCRIBE_PENDING`.
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote-response~1",oft-needs="impl,utest"]
-****
 When uSubscription service receives a reply to a remote `Subscribe()` request, uSubscription service *MUST* set the subscription state for any client-topic combination involving the subscribed remote topic to match the subscription status response of the remote uSubscription service (e.g. `SUBSCRIBED` or `UNSUBSCRIBED`).
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-unsubscribe-pending~1",oft-needs="impl,utest"]
-****
 When a client calls the `Subscribe()` function for a remote topic that is in state `UNSUBSCRIBE_PENDING`, uSubscription service *MUST* initiate the regular remote subscription process, i.e. send a subscription request to the remote uSubscription service and set status to `SUBSCRIBE_PENDING`.
-****
 
 [.specitem,oft-sid="req~usubscription-subscribe-notifications~1",oft-needs="impl,utest"]
-****
 When a client calls the `Subscribe()` function, uSubscription service *MUST* generate subscription change notifications reflecting any changes to the subscription state of the subscribed topic.
-****
-
-[.specitem,oft-sid="dsn~usubscription-subscribe-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `Subscribe()` request that contains a topic that
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
-****
 
 [#unsubscribe-operation]
 === Unsubscribe()
 
-[.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl,utest"]
-****
-The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
-****
+Unregister the calling client as subscriber to a topic. 
+
+* Always succeeds from the client's point of view; uSubscription service will set the subscription status to 'UNSUBSCRIBED' upon receiving an Unsubscribe() request.
+* Calling this endpoint unregisters the client from receive subscription change notifications when the subscription status changes.
+
+// [.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl,utest"]
+// The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
+
+[.specitem,oft-sid="dsn~usubscription-unsubscribe-method_id~1",oft-needs="impl,utest"]
+The uSubscription service `Subscribe()` function *MUST* use the method ID 2.
+
+[.specitem,oft-sid="req~usubscription-unsubscribe-signature~1",oft-needs="dsn,impl,utest"]
+The uSubscription service `Unsubscribe()` function *MUST* implement the following message definitions:
+
+.Unsubscribe() function request parameters
+[#unsubscribe-data-model]
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+class Unsubscribe {
+        <<Interface>>
+}
+
+class UnsubscribeRequest {
+    <<UMessage>>
+    topic : UURI
+}
+class UnsubscribeResponse {
+    <<UMessage>>
+}
+
+Unsubscribe ..> UnsubscribeRequest : request message
+Unsubscribe ..> UnsubscribeResponse : response message
+----
+
+---
+
+The following table provides detailed description of the UnsubscribeRequest attributes:
+
+[%autowidth]
+|===
+|Name |Type |Mandatory |Description
+
+|`topic`
+|{uuri_ref}
+|yes
+a|
+--
+uProtocol URI of the topic to unsubscribe from.
+
+Also refer to xref:topic-uuris[Topic UURIs] regarding specific restrictions on topic UURIs.
+--
+
+|===
+
+---
 
 [.specitem,oft-sid="req~usubscription-unsubscribe~1",oft-needs="impl,utest"]
-****
 When a client calls the `Unsubscribe()` function, uSubscription service *MUST* stop tracking the client as a subscriber to the topic provided with the function call.
-****
-
-[.specitem,oft-sid="req~usubscription-unsubscribe-multiple~1",oft-needs="impl,utest"]
-****
-When a client calls the `Unsubscribe()` function for a topic that it has not subscribed to, uSubscription service *MUST* return a response message containing the subscription status `UNSUBSCRIBED`.
-****
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-last-remote~1",oft-needs="impl,utest"]
-****
 When the last client subscribed to a remote topic calls the `Unsubscribe()` function on that topic, uSubscription service *MUST* perform a remote unsubscribe on that topic by sending an `Unsubscribe()` request to the remote uSubscription service. 
-****
-
-[.specitem,oft-sid="dsn~usubscription-unsubscribe-remote-subscriber-change~1",oft-needs="impl,utest"]
-****
-uSubscription service *MUST* change the subscriber field to itself (`core.usubscription`) when sending an `Unsubscribe()` request to a remote uSubscription service. 
-****
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-remote-unsubscribed~1",oft-needs="impl,utest"]
-****
 When sending an `Unsubscribe()` request to a remote uSubscription service, uSubscription service *MUST* consider the remote topic to be in state `UNSUBSCRIBED`, regardless of the status returned from the remote uSubscription service.
-****
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-subscribe-pending~1",oft-needs="impl,utest"]
-****
 When a client calls the `Unsubscribe()` function for a remote topic that is in state `SUBSCRIBE_PENDING`, uSubscription service *MUST* initiate the regular remote unsubscribe process, i.e. send an unsubscribe request to the remote uSubscription service and set status to `UNSUBSCRIBED`.
-****
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-notifications~1",oft-needs="impl,utest"]
-****
 When the last client subscribed to a topic calls the `Unsubscribe()` function on that topic, uSubscription service *MUST* stop generating subscription change notifications for that topic.
-****
-
-[.specitem,oft-sid="dsn~usubscription-unsubscribe-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `Unsubscribe()` request that contains a topic that
-
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
-****
 
 [#fetch-subscribers-operation]
 === FetchSubscribers()
@@ -217,18 +311,6 @@ The uSubscription service `FetchSubscribers()` function *MUST* implement the cor
 [.specitem,oft-sid="req~usubscription-fetch-subscribers~1",oft-needs="impl,utest"]
 ****
 When a client calls the `FetchSubscribers()` function, uSubscription service *MUST* return a list of subscribers that are currently subscribed to a given topic.
-****
-
-[.specitem,oft-sid="dsn~usubscription-fetch-subscribers-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `FetchSubscribers()` request that contains a topic that
-
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#fetch-subscriptions-operation]
@@ -247,29 +329,6 @@ When a client calls the `FetchSubscriptions()` function with a `SubscriberInfo` 
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-by-topic~1",oft-needs="impl,utest"]
 ****
 When a client calls the `FetchSubscriptions()` function with a topic UURI argument, uSubscription service *MUST* return a list of subscribers that are currently subscribed to the given topic.
-****
-
-[.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `FetchSubscriptions()` request that contains a topic that
-
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
-****
-
-[.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-invalid-subscriber~1",oft-needs="impl,utest"]
-****
-When receiving a `FetchSubscriptions()` request that contains a subscriber URI that
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 [#usubscription-topic]
@@ -401,18 +460,6 @@ The uSubscription service `RegisterForNotifications()` function *MUST* implement
 uSubscription service *MUST* send subscription change notification messages to clients that have previously called `RegisterForNotifications()` to _opt-in_ to receive notifications for a specific topic specified in `NotificationsRequest.topic` field. 
 ****
 
-[.specitem,oft-sid="dsn~usubscription-register-notifications-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `RegisterForNotifications()` request that contains a topic that
-
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
-****
-
 [#unregister-for-notifications-operation]
 ==== UnregisterForNotifications()
 
@@ -424,18 +471,6 @@ The uSubscription service `UnregisterForNotifications()` function *MUST* impleme
 [.specitem,oft-sid="req~usubscription-unregister-notifications~1",oft-needs="impl,utest"]
 ****
 uSubscription service *MUST* stop sending subscription change notifications to clients afther they have _opted-out_ of receiving subscription change notification by calling `UnregisterForNotifications()`. 
-****
-
-[.specitem,oft-sid="dsn~usubscription-unregister-notifications-invalid-topic~1",oft-needs="impl,utest"]
-****
-When receiving a `UnregisterForNotifications()` request that contains a topic that
-
-* is not a valid {uuri_ref} or
-* contains a _wildcard_ authority or
-* contains a _wildcard_ uEntity ID (`ue_id`) or
-* contains a _wildcard_ resource ID,
-
-a uSubscription service *MUST* return a failure status message with {ucode_link} `INVALID_ARGUMENT`.
 ****
 
 == Timeout & Retry Logic
@@ -475,6 +510,68 @@ When a client invokes the uSubscription service's `Reset()` operation, uSubscrip
 ****
 When receiving a `Reset()` call from a source that is not another uSubscription services (i.e. from source URIs where uEntity ID (`ue_id`) does not equal _0x0_), uSubscription service *MUST* return a failure status message with {ucode_link} `PERMISSION_DENIED`.
 ****
+
+[#common-objects]
+== Common Objects
+
+Objects commonly used throughought this document are defined in this section.
+
+
+[#UURI]
+=== UURI
+
+A UURI identifies resources in a uProtocol service mesh, and is defined in link:../../../basics/uri.adoc[the uProtocol URI specification].
+
+[#topic-uuris]
+==== Topic UURIs
+
+[.specitem,oft-sid="dsn~usubscription-valid-topic-uuris~1",oft-needs="impl,utest"]
+UURIs used to denote topics in uSubscription service API calls *MUST* adhere to the following rules, otherwise the API call will return a failure status message with {ucode_link} `INVALID_ARGUMENT`:
+
+* is not a valid {uuri_ref} or
+* contains a _wildcard_ authority or
+* contains a _wildcard_ uEntity ID (`ue_id`) or
+// * contains a _wildcard_ resource ID,
+
+[#subscriber-uuris]
+==== Subscriber UURIs
+
+[.specitem,oft-sid="dsn~usubscription-valid-subscriber-uuris~1",oft-needs="impl,utest"]
+UURIs used to denote subscribers in uSubscription service API calls *MUST* adhere to the following rules, otherwise the API call will return a failure status message with {ucode_link} `INVALID_ARGUMENT`:
+
+* is not a valid {uuri_ref} or
+* contains a _wildcard_ authority or
+* contains a _wildcard_ uEntity ID (`ue_id`) or
+* contains a _wildcard_ resource ID,
+
+[#subscription-status]
+=== SubscriptionStatus
+
+SubscriptionStatus is an enum-style object, describing the status of a subscriber-topic relationship.
+
+.SubscriptionStatus
+[cols="1,2,3"]
+|===
+| Enum value | Name | Description
+
+| 0
+| UNSUBSCRIBED
+| Default state to indicate not subscribed
+
+| 1
+| SUBSCRIBE_PENDING 
+| Subscription is pending confirmation from remote uSubscription service instance
+
+| 2
+| SUBSCRIBED
+| Subscription has been successful
+
+| 3
+| UNSUBSCRIBE_PENDING 
+| Unsubscribe is pending confirmation from remote uSubscription service instance
+
+|=== 
+
 
 == uSubscription Sequences
 

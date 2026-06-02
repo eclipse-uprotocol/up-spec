@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+# This program and the accompanying materials are made available under
+# the terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
+asyncapi: '3.0.0'
+id: urn:eclipse:org:uprotocol:usubscription
+info:
+  title: Eclipse uProtocol uSubscription service API definition
+  version: '1.0.0'
+  description: |
+    uProtocol service for managing x-system pub/sub subscriptions.
+  contact:
+    name: Daniel Krippner
+    email: daniel.Krippner@etas.com
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  tags:
+    - name: uProtocol uSubscription
+  x-uprotocol:
+    # [impl->dsn~usubscription-service_name~1]
+    serviceName: core.usubscription
+    # [impl->dsn~usubscription-subscribe-method_id~1]
+    serviceId: 0x0
+
+defaultContentType: "application/protobuf"
+
+channels:
+  subscribeRequests:
+    summary: Client-topic subscription request.
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.SubscribeRequest'
+  subscribeResponses:
+    summary: Client-topic subscription status.
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.SubscribeResponse'
+  unsubscribeRequests:
+    summary: Client-topic unsubscribe request.
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.UnsubscribeRequest'
+  unsubscribeResponses:
+    summary: Client-topic unsubscribe response.
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.UnsubscribeResponse'
+
+operations:
+  Subscribe:
+    # [dsn->impl:req~usubscription-subscribe-signature~1]
+    title: Susbcribe to a topic.
+    summary: Register the calling client as subscriber to a topic.
+    tags:
+      - name: uSubscription
+        description: uProtocol uSubscription API operation.
+    externalDocs:
+      description: uSubscription specification
+      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#subscribe-operation'
+    channel:
+      $ref: "#/channels/subscribeRequests"
+    action: receive
+    reply:
+      channel:
+        $ref: "#/channels/subscribeResponses"
+    bindings:
+      x-uprotocol:
+        # [impl->dsn~usubscription-subscribe-method_id~1]
+        methodId: 0x0001
+
+  Unsubscribe:
+    # [dsn->impl:req~usubscription-unsubscribe-signature~1]
+    title: Unsubscribe from a topic.
+    summary: Unregister the calling susbcriber client from a topic.
+    tags:
+      - name: uSubscription
+        description: uProtocol uSubscription API operation.
+    externalDocs:
+      description: uSubscription specification
+      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#unsubscribe-operation'
+    channel:
+      $ref: "#/channels/unsubscribeRequests"
+    action: receive
+    reply:
+      channel:
+        $ref: "#/channels/unsubscribeResponses"
+    bindings:
+      x-uprotocol:
+        # [impl->dsn~usubscription-unsubscribe-method_id~1]
+        methodId: 0x0002
