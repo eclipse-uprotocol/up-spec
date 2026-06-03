@@ -3,6 +3,7 @@
 :sectnums:
 :usubscription_proto_link: link:../../../up-core-api/uprotocol/core/usubscription/v3/usubscription.proto[usubscription.proto]
 :communication_layer_api_ref: xref:../../../up-l2/api.adoc[Communication Layer API] 
+:basic_types_ref: xref:../../../basics/README.adoc[uProtocol Basic Types]
 :uuri_ref: xref:../../../basics/uri.adoc[UURI]
 :ucode_ref: link:../../../up-core-api/uprotocol/v1/ucode.proto[UCode]
 
@@ -42,10 +43,29 @@ A distributed publish-subscribe network requires the following capabilities to b
 
 The remainder of this document defines the use cases, interfaces, state machines and application flows to support cross-system tracking of subscriptions, especially to/from remote systems.
 
+---
+
 [.specitem,oft-sid="dsn~usubscription-service_name~1",oft-needs="impl,utest"]
 The uSubscription service name *MUST* be `core.usubscription`.
 
-NOTE: The UCode and UUri classes are defined in detail in {ucode_ref} and uProtocol {uuri_ref} specifications.
+[.specitem,oft-sid="dsn~usubscription-uentity_id~1",oft-needs="impl,utest"]
+The uSubscription service uEntity Identifier (`ue_id`) *MUST* be 0.
+
+The USubscription service API is defined using UML2 notation.
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+classDiagram
+class USubscription {
+    subscribe(topic: UUri, expiry: UInt64[0..1], sample-period: UInt32[0..1]) topic: UURI, status: SubscriptionStatus
+    unsubscribe(topic: UUri)
+}
+----
+
+---
+
+NOTE: The data types used in the following sections are defined in {basic_types_ref}.
 
 [#usubscription-local-remote-subscriptions]
 == Local and Remote Subscriptions
@@ -78,10 +98,12 @@ In addition to performing the actions necessary to subscribe to and receive mess
 [#subscribe-operation]
 === Subscribe()
 
-// [.specitem,oft-sid="dsn~usubscription-subscribe-protobuf~1",oft-needs="impl,utest"]
-// The uSubscription service `Subscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
+[source]
+----
+subscribe(topic: UUri, expiry: UInt64[0..1], sample-period: UInt32[0..1])
+----
 
-Register the calling client as subscriber to a topic. 
+Clients use this method to subscribe to a topic. 
 
 * Returns the status of the requested subscription. 
 * Calling this endpoint also registers the subscribing client to receive subscription change notifications when the subscription status changes.
@@ -92,43 +114,16 @@ The uSubscription service `Subscribe()` function *MUST* use the method ID 1.
 [.specitem,oft-sid="req~usubscription-subscribe-signature~1",oft-needs="dsn,impl,utest"]
 The uSubscription service `Subscribe()` function *MUST* implement the following message definitions:
 
-.Subscribe() function request parameters
-[#subscribe-request-data-model]
-[mermaid]
-ifdef::env-github[[source,mermaid]]
-----
-classDiagram
-class Subscribe {
-        <<Interface>>
-}
-
-class SubscribeRequest {
-    <<UMessage>>
-    topic : UURI
-    expiry : UInt64[0..1]
-    sample-period : UInt32[0..1]
-}
-class SubscribeResponse {
-    <<UMessage>>
-    topic : UURI
-    status : SubscriptionStatus
-}
-
-Subscribe ..> SubscribeRequest : request message
-Subscribe ..> SubscribeResponse : response message
-----
-
 ---
 
-The following table provides detailed descriptions of the SubscribeRequest attributes:
-
+.Subscribe Request Parameters
 [%autowidth]
 |===
-|Name |Type |Mandatory |Description
+|Parameter | Type | Mandatory | Description
 
-|`topic`
-|{uuri_ref}
-|yes
+| topic
+| {uuri_ref}
+| yes
 a|
 --
 uProtocol URI of the topic to subscribe to.
@@ -165,10 +160,8 @@ topics that in their original scope are published at a high rate.
 
 |===
 
----
 
-The following table provides detailed description of the SubscribeResponse attributes:
-
+.Subscribe Response Parameters
 [%autowidth]
 |===
 |Name |Type |Description
@@ -224,16 +217,60 @@ When a client calls the `Subscribe()` function for a remote topic that is in sta
 [.specitem,oft-sid="req~usubscription-subscribe-notifications~1",oft-needs="impl,utest"]
 When a client calls the `Subscribe()` function, uSubscription service *MUST* generate subscription change notifications reflecting any changes to the subscription state of the subscribed topic.
 
+---
+
+[discrete]
+==== Subscribe operation
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as USubscription Service
+
+C->>T : subscribe(topic: UUri)
+activate T
+T--)C : topic: UUri, status: SubscriptionStatus
+deactivate T
+----
+
+---
+
+[discrete]
+==== Subscribe operation with expiration time
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as USubscription Service
+participant N as Notification Channel
+
+C->>T : subscribe(topic: UUri, expiry: UInt64)
+activate T
+T--)C : topic: UUri, status: SubscriptionStatus
+T-->T : await expiry
+T->>C : update(topic: UUri, subscriber: UUri, status: SubscriptionStatus::UNSUBSCRIBED)
+T--)N : update(topic: UUri, subscriber: UUri, status: SubscriptionStatus::UNSUBSCRIBED)
+deactivate T
+----
+
+---
+
 [#unsubscribe-operation]
 === Unsubscribe()
 
-Unregister the calling client as subscriber to a topic. 
+[source]
+----
+unsubscribe(topic: UUri)
+----
+
+Clients use this method to unsubscribe from a topic. 
 
 * Always succeeds from the client's point of view; uSubscription service will set the subscription status to 'UNSUBSCRIBED' upon receiving an Unsubscribe() request.
 * Calling this endpoint unregisters the client from receive subscription change notifications when the subscription status changes.
-
-// [.specitem,oft-sid="dsn~usubscription-unsubscribe-protobuf~1",oft-needs="impl,utest"]
-// The uSubscription service `Unsubscribe()` function *MUST* implement the corresponding protobuf definition in {usubscription_proto_link}.
 
 [.specitem,oft-sid="dsn~usubscription-unsubscribe-method_id~1",oft-needs="impl,utest"]
 The uSubscription service `Subscribe()` function *MUST* use the method ID 2.
@@ -241,32 +278,9 @@ The uSubscription service `Subscribe()` function *MUST* use the method ID 2.
 [.specitem,oft-sid="req~usubscription-unsubscribe-signature~1",oft-needs="dsn,impl,utest"]
 The uSubscription service `Unsubscribe()` function *MUST* implement the following message definitions:
 
-.Unsubscribe() function request parameters
-[#unsubscribe-data-model]
-[mermaid]
-ifdef::env-github[[source,mermaid]]
-----
-classDiagram
-class Unsubscribe {
-        <<Interface>>
-}
-
-class UnsubscribeRequest {
-    <<UMessage>>
-    topic : UURI
-}
-class UnsubscribeResponse {
-    <<UMessage>>
-}
-
-Unsubscribe ..> UnsubscribeRequest : request message
-Unsubscribe ..> UnsubscribeResponse : response message
-----
-
 ---
 
-The following table provides detailed description of the UnsubscribeRequest attributes:
-
+.Unsubscribe Request Parameters
 [%autowidth]
 |===
 |Name |Type |Mandatory |Description
@@ -299,6 +313,24 @@ When a client calls the `Unsubscribe()` function for a remote topic that is in s
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-notifications~1",oft-needs="impl,utest"]
 When the last client subscribed to a topic calls the `Unsubscribe()` function on that topic, uSubscription service *MUST* stop generating subscription change notifications for that topic.
+
+---
+
+[mermaid]
+ifdef::env-github[[source,mermaid]]
+----
+sequenceDiagram
+
+actor C as Client
+participant T as USubscription Service
+
+C->>T : unsubscribe(topic: UUri)
+activate T
+T--)C : ()
+deactivate T
+----
+
+---
 
 [#fetch-subscribers-operation]
 === FetchSubscribers()

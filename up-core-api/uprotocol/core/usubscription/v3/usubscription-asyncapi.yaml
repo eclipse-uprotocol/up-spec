@@ -27,8 +27,8 @@ info:
   x-uprotocol:
     # [impl->dsn~usubscription-service_name~1]
     serviceName: core.usubscription
-    # [impl->dsn~usubscription-subscribe-method_id~1]
-    serviceId: 0x0
+    # [impl->dsn~usubscription-uentity_id~1]
+    uEntityID: 0x0
 
 defaultContentType: "application/protobuf"
 
