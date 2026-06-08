@@ -49,7 +49,7 @@ The remainder of this document defines the use cases, interfaces, state machines
 The uSubscription service name *MUST* be `core.usubscription`.
 
 [.specitem,oft-sid="dsn~usubscription-uentity_id~1",oft-needs="impl,utest"]
-The uSubscription service uEntity Identifier (`ue_id`) *MUST* be 0.
+The uSubscription service uEntity Identifier (`ue_id`) *MUST* be 0x0000.
 
 The USubscription service API is defined using UML2 notation.
 
@@ -58,9 +58,19 @@ ifdef::env-github[[source,mermaid]]
 ----
 classDiagram
 class USubscription {
-    subscribe(topic: UUri, expiry: UInt64[0..1], sample-period: UInt32[0..1]) topic: UURI, status: SubscriptionStatus
+    <<interface>>
+    subscribe(topic: UUri, expiry: UInt64 [0..1], sample-period: UInt32 [0..1]) UUri, SubscriptionStatus
     unsubscribe(topic: UUri)
 }
+class SubscriptionStatus {
+    <<enumeration>>
+    unsubscribed
+    subscribePending
+    subscribed
+    unsubscribePending
+}
+USubscription ..> SubscriptionStatus
+
 ----
 
 ---
@@ -100,7 +110,7 @@ In addition to performing the actions necessary to subscribe to and receive mess
 
 [source]
 ----
-subscribe(topic: UUri, expiry: UInt64[0..1], sample-period: UInt32[0..1])
+subscribe(topic: UUri, expiry: UInt64[0..1], sample-period: UInt32[0..1]) : UUri, SubscriptionStatus
 ----
 
 Clients use this method to subscribe to a topic. 
@@ -137,7 +147,7 @@ Also refer to xref:topic-uuris[Topic UURIs] regarding specific restrictions on t
 a|
 [.specitem,oft-sid="dsn~usubscription-subscribe-past_expiry~1",oft-needs="impl,utest",oft-tags="uSubscription"]
 --
-Define when the subscription should expire, in millisecond granularity (timestamp should be set in the future).
+Define when the subscription should expire, in millisecond since the start of https://en.wikipedia.org/wiki/Unix_time[Unix time]. This timestamp should be set in the future, otherwise no subscription will be registered.
 
 * If this field is missing, the subscription is assumed to remain valid indefinitely.
 * If the timestamp is set in the past when evaluated by uSubscription service, it *MUST NOT* register the subscription and return `UNSUBSCRIBED` as subscription status.
@@ -164,16 +174,14 @@ topics that in their original scope are published at a high rate.
 .Subscribe Response Parameters
 [%autowidth]
 |===
-|Name |Type |Description
+|Type |Description
 
-|`topic`
 |{uuri_ref}
 a|
 --
 Subscribed topic, as passed to SubscriptionRequest
 --
 
-|`status`
 |xref:SubscriptionStatus[SubscriptionStatus]
 a|
 --
@@ -229,9 +237,9 @@ sequenceDiagram
 actor C as Client
 participant T as USubscription Service
 
-C->>T : subscribe(topic: UUri)
+C->>T : subscribe("up://vehicle/A1B/1/9A10")
 activate T
-T--)C : topic: UUri, status: SubscriptionStatus
+T--)C : "up://vehicle/A1B/1/9A10", SubscriptionStatus.subscribed
 deactivate T
 ----
 
@@ -248,12 +256,12 @@ actor C as Client
 participant T as USubscription Service
 participant N as Notification Channel
 
-C->>T : subscribe(topic: UUri, expiry: UInt64)
+C->>T : subscribe("up://vehicle/A1B/1/9A10", 1780923819000)
 activate T
-T--)C : topic: UUri, status: SubscriptionStatus
+T--)C : "up://vehicle/A1B/1/9A10", SubscriptionStatus.subscribed
 T-->T : await expiry
-T->>C : update(topic: UUri, subscriber: UUri, status: SubscriptionStatus::UNSUBSCRIBED)
-T--)N : update(topic: UUri, subscriber: UUri, status: SubscriptionStatus::UNSUBSCRIBED)
+T->>C : update("up://vehicle/A1B/1/9A10", "up://client/10A0/3", SubscriptionStatus.unsubscribed)
+T--)N : update("up://vehicle/A1B/1/9A10", "up://client/10A0/3", SubscriptionStatus.unsubscribed)
 deactivate T
 ----
 
