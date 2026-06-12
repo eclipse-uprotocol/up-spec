@@ -269,7 +269,7 @@ impl UUri {
 }
 ----
 
-
+[#pattern-matching]
 == Pattern Matching
 
 [.specitem,oft-sid="dsn~uri-pattern-matching~2",oft-needs="impl,utest"]
