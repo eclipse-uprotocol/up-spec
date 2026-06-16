@@ -15,24 +15,42 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-Core uProtocol services interfaces to define:
+Core uProtocol services interfaces are defined using asyncapi, with pointers to supported message serialization formats.
 
-.Protobuf Files
+---
+
+NOTE: Not all core services are implemented using asyncapi specifications yet. Some services still use the legacy format, where protobuf is used to define the entire API surface.
+
+---
+
+.asnyncapi files
 |===
-|File |Description
+| File | Description
 
-|link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
-|Contract for dynamically discovering uThings (other uEntities, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+| link:usubscription/v4/usubscription-asyncapi.yaml[*usubscription-asyncapi.yaml*]
+| Contract for publishers and subscribers to subscribe/publish to topics
+|===
 
-|link:usubscription/v3/usubscription.proto[*usubscription.proto*]
-|Contract for publishers and subscribers to subscribe/publish to topics
+---
 
-|link:utwin/v2/utwin.proto[*utwin.proto*]
-a|* Device-to-device Twin:
-** To enable remote Apps to access last published state (and received by the device)
-** To remain accessible even if connectivity is lost
-* In-vehicle Twin:
-** To avoid re-sending (re-publishing) data when apps are launched/subscribed
+Core uProtocol services API request and response messages can be defined to support any desired serialization format. The current default format is protobuf.
+
+.protobuf files
+|===
+| File | Description
+
+| link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
+| Contract for dynamically discovering uThings (other uEntities, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+
+| link:usubscription/v4/usubscription.proto[*usubscription.proto*]
+| Request and response message definitions for publishers and subscribers to subscribe/publish to topics
+
+| link:utwin/v2/utwin.proto[*utwin.proto*]
+a| * Device-to-device Twin:
+     ** To enable remote Apps to access last published state (and received by the device)
+     ** To remain accessible even if connectivity is lost
+   * In-vehicle Twin:
+     ** To avoid re-sending (re-publishing) data when apps are launched/subscribed
 
 |===
 

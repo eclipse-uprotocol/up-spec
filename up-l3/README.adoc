@@ -53,7 +53,7 @@ This special purpose built uEntities are required to implement uProtocol and mus
 |uEntity |Ver |Description
 
 |*uSubscription*
-|link:usubscription/v3/README.adoc[*v3*]
+|link:usubscription/v4/README.adoc[*v4*]
 |Subscription management service that is responsible for managing subscriptions between uEntities to realize the publisher/subscriber design pattern.
 
 |*uDiscovery*

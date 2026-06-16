@@ -111,7 +111,7 @@ sequenceDiagram
 
 ---
 
-[.specitem,oft-sid="req~usubscription-service_name~1",oft-needs="dsn,impl,utest",oft-tags="USubscription",oft-tags="USubscription"]
+[.specitem,oft-sid="req~usubscription-service_name~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 The uSubscription service name *MUST* be `core.usubscription`.
 
 [.specitem,oft-sid="req~usubscription-uentity_id~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
