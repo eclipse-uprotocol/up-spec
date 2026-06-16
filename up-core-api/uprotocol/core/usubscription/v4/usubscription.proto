@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Contributors to the Eclipse Foundation
+ * SPDX-FileCopyrightText: 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -28,28 +28,6 @@ option java_multiple_files = true;
 // Enable generation of generic service attributes in C++
 option cc_generic_services = true;
 
-// Subscription service interface definition
-service uSubscription {
-
-  // Register client to receive subscription change notifications for a given topic.
-  rpc RegisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
-    option (uprotocol.method_id) = 6;
-  }
-
-  // Unregister client from receiving subscription change events for a given topic.
-  rpc UnregisterForNotifications(NotificationsRequest) returns (NotificationsResponse) {
-    option (uprotocol.method_id) = 7;
-  }
-
-  // Reset all subscriber-topic registrations of a uSubscription Service.
-  // A (remote) uSubscription service instance might need to use this API if its 
-  // database gets lost or corrupted (ex. during a factory reset).
-  // * This is a private API, to be used only between uSubscription service entities.
-  rpc Reset(ResetRequest) returns (ResetResponse) {
-    option (uprotocol.method_id) = 9;
-  }
-}
-
 enum SubscriptionStatus {
   UNSUBSCRIBED = 0;
   SUBSCRIBE_PENDING = 1;
@@ -57,7 +35,7 @@ enum SubscriptionStatus {
   UNSUBSCRIBE_PENDING = 3;
 }
 
-// Subscription information message that is returned by FetchSubscriptions() endpoint.
+// [dsn->impl:req~usubscription-change-message-type~1]
 message Subscription {
   uprotocol.v1.UUri topic = 1;
   uprotocol.v1.UUri subscriber = 2;
@@ -66,25 +44,25 @@ message Subscription {
   optional uint32 sample_period_ms = 5;
 }
 
-// [dsn->impl:req~usubscription-subscribe-signature~1]
+// [dsn->impl:req~usubscription-subscribe-request-signature~1]
 message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
   optional uint64 expire_ms = 2;
   optional uint32 sample_period_ms = 3;
 }
 
-// [dsn->impl:req~usubscription-subscribe-signature~1]
+// [dsn->impl:req~usubscription-subscribe-response-signature~1]
 message SubscribeResponse {
   uprotocol.v1.UUri topic = 1;
   SubscriptionStatus status = 2;
 }
 
-// [dsn->impl:req~usubscription-unsubscribe-signature~1]
+// [dsn->impl:req~usubscription-unsubscribe-request-signature~1]
 message UnsubscribeRequest {
   uprotocol.v1.UUri topic = 1;
 }
 
-// [dsn->impl:req~usubscription-unsubscribe-signature~1]
+// [dsn->impl:req~usubscription-unsubscribe-response-signature~1]
 message UnsubscribeResponse {}
 
 // [dsn->impl:req~usubscription-fetch-subscriptions-request-signature~1]
@@ -97,84 +75,14 @@ message FetchSubscriptionsRequest {
 message FetchSubscriptionsResponse {
   repeated Subscription subscriptions = 1;
 }
-
-
-
-// [dsn->impl:req~usubscription-fetch-subscribers-signature~1]
-message FetchSubscribersRequest {
-  uprotocol.v1.UUri topic = 1;
-}
-
-// [dsn->impl:req~usubscription-fetch-subscribers-signature~1]
-message FetchSubscribersResponse {
-  repeated uprotocol.v1.UUri subscribers = 1;
-}
-
-// [dsn->impl:req~usubscription-fetch-subscriptions-signature~1]
-message FetchSubscriptionsRequest {
-  oneof RequestType {
-    uprotocol.v1.UUri topic = 1;
-    uprotocol.v1.UUri subscriber = 2;
-  }
-}
-
-// [dsn->impl:req~usubscription-fetch-subscriptions-signature~1]
-message FetchSubscriptionsResponse {
-  repeated Subscription subscriptions = 1;
-}
-
-
-// Passed to the RegisterForSubscriptionChanges() and UnregisterForSubscriptionChanges()
-// endpoints, this message includes the topic to register for subscription change notifications.
 message NotificationsRequest {
-  // Topic to register/unregister subscription change notifications for
   uprotocol.v1.UUri topic = 1;
-
-  reserved 2;
 }
 
-// The (empty) response message indicating successful execution of the
-// RegisterForSubscriptionChanges and UnregisterForSubscriptionChanges operations.
 message NotificationsResponse {}
 
-// Passive Subscription Mode.
-// Passive subscriptions, in lieu of active ones, do not modify (the state) nor
-// notify the publisher of the subscribers subscription. Passive subscriptions
-// are a means to support observability frameworks to passively listen for
-// events.
-// *NOTE*: This attribute is an internal platform setting (for now) and not
-// exposed as part of SubscribeAttributes.
-message PassiveMode {
-  bool enable = 1; // Enable passive subscription mode
-}
-
-
-// Reset subscriptions request
-// This message can provide the reason for the reset request.
 message ResetRequest {
-  // Reason for the reset
-  optional Reason reason = 1;
-
-  // DEPRECATED
-  // Reset all subscriptions that are before this time, if omitted, the
-  // current time is assumed
-  //optional google.protobuf.Timestamp before = 2;
-  reserved 2;
-
-  // The reason for triggering a reset, this is an optional attribute used
-  // to provide insight as to why a reset occurred.
-  message Reason {
-    Code code = 1; // Reason code
-    optional string message = 2; // Reason message
-
-    // Reason code
-    enum Code {
-      UNSPECIFIED = 0; // Default non-specified reason for issuing a reset
-      FACTORY_RESET = 1; // Factory reset
-      CORRUPTED_DATA = 2; // Corrupted data
-    }
-  }
+  optional string message = 1;
 }
 
-// The (empty) response message indicating the successful execution of the Reset operation.
 message ResetResponse {}

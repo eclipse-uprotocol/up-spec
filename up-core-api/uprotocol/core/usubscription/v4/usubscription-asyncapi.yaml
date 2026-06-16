@@ -13,9 +13,9 @@ asyncapi: '3.0.0'
 id: urn:eclipse:org:uprotocol:usubscription
 info:
   title: Eclipse uProtocol uSubscription service API definition
-  version: '1.0.0'
+  version: '4.0.0'
   description: |
-    uProtocol service for managing x-system pub/sub subscriptions.
+    USubscription is a uProtocol service for managing x-system pub/sub subscriptions.
   contact:
     name: Daniel Krippner
     email: daniel.Krippner@etas.com
@@ -25,67 +25,71 @@ info:
   tags:
     - name: uProtocol uSubscription
   x-uprotocol:
-    # [impl->dsn~usubscription-service_name~1]
+    # [dsn->impl:req~usubscription-service_name~1]
     serviceName: core.usubscription
-    # [impl->dsn~usubscription-uentity_id~1]
+    # [dsn->imple:req~usubscription-uentity_id~1]
     uEntityId: 0x0
-    versionMajor: 3
+    versionMajor: 4
     versionMinor: 0
 
 defaultContentType: "application/protobuf"
 
 channels:
+  # [dsn->impl:req~usubscription-change-publication~1]
   subscriptionChange:
-    summary: Channel for subscription change messages
+    summary: Channel for publication of subscription change messages.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.Subscription'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.Subscription'
     x-uprotocol:
+      # [dsn->impl:req~usubscription-change-publication-topic~1]
       resourceId: 0x8000
-
   subscribeRequests:
-    summary: Client-topic subscription request.
+    # [dsn->impl:req~usubscription-subscribe-request-signature~1]
+    summary: Requests to subscribe client to a topic.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.SubscribeRequest'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.SubscribeRequest'
   subscribeResponses:
-    summary: Client-topic subscription status.
+    # [dsn->impl:req~usubscription-subscribe-response-signature~1]
+    summary: Responses to client-topic subscription calls.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.SubscribeResponse'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.SubscribeResponse'
   unsubscribeRequests:
-    summary: Client-topic unsubscribe request.
+    # [dsn->impl:req~usubscription-unsubscribe-request-signature~1]
+    summary: Requests to unsubscribe a client from a topic.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.UnsubscribeRequest'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.UnsubscribeRequest'
   unsubscribeResponses:
-    summary: Client-topic unsubscribe response.
+    # [dsn->impl:req~usubscription-unsubscribe-response-signature~1]
+    summary: Response to client-topic unsubscribe calls.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.UnsubscribeResponse'
-
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.UnsubscribeResponse'
   fetchSubscriptionsRequests:
-    summary: Fetch subscription information request.
+    summary: Request to fetch subscription and subscriber information.
     # [dsn->impl:req~usubscription-fetch-subscriptions-request-signature~1]
     messages:
       protobuf:
@@ -93,9 +97,9 @@ channels:
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscriptionsRequest'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.FetchSubscriptionsRequest'
   fetchSubscriptionsResponses:
-    summary: Fetch subscription information response.
+    summary: Responses to fetch subscription information calls.
     # [dsn->impl:req~usubscription-fetch-subscriptions-response-signature~1]
     messages:
       protobuf:
@@ -103,59 +107,77 @@ channels:
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscriptionsResponse'
-
-
-
-
-  fetchSubscribersRequests:
-    summary: Fetch list of topic-subscribers request.
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.FetchSubscriptionsResponse'
+  registerForNotificationsRequests:
+    summary: Requests to receive subscription change Notification messages for an indicated topic.
+    # [dsn->impl:req~usubscription-register-notifications-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscribersRequest'
-  fetchSubscribersResponses:
-    summary: Fetch list of topic-subscribers response.
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
+  registerForNotificationsResponses:
+    summary: Responses to subscription change notifications requests.
+    # [dsn->impl:req~usubscription-register-notifications-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscribersResponse'
-  fetchSubscriptionsRequests:
-    summary: Fetch list of subscriptions to topic/subscriber request.
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
+  unregisterForNotificationsRequests:
+    summary: Requests to stop receiving subscription change Notification messages.
+    # [dsn->impl:req~usubscription-unregister-notifications-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscriptionsRequest'
-  fetchSubscriptionsResponses:
-    summary: Fetch list of subscriptions to topic/subscriber response.
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
+  unregisterForNotificationsResponses:
+    summary: Responses to subscription change notifications opt-out requests.
+    # [dsn->impl:req~usubscription-unregister-notifications-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
-            $ref: './usubscription.proto#/uprotocol.core.usubscription.v3.FetchSubscriptionsResponse'
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
+  resetRequests:
+    summary: Requests to clear any subscription tracking data and custom notification configuration.
+    # [dsn->impl:req~usubscription-reset-request-signature~1]
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
+  resetResponses:
+    summary: Responses to subscription tracking data and custom notification configuration reset.
+    # [dsn->impl:req~usubscription-reset-response-signature~1]
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
 
 operations:
   Subscribe:
-    # [dsn->impl:req~usubscription-subscribe-signature~1]
-    title: Susbcribe to a topic.
-    summary: Register the calling client as subscriber to a topic.
+    summary: Susbcribe to a topic.
     tags:
       - name: uSubscription
         description: uProtocol uSubscription API operation.
     externalDocs:
       description: uSubscription specification
-      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#subscribe-operation'
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#subscribe-operation'
     channel:
       $ref: "#/channels/subscribeRequests"
     action: receive
@@ -164,18 +186,16 @@ operations:
         $ref: "#/channels/subscribeResponses"
     bindings:
       x-uprotocol:
-        # [impl->dsn~usubscription-subscribe-method_id~1]
+        # [dsn->impl:req~usubscription-subscribe-method_id~1]
         methodId: 0x0001
   Unsubscribe:
-    # [dsn->impl:req~usubscription-unsubscribe-signature~1]
-    title: Unsubscribe from a topic.
-    summary: Unregister the calling susbcriber client from a topic.
+    summary: Unsubscribe from a topic.
     tags:
       - name: uSubscription
         description: uProtocol uSubscription API operation.
     externalDocs:
       description: uSubscription specification
-      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#unsubscribe-operation'
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#unsubscribe-operation'
     channel:
       $ref: "#/channels/unsubscribeRequests"
     action: receive
@@ -184,19 +204,16 @@ operations:
         $ref: "#/channels/unsubscribeResponses"
     bindings:
       x-uprotocol:
-        # [impl->dsn~usubscription-unsubscribe-method_id~1]
+        # [dsn->impl:req~usubscription-unsubscribe-method_id~1]
         methodId: 0x0002
-
-
   FetchSubscriptions:
-    title: Get subscription information, filtered by topic and/or subscribers.
-    summary: Fetch subscription information, for topic or subscribers URIs passed as filtering arguments.
+    summary: Get subscription information, filtered by topic and/or subscribers.
     tags:
       - name: uSubscription
         description: uProtocol uSubscription API operation.
     externalDocs:
       description: uSubscription specification
-      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#fetch-subscriptions-operation'
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#fetch-subscriptions-operation'
     channel:
       $ref: "#/channels/fetchSubscriptionsRequests"
     action: receive
@@ -205,50 +222,59 @@ operations:
         $ref: "#/channels/fetchSubscriptionsResponses"
     bindings:
       x-uprotocol:
-        # [impl->dsn~usubscription-fetch-subscriptions-method_id~1]
+        # [dsn->impl:req~usubscription-fetch-subscriptions-method_id~1]
         methodId: 0x0003
-
-
-
-
-  FetchSubscribers:
-    # [dsn->impl:req~usubscription-fetch-subscribers-signature~1]
-    title: Get subscribers of a topic.
-    summary: Fetch subscription information for each client currently subscribed to a given topic.
+  RegisterForNotifications:
+    summary: Register to be sent subscription change Notification messages for an indicated topic.
     tags:
       - name: uSubscription
         description: uProtocol uSubscription API operation.
     externalDocs:
       description: uSubscription specification
-      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#fetch-subscribers-operation'
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#register-for-notifications-operation'
     channel:
-      $ref: "#/channels/fetchSubscribersRequests"
+      $ref: "#/channels/registerForNotificationsRequests"
     action: receive
     reply:
       channel:
-        $ref: "#/channels/fetchSubscribersResponses"
+        $ref: "#/channels/registerForNotificationsResponse"
     bindings:
       x-uprotocol:
-        # [impl->dsn~usubscription-fetch-subscribers-method_id~1]
-        methodId: 0x0003
-
-  FetchSubscriptions:
-    # [dsn->impl:req~usubscription-fetch-subscriptions-signature~1]
-    title: Get clients subscribing to a topic.
-    summary: Fetch subscription information for each topic currently subscribed to by a given client.
-    tags:
-      - name: uSubscription
-        description: uProtocol uSubscription API operation.
-    externalDocs:
-      description: uSubscription specification
-      $ref: '../../../../../up-l3/usubscription/v3/README.adoc#fetch-subscriptions-operation'
-    channel:
-      $ref: "#/channels/fetchSubscriptionsRequests"
-    action: receive
-    reply:
-      channel:
-        $ref: "#/channels/fetchSubscriptionsResponses"
-    bindings:
-      x-uprotocol:
-        # [impl->dsn~usubscription-fetch-subscriptions-method_id~1]
+        # [dsn->impl:req~usubscription-register-notifications-method_id~1]
         methodId: 0x0004
+  UnregisterForNotifications:
+    summary: Unregister from being sent subscription change Notification messages.
+    tags:
+      - name: uSubscription
+        description: uProtocol uSubscription API operation.
+    externalDocs:
+      description: uSubscription specification
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#unregister-for-notifications-operation'
+    channel:
+      $ref: "#/channels/unregisterForNotificationsRequests"
+    action: receive
+    reply:
+      channel:
+        $ref: "#/channels/unregisterForNotificationsResponse"
+    bindings:
+      x-uprotocol:
+        # [dsn->impl:req~usubscription-unregister-notifications-method_id~1]
+        methodId: 0x0005
+  Reset:
+    summary: Clear any subscription tracking data and custom notification configuration.
+    tags:
+      - name: uSubscription
+        description: uProtocol uSubscription API operation.
+    externalDocs:
+      description: uSubscription specification
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#reset-operation'
+    channel:
+      $ref: "#/channels/resetRequests"
+    action: receive
+    reply:
+      channel:
+        $ref: "#/channels/resetResponse"
+    bindings:
+      x-uprotocol:
+        # [dsn->impl:req~usubscription-reset-method_id~1]
+        methodId: 0x0006
