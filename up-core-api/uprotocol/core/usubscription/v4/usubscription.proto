@@ -21,7 +21,7 @@ import "google/protobuf/timestamp.proto";
 import "uprotocol/v1/uri.proto";
 import "uprotocol/uoptions.proto";
 
-option java_package = "org.eclipse.uprotocol.core.usubscription.v3";
+option java_package = "org.eclipse.uprotocol.core.usubscription.v4";
 option java_outer_classname = "USubscriptionProto";
 option java_multiple_files = true;
 
