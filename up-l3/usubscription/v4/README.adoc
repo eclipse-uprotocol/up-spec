@@ -611,10 +611,10 @@ NOTE: The Action column in the above table describes that action to be taken by 
 
 When the subscription state of a client-topic relationship changes, uSubscription service publishes subscription change notification messages to the global `subscriptionChange` channel. It also notifies the clients affected by the change - either because they are the original subscribers, or because they requested to be notified of changes to the affected topic.   
 
-[.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="impl,utest",oft-tags="USubscription"]
+[.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 Subscription change notifications *MUST* be messages of type xref:subscription[`Subscription`].
 
-[.specitem,oft-sid="req~usubscription-change-publication~1",oft-needs="impl,utest",oft-tags="USubscription"]
+[.specitem,oft-sid="req~usubscription-change-publication~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 uSubscription service *MUST* publish (send a Publish message to) information about all changes to tracked subscriptions via the `SubscriptionChange` channel.
 
 [.specitem,oft-sid="req~usubscription-change-publication-topic~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]

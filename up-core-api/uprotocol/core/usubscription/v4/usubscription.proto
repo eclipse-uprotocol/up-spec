@@ -35,7 +35,7 @@ enum SubscriptionStatus {
   UNSUBSCRIBE_PENDING = 3;
 }
 
-// [dsn->impl:req~usubscription-change-message-type~1]
+// [dsn->req~usubscription-change-message-type~1>>impl]
 message Subscription {
   uprotocol.v1.UUri topic = 1;
   uprotocol.v1.UUri subscriber = 2;
@@ -44,45 +44,52 @@ message Subscription {
   optional uint32 sample_period_ms = 5;
 }
 
-// [dsn->impl:req~usubscription-subscribe-request-signature~1]
+// [dsn->req~usubscription-subscribe-request-signature~1>>impl]
 message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
   optional uint64 expire_ms = 2;
   optional uint32 sample_period_ms = 3;
 }
 
-// [dsn->impl:req~usubscription-subscribe-response-signature~1]
+// [dsn->req~usubscription-subscribe-response-signature~1>>impl]
 message SubscribeResponse {
   uprotocol.v1.UUri topic = 1;
   SubscriptionStatus status = 2;
 }
 
-// [dsn->impl:req~usubscription-unsubscribe-request-signature~1]
+// [dsn->req~usubscription-unsubscribe-request-signature~1>>impl]
 message UnsubscribeRequest {
   uprotocol.v1.UUri topic = 1;
 }
 
-// [dsn->impl:req~usubscription-unsubscribe-response-signature~1]
+// [dsn->req~usubscription-unsubscribe-response-signature~1>>impl]
 message UnsubscribeResponse {}
 
-// [dsn->impl:req~usubscription-fetch-subscriptions-request-signature~1]
+// [dsn->req~usubscription-fetch-subscriptions-request-signature~1>>impl]
 message FetchSubscriptionsRequest {
   uprotocol.v1.UUri topic_filter = 1;
   uprotocol.v1.UUri subscriber_filter = 2;
 }
 
-// [dsn->impl:req~usubscription-fetch-subscriptions-response-signature~1]
+// [dsn->req~usubscription-fetch-subscriptions-response-signature~1>>impl]
 message FetchSubscriptionsResponse {
   repeated Subscription subscriptions = 1;
 }
+
+// [dsn->req~usubscription-register-notifications-request-signature~1>>impl]
+// [dsn->req~usubscription-unregister-notifications-request-signature~1>>impl]
 message NotificationsRequest {
   uprotocol.v1.UUri topic = 1;
 }
 
+// [dsn->req~usubscription-register-notifications-response-signature~1>>impl]
+// [dsn->req~usubscription-unregister-notifications-response-signature~1>>impl]
 message NotificationsResponse {}
 
+// [dsn->req~usubscription-reset-request-signature~1>>impl]
 message ResetRequest {
   optional string message = 1;
 }
 
+// [dsn->req~usubscription-reset-response-signature~1>>impl]
 message ResetResponse {}

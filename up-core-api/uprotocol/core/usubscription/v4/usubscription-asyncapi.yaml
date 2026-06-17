@@ -25,9 +25,9 @@ info:
   tags:
     - name: uProtocol uSubscription
   x-uprotocol:
-    # [dsn->impl:req~usubscription-service_name~1]
+    # [dsn->req~usubscription-service_name~1>>impl]
     serviceName: core.usubscription
-    # [dsn->imple:req~usubscription-uentity_id~1]
+    # [dsn->req~usubscription-uentity_id~1>>impl]
     uEntityId: 0x0
     versionMajor: 4
     versionMinor: 0
@@ -35,7 +35,7 @@ info:
 defaultContentType: "application/protobuf"
 
 channels:
-  # [dsn->impl:req~usubscription-change-publication~1]
+  # [dsn->req~usubscription-change-publication~1>>impl]
   subscriptionChange:
     summary: Channel for publication of subscription change messages.
     messages:
@@ -46,10 +46,9 @@ channels:
           schema:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.Subscription'
     x-uprotocol:
-      # [dsn->impl:req~usubscription-change-publication-topic~1]
+      # [dsn->req~usubscription-change-publication-topic~1>>impl]
       resourceId: 0x8000
   subscribeRequests:
-    # [dsn->impl:req~usubscription-subscribe-request-signature~1]
     summary: Requests to subscribe client to a topic.
     messages:
       protobuf:
@@ -59,7 +58,6 @@ channels:
           schema:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.SubscribeRequest'
   subscribeResponses:
-    # [dsn->impl:req~usubscription-subscribe-response-signature~1]
     summary: Responses to client-topic subscription calls.
     messages:
       protobuf:
@@ -69,7 +67,6 @@ channels:
           schema:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.SubscribeResponse'
   unsubscribeRequests:
-    # [dsn->impl:req~usubscription-unsubscribe-request-signature~1]
     summary: Requests to unsubscribe a client from a topic.
     messages:
       protobuf:
@@ -79,7 +76,6 @@ channels:
           schema:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.UnsubscribeRequest'
   unsubscribeResponses:
-    # [dsn->impl:req~usubscription-unsubscribe-response-signature~1]
     summary: Response to client-topic unsubscribe calls.
     messages:
       protobuf:
@@ -90,7 +86,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.UnsubscribeResponse'
   fetchSubscriptionsRequests:
     summary: Request to fetch subscription and subscriber information.
-    # [dsn->impl:req~usubscription-fetch-subscriptions-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -100,7 +95,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.FetchSubscriptionsRequest'
   fetchSubscriptionsResponses:
     summary: Responses to fetch subscription information calls.
-    # [dsn->impl:req~usubscription-fetch-subscriptions-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -110,7 +104,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.FetchSubscriptionsResponse'
   registerForNotificationsRequests:
     summary: Requests to receive subscription change Notification messages for an indicated topic.
-    # [dsn->impl:req~usubscription-register-notifications-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -120,7 +113,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
   registerForNotificationsResponses:
     summary: Responses to subscription change notifications requests.
-    # [dsn->impl:req~usubscription-register-notifications-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -130,7 +122,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
   unregisterForNotificationsRequests:
     summary: Requests to stop receiving subscription change Notification messages.
-    # [dsn->impl:req~usubscription-unregister-notifications-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -140,7 +131,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
   unregisterForNotificationsResponses:
     summary: Responses to subscription change notifications opt-out requests.
-    # [dsn->impl:req~usubscription-unregister-notifications-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -150,7 +140,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
   resetRequests:
     summary: Requests to clear any subscription tracking data and custom notification configuration.
-    # [dsn->impl:req~usubscription-reset-request-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -160,7 +149,6 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsRequest'
   resetResponses:
     summary: Responses to subscription tracking data and custom notification configuration reset.
-    # [dsn->impl:req~usubscription-reset-response-signature~1]
     messages:
       protobuf:
         contentType: 'application/protobuf'
@@ -186,7 +174,7 @@ operations:
         $ref: "#/channels/subscribeResponses"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-subscribe-method_id~1]
+        # [dsn->req~usubscription-subscribe-method_id~1>>impl]
         methodId: 0x0001
   Unsubscribe:
     summary: Unsubscribe from a topic.
@@ -204,7 +192,7 @@ operations:
         $ref: "#/channels/unsubscribeResponses"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-unsubscribe-method_id~1]
+        # [dsn->req~usubscription-unsubscribe-method_id~1>>impl]
         methodId: 0x0002
   FetchSubscriptions:
     summary: Get subscription information, filtered by topic and/or subscribers.
@@ -222,7 +210,7 @@ operations:
         $ref: "#/channels/fetchSubscriptionsResponses"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-fetch-subscriptions-method_id~1]
+        # [dsn->req~usubscription-fetch-subscriptions-method_id~1>>impl]
         methodId: 0x0003
   RegisterForNotifications:
     summary: Register to be sent subscription change Notification messages for an indicated topic.
@@ -240,7 +228,7 @@ operations:
         $ref: "#/channels/registerForNotificationsResponse"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-register-notifications-method_id~1]
+        # [dsn->req~usubscription-register-notifications-method_id~1>>impl]
         methodId: 0x0004
   UnregisterForNotifications:
     summary: Unregister from being sent subscription change Notification messages.
@@ -258,7 +246,7 @@ operations:
         $ref: "#/channels/unregisterForNotificationsResponse"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-unregister-notifications-method_id~1]
+        # [dsn->req~usubscription-unregister-notifications-method_id~1>>impl]
         methodId: 0x0005
   Reset:
     summary: Clear any subscription tracking data and custom notification configuration.
@@ -276,5 +264,5 @@ operations:
         $ref: "#/channels/resetResponse"
     bindings:
       x-uprotocol:
-        # [dsn->impl:req~usubscription-reset-method_id~1]
+        # [dsn->req~usubscription-reset-method_id~1>>impl]
         methodId: 0x0006
