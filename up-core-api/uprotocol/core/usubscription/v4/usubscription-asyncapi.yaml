@@ -15,7 +15,7 @@ info:
   title: Eclipse uProtocol uSubscription service API definition
   version: '4.0.0'
   description: |
-    USubscription is a uProtocol service for managing x-system pub/sub subscriptions.
+    USubscription is a uProtocol service for managing pub/sub subscriptions across different platforms and runtime environments.
   contact:
     name: Daniel Krippner
     email: daniel.Krippner@etas.com
@@ -28,7 +28,7 @@ info:
     # [dsn->req~usubscription-service_name~1>>impl]
     serviceName: core.usubscription
     # [dsn->req~usubscription-uentity_id~1>>impl]
-    uEntityId: 0x0
+    uEntityTypeId: 0x0000
     versionMajor: 4
     versionMinor: 0
 
@@ -159,7 +159,7 @@ channels:
 
 operations:
   Subscribe:
-    summary: Susbcribe to a topic.
+    summary: Subscribe to a topic.
     tags:
       - name: uSubscription
         description: uProtocol uSubscription API operation.

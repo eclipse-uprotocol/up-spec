@@ -78,7 +78,7 @@ class Subscription {
 }
 
 USubscription ..> SubscriptionStatus
-Subscription ..> SubscriptionStatus
+USubscription ..> Subscription
 ----
 
 ---
@@ -149,7 +149,7 @@ Unless stated otherwise, uSubscription service *MUST* return a failure status me
 
 * is not a valid {uuri_ref} or
 * contains a _wildcard_ `authority_name` or
-* contains a _wildcard_ _service ID_ (_least_ significant 16 bits of `ue_id`) or
+* contains a _wildcard_ _service type ID_ (_least_ significant 16 bits of `ue_id`) or
 * contains a _wildcard_ _service instance ID_ (most significant 16 bits of `ue_id`) or
 * contains an _empty_ or _wildcard_ `ue_version_major` or
 * contains a `resource_id` that is not `0`
@@ -167,7 +167,7 @@ subscribe(topic: UUri, expiry: UInt64[0..1], sample_period: UInt32[0..1]) : (UUr
 
 Clients use this method to subscribe to a topic. 
 
-* Returns the status of the requested subscription. 
+* Returns the current status of the requested subscription. 
 * Calling this endpoint also registers the subscribing client to receive subscription change notifications when the subscription status changes.
 
 [.specitem,oft-sid="req~usubscription-subscribe-method_id~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
@@ -231,10 +231,10 @@ When a client calls the `Subscribe()` function, uSubscription service *MUST* per
 When the subscription expiration time is exceeded, uSubscription service *MUST* stop tracking the associated client-topic subscription, i.e. set xref:subscription-status[SubscriptionStatus] of the client-topic combination to `UNSUBSCRIBED`.
 
 [.specitem,oft-sid="req~usubscription-subscribe-no-expiration~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a subscription request does not specify an expiration time, uSubscription service *MUST* track the associated client-topic subscription indefinitely and persistently (across service restarts).
+When a subscription request does not specify an expiration time, uSubscription service *MUST* track the associated client-topic subscription until the subscription is canceled by the client.
 
 [.specitem,oft-sid="req~usubscription-subscribe-multiple~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a client calls the `Subscribe()` function for a topic that it is already subscribed to, uSubscription service *MUST* return a response message containing the current xref:subscription-status[SubscriptionStatus] of this client-topic combination (e.g. `SUBSCRIBED` or `SUBSCRIBE_PENDING`).
+When a client calls the `Subscribe()` function for a topic that it is already subscribed to, uSubscription service *MUST* return a response message containing the current xref:subscription-status[SubscriptionStatus] of this client/topic combination (e.g. `SUBSCRIBED` or `SUBSCRIBE_PENDING`).
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration-extension~1",oft-needs="impl,utest",oft-tags="USubscription"]
 When a client calls the `Subscribe()` function for a topic that it is already subscribed to where the `expire` field value differs from the current expiration time, uSubscription service *MUST* update the expiration time of the subscription with the new value.
@@ -246,10 +246,10 @@ When a client calls the `Subscribe()` function for a topic that it is already su
 When a client makes the first call to `Subscribe()` to a xref:local-remote-subscriptions[remote] topic, uSubscription service *MUST* establish a remote subscription to that topic by sending a `Subscribe()` request to the uSubscription service running on the host indicated by the remote topic _authority_. 
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote-pending~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When uSubscription service sends a `Subscribe()` request to a remote uSubscription service, uSubscription service *MUST* set the xref:subscription-status[SubscriptionStatus] for any client-topic combination involving the subscribed remote topic to `SUBSCRIBE_PENDING`.
+When a local uSubscription service sends a `Subscribe()` request to a remote uSubscription service, the local uSubscription service *MUST* set the xref:subscription-status[SubscriptionStatus] for any client/topic combination involving the subscribed remote topic to `SUBSCRIBE_PENDING`.
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote-response~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When uSubscription service receives a reply to a remote `Subscribe()` request, uSubscription service *MUST* set the xref:subscription-status[SubscriptionStatus] for any client-topic combination involving the subscribed remote topic to match the subscription status response of the remote uSubscription service (e.g. `SUBSCRIBED` or `UNSUBSCRIBED`).
+When a local uSubscription service receives a reply to a remote `Subscribe()` request, the local uSubscription service *MUST* set the xref:subscription-status[SubscriptionStatus] for any client/topic combination involving the subscribed remote topic to match the subscription status response of the remote uSubscription service (e.g. `SUBSCRIBED` or `UNSUBSCRIBED`).
 
 [.specitem,oft-sid="req~usubscription-subscribe-unsubscribe-pending~1",oft-needs="impl,utest",oft-tags="USubscription"]
 When a client calls the `Subscribe()` function for a remote topic with xref:subscription-status[SubscriptionStatus] `UNSUBSCRIBE_PENDING`, uSubscription service *MUST* initiate the regular remote subscription process, i.e. send a subscription request to the remote uSubscription service and set xref:subscription-status[SubscriptionStatus] to `SUBSCRIBE_PENDING`.
