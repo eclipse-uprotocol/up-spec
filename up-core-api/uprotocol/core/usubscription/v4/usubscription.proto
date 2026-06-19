@@ -16,10 +16,8 @@ syntax = "proto3";
 
 package uprotocol.core.usubscription.v4;
 
-import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "uprotocol/v1/uri.proto";
-import "uprotocol/uoptions.proto";
 
 option java_package = "org.eclipse.uprotocol.core.usubscription.v4";
 option java_outer_classname = "USubscriptionProto";
@@ -40,14 +38,14 @@ message Subscription {
   uprotocol.v1.UUri topic = 1;
   uprotocol.v1.UUri subscriber = 2;
   SubscriptionStatus status = 3;
-  optional uint64 expire_ms = 4;
+  optional google.protobuf.Timestamp expire_ms = 4;
   optional uint32 sample_period_ms = 5;
 }
 
 // [dsn->req~usubscription-subscribe-request-signature~1>>impl]
 message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
-  optional uint64 expire_ms = 2;
+  optional google.protobuf.Timestamp expire_ms = 2;
   optional uint32 sample_period_ms = 3;
 }
 

@@ -15,7 +15,7 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ----
 
-Core uProtocol services interfaces are defined using asyncapi, with pointers to supported message serialization formats.
+Core uProtocol services interfaces are defined using asyncapi, with pointers to supported message serialization formats. Core uProtocol services API request and response messages can be defined to support any desired serialization format. The current default format is protobuf.
 
 ---
 
@@ -23,34 +23,30 @@ NOTE: Not all core services are implemented using asyncapi specifications yet. S
 
 ---
 
-.asnyncapi files
+[%autowidth]
 |===
-| File | Description
+| Service | Description | API definition | Message definitions
 
-| link:usubscription/v4/usubscription-asyncapi.yaml[*usubscription-asyncapi.yaml*]
-| Contract for publishers and subscribers to subscribe/publish to topics
-|===
-
----
-
-Core uProtocol services API request and response messages can be defined to support any desired serialization format. The current default format is protobuf.
-
-.protobuf files
-|===
-| File | Description
-
-| link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
+| uDiscovery
 | Contract for dynamically discovering uThings (other uEntities, uDevices, uDomains, uResources, uMethods, etc...), for example what topics a service in another device shall publish, properties of a service, etc...
+| link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
+| link:udiscovery/v3/udiscovery.proto[*udiscovery.proto*]
 
+| uSubscription
+| Contract for publishers and subscribers to subscribe/publish to topics
+| link:usubscription/v4/usubscription-asyncapi.yaml[*usubscription-asyncapi.yaml*]
 | link:usubscription/v4/usubscription.proto[*usubscription.proto*]
-| Request and response message definitions for publishers and subscribers to subscribe/publish to topics
 
+| uTwin
+a|
+--
+ * Device-to-device Twin:
+  ** enable remote Apps to access last published state (and received by the device)
+  ** remain accessible even if connectivity is lost
+* In-vehicle Twin:
+  ** avoid re-sending (re-publishing) data when apps are launched/subscribed
+--
 | link:utwin/v2/utwin.proto[*utwin.proto*]
-a| * Device-to-device Twin:
-     ** To enable remote Apps to access last published state (and received by the device)
-     ** To remain accessible even if connectivity is lost
-   * In-vehicle Twin:
-     ** To avoid re-sending (re-publishing) data when apps are launched/subscribed
+| link:utwin/v2/utwin.proto[*utwin.proto*]
 
 |===
-

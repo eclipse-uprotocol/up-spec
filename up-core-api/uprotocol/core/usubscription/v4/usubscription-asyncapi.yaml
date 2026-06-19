@@ -29,8 +29,6 @@ info:
     serviceName: core.usubscription
     # [dsn->req~usubscription-uentity_id~1>>impl]
     uEntityTypeId: 0x0000
-    versionMajor: 4
-    versionMinor: 0
 
 defaultContentType: "application/protobuf"
 
