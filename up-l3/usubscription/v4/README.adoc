@@ -53,7 +53,7 @@ ifdef::env-github[[source,mermaid]]
 classDiagram
 class USubscription {
     <<interface>>
-    subscribe(topic: UUri, expiry: Instant[0..1], sample_period: UInt32 [0..1]) : (UUri, SubscriptionStatus)
+    subscribe(topic: UUri, expiration: Instant[0..1], sample_period: UInt32 [0..1]) : (UUri, SubscriptionStatus)
     unsubscribe(topic: UUri)
     fetchSubscriptions(topic_filter: UUri[0..1], subscriber_filter: UUri[0..1]) Subscription[*]
     registerForNotifications(topic: UUri)
@@ -152,7 +152,7 @@ In addition to performing the actions necessary to subscribe to and receive mess
 
 [source]
 ----
-subscribe(topic: UUri, expiry: Instant[0..1], sample_period: UInt32[0..1]) : (UUri, SubscriptionStatus)
+subscribe(topic: UUri, expiration: Instant[0..1], sample_period: UInt32[0..1]) : (UUri, SubscriptionStatus)
 ----
 
 Clients use this operation to subscribe to a topic. 
@@ -184,7 +184,7 @@ uProtocol URI of the topic to subscribe to.
 Calls to the uSubscription service `Subscribe()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a `topic` UURI violates the xref:usubscription-topics[topic UURI rules].
 --
 
-| `expiry`
+| `expiration`
 | Instant
 | no
 | Subscription xref:expiration-time[Expiration time]
@@ -222,19 +222,19 @@ When a client calls the `Subscribe()` operation, uSubscription service *MUST* pe
 When a client calls the `Subscribe()` operation for a topic that it is already subscribed to, uSubscription service *MUST* return a response message containing the current xref:subscription-status[SubscriptionStatus] of this client/topic combination (e.g. `SUBSCRIBED` or `SUBSCRIBE_PENDING`).
 
 [.specitem,oft-sid="req~usubscription-subscribe-no-expiration~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a subscription request does not specify an `expiry` time, uSubscription service *MUST* track the associated client-topic subscription until the subscription is canceled by the client.
+When a subscription request does not specify an `expiration` time, uSubscription service *MUST* track the associated client-topic subscription until the subscription is canceled by the client.
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a subscriptions `expiry` time is exceeded, uSubscription service *MUST* stop tracking the associated client-topic subscription, i.e. set xref:subscription-status[SubscriptionStatus] of the client-topic combination to `UNSUBSCRIBED`.
+When a subscriptions `expiration` time is exceeded, uSubscription service *MUST* stop tracking the associated client-topic subscription, i.e. set xref:subscription-status[SubscriptionStatus] of the client-topic combination to `UNSUBSCRIBED`.
 
-[.specitem,oft-sid="req~usubscription-past-subscription-expiry~1",oft-needs="impl,utest",oft-tags="USubscription"]
-If `expiry` time is set in the past when the associated subscription request is processed by uSubscription service, it *MUST NOT* register the subscription and return xref:subscription-status[SubscriptionStatus] `UNSUBSCRIBED`.
+[.specitem,oft-sid="req~usubscription-past-subscription-expiration~1",oft-needs="impl,utest",oft-tags="USubscription"]
+If `expiration` time is set in the past when the associated subscription request is processed by uSubscription service, it *MUST NOT* register the subscription and return xref:subscription-status[SubscriptionStatus] `UNSUBSCRIBED`.
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration-extension~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a client calls the `Subscribe()` operation for a topic that it is already subscribed to where the `expiry` field value differs from the current expiration time, uSubscription service *MUST* update the `expiry` field of the subscription with the new value.
+When a client calls the `Subscribe()` operation for a topic that it is already subscribed to where the `expiration` field value differs from the current expiration time, uSubscription service *MUST* update the `expiration` field of the subscription with the new value.
 
 [.specitem,oft-sid="req~usubscription-subscribe-expiration-extension-past~1",oft-needs="impl,utest",oft-tags="USubscription"]
-When a client calls the `Subscribe()` operation for a topic that it is already subscribed to where the `expiry` field value differs from the current expiration time and lies in the past, uSubscription service *MUST* unregister the subscription and set xref:subscription-status[SubscriptionStatus] `UNSUBSCRIBED`.
+When a client calls the `Subscribe()` operation for a topic that it is already subscribed to where the `expiration` field value differs from the current expiration time and lies in the past, uSubscription service *MUST* unregister the subscription and set xref:subscription-status[SubscriptionStatus] `UNSUBSCRIBED`.
 
 [.specitem,oft-sid="req~usubscription-subscribe-remote~1",oft-needs="impl,utest",oft-tags="USubscription"]
 When a client makes the first call to `Subscribe()` to a xref:local-remote-subscriptions[remote] topic, uSubscription service *MUST* establish a remote subscription to that topic by sending a `Subscribe()` request to the uSubscription service running on the host indicated by the remote topic _authority_. 
@@ -285,7 +285,7 @@ participant N as Notification Channel
 C->>T : subscribe("//vehicle/A1B/1/9A10", 1780923819000)
 activate T
     T-->>C : ("//vehicle/A1B/1/9A10", SubscriptionStatus.SUBSCRIBED)
-    T-->T : await expiry
+    T-->T : await expiration
     T->>C : ("//vehicle/A1B/1/9A10", "/80/2", SubscriptionStatus.UNSUBSCRIBED)
     T--)N : ("//vehicle/A1B/1/9A10", "/80/2", SubscriptionStatus.UNSUBSCRIBED)
 deactivate T
@@ -888,21 +888,14 @@ SubscriptionStatus is an enum-style object, describing the status of a subscribe
 [#expiration-time]
 === Expiration time
 
-Expiration time is used to define when a subscription should automatically expire. Expiration time should be set in the future: uSubscription service will ignore susbcription requests with a timestamp that has already expired at the time of request processing. Expiration time is an instance of a Unix timestamp:
+Expiration time is used to define when a subscription should automatically expire. Expiration time should be set in the future: uSubscription service will ignore susbcription requests with a timestamp that has already expired at the time of request processing. 
 
-[quote,https://en.wikipedia.org/wiki/Unix_time]
-____
-Unix time is currently defined as the number of non-leap seconds which have passed since 00:00:00 UTC on Thursday, 1 January 1970, which is referred to as the Unix epoch. Unix time is typically encoded as a signed integer.
-
-The Unix time 0 is exactly midnight UTC on 1 January 1970, with Unix time incrementing by 1 for every non-leap second after this. For example, 00:00:00 UTC on 1 January 1971 is represented in Unix time as 31536000. Negative values, on systems that support them, indicate times before the Unix epoch, with the value decreasing by 1 for every non-leap second before the epoch. For example, 00:00:00 UTC on 1 January 1969 is represented in Unix time as -31536000. 
-____
-
-[.specitem,oft-sid="dsn~usubscription-subscription-expiry-datatype~1",oft-needs="impl,utest",oft-tags="USubscription"]
-In message serialization, expiration time *MUST* be represented as a type that conforms to the definitions and expectations associated with a Unix timestamp.
+[.specitem,oft-sid="dsn~usubscription-subscription-expiration-datatype~1",oft-needs="impl,utest",oft-tags="USubscription"]
+Expiration time parameters passed to the uSubscription API *MUST* follow the link:https://www.iso8601.com[ISO8601] definition for an instant in time, in millisecond granularity.
 
 ---
 
-NOTE: The specific data type to best represent a Unix timestamp is specific to the serialization technology that is being used. For instance, using protobuf, Expiration time would be best represented by the link:https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp[well-known Timestamp type].
+NOTE: The actual data type to best represent an expiration timestamp is specific to the serialization technology that is being used. For instance, using protobuf, Expiration time would be best represented by the link:https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp[well-known Timestamp type].
 
 ---
 
@@ -944,7 +937,7 @@ Subscription is an information object containing all available information about
 | yes
 | Current status of the subscription.
 
-| `expiry`
+| `expiration`
 | Instant
 | no
 | Subscription xref:expiration-time[Expiration time]

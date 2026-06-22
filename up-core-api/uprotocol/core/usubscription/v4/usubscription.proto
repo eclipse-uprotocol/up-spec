@@ -38,14 +38,14 @@ message Subscription {
   uprotocol.v1.UUri topic = 1;
   uprotocol.v1.UUri subscriber = 2;
   SubscriptionStatus status = 3;
-  optional google.protobuf.Timestamp expire_ms = 4;
+  optional google.protobuf.Timestamp expiration = 4;
   optional uint32 sample_period_ms = 5;
 }
 
 // [dsn->req~usubscription-subscribe-request-signature~1>>impl]
 message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
-  optional google.protobuf.Timestamp expire_ms = 2;
+  optional google.protobuf.Timestamp expiration = 2;
   optional uint32 sample_period_ms = 3;
 }
 
