@@ -405,10 +405,10 @@ a|
 If a topic filter {uuri_ref} is provided as part of a call to `FetchSubcriptions()`, uSubscription service *MUST* only return xref:subscription[Subscription] entries where the subscribed topic is equal to the topic filter UURI.
 
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-topic-filter-wildcards~1",oft-needs="impl,utest",oft-tags="USubscription"]
-The uSubscription service API *MUST* be able to deal with wildcards in topic filter URIs, and only return subscription information for topics that are matched by the wildcarded filter URI.
+The uSubscription service `FetchSubscriptions()` operation *MUST* be able to deal with wildcards in topic filter URIs, and only return subscription information for topics that are matched by the wildcarded filter URI.
 
 [.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-invalid-topic-filter~1",oft-needs="impl,utest",oft-tags="USubscription"]
-The uSubscription service API *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a topic filter UURI is not a valid {uuri_ref}.
+The uSubscription service `FetchSubscriptions()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a topic filter UURI is not a valid {uuri_ref}.
 --
 
 | subscriber_filter
@@ -420,10 +420,10 @@ a|
 If a subscriber filter {uuri_ref} is provided as part of a call to `FetchSubcriptions()`, uSubscription service *MUST* only return xref:subscription[Subscription] entries where the subscribing client is equal to the subscriber filter UURI.
 
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-subscriber-filter-wildcards~1",oft-needs="impl,utest",oft-tags="USubscription"]
-The uSubscription service API *MUST* be able to deal with wildcards in subscriber filter URIs, and only return subscription information for subscribers that are matched by the wildcarded filter URI.
+The uSubscription service `FetchSubscriptions()` operation *MUST* be able to deal with wildcards in subscriber filter URIs, and only return subscription information for subscribers that are matched by the wildcarded filter URI.
 
 [.specitem,oft-sid="dsn~usubscription-fetch-subscriptions-invalid-subscriber-filter~1",oft-needs="impl,utest",oft-tags="USubscription"]
-The uSubscription service API *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a subscriber filter UURI is not a valid {uuri_ref}.
+The uSubscription service `FetchSubscriptions()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a subscriber filter UURI is not a valid {uuri_ref}.
 --
 |===
 
@@ -603,37 +603,30 @@ NOTE: The Action column in the above table describes that action to be taken by 
 
 == Subscription Change Notifications
 
-When the subscription state of a client-topic relationship changes, uSubscription service publishes subscription change notification messages to the global `subscriptionChange` channel. It also notifies the clients affected by the change - either because they are the original subscribers, or because they requested to be notified of changes to the affected topic.   
+When subscription `status`, `expiration` time or `sample_period_ms` of a client-topic relationship changes, uSubscription service notifies the clients affected by the change - either because they are the subscription holders, or because they requested to be notified of changes involving a certain topic (or set of topics).
+
+[.specitem,oft-sid="req~usubscription-change-notification~1",oft-needs="impl,utest",oft-tags="USubscription"]
+uSubscription service *MUST* notify (send a Notification message to) every susbcription holder on changes to subscription `status`, `expiration` time or `sample_period_ms` of their subscription.
 
 [.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 Subscription change notifications *MUST* be messages of type xref:subscription[`Subscription`].
 
-[.specitem,oft-sid="req~usubscription-change-publication~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
-uSubscription service *MUST* publish (send a Publish message to) information about all changes to tracked subscriptions via the `SubscriptionChange` channel.
-
-[.specitem,oft-sid="req~usubscription-change-publication-topic~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
-The `SubscriptionChange` channel *MUST* use resource id `0x8000`.
-
-=== Client notifications
-
-Clients automatically are notified about subcription changes of all topics that they `Subscribe()` to.
-
-[.specitem,oft-sid="req~usubscription-change-notification~1",oft-needs="impl,utest",oft-tags="USubscription"]
-uSubscription service *MUST* notify (send a Notification message to) every client about status changes of subscriptions held by that client.
-
+[.specitem,oft-sid="req~usubscription-change-notification-resource~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
+Subscription change messages *MUST* use resource ID `0x8000` in the Notification source UURI.
+ 
 === Custom notifications
 
-uEntities may register with uSubscription service to explicitly be sent subscription change Notifications messages when the subscription state of the indicated topic changes.
+Any uEntity may register with uSubscription service to explicitly be sent subscription change Notifications when the subscription `status`, `expiration` time or `sample_period_ms` of an indicated topic (or set of topics) changes. For instance, a `uStreamer` application might be interested in all subscription events involving a topic with an `authority` pointing to the remote network that the `uStreamer` is bridging to.
 
 [#register-for-notifications-operation]
 ==== RegisterForNotifications()
 
 [source]
 ----
-registerForNotifications(topic: UUri)
+registerForNotifications(topic_filter: UUri)
 ----
 
-Clients use this operation to register for being sent subscription change Notification messages for an indicated topic. 
+uEntities use this operation to register for being sent subscription change Notification messages for an indicated topic or set of topics.
 
 [.specitem,oft-sid="req~usubscription-register-notifications-method_id~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 The uSubscription `RegisterForNotifications()` operation *MUST* use the method ID `4`.
@@ -648,15 +641,16 @@ The uSubscription `RegisterForNotifications()` operation *MUST* implement the fo
 |===
 | Name | Type | Mandatory | Description
 
-| `topic`
+| `topic_filter`
 | {uuri_ref}
 | yes
 a|
 --
-uProtocol URI of the topic to receive subscription change Notification messages for.
+[.specitem,oft-sid="req~usubscription-register-notifications-topic-filter-wildcards~1",oft-needs="impl,utest",oft-tags="USubscription"]
+The `RegisterForNotifications()` operation *MUST* be able to deal with wildcards in topic filter URIs, and register the client to receive change Notifications for any subscription involving the set of matching topics.
 
-[.specitem,oft-sid="dsn~usubscription-register-notifications-valid-topic-uuris~1",oft-needs="impl,utest",oft-tags="USubscription"]
-Calls to the uSubscription service `RegisterForNotifications()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a `topic` UURI violates the xref:usubscription-topics[topic UURI rules].
+[.specitem,oft-sid="dsn~usubscription-register-notifications-invalid-topic-filter~1",oft-needs="impl,utest",oft-tags="USubscription"]
+The uSubscription service `RegisterForNotifications()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a topic filter UURI is not a valid {uuri_ref}.
 --
 |===
 
@@ -666,7 +660,7 @@ Calls to the uSubscription service `RegisterForNotifications()` operation *MUST*
 The uSubscription `RegisterForNotifications()` operation *MUST* implement an empty response message.
 
 [.specitem,oft-sid="req~usubscription-register-notifications~1",oft-needs="impl,utest",oft-tags="USubscription"]
-After a client has called `RegisterForNotifications()` to receive subscription change notifications for an indicated topic, uSubscription service *MUST* send subscription change Notification messages to that client whenever an aspect of that subscription changes. 
+After a client has called `RegisterForNotifications()`, uSubscription service *MUST* send subscription change Notification messages to that client whenever subscription `status`, `expiration` time or `sample_period_ms` of the indicated topic (or set of topics) changes.
 
 ---
 
@@ -701,7 +695,7 @@ T--)N : ("//vehicle/A1B/1/9A10", "/90/1", SubscriptionStatus.UNSUBSCRIBED)
 unregisterForNotifications(topic: UUri)
 ----
 
-Clients use this operation to unregister from subscription change Notification messages for an indicated topic. 
+Clients use this operation to unregister from subscription change Notification messages for an indicated topic (or set of topics).
 
 [.specitem,oft-sid="req~usubscription-unregister-notifications-method_id~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 The uSubscription `UnregisterForNotifications()` operation *MUST* use the method ID `5`.
@@ -716,15 +710,16 @@ The uSubscription `UnregisterForNotifications()` operation *MUST* implement the 
 |===
 | Name | Type | Mandatory | Description
 
-| `topic`
+| `topic_filter`
 | {uuri_ref}
 | yes
 a|
 --
-uProtocol URI of the topic to stop receiving subscription change Notification messages for.
+[.specitem,oft-sid="req~usubscription-unregister-notifications-topic-filter-wildcards~1",oft-needs="impl,utest",oft-tags="USubscription"]
+The `UnregisterForNotifications()` operation *MUST* be able to deal with wildcards in topic filter URIs, and unregister the client from receiving change Notifications for any subscription involving the set of matching topics.
 
-[.specitem,oft-sid="dsn~usubscription-unregister-notifications-valid-topic-uuris~1",oft-needs="impl,utest",oft-tags="USubscription"]
-Calls to the uSubscription service `UnregisterForNotifications()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a `topic` UURI violates the xref:usubscription-topics[topic UURI rules].
+[.specitem,oft-sid="dsn~usubscription-unregister-notifications-invalid-topic-filter~1",oft-needs="impl,utest",oft-tags="USubscription"]
+The uSubscription service `RegisterForNotifications()` operation *MUST* return a failure status message with {ucode_proto_ref} `INVALID_ARGUMENT` in case a topic filter UURI is not a valid {uuri_ref}.
 --
 |===
 
@@ -735,7 +730,7 @@ The uSubscription `UnregisterForNotifications()` operation *MUST* implement an e
 
 
 [.specitem,oft-sid="req~usubscription-unregister-notifications~1",oft-needs="impl,utest",oft-tags="USubscription"]
-uSubscription service *MUST* stop sending subscription change Notification messages to clients afther they have _opted-out_ of such messages by calling `UnregisterForNotifications()`. 
+uSubscription service *MUST* stop sending subscription change Notification messages to clients about the indicated topic (or set of topics) after they have _opted-out_ of such messages by calling `UnregisterForNotifications()`. 
 
 ---
 

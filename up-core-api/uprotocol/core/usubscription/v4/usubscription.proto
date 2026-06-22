@@ -77,7 +77,7 @@ message FetchSubscriptionsResponse {
 // [dsn->req~usubscription-register-notifications-request-signature~1>>impl]
 // [dsn->req~usubscription-unregister-notifications-request-signature~1>>impl]
 message NotificationsRequest {
-  uprotocol.v1.UUri topic = 1;
+  uprotocol.v1.UUri topic_filter = 1;
 }
 
 // [dsn->req~usubscription-register-notifications-response-signature~1>>impl]

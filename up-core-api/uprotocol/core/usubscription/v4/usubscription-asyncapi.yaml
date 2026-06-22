@@ -33,18 +33,18 @@ info:
 defaultContentType: "application/protobuf"
 
 channels:
-  # [dsn->req~usubscription-change-publication~1>>impl]
   subscriptionChange:
-    summary: Channel for publication of subscription change messages.
+    summary: Source channel for sending subscription change notification messages.
     messages:
       protobuf:
         contentType: 'application/protobuf'
         payload:
           schemaFormat: 'application/vnd.google.protobuf;version=3'
           schema:
+            # [dsn->req~usubscription-change-message-type~1>>impl]
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.Subscription'
     x-uprotocol:
-      # [dsn->req~usubscription-change-publication-topic~1>>impl]
+      # [dsn->req~usubscription-change-notification-resource~1>>impl]
       resourceId: 0x8000
   subscribeRequests:
     summary: Requests to subscribe client to a topic.
@@ -156,6 +156,17 @@ channels:
             $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.NotificationsResponse'
 
 operations:
+  Notify:
+    summary: Nofity a uEntity about changes of subscription state.
+    tags:
+      - name: uSubscription
+        description: uProtocol uSubscription API operation.
+    externalDocs:
+      description: uSubscription specification
+      $ref: '../../../../../up-l3/usubscription/v4/README.adoc#subscription-change-notifications'
+    channel:
+      $ref: "#/channels/subscriptionChange"
+    action: send
   Subscribe:
     summary: Subscribe to a topic.
     tags:
