@@ -1,0 +1,93 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ * 
+ * This program and the accompanying materials are made available under
+ * the terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileType: SOURCE
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+syntax = "proto3";
+
+package uprotocol.core.usubscription.v4;
+
+import "google/protobuf/timestamp.proto";
+import "uprotocol/v1/uri.proto";
+
+option java_package = "org.eclipse.uprotocol.core.usubscription.v4";
+option java_outer_classname = "USubscriptionProto";
+option java_multiple_files = true;
+
+// Enable generation of generic service attributes in C++
+option cc_generic_services = true;
+
+enum SubscriptionStatus {
+  UNSUBSCRIBED = 0;
+  SUBSCRIBE_PENDING = 1;
+  SUBSCRIBED = 2;
+  UNSUBSCRIBE_PENDING = 3;
+}
+
+// [dsn->req~usubscription-change-message-type~1>>impl]
+message Subscription {
+  uprotocol.v1.UUri topic = 1;
+  uprotocol.v1.UUri subscriber = 2;
+  SubscriptionStatus status = 3;
+  optional google.protobuf.Timestamp expiration = 4;
+  optional uint32 sample_period_ms = 5;
+}
+
+// [dsn->req~usubscription-subscribe-request-signature~1>>impl]
+message SubscribeRequest {
+  uprotocol.v1.UUri topic = 1;
+  optional google.protobuf.Timestamp expiration = 2;
+  optional uint32 sample_period_ms = 3;
+}
+
+// [dsn->req~usubscription-subscribe-response-signature~1>>impl]
+message SubscribeResponse {
+  uprotocol.v1.UUri topic = 1;
+  SubscriptionStatus status = 2;
+}
+
+// [dsn->req~usubscription-unsubscribe-request-signature~1>>impl]
+message UnsubscribeRequest {
+  uprotocol.v1.UUri topic = 1;
+}
+
+// [dsn->req~usubscription-unsubscribe-response-signature~1>>impl]
+message UnsubscribeResponse {}
+
+// [dsn->req~usubscription-fetch-subscriptions-request-signature~1>>impl]
+message FetchSubscriptionsRequest {
+  uprotocol.v1.UUri topic_filter = 1;
+  uprotocol.v1.UUri subscriber_filter = 2;
+}
+
+// [dsn->req~usubscription-fetch-subscriptions-response-signature~1>>impl]
+message FetchSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+}
+
+// [dsn->req~usubscription-register-notifications-request-signature~1>>impl]
+// [dsn->req~usubscription-unregister-notifications-request-signature~1>>impl]
+message NotificationsRequest {
+  uprotocol.v1.UUri topic_filter = 1;
+}
+
+// [dsn->req~usubscription-register-notifications-response-signature~1>>impl]
+// [dsn->req~usubscription-unregister-notifications-response-signature~1>>impl]
+message NotificationsResponse {}
+
+// [dsn->req~usubscription-reset-request-signature~1>>impl]
+message ResetRequest {
+  optional string message = 1;
+}
+
+// [dsn->req~usubscription-reset-response-signature~1>>impl]
+message ResetResponse {}
