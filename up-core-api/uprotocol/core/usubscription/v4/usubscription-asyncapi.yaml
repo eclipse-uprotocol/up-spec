@@ -33,7 +33,7 @@ info:
 defaultContentType: "application/protobuf"
 
 channels:
-  subscriptionChange:
+  subscriptionChangeNotifications:
     summary: Source channel for sending subscription change notification messages.
     messages:
       protobuf:
@@ -46,6 +46,19 @@ channels:
     x-uprotocol:
       # [dsn->req~usubscription-change-notification-resource~1>>impl]
       resourceId: 0x8000
+  subscriptionChangeTopic:
+    summary: Topic where USubscription service publishes subscription change messages.
+    messages:
+      protobuf:
+        contentType: 'application/protobuf'
+        payload:
+          schemaFormat: 'application/vnd.google.protobuf;version=3'
+          schema:
+            # [dsn->req~usubscription-change-message-type~1>>impl]
+            $ref: './usubscription.proto#/uprotocol.core.usubscription.v4.Subscription'
+    x-uprotocol:
+      # [dsn->req~usubscription-change-notification-resource~1>>impl]
+      resourceId: 0x8001
   subscribeRequests:
     summary: Requests to subscribe client to a topic.
     messages:

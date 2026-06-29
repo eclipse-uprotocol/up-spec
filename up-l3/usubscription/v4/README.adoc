@@ -82,9 +82,7 @@ USubscription ..> Subscription
 ----
 
 ---
-
 NOTE: The data types used in the following sections are defined in {basic_types_ref}. 
-
 ---
 
 There are different types of messages passed between uEntities (_Request_/_Response_, _Publish_, _Notify_); this is how they are represented in the sequence diagrams in this document:
@@ -102,10 +100,10 @@ sequenceDiagram
     B-->>-A: Response
     end
     rect rgb(230, 230, 230)
-    A-)B: Publish
+    A--)B: Notify
     end
     rect rgb(215, 215, 215)
-    A--)B: Notify
+    A-)B: Publish
     end
 ----
 
@@ -603,20 +601,34 @@ NOTE: The Action column in the above table describes that action to be taken by 
 
 == Subscription Change Notifications
 
-When subscription `status`, `expiration` time or `sample_period_ms` of a client-topic relationship changes, uSubscription service notifies the clients affected by the change - either because they are the subscription holders, or because they requested to be notified of changes involving a certain topic (or set of topics).
+When subscription `status`, `expiration` time or `sample_period_ms` of a client-topic relationship changes, uSubscription service notifies the clients affected by the change - either because they are the subscription holders, or because they requested to be notified of changes involving a certain topic (or set of topics). In addition, USubscription service publishes information about all subscription changes to a dedicated topic that can be listened to by any interested uEntity.  
 
 [.specitem,oft-sid="req~usubscription-change-notification~1",oft-needs="impl,utest",oft-tags="USubscription"]
-uSubscription service *MUST* notify (send a Notification message to) every susbcription holder on changes to subscription `status`, `expiration` time or `sample_period_ms` of their subscription.
+uSubscription service *MUST* notify (send a UMessage of type `Notify` to) every susbcription holder on changes to subscription `status`, `expiration` time or `sample_period_ms` of their subscription.
+
+[.specitem,oft-sid="req~usubscription-change-notification-resource~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
+Subscription change Notification messages *MUST* use resource ID `0x8000` in the Notification source UURI.
 
 [.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
 Subscription change notifications *MUST* be messages of type xref:subscription[`Subscription`].
 
-[.specitem,oft-sid="req~usubscription-change-notification-resource~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
-Subscription change messages *MUST* use resource ID `0x8000` in the Notification source UURI.
- 
-=== Custom notifications
+=== Subscription change message topic
 
-Any uEntity may register with uSubscription service to explicitly be sent subscription change Notifications when the subscription `status`, `expiration` time or `sample_period_ms` of an indicated topic (or set of topics) changes. For instance, a `uStreamer` application might be interested in all subscription events involving a topic with an `authority` pointing to the remote network that the `uStreamer` is bridging to.
+When the `status`, `expiration` time or `sample_period_ms` of a subscription changes, USubscription service publishes messages to a topic dedicated to such change information messages.
+For instance, a `uStreamer` application might subscribe to that topic to stay informed about any changes to remote subscriptions. Other use cases for such change messages might be subscription tracking for logging or billing purposes, etc.
+
+[.specitem,oft-sid="req~usubscription-change-topic~1",oft-needs="impl,utest",oft-tags="USubscription"]
+uSubscription service *MUST* publish messages (send a UMessage of type `Publish`) about all changes to tracked subscriptions `status`, `expiration` time or `sample_period_ms` to a dedicated topic.
+
+[.specitem,oft-sid="req~usubscription-change-topic-resource~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
+Subscription change messages *MUST* be published to a source UURI with the originating USubscription service authority, uentity ID and version, using resource ID `0x8001`.
+
+[.specitem,oft-sid="req~usubscription-change-topic-message-type~1",oft-needs="dsn,impl,utest",oft-tags="USubscription"]
+Subscription change publish messages *MUST* be of type xref:subscription[`Subscription`].
+
+=== Registering for subscription change notifications
+
+Any uEntity may register with uSubscription service to explicitly be sent subscription change Notifications when the `status`, `expiration` time or `sample_period_ms` of an indicated subscription topic (or set of topics) changes. For instance, a `uStreamer` application might be interested in all subscription events involving a topic with an `authority` pointing to the remote network that the `uStreamer` is bridging to.
 
 [#register-for-notifications-operation]
 ==== RegisterForNotifications()
@@ -889,9 +901,7 @@ Expiration time is used to define when a subscription should automatically expir
 Expiration time parameters passed to the uSubscription API *MUST* follow the link:https://www.iso8601.com[ISO8601] definition for an instant in time, in millisecond granularity.
 
 ---
-
 NOTE: The actual data type to best represent an expiration timestamp is specific to the serialization technology that is being used. For instance, using protobuf, Expiration time would be best represented by the link:https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp[well-known Timestamp type].
-
 ---
 
 [#sample-period]
@@ -946,81 +956,164 @@ Subscription is an information object containing all available information about
 [#remote-subscription-sequences]
 == Remote subscription sequences
 
-The following section elaborates on subscription flows for remote topics. When a consumer subscribes to a remote topic, it is the responsibility of the (local) uSubscription service to proxy the subscription request to the remote uSubscription service, as illustrated in the sequence diagrams below.
+As has been introduced in section xref:local-remote-subscriptions[Local and Remote Subscriptions], uProtocol provides the facility to stream messages between different transport network sections, and with publishers and subscribers located on different hosts. This involves an interplay between USubscription and UStreamer services, in order to coordinate subscriptions and forwarding of messages between different transport network segments.
 
-=== Remote topic subscribe
+The following sequence diagrams show a detailed flow of how remote subscriptions are set up beween different transport network segements, with MQTT5 and Zenoh chosen to serve as example transport implementations. The diagrams aim to provide maximum clarity of the control and message flows involved, therefore they include `UTransport` endpoints for each relevant uEntity-transport combination. To improve readability, RPC-style interactions (eg. `subscribe()` calls to USubscription entities) are not detailed out on UTransport level, but are reduced to request-response flows between involved uEntities. All shown MQTT5 UTransports are connected via the same MQTT transport network, all Zenoh UTransports are part of the same Zenoh transport network.
 
-This sequence diagram shows how a client subscribes to a topic that is published on a remote device (remote subscription).
+=== Local publisher, remote subscriber
 
-.Remote Subscription Flow
+This is a detailed illustration of how remote subscriptions are set up in deployment scenarios where the message publisher is located in a local __Authority A__ transport network segment, whereas the subscriber resides on a remote transport network  (dubbed __Authority B__).
+
 [mermaid]
 ifdef::env-github[[source,mermaid]]
 ----
 sequenceDiagram
-    box White device1
-        actor C as Client [/80/2]
-        participant L as local USubscription
-    end
-    box White device2
-        participant R as remote uSubscription
-        participant E as UEntity
-    end
+box White Authority A
+    actor PUB as Publisher<br/>[//A/80/2/0]
+    participant ZPUB as Publisher<br/>:ZenohTransport
+    participant SSA as USubscription<br/>[//A/0/4]
+    participant ZSSA as USubscription<br/>:ZenohTransport
+    participant ZSTA as UStreamer leg A<br/>:ZenohTransport
+    participant STA as UStreamer
+    participant MSTA as UStreamer leg B<br/>:MQTT5Transport
+end
+box White Authority B
+    participant SSB as USubscription<br/>[//B/0/4]
+    participant MSSB as USubscription<br/>:MQTT5Transport
+    participant MSUB as Subscriber<br/>:MQTT5Transport
+    actor SUB as Subscriber<br/>[//B/90/2/0]
+end
 
-    E->>+R: RegisterForNotification()
-    C->>+L: subscribe("//device2/A1B/1/9A10")
-    activate L
+Note left of ZSSA: All :ZenohTransports are part of one<br/> Zenoh-connected transport network.
+Note left of MSUB: All :MQTT5Transports are part of one<br/> MQTT5-connected transport network.
+Note left of SUB: To improve readability, RPC-style interactions<br/>are not detailed out on transport-level.
 
-        alt first subscription to remote topic
-                L-->>C: ("//device2/A1B/1/9A10", "/80/2", SubscriptionStatus.SUBSCRIPTION_PENDING)
-                L->>R: subscribe("//device2/A1B/1/9A10")
-                alt success
-                    R-->>L: ("//device2/A1B/1/9A10", "//device1/0/4", SubscriptionStatus.SUBSCRIBED)
-                    R--)E: ("//device2/A1B/1/9A10", "//device1/0/4", SubscriptionStatus.SUBSCRIBED)
+    STA->>ZSTA: registerListener(sourceFilter: "//A/0/4/8001")
 
-                    L--)C: ("//device2/A1B/1/9A10", "/80/2", SubscriptionStatus.SUBSCRIBED)
-                else failure
-                    R-->>L: ("//device2/A1B/1/9A10", "//device1/0/4", SubscriptionStatus.UNSUBSCRIBED)
+%% Client initiates USubscription process 
+rect rgba(0, 0, 0, 0.1)
+activate SUB
+    SUB->>MSUB: registerListener(sourceFilter: "//A/80/2/9A10")
+    SUB->>SSB: subscribe(topic: "//A/80/2/9A10")
 
-                    L--)C: ("//device2/A1B/1/9A10", "/80/2", SubscriptionStatus.UNSUBSCRIBED)
-                end
-        else follow-on subscription to remote topic
-            L-->>C: ("//device2/A1B/1/9A10", SubscriptionStatus.SUBSCRIBED)
-        end
+%% Because client is local and subscribed topic is to remote Authority, perform remote subscription
+activate SSB
+%% Return updated subscription state to Client
+    SSB-)MSSB: send(type: Publish, source: "//B/0/4/8001",<br/>{topic: "//A/80/2/9A10",<br/>subscriber: "//B/90/2/0",<br/>status: SUBSCRIBE_PENDING})
+    SSB-->>SUB: (topic: "//A/80/2/9A10",<br/>subscriber: "//B/90/2/0",<br/>status: SUBSCRIBE_PENDING)
+deactivate SUB
 
-    deactivate L
+    SSB->>SSA: subscribe(topic: "//A/80/2/9A10")
+activate SSA
+    SSA-)ZSSA: send(type: Publish, source: "//A/0/4/8001",<br/>{topic: "//A/80/2/9A10",<br/>subscriber: "//B/0/4",<br/>status: SUBSCRIBED})
+    ZSSA->>ZSTA: onReceive({topic: "//A/80/2/9A10",<br/>subscriber: "//B/0/4",<br/>status: SUBSCRIBED})
+    ZSTA->>STA: onReceive({topic: "//A/80/2/9A10",<br/>subscriber: "//B/0/4",<br/>status: SUBSCRIBED})
+activate STA
+Note over STA: "uEntity from leg B wants a topic from leg A!"
+    STA->>ZSTA: registerListener(sourceFilter: "//A/80/2/9A10")
+deactivate STA
+
+    SSA-->>SSB: (topic: "//A/80/2/9A10",<br/>subscriber: "//B/0/4",<br/>status: SUBSCRIBED)
+deactivate SSA
+
+    SSB-)MSSB: send(type: Publish, source: "//B/0/4/8001",<br/>{topic: "//A/80/2/9A10",<br/>subscriber: "//B/90/2/0",<br/>status: SUBSCRIBED})
+    SSB--)SUB: send(type: Notify, source: "//B/0/4/8001",<br/>{topic: "//A/80/2/9A10",<br/>subscriber: "//B/90/2/0",<br/>status: SUBSCRIBED})
+deactivate SSB
+end %% rect
+
+%% Route actual topic messages
+rect rgba(0, 0, 0, 0.025)
+    PUB-)ZPUB: send({type: Publish, source: "//A/80/2/9A10"},<br/>PAYLOAD)
+    ZPUB->>ZSTA: onReceive(MESSAGE)
+    ZSTA->>STA: onReceive(MESSAGE)
+
+activate STA
+    STA-)MSTA: send({type: Publish, source: "//A/80/2/9A10"},<br/>MESSAGE.payload)
+deactivate STA
+
+    MSTA->>MSUB: onReceive(MESSAGE)
+    MSUB->>SUB: onReceive(MESSAGE)
+end %% rect
 ----
 
-To allow the reverse flow (publication) to be properly multicast to local subscribers by the local disaptcher when it queries the local uSubscription for a list of local subscribers, remote subscriptions are always performed between uSubscription services using their own uEntity identifiers (`core.usubscription`, uEntity type ID `0x0`). 
+=== Remote publisher, local subscriber
 
-=== Remote topic unsubscribe
+This is an illustration of how remote subscriptions are set up in deployment scenarios where the message publisher is located in a local __Authority A__ transport network segment, whereas the publisher resides on a remote transport network (dubbed __Authority B__).
 
-.Remote Unsubscribe Flow
 [mermaid]
 ifdef::env-github[[source,mermaid]]
 ----
 sequenceDiagram
-    box White Device1
-        actor C as Client [/80/2]
-        participant L as local USubscription
-    end
-    box White Device2
-        participant R as remote USubscription
-        participant E as UEntity
-    end
-    
-    E->>+R: RegisterForNotification()
-    C->>+L: unsubscribe("//device2/A1B/1/9A10")
-    activate L
-        L-->>C: ()
+box White Authority A
+    actor SUB as Subscriber<br/>[//A/80/2/0]
+    participant ZSUB as Subscriber<br/>:ZenohTransport
+    participant SSA as USubscription<br/>[//A/0/4]
+    participant ZSSA as USubscription<br/>:ZenohTransport
+    participant ZSTA as UStreamer leg A<br/>:ZenohTransport
+    participant STA as UStreamer
+    participant MSTA as USTreamer leg B<br/>:MQTT5Transport
+end
+box White Authority B
+    participant SSB as USubscription<br/>[//B/0/4]
+    participant MSSB as USubscription<br/>:MQTT5Transport
+    participant MPUB as Publisher<br/>:MQTT5Transport
+    actor PUB as Publisher<br/>[//B/90/2/0]
+end
 
-        opt last subscription to remote topic
-            L->>R: unsubscribe("//device2/A1B/1/9A10")
-            alt success
-                R-->>L: ()
-                R--)E: ("//device2/A1B/1/9A10", "//device1/0/4", SubscriptionStatus.UNSUBSCRIBED)
-            else failure
-                R-->>L: Failure
-            end
-        end
-        deactivate L
+Note left of ZSSA: All :ZenohTransports are part of one<br/> Zenoh-connected transport network.
+Note left of MPUB: All :MQTT5Transports are part of one<br/> MQTT5-connected transport network.
+Note right of SUB: To improve readability, RPC-style interactions<br/>are not detailed out on transport-level.
+
+    STA->>ZSTA: registerListener(sourceFilter: "//A/0/4/8001")
+
+%% Client initiates USubscription process 
+rect rgba(0, 0, 0, 0.1)
+activate SUB
+    SUB->>ZSUB: registerListener(sourceFilter: "//B/90/2/9A10")
+    SUB->>SSA: subscribe(topic: "//B/90/2/9A10")
+activate SSA
+%% Return updated subscription state to Client
+    SSA-->>SUB: (topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBE_PENDING)
+deactivate SUB
+
+%% Notify all listeners
+    SSA-)ZSSA: send(type: Publish, source: "//A/0/4/8001",<br/>{topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBE_PENDING})
+    ZSSA->>ZSTA: onReceive({topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBE_PENDING})
+    ZSTA->>STA: onReceive({topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBE_PENDING})
+        
+activate STA
+Note over STA: "uEntity from leg A wants a topic from leg B!"
+    STA->>MSTA: registerListener(sourceFilter: "//B/90/2/9A10")
+deactivate STA
+
+%% Because subscribed topic is to remote Authority, perform remote subscription
+    SSA->>SSB: subscribe(topic: "//B/90/2/9A10")
+activate SSB
+    SSB-)MSSB: send(type: Publish, source: "//B/0/4/8001",<br/>{topic: "//B/90/2/9A10",<br/>subscriber: "//A/0/4/0",<br/>status: SUBSCRIBED})
+    SSB-->>SSA: (topic: "//B/90/2/9A10",<br/>subscriber: "//A/0/4/0",<br/>status: SUBSCRIBED)
+deactivate SSB
+
+%% Notify all listeners
+    SSA--)SUB: send(type: Notify, source: "//A/0/4/8001",<br/>{topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBED})
+    SSA-)ZSSA: send(type: Publish, source: "//A/0/4/8001",<br/>{topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBED})
+    ZSSA->>ZSTA: onReceive({topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBED})
+    ZSTA->>STA: onReceive({topic: "//B/90/2/9A10",<br/>subscriber: "//A/80/2/0",<br/>status: SUBSCRIBED})
+deactivate SSA
+end %% rect
+
+%% Route actual topic messages
+rect rgba(0, 0, 0, 0.025)
+    PUB-)MPUB: send({type: Publish, source: "//B/90/2/9A10"},<br/>PAYLOAD)
+    MPUB->>MSTA: onReceive(MESSAGE)
+    MSTA->>STA: onReceive(MESSAGE)
+
+activate STA
+    STA-)ZSTA: send({type: Publish, source: "//B/90/2/9A10"},<br/>MESSAGE.payload)
+deactivate STA
+
+    ZSTA->>ZSUB: onReceive(MESSAGE)
+    ZSUB->>SUB: onReceive(MESSAGE)
+end %% rect
 ----
+
+---
