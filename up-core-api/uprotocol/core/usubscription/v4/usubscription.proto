@@ -27,6 +27,7 @@ option java_multiple_files = true;
 option cc_generic_services = true;
 
 enum SubscriptionStatus {
+  // not required by the spec, but recommended by protobuf programming guide (https://protobuf.dev/programming-guides/proto3/#enum)
   UNSPECIFIED = 0;
   UNSUBSCRIBED = 1;
   SUBSCRIBE_PENDING = 2;
