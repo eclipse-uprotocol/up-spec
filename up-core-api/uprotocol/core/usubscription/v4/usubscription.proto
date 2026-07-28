@@ -27,10 +27,12 @@ option java_multiple_files = true;
 option cc_generic_services = true;
 
 enum SubscriptionStatus {
-  UNSUBSCRIBED = 0;
-  SUBSCRIBE_PENDING = 1;
-  SUBSCRIBED = 2;
-  UNSUBSCRIBE_PENDING = 3;
+  // not required by the spec, but recommended by protobuf programming guide (https://protobuf.dev/programming-guides/proto3/#enum)
+  STATUS_UNSPECIFIED = 0;
+  STATUS_UNSUBSCRIBED = 1;
+  STATUS_SUBSCRIBE_PENDING = 2;
+  STATUS_SUBSCRIBED = 3;
+  STATUS_UNSUBSCRIBE_PENDING = 4;
 }
 
 // [dsn->req~usubscription-change-message-type~1>>impl]
