@@ -27,10 +27,11 @@ option java_multiple_files = true;
 option cc_generic_services = true;
 
 enum SubscriptionStatus {
-  UNSUBSCRIBED = 0;
-  SUBSCRIBE_PENDING = 1;
-  SUBSCRIBED = 2;
-  UNSUBSCRIBE_PENDING = 3;
+  UNSPECIFIED = 0;
+  UNSUBSCRIBED = 1;
+  SUBSCRIBE_PENDING = 2;
+  SUBSCRIBED = 3;
+  UNSUBSCRIBE_PENDING = 4;
 }
 
 // [dsn->req~usubscription-change-message-type~1>>impl]
