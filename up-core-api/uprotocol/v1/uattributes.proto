@@ -63,7 +63,24 @@ message UAttributes {
     optional string traceparent = 11;
 
     // The format for the data stored in the UMessage.
+    //
+    // Covers the legacy-compatible numeric range of the UFrame payload-encoding
+    // registry. Payload encodings outside that range are carried by the open
+    // payload-encoding identity fields below. A payload-bearing message MUST
+    // populate exactly one encoding mechanism.
     UPayloadFormat payload_format = 12;
+
+    // Optional numeric registry id from the UFrame payload-encoding registry
+    // for encodings that have no UPayloadFormat equivalent.
+    optional uint32 payload_encoding_registry_id = 13;
+
+    // Optional literal id from the UFrame payload-encoding registry for
+    // encodings that have no UPayloadFormat equivalent.
+    optional string payload_encoding = 14;
+
+    // Optional media type from the UFrame payload-encoding registry for
+    // encodings that have no UPayloadFormat equivalent.
+    optional string payload_content_type = 15;
 }
 
 
@@ -127,6 +144,13 @@ enum UPriority {
 }
 
 // The format for the data stored in the UMessage.
+//
+// Values 1..=8 are permanently reserved as the legacy-compatible numeric
+// range for UFrame payload-encoding registry ids. New UFrame-native encodings
+// are registered in the open UFrame payload-encoding registry instead of being
+// added to this enum. A UFrame semantic metadata model MUST NOT embed
+// UPayloadFormat; this enum is a legacy projection surface for UMessage and
+// UAttributes compatibility.
 enum UPayloadFormat {
     // Payload format is unknown.
     UPAYLOAD_FORMAT_UNSPECIFIED = 0;

@@ -183,6 +183,21 @@ a|The format of the payload (data).
 [.specitem,oft-sid="dsn~up-attributes-payload-format~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MUST NOT* contain a value if the message has no payload.
+* For a payload-bearing message, `payloadFormat` *MUST* be used only for legacy-compatible encodings in the UFrame payload-encoding registry range `1..=8`.
+--
+
+|`payloadEncodingRegistryId`, `payloadEncoding`, `payloadContentType`
+|`UInt32`, `String`, `String`
+|no
+a|Open payload-encoding identity components for payload encodings that have no `UPayloadFormat` equivalent.
+
+[.specitem,oft-sid="dsn~up-attributes-open-payload-encoding~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+* These fields *MUST NOT* contain values if the message has no payload.
+* For a payload-bearing message using an open payload encoding, at least one of these fields *MUST* be present.
+* A payload-bearing message *MUST* populate exactly one encoding mechanism: either `payloadFormat` or these open payload-encoding fields, never both.
+* Encodings in the UFrame payload-encoding registry range `1..=8` *MUST* use `payloadFormat` and *MUST NOT* be represented by these open fields.
+* A receiver that does not understand an open payload-encoding identity *MUST* reject the payload as not decodable by that receiver and *MUST NOT* reinterpret it as raw bytes.
 --
 
 |===
