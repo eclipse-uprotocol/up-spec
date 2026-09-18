@@ -389,7 +389,7 @@ The uSubscription service `FetchSubscriptions()` operation *MUST* return a failu
 | no
 a|
 --
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-topic-filter~1",oft-needs="impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-fetch-subscriptions-subscriber-filter~1",oft-needs="impl,utest",oft-tags="uSubscription"]
 A subscriber filter {uuri_ref} may be provided as part of a call to `FetchSubcriptions()` and may contain wildcards; uSubscription service *MUST* only return xref:subscription[Subscription] entries where the subscribing client is matched by the filter UURI.
 
 NOTE: Refer to {uuri_matching_ref} regarding matching wildcard patterns in UURIs.
