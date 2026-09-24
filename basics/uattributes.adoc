@@ -190,9 +190,9 @@ The traceparent *MUST* either be empty or contain a value as defined by https://
 |no
 |none
 a|The format of the payload (data).
-[.specitem,oft-sid="dsn~up-attributes-payload-format~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+[.specitem,oft-sid="dsn~up-attributes-payload-format~2",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-The payload format *MUST* be empty if the message has no payload.
+The payload format *MUST* be empty if the message has no payload, otherwise it *MUST NOT* be empty.
 --
 
 |===

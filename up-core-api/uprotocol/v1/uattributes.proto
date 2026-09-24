@@ -65,8 +65,8 @@ message UAttributes {
     // Intended to be compatible with https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md
     optional string traceparent = 11;
 
-    // The format for the data stored in the UMessage.
-    UPayloadFormat payload_format = 12;
+    // The format of the data stored in the message's payload.
+    optional UPayloadFormat payload_format = 12;
 }
 
 
