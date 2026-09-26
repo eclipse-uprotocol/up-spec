@@ -51,12 +51,11 @@ service uDiscovery {
   }
 
 
-  // Get information about one or more topics that is being served by a service
+  // Get information about one or more topics served by a service.
   //
-  // The API is used to fetch metadata about one or more topics (depending on what is passed in the UUri).
-  // Wildcard ue_id and/or resource_id can be used to fetch multiple metadata for multiple topics.  
-  // The UServiceTopic stores topic metadata such as the permission level, message name, payload format
-  // (how the message is encoded) and more.
+  // The UUri identifies the topics. Wildcards in ue_id or resource_id select
+  // multiple topics. UServiceTopic defines the topic identifier, topic name,
+  // message type, resources, and permission level.
   //
   rpc GetServiceTopics(GetServiceTopicsRequest) returns (GetServiceTopicsResponse) {
     option (uprotocol.method_id) = 2;

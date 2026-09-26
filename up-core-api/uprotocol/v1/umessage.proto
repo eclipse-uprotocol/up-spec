@@ -29,6 +29,7 @@ message UMessage {
     // content and processing requirements.
     UAttributes attributes = 1;
 
-    // Message payload
+    // Message payload. Presence is independent of length, so an explicitly set
+    // zero-length byte sequence is a present payload.
     optional bytes payload = 2;
 }

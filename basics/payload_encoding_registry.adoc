@@ -1,0 +1,228 @@
+= uProtocol Payload-Encoding Registry
+:toc: preamble
+:sectnums:
+
+The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
+
+----
+SPDX-FileCopyrightText: 2026 Contributors to the Eclipse Foundation
+
+See the NOTICE file(s) distributed with this work for additional
+information regarding copyright ownership.
+
+This program and the accompanying materials are made available under
+the terms of the Apache License Version 2.0 which is available at
+https://www.apache.org/licenses/LICENSE-2.0
+
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+----
+
+== Overview
+
+This document is the single source of truth for uProtocol payload-encoding
+identity. A UMessage carries the identity of its payload's encoding as the
+`payloadEncodingId` attribute defined in
+xref:uattributes.adoc[uProtocol Attributes (UAttributes)]. That attribute holds
+a 16-bit identifier; this registry defines what the identifiers mean, how the
+identifier space is partitioned, and how new identifiers are assigned.
+This document is authoritative for registry assignments; contract-defined and
+private-use meanings come from their applicable contracts.
+
+The registry answers one question: _how are these payload bytes encoded?_ It
+deliberately does not answer three neighbouring questions, which are governed
+elsewhere:
+
+* whether a particular producer is permitted to put a given identifier on the
+  wire (xref:#allocation[allocation and origination]);
+* whether a particular component supports decoding a given encoding
+  (xref:#acceptance[carrying a payload versus reading it]); and
+* which concrete message type, schema, or memory layout a payload conforms to
+  (xref:#type-identity[encoding identity versus type identity]).
+
+Keeping these separate lets intermediaries preserve identifiers they do not
+understand, lets deployments extend the space privately, and lets decoders
+reject what they cannot process without making the protocol reject what it can
+carry.
+
+[#partition]
+== Identifier Space
+
+The identifier space is the closed range `0x0000` to `0xFFFF`. It is
+partitioned as follows:
+
+[cols="2,2,6", options="header"]
+|===
+|Range |Name |Meaning
+
+|`0x0000`
+|Contract-defined
+|The concrete encoding is defined by an applicable transport binding, service
+contract, or schema contract rather than by this registry. The identifier is
+present; its meaning is delegated.
+
+|`0x0001` to `0xDFFF`
+|Registry assignments
+|Identifiers assigned by this registry. Unassigned identifiers in this range
+are structurally valid but *MUST NOT* be originated.
+
+|`0xE000` to `0xEFFF`
+|Reserved
+|Not available for assignment or private use. Reserved identifiers are
+structurally valid so that they can be preserved by intermediaries, but they
+*MUST NOT* be originated until this registry assigns them a meaning.
+
+|`0xF000` to `0xFFFF`
+|Private use
+|Never assigned by this registry. Valid on the wire and carry meaning only by
+deployment-level agreement.
+|===
+
+This is an independent uProtocol registry. Its identifiers do not reuse the
+numeric values of the IANA CoAP Content-Formats registry, and identifiers
+`0x0001` to `0x0007` preserve the numeric values of the `UPayloadFormat`
+enumeration that this registry replaces.
+
+[#acceptance]
+== Carrying a Payload versus Reading It
+
+A component that only carries, routes, stores, or forwards a message *MUST*
+preserve its identifier and payload bytes unchanged. It *MUST NOT* require a
+decoder or reject carriage because the identifier is reserved, unassigned,
+private, or unknown to it. Recognizing an identifier does not require reading
+the payload; learning an identifier's meaning later *MUST NOT* invalidate
+previously acceptable carriage. The message-validation rules are defined once,
+on `payloadEncodingId` in xref:uattributes.adoc[UAttributes].
+
+A component that reads a payload must first determine its encoding. It *MUST*
+reject the payload if it cannot determine or does not support that encoding.
+This is a decoding decision, not a restriction on which valid identifiers a
+message can carry.
+
+[#allocation]
+== Allocation and Origination
+
+This section says who may put which identifiers on the wire. These are
+obligations on producers and deployments, not checks a receiver performs.
+A component that forwards a message it did not create is not its producer.
+
+* A producer *MUST NOT* originate an identifier in the registry-assignment
+  range that this registry has not assigned.
+* A producer *MUST NOT* originate an identifier in the reserved range.
+* A producer *MAY* originate a private-use identifier only under a deployment
+  agreement that defines its meaning for every party that will interpret it.
+* A producer *MAY* originate `0x0000` only where an applicable binding,
+  service contract, or schema contract defines the concrete encoding for every
+  party that will interpret the payload. A component that interprets such a
+  payload *MUST* have that contract and *MUST NOT* infer the encoding from the
+  payload data.
+
+Forwarding, relaying, storing, or re-encoding the envelope of an existing
+message is not origination: a component that carries a message it did not
+create does not originate its identifier and is not subject to the origination
+rules above, only to the preservation rules in
+xref:#acceptance[Carrying a Payload versus Reading It].
+
+A registry assignment is permanent and *MUST NOT* be reassigned or withdrawn.
+New assignments are made by changing the table in xref:#assignments[Registry
+Assignments] through the normal up-spec review process; changing the
+identifier-space partition is not required for a new assignment.
+
+Each assignment *MUST* provide:
+
+* a stable name;
+* a precise description of the encoding;
+* a representation category, `Text` or `Binary`, describing whether the
+  encoded octets are a UTF-8 character sequence or arbitrary octets;
+* a normative reference to a formal, publicly available specification of the
+  encoding; and
+* a registered media type when one accurately identifies the encoding, or
+  `None registered` otherwise.
+
+The representation category and media type are semantic descriptions of the
+encoding. They support explicit, application-aware operations such as
+projecting a payload into another format's native data model. They are not
+carriage admission criteria, and a carrying component *MUST NOT* change how it
+carries a payload because it recognizes the identifier's category.
+
+[#type-identity]
+== Encoding Identity versus Type Identity
+
+The identifier says how a payload is encoded, not which type, schema, or memory
+layout it uses. Protobuf (`2`) still needs a message type, and SOME/IP (`4`, `5`)
+still needs a service-interface definition. Contract-defined (`0`) delegates the
+encoding itself to an applicable contract. A reader gets the required type,
+schema, or layout from that contract, a schema reference such as CloudEvents
+`dataschema`, or a binding/profile mechanism. The identifier alone establishes
+neither application-schema compatibility nor native ABI compatibility.
+This registry defines no mechanism for conveying a separate type or layout
+identity; the applicable contract or profile defines how to carry and preserve it.
+
+[#assignments]
+== Registry Assignments
+
+Registry-range identifiers that are not listed in the table are unassigned.
+
+.Payload-encoding registry
+[cols="1,2,5,1,3,5", options="header"]
+|===
+|ID |Name |Description |Representation |Media type |Specification
+
+|1
+|Protobuf Any
+|The Protobuf wire-format serialization of a `google.protobuf.Any`, including
+its type URL and serialized embedded message.
+|Binary
+|https://www.iana.org/assignments/media-types/application/protobuf[`application/protobuf`]
+|https://protobuf.dev/programming-guides/encoding/[Protobuf wire format] and
+https://protobuf.dev/reference/protobuf/google.protobuf/#any[`google.protobuf.Any`]
+
+|2
+|Protobuf
+|The Protobuf wire-format serialization of a message whose type is defined by
+the applicable service or schema contract.
+|Binary
+|https://www.iana.org/assignments/media-types/application/protobuf[`application/protobuf`]
+|https://protobuf.dev/programming-guides/encoding/[Protobuf wire format]
+
+|3
+|JSON
+|A JSON text encoded as UTF-8.
+|Text
+|https://www.iana.org/assignments/media-types/application/json[`application/json`]
+|https://www.rfc-editor.org/rfc/rfc8259[RFC 8259]
+
+|4
+|SOME/IP
+|The SOME/IP serialization of parameters and data structures defined by the
+applicable service-interface contract.
+|Binary
+|None registered
+|https://some-ip.com/open-someip-specification/open_someip_specification_2025-12.pdf[Open SOME/IP Specification 2025-12, Section 5.4]
+
+|5
+|SOME/IP TLV
+|The SOME/IP serialization of parameters and data structures using the optional
+TLV encoding defined by the applicable service-interface contract.
+|Binary
+|None registered
+|https://www.autosar.org/fileadmin/standards/R25-11/FO/AUTOSAR_FO_PRS_SOMEIPProtocol.pdf[AUTOSAR SOME/IP Protocol Specification R25-11, Section 5.1.3.3]
+
+|6
+|Raw bytes
+|An arbitrary sequence of octets with semantics defined by the applicable
+service or schema contract.
+|Binary
+|https://www.iana.org/assignments/media-types/application/octet-stream[`application/octet-stream`]
+|https://www.rfc-editor.org/rfc/rfc2046#section-4.5.1[RFC 2046, Section 4.5.1]
+
+|7
+|UTF-8 text
+|A linear sequence of Unicode characters encoded as UTF-8, without content
+markup or format-specific interpretation.
+|Text
+|https://www.iana.org/assignments/media-types/text/plain[`text/plain; charset=utf-8`]
+|https://www.rfc-editor.org/rfc/rfc3629[RFC 3629] and
+https://www.rfc-editor.org/rfc/rfc2046#section-4.1.3[RFC 2046, Section 4.1.3]
+
+|===

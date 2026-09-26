@@ -38,7 +38,10 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 [.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>> for those and only those of the UMessage's attributes which have a non-empty value.
+An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST*
+contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>>.
+Unless a mapping row defines presence explicitly, a property *MUST* be present
+if and only if the corresponding UMessage attribute has a non-empty value.
 --
 
 .uAttributes Mapping to MQTT 5 PUBLISH Properties
@@ -134,13 +137,25 @@ a| A tracing identifier to use for correlating messages across the system
 
 * *MUST* be set to the traceparent value.
 
-| _payload_format_
+| _payload_encoding_id_
 | _Content Type_
-a| The type of data contained in the message's payload
+a| The identifier defined in the
+xref:../basics/payload_encoding_registry.adoc[payload-encoding registry]
 
-* *MUST* be set to the link:../up-core-api/uprotocol/v1/uattributes.proto[UPayloadFormat enum] integer value's decimal string representation.
+* _Content Type_ *MUST* be present if and only if the UMessage `payload` field
+  is present, including a present zero-length payload.
+* When present, _Content Type_ *MUST* be the identifier's decimal string
+  representation.
+* When reconstructing a UMessage, a present _Content Type_ yields a present
+  `payload` (the PUBLISH packet payload, possibly zero-length) and a present
+  `_payload_encoding_id_`; an absent _Content Type_ yields both fields absent
+  and requires an empty PUBLISH packet payload.
+* A receiver *MUST* reject a _Content Type_ value that is not a decimal
+  unsigned integer or is greater than `65535`. All other validity and
+  interpretation rules are those of the `payloadEncodingId` attribute; this
+  binding does not add or restate them.
 
-Note that the enum's integer value is used instead of the _uprotocol.mime_type_ option's value in order to reduce the overall size of the PUBLISH packet.
+The numeric identifier minimizes the size of the PUBLISH packet.
 
 |===
 

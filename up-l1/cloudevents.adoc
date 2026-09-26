@@ -152,10 +152,22 @@ a|A code indicating an error that has occurred during the delivery of either an 
 |String
 |A tracing identifier to use for correlating messages across the system.
 
-|`payload_format`
+|`payload_encoding_id`
 |`pformat`
 |Integer
-|The value of the UPayloadFormat that is used to indicate the encoding of the payload (if any). The concrete mapping rules are defined in <<ce-formats>>.
+a|The identifier defined in the
+xref:../basics/payload_encoding_registry.adoc[payload-encoding registry].
+
+* `pformat` *MUST* be present if and only if the CloudEvent payload data field
+  is present. A payload data field representing a zero-length byte sequence is
+  present.
+* When present, `pformat` *MUST* carry the payload-encoding identifier as an
+  integer, unchanged from the UMessage, including `0` for a contract-defined
+  encoding.
+* A receiver *MUST* reject a `pformat` value that is not an integer in the
+  range `0` to `65535`. All other validity and interpretation rules are those
+  of the `payloadEncodingId` attribute; this binding does not add or restate
+  identifier-range rules.
 
 |===
 
@@ -163,112 +175,202 @@ a|A code indicating an error that has occurred during the delivery of either an 
 === uPayload Mapping
 
 The sections below define the mapping of uPayload to CloudEvent attributes.
+The opaque-carriage mapping preserves a UMessage payload's serialized octets,
+encoding identifier, and presence without requiring the binding to interpret
+the payload. The xref:#ce-legacy-input[legacy typed-input rules] describe the
+limited reconstruction of older representations; JSON-value reconstruction
+preserves the value but cannot recover its original byte spelling.
+Application-aware operations that interpret a payload, such as projecting it
+into an event format's native data model, are outside this mapping; see
+xref:#ce-projection-note[Application-Aware Projection].
 
-NOTE: The custom `pformat` property is used to indicate the payload type instead of the standard `datacontenttype` property defined by CloudEvents. Its value is set to the integer value assigned to the link:../up-core-api/uprotocol/uattributes.proto[UPayloadFormat]. This helps to reduce the size of the resulting data structure.
+[#ce-opaque-carriage]
+==== Opaque Carriage
+
+A CloudEvent carries the original payload bytes and the original identifier in
+`pformat`. When sending an opaque payload, `datacontenttype` is
+`application/octet-stream`: it describes the carriage form, while `pformat`
+identifies the encoding. The carriage form does not change with the encoding.
+
+The following tables preserve payload presence, bytes, and identity without
+requiring the binding to read the payload.
+
+[.specitem,oft-sid="dsn~ce-payload-opaque-carriage~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+.UMessage to CloudEvent
+[cols="2,5", options="header"]
+|===
+|Condition |Required result
+
+|`payload` absent
+|The CloudEvent *MUST NOT* contain a payload data property, `pformat`, or
+payload-specific `datacontenttype` or `dataschema` values.
+
+|`payload` present, including zero bytes
+|The CloudEvent *MUST* carry those octets unchanged in `binary_data` (Protobuf
+Event Format) or `data_base64` (JSON Event Format), keep the identifier unchanged
+in `pformat`, and set `datacontenttype` to `application/octet-stream`.
+|===
+
+For a present payload, `dataschema` *MAY* name its schema with a non-empty
+absolute URI as defined by CloudEvents. It *MUST NOT* determine the encoding;
+carriage requires no schema lookup.
+
+The binding *MUST NOT* change `pformat`, relabel the payload, wrap or unwrap
+Protobuf `Any` messages, convert character encodings, or inspect the payload
+bytes to choose a data property.
+
+.CloudEvent to UMessage
+[cols="2,5", options="header"]
+|===
+|Condition |Required result
+
+|No payload data property
+|Both `payload` and `payload_encoding_id` *MUST* be absent.
+
+|Binary payload (`binary_data` or `data_base64`)
+|`payload` *MUST* contain exactly those octets and `payload_encoding_id` *MUST*
+equal `pformat`, even when `datacontenttype` is absent or is not
+`application/octet-stream`.
+
+|Typed payload data property
+|The binding *MUST* apply xref:#ce-legacy-input[Legacy Typed Input].
+|===
+
+`datacontenttype` *MUST NOT* determine or override `payload_encoding_id`.
+Recognizing the identifier *MUST NOT* cause the binding to decode the payload.
+--
+
+An encoding's registered media type describes its application representation;
+it is not the media type used to carry its opaque bytes in this mapping.
+
+This preservation guarantee applies to the defined UMessage data and attributes,
+not to every additional CloudEvents attribute. In particular, UMessage has no
+general field for retaining an arbitrary `dataschema` URI. Where schema context
+is needed after conversion, the applicable service or representation contract
+must provide it; this mapping does not require network schema resolution.
+
+[#ce-legacy-input]
+==== Legacy Typed Input
+
+Earlier versions put some payloads in typed fields. Receivers *MUST* keep
+accepting the exact forms below; no other typed input is accepted by this mapping.
+
+Guarantees differ by form. Opaque carriage preserves the payload's octets
+exactly. The Protobuf Event Format legacy forms preserve octets exactly. The
+JSON Event Format legacy form for identifier `3` preserves the JSON value but
+cannot recover the original byte spelling of the JSON text.
+
+[.specitem,oft-sid="dsn~ce-payload-legacy-input~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+When mapping a CloudEvent that contains a typed payload data property to a
+UMessage, the binding *MUST* reconstruct the payload as follows, and *MUST*
+reject any other combination of `pformat`, event format, and typed payload
+data property:
+
+.Legacy Protobuf Event Format
+[cols="2,5", options="header"]
+|===
+|Form |What is preserved
+
+|`pformat` `1` or `2` with `proto_data`
+|The `value` octets of the `proto_data` `Any` message, unchanged. Its `type_url`
+*MAY* be empty and *MUST NOT* be used to reconstruct or validate the payload. For `pformat`
+`1`, those octets are already the serialized payload `google.protobuf.Any`;
+the binding *MUST NOT* serialize the outer `proto_data` message.
+
+|`pformat` `3` or `7` with `text_data`
+|The UTF-8 bytes of the `text_data` string.
+|===
+
+.Legacy JSON Event Format (`data` member present)
+[cols="2,5", options="header"]
+|===
+|Form |What is preserved
+
+|`pformat` `3`; `datacontenttype` absent or declaring JSON-formatted content
+|The JSON value, serialized as UTF-8 JSON. A string becomes a quoted JSON string;
+`null` becomes the four octets `null` as a present payload. The `data` member
+*MUST NOT* be further parsed as a JSON document. Its original byte spelling
+cannot be recovered.
+
+|`pformat` `7`; `data` is a JSON string
+|The UTF-8 bytes of the string's characters.
+|===
+--
+
+These rules cover the forms defined by earlier revisions of this binding and
+the historical uProtocol Rust profile, whose Protobuf Event Format writer stores
+the payload octets in `proto_data.value` with an empty `type_url` for both
+identifiers `1` and `2`. An implementation that used a different convention,
+such as placing the payload `Any` directly in `proto_data` or placing a
+serialized JSON document inside a JSON string, is not covered by these rules.
+Such a convention requires its own evidenced compatibility contract and an
+explicit selection mechanism; the binding *MUST NOT* infer which convention
+applies by inspecting payload bytes.
+
+[#ce-projection-note]
+==== Application-Aware Projection
+
+NOTE: A component that owns a payload's contract may choose to represent that
+payload in an event format's native data model, for example as a JSON value or
+as a typed `proto_data` message, for consumers outside uProtocol. Such a
+projection interprets the payload and is an application-level operation
+performed at an endpoint, not part of this binding's carriage mapping. It is
+never selected by recognizing an identifier, it does not change how the binding
+carries the message, and this specification does not define its selection,
+its output, or any receiver support for it. Deployments that need readable
+JSON event data would do so through such an operation.
 
 ==== Mapping to CloudEvent Protobuf Format
 
-The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the Protobuf Format. The table below defines specific values to use for the different UMessage payload types.
+The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/protobuf-format.md[Protobuf Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the Protobuf Format.
 
 This mapping *MUST* be used by uProtocol Transport Libraries which use the Protobuf Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
-|UPayloadFormat |CE `pformat` |CE `dataschema` |CE Property to map Payload Data to
+|UMessage payload |CE `pformat` |CE `datacontenttype` |CE `dataschema` |CE payload data property
 
-|`Unspecified`
-|`-`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`binary_data`
+|absent
+|absent
+|absent
+|absent
+|none
 
-|`ProtobufWrappedInAny`
-|`0x01`
-|*MAY* be set to `type.googleapis.com/google.protobuf.Any`
-|`proto_data`
-
-|`Protobuf`
-|`0x02`
-|*SHOULD* be set to the protobuf's type URL
-|`proto_data`
-
-|`Json`
-|`0x03`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`text_data`
-
-|`SomeIp`
-|`0x04`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`binary_data`
-
-|`SomeIpTlv`
-|`0x05`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`binary_data`
-
-|`Raw`
-|`0x06`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`binary_data`
-
-|`Text`
-|`0x07`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`text_data`
-
+|present, any identifier `0` to `65535`, including zero-length
+|the identifier, unchanged
+|`application/octet-stream`
+|*MAY* be set to a non-empty absolute URI identifying the schema
+|`binary_data` holding the payload octets unchanged (empty for a zero-length payload)
 |===
 
 ==== Mapping to CloudEvent JSON Format
 
-The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the JSON Format. The table below defines specific values to use for the different UMessage payload types.
+The rules defined in https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md[JSON Event Format for CloudEvents, Version 1.0.2] MUST be applied when mapping UPayload to CloudEvents using the JSON Format.
 
 This mapping *MUST* be used by uProtocol Transport Libraries which use the JSON Event Format for the binding to a particular transport protocol.
 
 [%autowidth]
 |===
-|UPayloadFormat |CE `pformat` |CE `dataschema` |CE Property to map Payload to
+|UMessage payload |CE `pformat` |CE `datacontenttype` |CE `dataschema` |CE payload data property
 
-|`Unspecified`
-|`-`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data_base64`
+|absent
+|absent
+|absent
+|absent
+|none
 
-|`ProtobufWrappedInAny`
-|`0x01`
-|*MAY* be set to `type.googleapis.com/google.protobuf.Any`
-|`data_base64`
-
-|`Protobuf`
-|`0x02`
-|*SHOULD* be set to the protobuf's type URL
-|`data_base64`
-
-|`Json`
-|`0x03`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data`
-
-|`SomeIp`
-|`0x04`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data_base64`
-
-|`SomeIpTlv`
-|`0x05`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data_base64`
-
-|`Raw`
-|`0x06`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data_base64`
-
-|`Text`
-|`0x07`
-|*MAY* be set to a URI-Reference identifying the schema that the data adheres to
-|`data`
-
+|present, any identifier `0` to `65535`, including zero-length
+|the identifier, unchanged
+|`application/octet-stream`
+|*MAY* be set to a non-empty absolute URI identifying the schema
+|`data_base64` holding the Base64 encoding of the payload octets (an empty string for a zero-length payload)
 |===
+
+The JSON Event Format carries every payload, including JSON and UTF-8 text
+payloads, as `data_base64`. This preserves the exact octets at the cost of
+Base64 expansion and readability.
 
 ==== Additional Recommendations
 
@@ -276,7 +378,10 @@ CloudEvents *SHOULD* only be serialized when they are about to be sent via the x
 
 == Examples
 
-The following examples are using the CloudEvent JSON Format.
+The following examples use the CloudEvent JSON Format with the opaque carriage
+baseline. The notification's `data_base64` value decodes to the JSON text
+`{"subject":"door.front_left","status":"open"}`; the publish example's decodes
+to the UTF-8 text `open`.
 
 === Publish
 [source, json]
@@ -289,7 +394,8 @@ The following examples are using the CloudEvent JSON Format.
     "priority": "CS1",
     "ttl": 10000,
     "pformat": 7,
-    "data": "open"
+    "datacontenttype": "application/octet-stream",
+    "data_base64": "b3Blbg=="
 }
 ----
 
@@ -303,10 +409,8 @@ The following examples are using the CloudEvent JSON Format.
     "sink": "//VCU.VIN/companion.app/1/status.update",
     "type": "up-not.v1",
     "pformat": 3,
-    "data": {
-        "subject": "door.front_left",
-        "status": "open"
-    }
+    "datacontenttype": "application/octet-stream",
+    "data_base64": "eyJzdWJqZWN0IjoiZG9vci5mcm9udF9sZWZ0Iiwic3RhdHVzIjoib3BlbiJ9"
 }
 ----
 
@@ -322,6 +426,7 @@ The following examples are using the CloudEvent JSON Format.
     "priority": "CS4",
     "ttl": 50000,
     "pformat": 1,
+    "datacontenttype": "application/octet-stream",
     "data_base64": "... base64 encoded serialization of UpdateDoorRequest packed
                         in google.protobuf.Any ..."
 }
@@ -340,7 +445,7 @@ The following examples are using the CloudEvent JSON Format.
     "reqid": "cf8b1bcd-30bd-43be-a8d3-ad1cde652e10",
     "ttl": 50000,
     "pformat": 2,
-    "dataschema": "type.googleapis.com/google.rpc.Status",
+    "datacontenttype": "application/octet-stream",
     "data_base64": "... base64 encoded serialization of google.rpc.Status ..."
 }
 ----

@@ -127,9 +127,19 @@ The following sections highlight the mapping of xref:../basics/uattributes.adoc[
 
 Check `ttl` xref:#note-ttl[NOTE] below.
 
-| payload_format | SOME/IP specification however does not have an equivalent field for xref:../basics/uattributes.adoc#payload-format[UPayloadFormat].
+| payload_encoding_id | SOME/IP does not provide a field for the xref:../basics/payload_encoding_registry.adoc[payload-encoding identifier].
 
-It is assumed that the payload is serialized in the format that the other end knows how to deserialize (i.e. it is fixed per topic). As such, when converting between uProtocol and SOME/IP, the `payload_format` field *SHOULD* be ignored (left at the default or `UPAYLOAD_FORMAT_UNSPECIFIED`).
+The SOME/IP service/interface contract *MUST* define the payload encoding and,
+when available, its corresponding uProtocol registry or private-use identifier.
+When mapping a payload-bearing UMessage to SOME/IP, the binding *MUST* verify
+that `payload_encoding_id` matches that contract.
+
+When reconstructing a payload-bearing UMessage from SOME/IP, the binding *MUST*
+set `payload_encoding_id` to the registered or private-use identifier defined by
+the contract. It *MUST* use `0` if the contract defines the concrete encoding
+without assigning it a registry or private-use identifier. The binding *MUST*
+reject the payload if its configured encoding cannot be established or does not
+match the message contract.
 |===
 
 
@@ -320,5 +330,3 @@ NOTE: handled by underlying SOME/IP library.
 === uDiscovery Translation
 
 *TODO:* _Pending uDiscovery v3 redesign_
-
-

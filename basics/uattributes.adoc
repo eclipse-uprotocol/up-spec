@@ -47,6 +47,7 @@ class UAttributes {
   requestId: UUID [0..1]
   token: String [0..1]
   traceparent: String [0..1]
+  payloadEncodingId: UInt16 [0..1]
 }
 
 class UMessageType {
@@ -68,22 +69,8 @@ class UPriority {
   CS6
 }
 
-class UPayloadFormat {
-  <<Enumeration>>
-  Unspecified
-  ProtobufWrappedInAny
-  Protobuf
-  Json
-  SomeIp
-  SomeIpTlv
-  Raw
-  Text
-  SHM
-}
-
 UAttributes o-- UMessageType : type
 UAttributes o-- UPriority : priority
-UAttributes o-- "0..1" UPayloadFormat : payloadFormat
 ----
 
 Each xref:../languages.adoc[uProtocol Language Library]
@@ -185,15 +172,33 @@ The traceparent *MUST* either be empty or contain a value as defined by https://
 --
 
 
-|`payloadFormat`
-|<<payload-format,UPayloadFormat>>
+|`payloadEncodingId`
+|`UInt16`
 |no
 |none
-a|The format of the payload (data).
-[.specitem,oft-sid="dsn~up-attributes-payload-format~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+a|The encoding of the message payload, represented by an identifier whose
+meaning is defined in the
+xref:payload_encoding_registry.adoc[payload-encoding registry].
+
+[.specitem,oft-sid="dsn~up-attributes-payload-encoding-id~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
-The payload format *MUST* be empty if the message has no payload.
+*Presence:* This property and the UMessage's `payload` field *MUST* either both be present or
+both be absent. A present zero-length `payload` field is a present payload.
+
+*Range:* If present, the value *MUST* be between `0x0000` and `0xFFFF`.
+Message validation *MUST NOT* reject it because the identifier is reserved,
+unassigned, private, or unknown to the component.
+
+*Interpretation:* A component that reads the payload *MUST* reject the payload
+if it cannot determine or does not support the encoding. The identifier `0x0000`
+means an applicable binding, service, or schema contract names the encoding.
+A component that reads such a payload *MUST* have that contract and *MUST NOT*
+guess the encoding from the payload bytes.
 --
+
+Which identifiers a producer may originate is an allocation policy of the
+registry, not a validation rule of this attribute; see
+xref:payload_encoding_registry.adoc#allocation[Allocation and Origination].
 
 |===
 
@@ -459,57 +464,4 @@ a|
 a|`UCode.Ok`
 a|The outcome of the RPC. `UCode.Ok` indicates successful invocation of the operation. All other values indicate that invocation was unsuccessful. The concrete value indicates the type of error that has occurred. The message's payload may contain additional information about the error.
 
-|===
-
-[#payload-format]
-== Payload Format
-
-The following table provides an overview of the payload formats supported by uProtocol.
-
-[%autowidth]
-|===
-|UPayloadFormat |MIME Type |Payload encoding
-
-| `Unspecified`
-| N/A
-| The payload format is unknown. Clients will need to have gained knowledge about the concrete encoding and semantics of the payload by means of an out-of-band mechanism.
-
-
-|`ProtobufWrappedInAny`
-|`application/x-protobuf`
-a|The network byte order serialization of a `google.protobuf.Any` structure that contains the payload itself along with the schema URI indicating the (protobuf) type of the payload.
-
-**Note:** Using this payload format allows receivers of messages to determine the type of the payload from the schema URI and deserialize it accordingly. However, it also adds some overhead to the message size due to the additional `google.protobuf.Any` wrapper.
-
-|`Protobuf`
-|https://www.iana.org/assignments/media-types/application/protobuf[application/protobuf]
-a|The network byte order serialization of the protobuf structure representing the payload data.
-
-**Note:** Using this payload format requires that receivers of messages know the type of the payload in advance, as it is not included in the message itself. This can be achieved through out-of-band mechanisms or by using a predefined schema.
-
-|`Json`
-|https://www.iana.org/assignments/media-types/application/json[application/json]
-|The network byte order UTF-8 encoding of a JSON structure representing the payload data.
-
-|`SomeIp`
-|`application/x-someip`
-|The network byte order serialization of SOME/IP payload data as defined in [Open SOME/IP Specification, Section 5.4](https://some-ip.com/open-someip-specification/open_someip_specification_2025-12.pdf).
-
-|`SomeIpTlv`
-|`application/x-someip_tlv`
-|The network byte order serialization of SOME/IP payload data using the (optional) TLV encoding as defined in [SOME/IP Protocol Specification, Section 5.1.3.3](https://www.autosar.org/fileadmin/standards/R25-11/FO/AUTOSAR_FO_PRS_SOMEIPProtocol.pdf).
-
-|`Raw`
-|https://www.iana.org/assignments/media-types/application/octet-stream[application/octet-stream]
-|A byte array representing the payload data.
-
-|`Text`
-|https://www.iana.org/assignments/media-types/text/plain[text/plain]
-|The network byte order UTF-8 encoding of a unicode string representing the payload data.
-
-|`SHM`
-|`application/x-shm`
-a|The network byte order address of a shared memory segment.
-
-**Note:** The `SHM` payload format is supposed to be used for payloads that are stored in a shared memory segment. The `payload` of the `UMessage` will contain the address of the shared memory segment, and the `payloadFormat` attribute will be set to `SHM`. The actual data in the shared memory segment is not part of the `UMessage` and is not transmitted over the network. The semantics of how to access and interpret the data in the shared memory segment is left to the application and is not defined by uProtocol.
 |===
