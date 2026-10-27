@@ -94,18 +94,31 @@ link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
 | User Property [key: _6_] +
 _Message Expiry Interval_
 
-a| The amount of time after which this message must no be delivered/processed anymore
-    
-The _Message Expiry Interval_ property *MUST* be set to
+a| The amount of time after which this message must no longer be delivered/processed.
+
+If _ttl_ is `0`, the message has no expiration. The _Message Expiry Interval_
+and TTL User Property *MUST NOT* be set in this case. An omitted message expiry
+interval does not impose an MQTT expiration, whereas a zero interval is not
+an unlimited lifetime.
+
+If _ttl_ is greater than `0`, the _Message Expiry Interval_ property *MUST* be set to
 
 stem:[expiry := ceil(ttl/1000)].
 
-The User Property *MUST* be set to the value of _ttl_ if, and only if
+For every positive _ttl_, the TTL User Property *MUST* be set to the original
+value of _ttl_ in milliseconds, including values that are multiples of 1000.
+MQTT servers reduce the _Message Expiry Interval_ as a message waits for onward
+delivery, so that property alone cannot preserve the original TTL even when it
+has whole-second precision. The receiving side *MUST* use the original TTL User
+Property together with the message creation timestamp to apply uProtocol expiry.
+A received _Message Expiry Interval_ of `0` *MUST NOT* become a non-expiring
+uProtocol message.
 
-stem:[ttl \bmod 1000 > 0].
-
-This is necessary to retain the original value for the receiving end, because the MQTT message expiry interval has second granularity only.
-If the TTL is a multiple of 1000, i.e. has second granularity as well, then it is sufficient to set the _Message Expiry Interval_, from which the receiving side can derive the original TTL.
+For compatibility with legacy publishers that omit the TTL User Property, a
+receiver *MAY* use the received expiry interval converted to milliseconds as a
+conservative TTL bound. This fallback does not recover the original TTL and can
+expire a message earlier; conversion *MUST NOT* overflow or produce an unlimited
+lifetime from a finite expiry interval.
 
 | _permissionLevel_
 | User Property [key: _7_]
