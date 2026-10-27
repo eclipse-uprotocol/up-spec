@@ -47,7 +47,7 @@ The https://cloudevents.io/[CloudEvents] project has defined a set of *Formats* 
 
 The accompanying *Bindings* describe how events can be sent via well-known transport protocols like https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/http-protocol-binding.md[HTTP], https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/bindings/mqtt-protocol-binding.md[MQTT] etc.
 
-[.specitem,oft-sid="dsn~cloudevents-umessage-mapping~2",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
+[.specitem,oft-sid="dsn~cloudevents-umessage-mapping~3",oft-needs="impl,utest",oft-title="Mapping of UMessages to CloudEvents"]
 == uMessage Mapping
 
 uProtocol uses xref:../basics/umessage.adoc[UMessages] to exchange information between uEntities.
