@@ -75,12 +75,12 @@ UAttributes o-- UPriority : priority
 
 Each xref:../languages.adoc[uProtocol Language Library]
 
-[.specitem,oft-sid="req~uattributes-data-model-impl~2",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+[.specitem,oft-sid="req~uattributes-data-model-impl~3",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MUST* implement the <<uattributes-data-model>> using the language specific type system.
 --
 
-[.specitem,oft-sid="req~uattributes-data-model-proto~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+[.specitem,oft-sid="req~uattributes-data-model-proto~2",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
 --
 * *MUST* support writing and reading of an instance of the <<uattributes-data-model>> to/from a protobuf as defined in link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto].
 --

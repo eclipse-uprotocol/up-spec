@@ -36,7 +36,7 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 === UAttributes
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~2",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
 An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST*
 contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>>.
