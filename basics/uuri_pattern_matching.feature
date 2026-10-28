@@ -17,55 +17,55 @@ Feature: Matching endpoint identifiers (UUri) against patterns
     Developers using a uProtocol language library should be able to verify that a specific
     endpoint identifier matches a given pattern as specified by the UUri specification.
 
-   [utest->dsn~uri-pattern-matching~2]
+   [utest->dsn~uri-pattern-matching~3]
 
     Given a URI string <uri>
     When deserializing the URI to a UUri
     Then the UUri matches pattern <pattern>
 
     Examples:
-      | uri                           | pattern                   |
-      | "/100AA/1/A1FB"               | /100AA/1/A1FB             |
-      | "/100AA/1/A1FB"               | //*/100AA/1/A1FB          |
-      | "/100AA/1/A1FB"               | /1FFFF/1/A1FB             |
-      | "/100AA/1/A1FB"               | //*/1FFFF/1/A1FB          |
-      | "/100AA/1/A1FB"               | /FFFFFFFF/1/A1FB          |
-      | "/100AA/1/A1FB"               | //*/FFFFFFFF/1/A1FB       |
-      | "/100AA/1/A1FB"               | /100AA/FF/A1FB            |
-      | "/100AA/1/A1FB"               | //*/100AA/FF/A1FB         |
-      | "/100AA/1/A1FB"               | /100AA/1/FFFF             |
-      | "/100AA/1/A1FB"               | //*/100AA/1/FFFF          |
-      | "/100AA/1/A1FB"               | /FFFFFFFF/FF/FFFF         |
-      | "/100AA/1/A1FB"               | //*/FFFFFFFF/FF/FFFF      |
-      | "/10001/1/A1FB"               | /10001/1/A1FB             |
-      | "/10001/1/A1FB"               | //*/10001/1/A1FB          |
-      | "/10001/1/A1FB"               | /FFFFFFFF/1/A1FB          |
-      | "/10001/1/A1FB"               | //*/FFFFFFFF/1/A1FB       |
-      | "/10001/1/A1FB"               | /FFFFFFFF/FF/FFFF         |
-      | "/10001/1/A1FB"               | //*/FFFFFFFF/FF/FFFF      |
-      | "//vcu.my_vin/100AA/1/A1FB"   | //vcu.my_vin/100AA/1/A1FB |
-      | "//vcu.my_vin/100AA/1/A1FB"   | //*/100AA/1/A1FB          |
+      | uri                        | pattern                  |
+      | "/AA/1/1/A1FB"             | /AA/1/1/A1FB             |
+      | "/AA/1/1/A1FB"             | //*/AA/1/1/A1FB          |
+      | "/AA/1/1/A1FB"             | /FFFF/1/1/A1FB           |
+      | "/AA/1/1/A1FB"             | //*/FFFF/1/1/A1FB        |
+      | "/AA/1/1/A1FB"             | /FFFF/FFFF/1/A1FB        |
+      | "/AA/1/1/A1FB"             | //*/FFFF/FFFF/1/A1FB     |
+      | "/AA/1/1/A1FB"             | /AA/1/FF/A1FB            |
+      | "/AA/1/1/A1FB"             | //*/AA/1/FF/A1FB         |
+      | "/AA/1/1/A1FB"             | /AA/1/1/FFFF             |
+      | "/AA/1/1/A1FB"             | //*/AA/1/1/FFFF          |
+      | "/AA/1/1/A1FB"             | /FFFF/FFFF/FF/FFFF       |
+      | "/AA/1/1/A1FB"             | //*/FFFF/FFFF/FF/FFFF    |
+      | "/1/1/1/A1FB"              | /1/1/1/A1FB              |
+      | "/1/1/1/A1FB"              | //*/1/1/1/A1FB           |
+      | "/1/1/1/A1FB"              | /FFFF/FFFF/1/A1FB        |
+      | "/1/1/1/A1FB"              | //*/FFFF/FFFF/1/A1FB     |
+      | "/1/1/1/A1FB"              | /FFFF/FFFF/FF/FFFF       |
+      | "/1/1/1/A1FB"              | //*/FFFF/FFFF/FF/FFFF    |
+      | "//vcu.my_vin/AA/1/1/A1FB" | //vcu.my_vin/AA/1/1/A1FB |
+      | "//vcu.my_vin/AA/1/1/A1FB" | //*/AA/1/1/A1FB          |
 
   Scenario Outline:
     Developers using a uProtocol language library should be able to verify that a specific
     endpoint identifier does not match a given pattern as specified by the UUri specification.
 
-    [utest->dsn~uri-pattern-matching~2]
+    [utest->dsn~uri-pattern-matching~3]
 
     Given a URI string <uri>
     When deserializing the URI to a UUri
     Then the UUri does not match pattern <pattern>
 
     Examples:
-      | uri                         | pattern               |
-      | "/100AA/1/A1FB"             | //mcu1/100AA/1/A1FB   |
-      | "//vcu.my_vin/100AA/1/A1FB" | //mcu1/100AA/1/A1FB   |
-      | "//vcu/1B1A5/1/A1FB"        | //vc/FFFFFFFF/FF/FFFF |
-      | "/1B1A5/1/A1FB"             | //*/125B1/FF/FFFF     |
-      | "/1B1A5/1/A1FB"             | //*/FFFFFFFF/2/FFFF   |
-      | "/1B1A5/1/A1FB"             | //*/FFFFFFFF/FF/ABCD  |
-      | "/1B1A5/1/A1FB"             | /125B1/1/A1FB         |
-      | "/1B1A5/1/A1FB"             | /2B1A5/1/A1FB         |
-      | "/10B1A5/1/A1FB"            | /40B1A5/1/A1FB        |
-      | "/1B1A5/1/A1FB"             | /1B1A5/4/A1FB         |
-      | "/1B1A5/1/A1FB"             | /1B1A5/1/90FB         |
+      | uri                        | pattern                |
+      | "/AA/1/1/A1FB"             | //mcu1/AA/1/1/A1FB     |
+      | "//vcu.my_vin/AA/1/1/A1FB" | //mcu1/AA/1/1/A1FB     |
+      | "//vcu/B1A5/1/1/A1FB"      | //vc/FFFF/FFFF/FF/FFFF |
+      | "/B1A5/1/1/A1FB"           | //*/25B1/1/FF/FFFF     |
+      | "/B1A5/1/1/A1FB"           | //*/FFFF/FFFF/2/FFFF   |
+      | "/B1A5/1/1/A1FB"           | //*/FFFF/FFFF/FF/ABCD  |
+      | "/B1A5/1/1/A1FB"           | /25B1/1/1/A1FB         |
+      | "/B1A5/1/1/A1FB"           | /B1A5/2/1/A1FB         |
+      | "/B1A5/1/1/A1FB"           | /B1A5/40/1/A1FB        |
+      | "/B1A5/1/1/A1FB"           | /B1A5/1/4/A1FB         |
+      | "/B1A5/1/1/A1FB"           | /B1A5/1/1/90FB         |

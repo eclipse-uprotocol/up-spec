@@ -38,14 +38,14 @@ Feature: Efficient binary encoding of endpoint identifiers (UUri)
 
     Examples:
       | authority_name | type_id | instance_id | version | resource_id |byte_sequence                                  |
-      | ""             |  0x0001 |      0x0001 |    0x01 |      0xa1fb |                                 0a0010818004180120fbc302 |
-      | "my_vin"       |  0x0001 |      0x1000 |    0x02 |      0x001a |             0a066d795f76696e1081808080011802201a |
-      | "*"            |  0x0101 |      0x0001 |    0xa0 |      0xa1fb |                       0a012a1081820418a00120fbc302 |
-      | "mcu1"         |  0xFFFF |      0x0001 |    0x01 |      0xa1fb |                 0a046d63753110ffff07180120fbc302 |
-      | "vcu.my_vin"   |  0x0101 |      0x01a4 |    0x01 |      0x8000 |   0a0a7663752e6d795f76696e108182900d180120808002 |
-      | "vcu.my_vin"   |  0x0101 |      0xFFFF |    0x01 |      0xa1fb | 0a0a7663752e6d795f76696e108182fcff0f180120fbc302 |
-      | "vcu.my_vin"   |  0xFFFF |      0xFFFF |    0x01 |      0xa1fb | 0a0a7663752e6d795f76696e10ffffffff0f180120fbc302 |
-      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x00 |      0xa1fb |           0a0a7663752e6d795f76696e10818204180020fbc302 |
-      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0xFF |      0xa1fb |     0a0a7663752e6d795f76696e1081820418ff0120fbc302 |
-      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0x0000 |               0a0a7663752e6d795f76696e1081820418012000 |
-      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0xFFFF |       0a0a7663752e6d795f76696e10818204180120ffff03 |
+      | ""             |  0x0001 |      0x0001 |    0x01 |      0xa1fb |                                 0a0010011801200128fbc302 |
+      | "my_vin"       |  0x0001 |      0x1000 |    0x02 |      0x001a |             0a066d795f76696e10011880202002281a |
+      | "*"            |  0x0101 |      0x0001 |    0xa0 |      0xa1fb |                       0a012a108102180120a00128fbc302 |
+      | "mcu1"         |  0xFFFF |      0x0001 |    0x01 |      0xa1fb |                 0a046d63753110ffff031801200128fbc302 |
+      | "vcu.my_vin"   |  0x0101 |      0x01a4 |    0x01 |      0x8000 |   0a0a7663752e6d795f76696e10810218a403200128808002 |
+      | "vcu.my_vin"   |  0x0101 |      0xFFFF |    0x01 |      0xa1fb | 0a0a7663752e6d795f76696e10810218ffff03200128fbc302 |
+      | "vcu.my_vin"   |  0xFFFF |      0xFFFF |    0x01 |      0xa1fb | 0a0a7663752e6d795f76696e10ffff0318ffff03200128fbc302 |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x00 |      0xa1fb |           0a0a7663752e6d795f76696e1081021801200028fbc302 |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0xFF |      0xa1fb |     0a0a7663752e6d795f76696e108102180120ff0128fbc302 |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0x0000 |               0a0a7663752e6d795f76696e108102180120012800 |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0xFFFF |       0a0a7663752e6d795f76696e1081021801200128ffff03 |

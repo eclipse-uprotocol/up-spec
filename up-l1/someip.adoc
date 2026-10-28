@@ -75,12 +75,11 @@ xref:../basics/uri.adoc[`UUri`] is translated to SOME/IP attributes per <<uri-ma
 NOTE: *vsomeip* hides IP endpoint information and uses `ServiceID`/`InstanceID` instead. +
 *SHOULD* be left blank or mapped via static transport configuration.
 
-| ue_id | InstanceID\|ServiceID
-|
-* `ServiceID` *MUST* be encoded in the lower 16 bits of the 32 bit `ue_id`.
-* `InstanceID` *MAY* be encoded in the upper 16 bits of `ue_id`.
-* If the upper 16 bits are `0x0000` (a reserved instance value), `InstanceID` is assumed to be `1`.
-* Explicitly setting `InstanceID` to `0x0001` *SHOULD* be avoided as it increases uProtocol message size.
+| ue_type_id | ServiceID
+| Identifier of the service placed in the upper 16 bits of the *SOME/IP Header* `MessageID`.
+
+| ue_instance_id | InstanceID
+| No direct mapping to SMOE/IP message header. `InstanceID` is used in *SOME/IP-SD Service Entry Type* for service discovery and events.
 
 | ue_version_major | Interface Version
 |
@@ -278,9 +277,9 @@ These fields are then mapped to uProtocol `UUri` attributes used in uProtocol `U
 |===
 | Eventgroup Entry Field | UUri
 
-| ServiceID | Set in lower 16 bits of `ue_id`
+| ServiceID | Set `ue_type_id` to `ServiceID`
 
-| InstanceID a| If instance is not the default (`0x1`), set it in upper 16 bits of `ue_id`
+| InstanceID a| Set `ue_instance_id` to `InstanceID`.
 
 | Major Version a| `ue_version_major`
 
