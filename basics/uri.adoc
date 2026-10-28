@@ -54,13 +54,14 @@ classDiagram
 
 class UUri {
   authority_name : String
-  ue_id : UInt32
+  ue_type_id : UInt16
+  ue_instance_id : UInt16
   ue_version_major : UInt8
   resource_id : UInt16
 }
 ----
 
-[.specitem,oft-sid="dsn~uri-data-model-naming~1",oft-needs="impl"]
+[.specitem,oft-sid="dsn~uri-data-model-naming~2",oft-needs="impl"]
 --
 Each link:../languages.adoc[uProtocol Language Library] *MUST* implement the data model using the type and property names as defined in the following sections.
 --
@@ -97,12 +98,19 @@ NOTE: uEntities which produce events for consumption by other uEntities assume a
 uEntities which consume events produced by other uEntities assume an _Application_ role. +
 uEntities *MAY* assume both the Service and Application roles.
 
-[.specitem,oft-sid="dsn~uri-entity-id~1"]
+[.specitem,oft-sid="dsn~uri-entity-type-id~1"]
 --
-A UUri's `ue_id` property value determines the type and instance of the service being referred to:
+A UUri's `ue_type_id` property value represents the uEntity's _type of service_. Its value is a numeric identifier as defined by the uProtocol Service Registry.
+--
 
-* The value's _least_ significant 16 bits contain the _service ID_, representing the service interface type.
-* The value's _most_ significant 16 bits contain the _service instance ID_.
+[.specitem,oft-sid="dsn~uri-entity-instance-id~1",oft-needs="impl,utest"]
+--
+A UUri's `ue_instance_id` property value uniquely identifies a _service instance_ among other uEntities of the same _service type_ within the same authority. Its value *MUST* be from the `[0x0001; 0xFFFF]` interval.
+
+[source,ocl]
+----
+inv: ue_instance_id >= 0x0001 and ue_instance_id <= 0xFFFF
+----
 --
 
 === Resource
@@ -152,14 +160,22 @@ NOTE: The ABNF fragments above only contain the rules that differ from the origi
 A URI's _authority_ *MUST* be mapped to/from the UUri's `authority_name` property following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2[RFC3986, Section 3.2.2]. In particular, the URI *MUST NOT* contain an _authority_ if `authority_name` is empty and vice versa.
 --
 
-[.specitem,oft-sid="dsn~uri-path-mapping~2",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-path-mapping~3",oft-needs="impl,utest"]
 --
-A URI's _path_ *MUST* be mapped to/from the UUri's `ue_id`, `ue_version_major` and `resource_id` properties.
+A URI's _path_ *MUST* be mapped to/from the UUri's `ue_type_id`, `ue_instance_id`, `ue_version_major` and `resource_id` properties.
 
 Each property value *MUST* be mapped to a _segment_ following the rules defined in link:https://datatracker.ietf.org/doc/html/rfc3986#section-3.3[RFC3986, Section 3.3].
 
-The `ue_id`, `ue_version_major` and `resource_id` *MUST* be mapped to the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
-of the corresponding property values. Leading zeros (`0`) *SHOULD* be omitted in order to reduce the length of the URI. When creating a UUri from a URI, lower-case base16 encoded values *MUST* be accepted as well in order to improve interoperability. Note that this does not conflict with the rules defined in <<Pattern Matching>>.
+The `ue_instance_id` and `ue_type_id` *MUST* be mapped to the _first_ path segment containing the concatenation of the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
+of their respective property values.
+
+The `ue_version_major` *MUST* be mapped to the _second_ path segment containing the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
+of its property value.
+
+The `resource_id` *MUST* be mapped to the _third_ path segment containing the _upper-case_ link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding]
+of its property value.
+
+Leading zeros (`0`) *SHOULD* be omitted in order to reduce the length of the URI. When creating a UUri from a URI, lower-case base16 encoded values *MUST* be accepted as well in order to improve interoperability. Note that this does not conflict with the rules defined in <<Pattern Matching>>.
 --
 
 === Examples
@@ -168,19 +184,21 @@ The examples below can be used as test vectors for implementing client libraries
 
 [%autowidth]
 |===
-|authority |entity |version |resource |URI
+|authority |type ID |instance ID |version |resource |URI
 
 | `""`
-| `0x0000`
+| `0x00c0`
+| `0x0001`
 | `0x03`
-| `0x8000`
-| `/0/3/8000`
+| `0x00f1`
+| `up:/100C0/3/F1`
 
 | `"192.168.1.10"`
-| `0x0000`
-| `0xFF`
+| `0x0b10`
+| `0x10a2`
+| `0x1a`
 | `0x8000`
-| `//192.168.1.10/0/FF/8000`
+| `up://192.168.1.10/10A20B10/1A/8000`
 |===
 
 
@@ -272,14 +290,14 @@ impl UUri {
 [#pattern-matching]
 == Pattern Matching
 
-[.specitem,oft-sid="dsn~uri-pattern-matching~2",oft-needs="impl,utest"]
+[.specitem,oft-sid="dsn~uri-pattern-matching~3",oft-needs="impl,utest"]
 --
 A UUri can be used to define a _pattern_ that other UUris can then be matched against.
 For that purpose, a UUri
 
 * *MAY* have its `authority_name` set to the `*` (`U+002A`, Asterisk) character in order to match _any_ (including _no_) authority.
-* *MAY* have the _service ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ service type.
-* *MAY* have the _service instance ID_ part of its `ue_id` set to `0xFFFF` in order to match _any_ service instance. `0x0000` is the default instance ID used when there is only a single instance of a service.
+* *MAY* have its `ue_type_id` set to `0xFFFF` in order to match _any_ service type.
+* *MAY* have its `ue_instance_id` set to `0xFFFF` in order to match _any_ service instance.
 * *MAY* have its `ue_version_major` set to `0xFF` in order to match _any_ version.
 * *MAY* have its `resource_id` set to `0xFFFF` in order to match _any_ resource.
 
@@ -293,18 +311,15 @@ def: matches_authority(candidate : UUri) : Boolean =
   or
   self.authority_name = candidate.authority_name
 
-def: service_type() : UInt32 = ue_id & 0x0000_FFFF
-def: service_instance() : UInt32 = ue_id & 0xFFFF_0000
-
 def: matches_entity_type(candidate : UUri) : Boolean =
-  self.service_type() = 0x0000_FFFF
+  self.ue_type_id = 0xFFFF
   or
-  self.service_type() = candidate.service_type()
+  self.ue_type_id = candidate.ue_type_id
 
 def: matches_entity_instance(candidate : UUri) : Boolean =
-  self.service_instance() = 0xFFFF_0000
+  self.ue_instance_id = 0xFFFF
   or
-  self.service_instance() = candidate.service_instance()
+  self.ue_instance_id = candidate.ue_instance_id
 
 def: matches_entity_version(candidate : UUri) : Boolean =
   self.ue_version_major = 0xFF
@@ -341,7 +356,8 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "192.168.1.100",
-  ue_id: 0xFFFF_FFFF                // any instance, any service
+  ue_type_id: 0xFFFF,
+  ue_instance_id: 0xFFFF,           // any instance of any service
   ue_version_major: 0xFF,           // any
   resource_id: 0xFFFF               // any
 }
@@ -351,19 +367,19 @@ will match the following URIs:
 
 [example]
 ----
-//192.168.1.100/0/3/8000
-//192.168.1.100/1/3/8
-//192.168.1.100/1A/2/2
+//192.168.1.100/10000/3/8000
+//192.168.1.100/2B0001/3/8
+//192.168.1.100/1234001A/2/2
 ----
 
 But not these:
 [example]
 ----
-//192.168.1.200/0/3/8000  // wrong authority
-/1/3/8                    // no authority
+//192.168.1.200/10000/3/8000  // wrong authority
+/2B0001/3/8                   // no authority
 ----
 
-==== Matching on Entity
+==== Matching on Entity Type
 
 The following pattern UUri
 
@@ -371,7 +387,8 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "*",       // any
-  ue_id: 0xFFFF_0000,        // any instance of service 0x0000
+  ue_type_id: 0x0a00,
+  ue_instance_id: 0xFFFF,    // any instance of service 0x0a00
   ue_version_major: 0x03,
   resource_id: 0xFFFF        // any
 }
@@ -381,15 +398,45 @@ will match the following URIs:
 
 [example]
 ----
-//other-vcu.my-vehicle/0/3/8000
-/20000/3/2
+//other-vcu.my-vehicle/AB0A00/3/8000
+/10A00/3/2
 ----
 
 But not these:
 [example]
 ----
-//vcu.other.device/1/3/8000    // wrong service ID (0x0001)
-/20010/3/2                     // wrong service ID (0x0010)
+//vcu.other.device/AB0001/3/8000  // wrong service ID (0x0001)
+/23450A10/3/2                     // wrong service ID (0x0A10)
+----
+
+==== Matching on Entity Instance
+
+The following pattern UUri
+
+[example]
+----
+UUri {
+  authority_name: "*",       // any
+  ue_type_id: 0x0a00,
+  ue_instance_id: 0x0010,    // instance 0x0010 of service 0x0a00
+  ue_version_major: 0x03,
+  resource_id: 0xFFFF        // any
+}
+----
+
+will match the following URIs:
+
+[example]
+----
+//other-vcu.my-vehicle/100A00/3/8000
+/100A00/3/2
+----
+
+But not these:
+[example]
+----
+//vcu.other.device/100001/3/8000  // wrong service ID (0x0001)
+/100A10/3/2                       // wrong service ID (0x0A10)
 ----
 
 ==== Matching on Resource
@@ -400,7 +447,8 @@ The following pattern UUri
 ----
 UUri {
   authority_name: "",        // local
-  ue_id: 0x0000_0000,        // default instance of service 0x0000
+  ue_type_id: 0x0000,
+  ue_instance_id: 0x0001,    // instance 0x0001 of service 0x0000
   ue_version_major: 0xFF,    // any
   resource_id: 0x0001
 }
@@ -409,19 +457,13 @@ UUri {
 will match the following URIs:
 [example]
 ----
-/0/3/1
-/0/2/1
+/10000/3/1
+/10000/2/1
 ----
 
 But not these:
 [example]
 ----
-//vcu.other.device/0/3/1     // non-local authority
-/0/3/3                       // wrong resource
+//vcu.other.device/10000/3/1     // non-local authority
+/10000/2/3                       // wrong resource
 ----
-
-== Best Practices
-
-The numerical identifiers of a uService's type and its resources are defined in the service's proto3 definition by means of corresponding https://protobuf.dev/programming-guides/proto2/#options[Protobuf Options].
-
-Applications can determine these identifiers during runtime from the client stubs generated from a uService proto3 file via the corresponding https://protobuf.dev/reference/csharp/api-docs/class/google/protobuf/reflection/message-descriptor[MessageDescriptors].

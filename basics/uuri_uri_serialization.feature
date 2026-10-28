@@ -21,10 +21,11 @@ Feature: String representation of endpoint identfiers (UUri)
     [utest->dsn~uri-scheme~1]
     [utest->dsn~uri-host-only~2]
     [utest->dsn~uri-authority-mapping~1]
-    [utest->dsn~uri-path-mapping~2]
+    [utest->dsn~uri-path-mapping~3]
 
     Given a UUri having authority <authority_name>
-    And having entity identifier <entity_id>
+    And having entity type <type_id>
+    And having entity instance <instance_id>
     And having major version <version>
     And having resource identifier <resource_id>
     When serializing the UUri to a URI
@@ -32,20 +33,20 @@ Feature: String representation of endpoint identfiers (UUri)
     And the original UUri can be recreated from the URI string
 
     Examples:
-      | authority_name | entity_id  | version | resource_id | uri_string                      |
-      | ""             | 0x00000001 |    0x01 |      0xa1fb | up:/1/1/A1FB                    |
-      | "192.168.1.1"  | 0x00000001 |    0x01 |      0xa1fb | up://192.168.1.1/1/1/A1FB       |
-      | "[2001::7]"    | 0x00000001 |    0x01 |      0xa1fb | up://[2001::7]/1/1/A1FB         |
-      | "my_vin"       | 0x10000001 |    0x02 |      0x001a | up://my_vin/10000001/2/1A       |
-      | "*"            | 0x00000101 |    0xa0 |      0xa1fb | up://*/101/A0/A1FB              |
-      | "mcu1"         | 0x0000FFFF |    0x01 |      0xa1fb | up://mcu1/FFFF/1/A1FB           |
-      | "vcu.my_vin"   | 0x01a40101 |    0x01 |      0x8000 | up://vcu.my_vin/1A40101/1/8000  |
-      | "vcu.my_vin"   | 0xFFFF0101 |    0x01 |      0xa1fb | up://vcu.my_vin/FFFF0101/1/A1FB |
-      | "vcu.my_vin"   | 0xFFFFFFFF |    0x01 |      0xa1fb | up://vcu.my_vin/FFFFFFFF/1/A1FB |
-      | "vcu.my_vin"   | 0x00000101 |    0x00 |      0xa1fb | up://vcu.my_vin/101/0/A1FB      |
-      | "vcu.my_vin"   | 0x00000101 |    0xFF |      0xa1fb | up://vcu.my_vin/101/FF/A1FB     |
-      | "vcu.my_vin"   | 0x00000101 |    0x01 |      0x0000 | up://vcu.my_vin/101/1/0         |
-      | "vcu.my_vin"   | 0x00000101 |    0x01 |      0xFFFF | up://vcu.my_vin/101/1/FFFF      |
+      | authority_name | type_id | instance_id | version | resource_id | uri_string                      |
+      | ""             |  0x0001 |      0x0001 |    0x01 |      0xa1fb | up:/10001/1/A1FB                |
+      | "192.168.5.10" |  0x0001 |      0x0001 |    0x01 |      0xa1fb | up://192.168.5.10/10001/1/A1FB  |
+      | "[2001::7]"    |  0x0001 |      0x0001 |    0x01 |      0xa1fb | up://[2001::7]/10001/1/A1FB     |
+      | "my_vin"       |  0x0001 |      0x1000 |    0x02 |      0x001a | up://my_vin/10000001/2/1A       |
+      | "*"            |  0x0101 |      0x0001 |    0xa0 |      0xa1fb | up://*/10101/A0/A1FB            |
+      | "mcu1"         |  0xFFFF |      0x0001 |    0x01 |      0xa1fb | up://mcu1/1FFFF/1/A1FB          |
+      | "vcu.my_vin"   |  0x0101 |      0x01a4 |    0x01 |      0x8000 | up://vcu.my_vin/1A40101/1/8000  |
+      | "vcu.my_vin"   |  0x0101 |      0xFFFF |    0x01 |      0xa1fb | up://vcu.my_vin/FFFF0101/1/A1FB |
+      | "vcu.my_vin"   |  0xFFFF |      0xFFFF |    0x01 |      0xa1fb | up://vcu.my_vin/FFFFFFFF/1/A1FB |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x00 |      0xa1fb | up://vcu.my_vin/10101/0/A1FB    |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0xFF |      0xa1fb | up://vcu.my_vin/10101/FF/A1FB   |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0x0000 | up://vcu.my_vin/10101/1/0       |
+      | "vcu.my_vin"   |  0x0101 |      0x0001 |    0x01 |      0xFFFF | up://vcu.my_vin/10101/1/FFFF    |
 
   Scenario Outline:
     Developers using a uProtocol language library should not be able to create a UUri from a
@@ -55,7 +56,7 @@ Feature: String representation of endpoint identfiers (UUri)
     [utest->dsn~uri-scheme~1]
     [utest->dsn~uri-host-only~2]
     [utest->dsn~uri-authority-mapping~1]
-    [utest->dsn~uri-path-mapping~2]
+    [utest->dsn~uri-path-mapping~3]
 
     Given a URI string <uri_string>
     When deserializing the URI to a UUri
@@ -72,21 +73,23 @@ Feature: String representation of endpoint identfiers (UUri)
       | "//"                                  | not a URI                                             |
       | "//vcu.my_vin"                        | just an authority                                     |
       | "//vcu.my_vin//1/A1FB"                | missing entity ID                                     |
-      | "//vcu.my_vin/101//A1FB"              | missing version                                       |
-      | "//vcu.my_vin/101/1/"                 | missing resource ID                                   |
-      | "up://vcu.my_vin/101/1/A/unexpected"  | too many path segments                                |
-      | "xy://vcu.my_vin/101/1/A"             | unsupported schema                                    |
-      | "//vcu.my_vin/101/1/A?foo=bar"        | URI with query                                        |
-      | "//vcu.my_vin/101/1/A#foo"            | URI with fragment                                     |
-      | "//VCU.my-vin/101/1/A"                | server-based authority with upper-case letters        |
-      | "//vcu.my-vin:1516/101/1/A"           | server-based authority with port                      |
-      | "//user:pwd@vcu.my-vin/101/1/A"       | server-based authority with user info                 |
-      | "//[2001:db87aa::8]/101/1/A"          | invalid IP literal authority                          |
-      | "//MY_VIN/101/1/A"                    | registry-based authority with uppercase characters    |
-      | "//reg_based:1516/101/1/A"            | registry-based authority name with invalid characters |
-      | "up://vcu.my-vin/1G1/1/A1FB"          | non-hex entity ID                                     |
+      | "//vcu.my_vin/10101//A1FB"            | missing version                                       |
+      | "up://vcu.my_vin/10101/1/"            | missing resource ID                                   |
+      | "//vcu.my_vin/10101/1/A/unexpected"   | too many path segments                                |
+      | "xy://vcu.my_vin/10101/1/A"           | unsupported schema                                    |
+      | "//vcu.my_vin/10101/1/A?foo=bar"      | URI with query                                        |
+      | "//vcu.my_vin/10101/1/A#foo"          | URI with fragment                                     |
+      | "//VCU.my-vin/10101/1/A"              | server-based authority with upper-case letters        |
+      | "//vcu.my-vin:1516/10101/1/A"         | server-based authority with port                      |
+      | "//user:pwd@vcu.my-vin/10101/1/A"     | server-based authority with user info                 |
+      | "//[2001:db87aa::8]/10101/1/A"        | invalid IP literal authority                          |
+      | "//MY_VIN/10101/1/A"                  | registry-based authority with uppercase characters    |
+      | "//reg_based:1516/10101/1/A"          | registry-based authority name with invalid characters |
+      | "//vcu.my-vin/ABCD/1/A1FB"            | missing entity instance ID                            |
+      | "up://vcu.my-vin/101G1/1/A1FB"        | non-hex entity type ID                                |
+      | "up://vcu.my-vin/G0101/1/A1FB"        | non-hex entity instance ID                            |
       | "/123456789/1/A1FB"                   | entity ID exceeds max length                          |
-      | "up:/101/G/A1FB"                      | non-hex version                                       |
-      | "//vcu.my-vin/101/123/A1FB"           | version exceeds max length                            |
-      | "/101/1/G1FB"                         | non-hex resource ID                                   |
-      | "up://vcu.my-vin/101/1/12345"         | resource ID exceeds max length                        |
+      | "up:/10101/G/A1FB"                    | non-hex version                                       |
+      | "//vcu.my-vin/10101/123/A1FB"         | version exceeds max length                            |
+      | "/10101/1/G1FB"                       | non-hex resource ID                                   |
+      | "up://vcu.my-vin/10101/1/12345"       | resource ID exceeds max length                        |
