@@ -197,13 +197,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/3BA/3/9876`
+|`up://device1/3BA/1/3/9876`
 
 |*Sink URI*
 |-
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/9876`
+|`device1/3BA/1/3/9876`
 |===
 --
 
@@ -212,13 +212,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/3BA/3/B1`
+|`up://device1/3BA/1/3/8001`
 
 |*Sink URI*
-|`up://device1/200AB/1/0`
+|`up://device1/AB/2/1/0`
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/8001/device1/AB/2/1/0`
+|`device1/3BA/1/3/8001/device1/AB/2/1/0`
 |===
 --
 
@@ -227,13 +227,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/403BA/3/0`
+|`up://device1/3BA/4/3/0`
 
 |*Sink URI*
-|`up:///AB/1/2`
+|`up:///AB/1/1/2`
 
 |*MQTT Topic Name*
-|`device1/3BA/4/3/0/device1/AB/0/1/2`
+|`device1/3BA/4/3/0/device1/AB/1/1/2`
 |===
 --
 
@@ -242,13 +242,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up:///3BA/3/67`
+|`up:///3BA/1/3/67`
 
 |*Sink URI*
-|`up://device1/100AB/1/0`
+|`up://device1/AB/1/1/0`
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/67/device1/AB/1/1/0`
+|`device1/3BA/1/3/67/device1/AB/1/1/0`
 |===
 --
 
@@ -259,7 +259,7 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://*/FFFF03BA/3/9876`
+|`up://*/FFFF/3BA/3/9876`
 
 |*Sink Filter*
 |-
@@ -269,18 +269,18 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |===
 --
 
-.Receive Notifications from the default instance of a specific uEntity
+.Receive Notifications from a particular instance of a specific uEntity
 --
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://device1/3BA/4/FFFF`
+|`up://device1/3BA/5/4/FFFF`
 
 |*Sink Filter*
-|`up://device1/AB/1/0`
+|`up://device1/AB/1/1/0`
 
 |*MQTT Topic Filter*
-|`device1/3BA/0/4/+/device1/AB/0/1/0`
+|`device1/3BA/5/4/+/device1/AB/1/1/0`
 |===
 --
 
@@ -292,10 +292,10 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/0/1/12CD`
+|`up:///AB/1/1/12CD`
 
 |*MQTT Topic Filter*
-|`\+/+/\+/+/+/device1/AB/0/1/12CD`
+|`\+/+/\+/+/+/device1/AB/1/1/12CD`
 |===
 --
 
@@ -307,10 +307,10 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/0/1/0`
+|`up:///AB/1/1/0`
 
 |*MQTT Topic Filter*
-|`\+/+/\+/+/+/device1/AB/0/1/0`
+|`\+/+/\+/+/+/device1/AB/1/1/0`
 |===
 --
 
@@ -354,14 +354,14 @@ a| The segment *MUST* contain the (UTF8) string representation of the
 3. authority name, otherwise.
 
 |`ue_type`
-|`ue_id`
+|`ue_type_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
 2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
 
 |`ue_instance`
-|`ue_id`
+|`ue_instance_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].
