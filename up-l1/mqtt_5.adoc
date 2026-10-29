@@ -230,7 +230,7 @@ The examples below show the MQTT 5 topic names to use for sending different type
 |`up://device1/3BA/4/3/0`
 
 |*Sink URI*
-|`up:///AB/1/1/2`
+|`up:/AB/1/1/2`
 
 |*MQTT Topic Name*
 |`device1/3BA/4/3/0/device1/AB/1/1/2`
@@ -242,7 +242,7 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up:///3BA/1/3/67`
+|`up:/3BA/1/3/67`
 
 |*Sink URI*
 |`up://device1/AB/1/1/0`
@@ -259,7 +259,7 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://*/FFFF/3BA/3/9876`
+|`up://*/3BA/FFFF/3/9876`
 
 |*Sink Filter*
 |-
@@ -292,7 +292,7 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/1/1/12CD`
+|`up:/AB/1/1/12CD`
 
 |*MQTT Topic Filter*
 |`\+/+/\+/+/+/device1/AB/1/1/12CD`
@@ -307,7 +307,7 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/1/1/0`
+|`up:/AB/1/1/0`
 
 |*MQTT Topic Filter*
 |`\+/+/\+/+/+/device1/AB/1/1/0`
