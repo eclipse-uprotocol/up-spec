@@ -8,7 +8,13 @@
 #  terms of the Apache License Version 2.0 which is available at
 #  https://www.apache.org/licenses/LICENSE-2.0
 #
-#  SPDX-License-Identifier: Apache-2.0
+# AI Disclosure: This file contains code that was AI-generated. The
+# AI-generated portions are made available under CC0-1.0 and not subject
+# to the project's licence. The human contributor has reviewed and verified
+# that the code is correct.
+#
+# SPDX-License-Identifier: Apache-2.0 and CC0-1.0
+# Assisted-by: GitHub Copilot (GPT-6.1 Sol)
 # *******************************************************************************/
 
 name: Lint Gherkin Features
@@ -18,6 +24,8 @@ on:
   pull_request:
     paths:
       - '**/*.feature'
+      - 'up-core-api/uprotocol/v1/uri.proto'
+      - '.github/workflows/lint-gherkin-features.yaml'
 
 permissions:
   contents: read
@@ -39,3 +47,67 @@ jobs:
       - name: lint feature files
         run: |
           npx tsx ./node_modules/.bin/gherklin
+
+  validate-uuri-protobuf-examples:
+    runs-on: ubuntu-latest
+    needs: lint-gherkin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install validation dependencies
+        run: npm install --no-save @cucumber/gherkin protobufjs
+
+      - name: Validate UUri protobuf examples
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const { randomUUID } = require('node:crypto');
+          const { readFileSync } = require('node:fs');
+          const { generateMessages } = require('@cucumber/gherkin');
+          const protobuf = require('protobufjs');
+
+          const featurePath = 'basics/uuri_protobuf_serialization.feature';
+          const messages = generateMessages(
+            readFileSync(featurePath, 'utf8'),
+            featurePath,
+            'text/x.cucumber.gherkin+plain',
+            { newId: randomUUID, includeGherkinDocument: true }
+          );
+          const feature = messages.find(message => message.gherkinDocument)
+            ?.gherkinDocument.feature;
+          assert.equal(feature?.name, 'Efficient binary encoding of endpoint identifiers (UUri)');
+
+          const root = protobuf.loadSync('up-core-api/uprotocol/v1/uri.proto');
+          const UUri = root.lookupType('uprotocol.v1.UUri');
+          const tables = feature.children.flatMap(child => child.scenario?.examples ?? []);
+          assert.ok(tables.length > 0, 'The feature must contain examples');
+          let count = 0;
+          for (const table of tables) {
+            assert.deepEqual(table.tableHeader?.cells.map(cell => cell.value), [
+              'authority_name', 'type_id', 'instance_id', 'version', 'resource_id', 'byte_sequence'
+            ]);
+            assert.ok(table.tableBody.length > 0, 'Each examples table must contain rows');
+            for (const row of table.tableBody) {
+              const location = `${featurePath}:${row.location.line}`;
+              assert.equal(row.cells.length, 6, `${location}: expected six columns`);
+              const [authority, type, instance, version, resource, hex] =
+                row.cells.map(cell => cell.value);
+              assert.match(hex, /^(?:[0-9a-fA-F]{2})+$/, `${location}: invalid hex bytes`);
+              const expected = {
+                authorityName: JSON.parse(authority),
+                ueTypeId: Number(type),
+                ueInstanceId: Number(instance),
+                ueVersionMajor: Number(version),
+                resourceId: Number(resource)
+              };
+              assert.equal(UUri.verify(expected), null, `${location}: invalid UUri fields`);
+              const decoded = UUri.decode(Buffer.from(hex, 'hex'));
+              assert.deepEqual(UUri.toObject(decoded, { defaults: true }), expected, location);
+              count++;
+            }
+          }
+          console.log(`Validated ${count} UUri protobuf examples`);
+          NODE

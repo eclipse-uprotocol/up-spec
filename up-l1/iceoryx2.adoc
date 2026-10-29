@@ -119,15 +119,15 @@ The iceoryx2 _ServiceName_ that is used to transfer a uProtocol message is deriv
 --
 The ServiceName for sending a _Publish_ UMessage **MUST** consist of the following segments:
 
-`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]`
+`up/[source.authority]/[source.ue_type_id]/[source.ue_instance_id]/[source.ue_version]/[source.resource]`
 
 The ServiceName for sending a _Notification_ or _RPC Response_ UMessage **MUST** consist of the following segments:
 
-`up/[source.authority]/[source.ue_type]/[source.ue_instance]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
+`up/[source.authority]/[source.ue_type_id]/[source.ue_instance_id]/[source.ue_version]/[source.resource]/[sink.authority]/[sink.ue_type_id]/[sink.ue_instance_id]/[sink.ue_version]/[sink.resource]`
 
 The ServiceName for sending an _RPC Request_ UMessage **MUST** consist of the following segments:
 
-`up/[sink.authority]/[sink.ue_type]/[sink.ue_instance]/[sink.ue_version]/[sink.resource]`
+`up/[sink.authority]/[sink.ue_type_id]/[sink.ue_instance_id]/[sink.ue_version]/[sink.resource]`
 
 Please refer to <<UUri Encoding Rules>> for details regarding the encoding of the `source` and `sink` UUris into the key expression's segments.
 
@@ -150,13 +150,13 @@ a| The segment *MUST* contain the (UTF8) string representation of the
 1. name of the host/authority that the (local) uEntity is running on, if authority name is empty.
 2. authority name, otherwise.
 
-|`ue_type`
-|`ue_id`
+|`ue_type_id`
+|`ue_type_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
 
-|`ue_instance`
-|`ue_id`
+|`ue_instance_id`
+|`ue_instance_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 upper-case link:https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity instance identifier with all leading `0` characters omitted.
 
@@ -181,13 +181,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://10AB/3/80CD`
+|`up:/10AB/1/3/80CD`
 
 |*Sink URI*
 |-
 
 |*iceoryx2 ServiceName*
-|`up/device1/10AB/0/3/80CD`
+|`up/device1/10AB/1/3/80CD`
 |===
 --
 
@@ -196,13 +196,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/10AB/3/80CD`
+|`up://device1/10AB/1/3/80CD`
 
 |*Sink URI*
-|`up://device1/300EF/4/0`
+|`up://device1/EF/3/4/0`
 
 |*iceoryx2 ServiceName*
-|`up/device1/10AB/0/3/80CD/device1/EF/3/4/0`
+|`up/device1/10AB/1/3/80CD/device1/EF/3/4/0`
 |===
 --
 
@@ -211,13 +211,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://403AB/3/0`
+|`up:/3AB/4/3/0`
 
 |*Sink URI*
-|`up://device1/CD/4/B`
+|`up://device1/CD/1/4/B`
 
 |*iceoryx2 ServiceName*
-|`up/device1/CD/0/4/B`
+|`up/device1/CD/1/4/B`
 |===
 --
 
@@ -226,13 +226,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/CD/4/B`
+|`up://device1/CD/1/4/B`
 
 |*Sink URI*
-|`up://device1/403AB/3/0`
+|`up:/3AB/4/3/0`
 
 |*iceoryx2 ServiceName*
-|`up/device1/CD/0/4/B/device1/3AB/4/3/0`
+|`up/device1/CD/1/4/B/device1/3AB/4/3/0`
 |===
 --
 
@@ -241,13 +241,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://device1/10AB/3/80CD`
+|`up://device1/10AB/1/3/80CD`
 
 |*Sink Filter*
 |-
 
 |*iceoryx2 ServiceName*
-|`up/device1/10AB/0/3/80CD`
+|`up/device1/10AB/1/3/80CD`
 |===
 --
 
@@ -256,13 +256,13 @@ The examples below assume that the local entity's authority name is `device1`.
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://*/FFFFFFFF/FF/FFFF`
+|`up://*/FFFF/FFFF/FF/FFFF`
 
 |*Sink Filter*
-|`up://device1/CD/4/B`
+|`up://device1/CD/1/4/B`
 
 |*iceoryx2 ServiceName*
-|`up/device1/CD/4/B`
+|`up/device1/CD/1/4/B`
 |===
 --
 
