@@ -75,12 +75,11 @@ xref:../basics/uri.adoc[`UUri`] is translated to SOME/IP attributes per <<uri-ma
 NOTE: *vsomeip* hides IP endpoint information and uses `ServiceID`/`InstanceID` instead. +
 *SHOULD* be left blank or mapped via static transport configuration.
 
-| ue_id | InstanceID\|ServiceID
-|
-* `ServiceID` *MUST* be encoded in the lower 16 bits of the 32 bit `ue_id`.
-* `InstanceID` *MAY* be encoded in the upper 16 bits of `ue_id`.
-* If the upper 16 bits are `0x0000` (a reserved instance value), `InstanceID` is assumed to be `1`.
-* Explicitly setting `InstanceID` to `0x0001` *SHOULD* be avoided as it increases uProtocol message size.
+| ue_type_id | ServiceID
+| Identifier of the service placed in the upper 16 bits of the *SOME/IP Header* `MessageID`.
+
+| ue_instance_id | InstanceID
+| No direct mapping to SMOE/IP message header. `InstanceID` is used in *SOME/IP-SD Service Entry Type* for service discovery and events.
 
 | ue_version_major | Interface Version
 |
@@ -206,22 +205,67 @@ Further details of the usage of IDs for the various message types is described <
 [[uattribute-mapping]]
 [cols=".^m,.^m,.^m,.^m,.^m,.^m,.^m,.^m", options="autowidth"]
 |===
-.2+^.^h| UMessageType .2+^.^h| SOME/IP Type 2+^.^h| MessageID 2+^.^h| RequestID .2+^.^h| Interface Version .2+^.^h| Return Code (commstatus)
-^.^h| ServiceID xref:#note-1[^(1)^] ^.^h| MethodID ^.^h| ClientID xref:#note-1[^(1)^],xref:#note-4[^(4)^] ^.^h| SessionID
+.2+^.^h| UMessageType
+.2+^.^h| SOME/IP Type
+2+^.^h| MessageID
+2+^.^h| RequestID
+.2+^.^h| Interface Version
+.2+^.^h| Return Code (commstatus)
 
-| Notification xref:#note-5[^(5)^] | REQUEST_NO_RETURN (0x01) | sink.ue_id   | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version   |
-| Publish | NOTIFICATION (0x02)      | source.ue_id  | source.resource_id | sink.ue_id=0  | xref:#note-2[^(2)^]       | source.ue_major_version |
-| RpcRequest | REQUEST (0x00)           | sink.ue_id    | sink.resource_id   | source.ue_id  | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version   | OK
+^.^h| ServiceID xref:#note-1[^(1)^]
+^.^h| MethodID
+^.^h| ClientID xref:#note-1[^(1)^],xref:#note-4[^(4)^]
+^.^h| SessionID
 
-.2+.^| RpcResponse .^| RESPONSE (0x80) | sink.ue_id  | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version | OK
-                .^| ERROR (0x81)    | sink.ue_id  | sink.resource_id | source.ue_id | xref:#note-2[^(2)^],xref:#note-3[^(3)^] | sink.ue_major_version |  <<commstatus-error-mapping,commstatus>>
+| Notification xref:#note-5[^(5)^]
+| REQUEST_NO_RETURN (0x01)
+| sink.ue_type_id
+| sink.resource_id 
+| source.ue_type_id
+| xref:#note-2[^(2)^],xref:#note-3[^(3)^]
+| sink.ue_major_version
+|
+
+| Publish
+| NOTIFICATION (0x02)
+| source.ue_type_id
+| source.resource_id
+| sink.ue_type_id=0
+| xref:#note-2[^(2)^]
+| source.ue_major_version
+|
+
+| RpcRequest
+| REQUEST (0x00)
+| sink.ue_type_id
+| sink.resource_id
+| source.ue_type_id
+| xref:#note-2[^(2)^],xref:#note-3[^(3)^]
+| sink.ue_major_version
+| OK
+
+.2+.^| RpcResponse
+.^| RESPONSE (0x80)
+| sink.ue_type_id
+| sink.resource_id
+| source.ue_type_id
+| xref:#note-2[^(2)^],xref:#note-3[^(3)^]
+| sink.ue_major_version
+| OK
+.^| ERROR (0x81)
+| sink.ue_type_id
+| sink.resource_id
+| source.ue_type_id
+| xref:#note-2[^(2)^],xref:#note-3[^(3)^]
+| sink.ue_major_version
+|  <<commstatus-error-mapping,commstatus>>
 |===
 
 NOTES::
- * [[note-1]] ^(1)^ Maps to lower 16 bits of `ue_id`
+ * [[note-1]] ^(1)^ Maps to `ue_type_id`
  * [[note-2]] ^(2)^ Using session handling so value is increased by 1 until max `0xFFFF` and mapped to `UAttributes.id`
  * [[note-3]] ^(3)^ `source.ue_version_major` missing!
- * [[note-4]] ^(4)^ `ClientID` for vsomeip transport *SHOULD* be set via configuration to `source.ue_id`. It *MUST* be unique for the network.
+ * [[note-4]] ^(4)^ `ClientID` for vsomeip transport *SHOULD* be set via configuration to `source.ue_type_id`. It *MUST* be unique for the network.
  * [[note-5]] ^(5)^ `REQUEST_NO_RETURN` is a Request in SOME/IP that applies to `MethodID`, but in uProtocol `NOTIFICATION` applies to events (`resource_id > 0x8000`).
 
 
@@ -278,9 +322,9 @@ These fields are then mapped to uProtocol `UUri` attributes used in uProtocol `U
 |===
 | Eventgroup Entry Field | UUri
 
-| ServiceID | Set in lower 16 bits of `ue_id`
+| ServiceID | Set `ue_type_id` to `ServiceID`
 
-| InstanceID a| If instance is not the default (`0x1`), set it in upper 16 bits of `ue_id`
+| InstanceID a| Set `ue_instance_id` to `InstanceID`.
 
 | Major Version a| `ue_version_major`
 
