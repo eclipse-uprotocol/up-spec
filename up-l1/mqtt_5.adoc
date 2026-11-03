@@ -36,9 +36,12 @@ A uProtocol message consists of _UAttributes_ and optional payload. The followin
 
 === UAttributes
 
-[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~1",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+[.specitem,oft-sid="dsn~up-transport-mqtt5-attributes-mapping~3",oft-covers="req~utransport-send-preserve-data~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
 --
-An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST* contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>> for those and only those of the UMessage's attributes which have a non-empty value.
+An MQTT 5 PUBLISH packet that is used to convey a uProtocol message *MUST*
+contain properties as defined in <<uAttributes Mapping to MQTT 5 PUBLISH Properties>>.
+Unless a mapping row defines presence explicitly, a property *MUST* be present
+if and only if the corresponding UMessage attribute has a non-empty value.
 --
 
 .uAttributes Mapping to MQTT 5 PUBLISH Properties
@@ -147,13 +150,25 @@ a| A tracing identifier to use for correlating messages across the system
 
 * *MUST* be set to the traceparent value.
 
-| _payload_format_
+| _payload_encoding_id_
 | _Content Type_
-a| The type of data contained in the message's payload
+a| The identifier defined in the
+xref:../basics/payload_encoding_registry.adoc[payload-encoding registry]
 
-* *MUST* be set to the link:../up-core-api/uprotocol/v1/uattributes.proto[UPayloadFormat enum] integer value's decimal string representation.
+* _Content Type_ *MUST* be present if and only if the UMessage `payload` field
+  is present, including a present zero-length payload.
+* When present, _Content Type_ *MUST* be the identifier's decimal string
+  representation.
+* When reconstructing a UMessage, a present _Content Type_ yields a present
+  `payload` (the PUBLISH packet payload, possibly zero-length) and a present
+  `_payload_encoding_id_`; an absent _Content Type_ yields both fields absent
+  and requires an empty PUBLISH packet payload.
+* A receiver *MUST* reject a _Content Type_ value that is not a decimal
+  unsigned integer or is greater than `65535`. All other validity and
+  interpretation rules are those of the `payloadEncodingId` attribute; this
+  binding does not add or restate them.
 
-Note that the enum's integer value is used instead of the _uprotocol.mime_type_ option's value in order to reduce the overall size of the PUBLISH packet.
+The numeric identifier minimizes the size of the PUBLISH packet.
 
 |===
 
@@ -195,13 +210,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/3BA/3/9876`
+|`up://device1/3BA/1/3/9876`
 
 |*Sink URI*
 |-
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/9876`
+|`device1/3BA/1/3/9876`
 |===
 --
 
@@ -210,13 +225,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/3BA/3/B1`
+|`up://device1/3BA/1/3/8001`
 
 |*Sink URI*
-|`up://device1/200AB/1/0`
+|`up://device1/AB/2/1/0`
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/8001/device1/AB/2/1/0`
+|`device1/3BA/1/3/8001/device1/AB/2/1/0`
 |===
 --
 
@@ -225,13 +240,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up://device1/403BA/3/0`
+|`up://device1/3BA/4/3/0`
 
 |*Sink URI*
-|`up:///AB/1/2`
+|`up:/AB/1/1/2`
 
 |*MQTT Topic Name*
-|`device1/3BA/4/3/0/device1/AB/0/1/2`
+|`device1/3BA/4/3/0/device1/AB/1/1/2`
 |===
 --
 
@@ -240,13 +255,13 @@ The examples below show the MQTT 5 topic names to use for sending different type
 [cols="2,8"]
 |===
 |*Source URI*
-|`up:///3BA/3/67`
+|`up:/3BA/1/3/67`
 
 |*Sink URI*
-|`up://device1/100AB/1/0`
+|`up://device1/AB/1/1/0`
 
 |*MQTT Topic Name*
-|`device1/3BA/0/3/67/device1/AB/1/1/0`
+|`device1/3BA/1/3/67/device1/AB/1/1/0`
 |===
 --
 
@@ -257,7 +272,7 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://*/FFFF03BA/3/9876`
+|`up://*/3BA/FFFF/3/9876`
 
 |*Sink Filter*
 |-
@@ -267,18 +282,18 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |===
 --
 
-.Receive Notifications from the default instance of a specific uEntity
+.Receive Notifications from a particular instance of a specific uEntity
 --
 [cols="2,8"]
 |===
 |*Source Filter*
-|`up://device1/3BA/4/FFFF`
+|`up://device1/3BA/5/4/FFFF`
 
 |*Sink Filter*
-|`up://device1/AB/1/0`
+|`up://device1/AB/1/1/0`
 
 |*MQTT Topic Filter*
-|`device1/3BA/0/4/+/device1/AB/0/1/0`
+|`device1/3BA/5/4/+/device1/AB/1/1/0`
 |===
 --
 
@@ -290,10 +305,10 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/0/1/12CD`
+|`up:/AB/1/1/12CD`
 
 |*MQTT Topic Filter*
-|`\+/+/\+/+/+/device1/AB/0/1/12CD`
+|`\+/+/\+/+/+/device1/AB/1/1/12CD`
 |===
 --
 
@@ -305,10 +320,10 @@ The examples below show the MQTT 5 topic filters to use for receiving different 
 |-
 
 |*Sink Filter*
-|`up:///AB/0/1/0`
+|`up:/AB/1/1/0`
 
 |*MQTT Topic Filter*
-|`\+/+/\+/+/+/device1/AB/0/1/0`
+|`\+/+/\+/+/+/device1/AB/1/1/0`
 |===
 --
 
@@ -352,14 +367,14 @@ a| The segment *MUST* contain the (UTF8) string representation of the
 3. authority name, otherwise.
 
 |`ue_type`
-|`ue_id`
+|`ue_type_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity type identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard type ID].
 2. the upper-case https://www.rfc-editor.org/rfc/rfc4648#section-8[base16 encoding] of the uEntity type identifier with all leading `0` characters omitted.
 
 |`ue_instance`
-|`ue_id`
+|`ue_instance_id`
 a| The segment *MUST* contain the (UTF8) string representation of the
 
 1. `+` (`U+002B`, Plus Sign) character, if the uEntity instance identifier is the xref:../basics/uri.adoc#pattern-matching[wildcard instance ID].

@@ -27,5 +27,6 @@ The following are the foundational requirements for uProtocol specifications:
 * *xref:uuid.adoc[Unique Universal Identifier (UUID)]*
 * *xref:upriority.adoc[Message Priority (UPriority)]*
 * *xref:uattributes.adoc[uProtocol Attributes (UAttributes)]*
+* *xref:payload_encoding_registry.adoc[Payload-Encoding Registry]*
 * *xref:umessage.adoc[uProtocol Message (UMessage)]*
 * *xref:permissions.adoc[Permissions]*
