@@ -35,7 +35,7 @@ enum SubscriptionStatus {
   STATUS_UNSUBSCRIBE_PENDING = 4;
 }
 
-// [dsn->req~usubscription-change-message-type~1>>impl]
+// [dsn->req~usubscription-change-message-type~1]
 message Subscription {
   uprotocol.v1.UUri topic = 1;
   uprotocol.v1.UUri subscriber = 2;
@@ -44,48 +44,50 @@ message Subscription {
   optional uint32 sample_period = 5;
 }
 
-// [dsn->req~usubscription-subscribe-request-signature~1>>impl]
+// [dsn->req~usubscription-subscribe-request-signature~1]
 message SubscribeRequest {
   uprotocol.v1.UUri topic = 1;
   optional google.protobuf.Timestamp expiration = 2;
   optional uint32 sample_period = 3;
 }
 
-// [dsn->req~usubscription-subscribe-response-signature~1>>impl]
+// [dsn->req~usubscription-subscribe-response-signature~1]
 message SubscribeResponse {
   uprotocol.v1.UUri topic = 1;
   SubscriptionStatus status = 2;
 }
 
-// [dsn->req~usubscription-unsubscribe-request-signature~1>>impl]
+// [dsn->req~usubscription-unsubscribe-request-signature~1]
 message UnsubscribeRequest {
   uprotocol.v1.UUri topic = 1;
 }
 
-// [dsn->req~usubscription-unsubscribe-response-signature~1>>impl]
+// [dsn->req~usubscription-unsubscribe-response-signature~1]
 message UnsubscribeResponse {}
 
-// [dsn->req~usubscription-fetch-subscriptions-request-signature~1>>impl]
+// [dsn->req~usubscription-fetch-subscriptions-request-signature~1]
+// [dsn->req~usubscription-fetch-subscriptions-subscriber-filter~1]
+// [dsn->req~usubscription-fetch-subscriptions-topic-filter~1]
 message FetchSubscriptionsRequest {
   optional uprotocol.v1.UUri topic_filter = 1;
   optional uprotocol.v1.UUri subscriber_filter = 2;
 }
 
-// [dsn->req~usubscription-fetch-subscriptions-response-signature~1>>impl]
+// [dsn->req~usubscription-fetch-subscriptions-response-signature~1]
 message FetchSubscriptionsResponse {
   repeated Subscription subscriptions = 1;
 }
 
-// [dsn->req~usubscription-register-notifications-request-signature~1>>impl]
-// [dsn->req~usubscription-unregister-notifications-request-signature~1>>impl]
+// [dsn->req~usubscription-register-notifications-request-signature~1]
+// [dsn->req~usubscription-unregister-notifications-request-signature~1]
 message NotificationsRequest {}
 
-// [dsn->req~usubscription-register-notifications-response-signature~1>>impl]
-// [dsn->req~usubscription-unregister-notifications-response-signature~1>>impl]
+// [dsn->req~usubscription-register-notifications-response-signature~1]
+// [dsn->req~usubscription-unregister-notifications-response-signature~1]
 message NotificationsResponse {}
 
-// [dsn->req~usubscription-reset-request-signature~1>>impl]
+// [dsn->req~usubscription-reset-request-signature~1]
 message ResetRequest {}
 
-// [dsn->req~usubscription-reset-response-signature~1>>impl]
+// [dsn->req~usubscription-reset-response-signature~1]
 message ResetResponse {}
