@@ -83,10 +83,10 @@ USubscription ..> Subscription
 
 ---
 
-[.specitem,oft-sid="req~usubscription-service_name~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-service_name~1",oft-needs="dsn",oft-tags="uSubscription"]
 The uSubscription service name *MUST* be `core.usubscription`.
 
-[.specitem,oft-sid="req~usubscription-uentity_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-uentity_id~1",oft-needs="dsn,impl",oft-tags="uSubscription"]
 The uSubscription service uEntity type identifier *MUST* be `0x0000`.
 
 NOTE: The data types used in the following sections are defined in {basic_types_ref}. 
@@ -137,7 +137,7 @@ Clients use this operation to subscribe to a topic.
 [.specitem,oft-sid="req~usubscription-subscribe-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `Subscribe()` operation *MUST* use the method ID `1`.
 
-[.specitem,oft-sid="req~usubscription-subscribe-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-subscribe-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Subscribe()` operation *MUST* implement the following request message definitions:
 
 ---
@@ -169,7 +169,7 @@ Calls to the uSubscription service `Subscribe()` operation *MUST* return a failu
 | Remote subscription xref:sample-period[sample period]
 |===
 
-[.specitem,oft-sid="req~usubscription-subscribe-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-subscribe-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Subscribe()` operation *MUST* implement the following response message definitions:
 
 .Subscribe Response Parameters
@@ -283,7 +283,7 @@ Clients use this operation to unsubscribe from a topic.
 [.specitem,oft-sid="req~usubscription-unsubscribe-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `Unsubscribe()` operation *MUST* use the method ID `2`.
 
-[.specitem,oft-sid="req~usubscription-unsubscribe-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-unsubscribe-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Unsubscribe()` operation *MUST* implement the following request message definitions:
 
 ---
@@ -307,7 +307,7 @@ Calls to the uSubscription service `Unsubscribe()` operation *MUST* return a fai
 
 ---
 
-[.specitem,oft-sid="req~usubscription-unsubscribe-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-unsubscribe-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Unsubscribe()` operation *MUST* implement an empty response message.
 
 [.specitem,oft-sid="req~usubscription-unsubscribe~1",oft-needs="impl,utest",oft-tags="uSubscription"]
@@ -324,9 +324,6 @@ When a client calls the `Unsubscribe()` operation for a remote topic with xref:s
 
 [.specitem,oft-sid="req~usubscription-unsubscribe-notifications~1",oft-needs="impl,utest",oft-tags="uSubscription"]
 After a client calls the `Unsubscribe()` operation, uSubscription service *MUST* stop sending subscription change Notifications to that client whenever there are any changes to the state of the subscription.
-
-[.specitem,oft-sid="req~usubscription-remote-unsubscribe-notifications~1",oft-needs="impl,utest",oft-tags="uSubscription"]
-When the last client subscribed to a remote topic calls the `Unsubscribe()` operation on that topic, uSubscription service *MUST* stop publishing subscription change messages for that topic to the `subscriptionChange` channel.
 
 ---
 
@@ -360,7 +357,7 @@ Clients can provide {uuri_ref}s to filter subscriptions by topic and/or subscrib
 [.specitem,oft-sid="req~usubscription-fetch-subscriptions-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `FetchSubscriptions()` operation *MUST* use the method ID `3`.
 
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-fetch-subscriptions-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `FetchSubscriptions()` operation *MUST* implement the following request message definitions:
 
 ---
@@ -375,7 +372,7 @@ The uSubscription `FetchSubscriptions()` operation *MUST* implement the followin
 | no
 a|
 --
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-topic-filter~1",oft-needs="impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-fetch-subscriptions-topic-filter~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 A topic filter {uuri_ref} may be provided as part of a call to `FetchSubcriptions()` and may contain wildcards; uSubscription service *MUST* only return xref:subscription[Subscription] entries where the subscribed topic is matched by the filter UURI.
 
 NOTE: Refer to {uuri_matching_ref} regarding matching wildcard patterns in UURIs.
@@ -389,7 +386,7 @@ The uSubscription service `FetchSubscriptions()` operation *MUST* return a failu
 | no
 a|
 --
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-subscriber-filter~1",oft-needs="impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-fetch-subscriptions-subscriber-filter~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 A subscriber filter {uuri_ref} may be provided as part of a call to `FetchSubcriptions()` and may contain wildcards; uSubscription service *MUST* only return xref:subscription[Subscription] entries where the subscribing client is matched by the filter UURI.
 
 NOTE: Refer to {uuri_matching_ref} regarding matching wildcard patterns in UURIs.
@@ -399,7 +396,7 @@ The uSubscription service `FetchSubscriptions()` operation *MUST* return a failu
 --
 |===
 
-[.specitem,oft-sid="req~usubscription-fetch-subscriptions-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-fetch-subscriptions-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `FetchSubscriptions()` operation *MUST* implement the following response message definitions:
 
 .Fetch Subscriptions Response Parameters
@@ -586,7 +583,7 @@ uSubscription service *MUST* send a UMessage of type `Notification` to each subs
 [.specitem,oft-sid="req~usubscription-change-notification-resource~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 Subscription change messages *MUST* use resource ID `0x8000` in the message's source UURI.
 
-[.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-change-message-type~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 Subscription change notifications *MUST* have a payload of type xref:subscription[`Subscription`].
 
 [#subscription-change-message-topic]
@@ -615,10 +612,10 @@ subscription tracked by uSubscription service.
 [.specitem,oft-sid="req~usubscription-register-notifications-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `RegisterForNotifications()` operation *MUST* use the method ID `4`.
 
-[.specitem,oft-sid="req~usubscription-register-notifications-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-register-notifications-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `RegisterForNotifications()` operation *MUST* implement an empty request message.
 
-[.specitem,oft-sid="req~usubscription-register-notifications-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-register-notifications-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `RegisterForNotifications()` operation *MUST* implement an empty response message.
 
 [.specitem,oft-sid="req~usubscription-register-notifications~1",oft-needs="impl,utest",oft-tags="uSubscription"]
@@ -662,10 +659,10 @@ Clients use this operation to unregister from being sent subscription change Not
 [.specitem,oft-sid="req~usubscription-unregister-notifications-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `UnregisterForNotifications()` operation *MUST* use the method ID `5`.
 
-[.specitem,oft-sid="req~usubscription-unregister-notifications-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-unregister-notifications-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `UnregisterForNotifications()` operation *MUST* implement an empty request message.
 
-[.specitem,oft-sid="req~usubscription-unregister-notifications-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-unregister-notifications-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `UnregisterForNotifications()` operation *MUST* implement an empty response message.
 
 [.specitem,oft-sid="req~usubscription-unregister-notifications~1",oft-needs="impl,utest",oft-tags="uSubscription"]
@@ -713,10 +710,10 @@ This is a private API, to be used only between uSubscription services.
 [.specitem,oft-sid="req~usubscription-reset-method_id~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
 The uSubscription `Reset()` operation *MUST* use the method ID `6`.
 
-[.specitem,oft-sid="req~usubscription-reset-request-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-reset-request-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Reset()` operation *MUST* implement an empty request message.
 
-[.specitem,oft-sid="req~usubscription-reset-response-signature~1",oft-needs="dsn,impl,utest",oft-tags="uSubscription"]
+[.specitem,oft-sid="req~usubscription-reset-response-signature~1",oft-needs="dsn,utest",oft-tags="uSubscription"]
 The uSubscription `Reset()` operation *MUST* implement an empty response message.
 
 [.specitem,oft-sid="req~usubscription-reset~1",oft-needs="impl,utest",oft-tags="uSubscription"]

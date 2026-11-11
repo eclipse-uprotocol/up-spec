@@ -66,6 +66,8 @@ message UnsubscribeRequest {
 message UnsubscribeResponse {}
 
 // [dsn->req~usubscription-fetch-subscriptions-request-signature~1>>impl]
+// [dsn->req~usubscription-fetch-subscriptions-subscriber-filter~1>>impl]
+// [dsn->req~usubscription-fetch-subscriptions-topic-filter~1>>impl]
 message FetchSubscriptionsRequest {
   optional uprotocol.v1.UUri topic_filter = 1;
   optional uprotocol.v1.UUri subscriber_filter = 2;
