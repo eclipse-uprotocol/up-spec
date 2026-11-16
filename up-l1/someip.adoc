@@ -331,10 +331,10 @@ All multi-byte fields of an E2E header *MUST* be transmitted in big-endian byte 
 |===
 | Offset | Size | Field | Description
 
-| 0 | 4 | CRC | CRC-32 with polynomial `0xF4ACFB13`
+| 0 | 4 | CRC | CRC-32, see <<e2e-crc>>
 | 4 | 2 | Counter | 16-bit message counter
 | 6 | 4 | DataID | Identifies the protected data
-| 10 | 2 | Length | Length of the protected data
+| 10 | 2 | Length | Total length in bytes of the E2E header and the payload
 |===
 
 [#e2e-profile-7]
@@ -345,12 +345,42 @@ All multi-byte fields of an E2E header *MUST* be transmitted in big-endian byte 
 |===
 | Offset | Size | Field | Description
 
-| 0 | 8 | CRC | CRC-64
+| 0 | 8 | CRC | CRC-64, see <<e2e-crc>>
 | 8 | 4 | Counter | 32-bit message counter
 | 12 | 4 | DataID | Identifies the protected data
 |===
 
-IMPORTANT: *Open points (to be settled during review):* the exact CRC-64 polynomial and CRC parameters, the exact range covered by the CRC, whether `Length` counts the header, the wrap value of the Profile 4 counter, and whether Profile 7 should carry a length field.
+IMPORTANT: *Open points (feedback welcome):* these layouts differ from the AUTOSAR E2E profiles of the same number in the order of the header fields (Profile 4) and in the length field (Profile 7 has none here). Should the layouts, and with them the profile numbers, be aligned with AUTOSAR?
+
+[#e2e-counter]
+==== Counter
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-counter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+A sender *MUST* increment the `Counter` by one for every message it protects with the same `DataID`. After the maximum value of the counter field (`0xFFFF` for Profile 4, `0xFFFFFFFF` for Profile 7) the counter *MUST* wrap around to `0`.
+--
+
+[#e2e-crc]
+==== CRC
+
+The CRC algorithms are the ones used by the AUTOSAR E2E profiles 4 and 7.
+
+.CRC Parameters
+[cols="1,1,1", options="header,autowidth"]
+|===
+| Parameter | Profile 4 | Profile 7
+
+| Width | 32 bit | 64 bit
+| Polynomial | `0xF4ACFB13` | `0x42F0E1EBA9EA3693`
+| Initial value | `0xFFFFFFFF` | `0xFFFFFFFFFFFFFFFF`
+| Input and output reflected | yes | yes
+| Final XOR value | `0xFFFFFFFF` | `0xFFFFFFFFFFFFFFFF`
+|===
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-crc~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+The `CRC` field *MUST* contain the CRC, calculated with the parameters above, over all bytes of the E2E header and the payload, except the `CRC` field itself.
+--
 
 ==== DataID
 
@@ -359,7 +389,7 @@ IMPORTANT: *Open points (to be settled during review):* the exact CRC-64 polynom
 The transport *MUST* determine the `dataId` of a message from a static transport configuration that maps the message's source UUri to a `dataId`. The same configuration *MUST* be available to sender and receiver.
 --
 
-NOTE: Whether the `dataId` is configured or derived from the UUri is an open point to be settled during review.
+NOTE: As in AUTOSAR E2E, the `dataId` is a configured identifier. It is not derived from the UUri.
 
 ==== Receiver Checks
 
