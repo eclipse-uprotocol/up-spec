@@ -241,10 +241,10 @@ describe the protection that a sender has applied to a message's payload.
 |`e2eProfile` |Description
 
 |`4`
-|AUTOSAR E2E Profile 4 (CRC-32)
+|E2E Profile 4 (CRC-32)
 
 |`7`
-|AUTOSAR E2E Profile 7 (CRC-64)
+|E2E Profile 7 (CRC-64)
 |===
 
 [.specitem,oft-sid="dsn~up-attributes-e2e-header~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]

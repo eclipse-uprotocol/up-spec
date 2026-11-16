@@ -350,7 +350,7 @@ All multi-byte fields of an E2E header *MUST* be transmitted in big-endian byte 
 | 12 | 4 | DataID | Identifies the protected data
 |===
 
-IMPORTANT: *Open points (feedback welcome):* these layouts differ from the AUTOSAR E2E profiles of the same number in the order of the header fields (Profile 4) and in the length field (Profile 7 has none here). Should the layouts, and with them the profile numbers, be aligned with AUTOSAR?
+NOTE: The header layouts are defined by this specification. Only the CRC algorithms are taken from the AUTOSAR E2E profiles of the same number. The layouts are not wire-compatible with AUTOSAR E2E.
 
 [#e2e-counter]
 ==== Counter
