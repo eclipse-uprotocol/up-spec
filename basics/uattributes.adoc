@@ -48,6 +48,8 @@ class UAttributes {
   token: String [0..1]
   traceparent: String [0..1]
   payloadEncodingId: UInt16 [0..1]
+  e2eProfile: UInt32 [0..1]
+  dataId: UInt32 [0..1]
 }
 
 class UMessageType {
@@ -196,7 +198,63 @@ xref:payload_encoding_registry.adoc#acceptance[Carrying a Payload versus Reading
 xref:payload_encoding_registry.adoc#allocation[Allocation and Origination].
 Producer allocation policy does not change this attribute's validation rules.
 
+|`e2eProfile`
+|`UInt32`
+|no
+|none
+a|The identifier of the End-to-End (E2E) protection profile that has been applied to the message's payload.
+If absent, the payload is not E2E protected.
+
+[.specitem,oft-sid="dsn~up-attributes-e2e-profile~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+*Presence:* This property *MUST* be present if the message's payload has been E2E protected
+and *MUST* be absent otherwise.
+
+*Range:* If present, the value *MUST* identify an E2E protection profile as defined in the
+<<e2e-attributes, E2E Protection Attributes>> section.
+--
+
+|`dataId`
+|`UInt32`
+|no
+|none
+a|The identifier of the data that is protected by E2E protection. It is used by the receiver to detect
+masquerading and routing errors.
+
+[.specitem,oft-sid="dsn~up-attributes-data-id~1",oft-needs="impl,utest",oft-tags="LanguageLibrary"]
+--
+*Presence:* This property *MUST* be present if `e2eProfile` is present and *MUST* be absent otherwise.
+--
+
 |===
+
+[#e2e-attributes]
+== E2E Protection Attributes
+
+End-to-End (E2E) protection allows a receiver to detect communication faults between the sender and the receiver
+of a message, e.g. corrupted, lost, repeated or misrouted messages. The `e2eProfile` and `dataId` attributes
+describe the protection that a sender has applied to a message's payload.
+
+.E2E Protection Profiles
+[%autowidth]
+|===
+|`e2eProfile` |Description
+
+|`4`
+|AUTOSAR E2E Profile 4 (CRC-32)
+
+|`7`
+|AUTOSAR E2E Profile 7 (CRC-64)
+|===
+
+[.specitem,oft-sid="dsn~up-attributes-e2e-header~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+If a message has an `e2eProfile`, a transport *MUST* transmit the message's payload prefixed with the E2E header
+of that profile. The layout of the header is specified by the respective transport binding in xref:../up-l1/README.adoc[uP-L1].
+--
+
+NOTE: The result of an E2E check performed by a receiver (`E2EStatus`) is computed locally and is *not* an attribute
+of the message. It is defined in link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto].
 
 [#publish-attributes]
 == Publish Message Attributes
