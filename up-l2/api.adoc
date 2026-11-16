@@ -93,3 +93,47 @@ Each xref:../languages.adoc[language-specific uProtocol library (Language Librar
 --
 
 NOTE: Additional information regarding implementation can be found in the respective language-specific uProtocol library documentation.
+
+[#e2e-status]
+== E2E Protection Status
+
+A transport that supports End-to-End (E2E) protection checks incoming messages that carry an `e2eProfile` (see xref:../basics/uattributes.adoc#e2e-attributes[E2E Protection Attributes]). The outcome of that check is an `E2EStatus` as defined in link:../up-core-api/uprotocol/v1/uattributes.proto[uattributes.proto]. The status is computed by the receiver and is never sent on the wire.
+
+The check results fall into three classes:
+
+.E2E Check Result Classes
+[cols="1,2m,3a", options="header,autowidth"]
+|===
+| Class | E2ECheckResult | Expected application behavior
+
+| OK
+| E2E_CHECK_RESULT_OK
+| The payload can be used normally.
+
+| Degraded
+| E2E_CHECK_RESULT_COUNTER_ERROR, E2E_CHECK_RESULT_REPEATED
+| The payload passed the integrity checks but one or more messages have been lost or repeated. The application decides, e.g. based on `lost_msgs`, whether to use the payload or to fall back to a safe value.
+
+| Fatal
+| E2E_CHECK_RESULT_LENGTH_ERROR, E2E_CHECK_RESULT_DATA_ID_ERROR, E2E_CHECK_RESULT_CRC_ERROR
+| The payload cannot be trusted. The message is discarded and is not delivered to the application. The failure is reported as a diagnostic event.
+|===
+
+Implementations of the <<messaging-apis>>
+
+[.specitem,oft-sid="dsn~communication-layer-e2e-status~1",oft-needs="impl,utest",oft-tags="CommunicationLayerImpl"]
+--
+* *MUST* make the `E2EStatus` of a message available to the receiving listener together with the message, if the message has an `e2eProfile`.
+--
+
+[.specitem,oft-sid="dsn~communication-layer-e2e-fatal~1",oft-needs="impl,utest",oft-tags="CommunicationLayerImpl"]
+--
+* *MUST* discard a message with a fatal E2E check result, i.e. *MUST NOT* deliver it to the listener, and *SHOULD* report the failure as a diagnostic event.
+--
+
+[.specitem,oft-sid="dsn~communication-layer-e2e-degraded~1",oft-needs="impl,utest",oft-tags="CommunicationLayerImpl"]
+--
+* *MUST* deliver the payload of a message with a degraded E2E check result together with its `E2EStatus`.
+--
+
+NOTE: How the status is handed to the listener (e.g. a wrapper type or an additional callback argument) is left to the language-specific libraries.
