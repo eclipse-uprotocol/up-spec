@@ -6,6 +6,9 @@
 :plantuml-server-url: http://www.plantuml.com/plantuml
 :github-plantuml-url: https://github.com/plantuml/plantuml-server/raw/master/dist
 
+:autosar-someip: https://www.autosar.org/fileadmin/standards/R25-11/FO/AUTOSAR_FO_PRS_SOMEIPProtocol.pdf
+:autosar-someip-sd: https://www.autosar.org/fileadmin/standards/R25-11/FO/AUTOSAR_FO_PRS_SOMEIPServiceDiscoveryProtocol.pdf
+
 The key words "*MUST*", "*MUST NOT*", "*REQUIRED*", "*SHALL*", "*SHALL NOT*", "*SHOULD*", "*SHOULD NOT*", "*RECOMMENDED*", "*MAY*", and "*OPTIONAL*" in this document are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[IETF BCP14 (RFC2119 & RFC8174)]
 
 ----
@@ -24,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
 
 == Overview
 
-Scalable service-Oriented MiddlewarE over IP *(SOME/IP)* is a communication protocol used in the automotive industry for exchanging data between electronic control units (ECUs) in a vehicle.
+The Scalable service-Oriented MiddlewarE over IP (SOME/IP) is a communication protocol used in the automotive industry for exchanging data between electronic control units (ECUs) in a vehicle.
 
 SOME/IP provides a framework for efficient and reliable communication between ECUs over IP networks. It is designed to support real-time and high-bandwidth communication requirements in automotive systems. The protocol allows ECUs to discover and communicate with each other, exchange messages, and provide services in a distributed system.
 
@@ -32,24 +35,12 @@ SOME/IP is based on the Internet Protocol (IP) and uses UDP or TCP as the transp
 By using SOME/IP, automotive ECUs can communicate with each other to exchange information related to vehicle functions, such as sensor data, control commands, diagnostics, and software updates. It enables the integration and interoperability of different ECUs from various automotive suppliers within a vehicle's network architecture.
 Overall, SOME/IP plays a crucial role in facilitating efficient and standardized communication between ECUs in modern automotive systems.
 
-The following specification will elaborate on how uProtocol shall be mapped to SOME/IP protocol so that mechatronics applications and services can be connected to non-mechatronics and cloud based applications and services.
+This specification defines how uProtocol shall be mapped to the SOE/IP protocol as specified in
 
-=== Open Source Libraries
+* {autosar-someip}[AUTOSAR SOME/IP Protocol Specification R25-11], and
+* {autosar-someip-sd}[AUTOSAR SOME/IP Service Discovery Protocol Specification R25-11],
 
-As of the time of writing, there are two open source projects that are available for SOME/IP:
-
-1. *https://github.com/COVESA/vsomeip[COVESA-vsomeip]:* C++ solution based on the original specifications developed by BMW prior to contribution to AUTOSAR
-2. *https://projects.eclipse.org/projects/automotive.sommr[Eclipse-SommR]:*  Rust implementation based on the latest AUTOSAR SOME/IP specifications.
-
-NOTE: Given the latest version of SOME/IP specifications from AUTOSAR is not open source, we cannot share or implement uProtocol using Eclipse-SommR.
-
-=== AUTOSAR References
-All references below to:
-
-- `[PRS_SOMEIP_XXXXX]` refer to https://some-ip.com/standards.shtml[AUTOSAR SOME/IP specification].
-- `[PRS_SOMEIP_SD_XXXXX]` refer to https://some-ip.com/standards.shtml[SOME/IP Service Discovery Protocol Specification].
-
-A search engine usually finds the correct document based on the reference number.
+so that mechatronics applications and services can be connected to non-mechatronics and cloud based applications and services.
 
 == Transport Layer Translation
 
@@ -57,7 +48,7 @@ xref:./README.adoc#utransport[Transport layer (uP-L1)] specifies how xref:../bas
 
 Mapping of uTransport APIs to SOME/IP specific library *APIs* shall not be covered in this document given there are multiple open source libraries available for SOME/IP.
 
-Although some limitations of *vsomeip* library are mentioned bellow as *NOTES*.
+Although some limitations of the https://github.com/COVESAE/vsomeip[vsomeip] library are mentioned below as *NOTES*.
 
 === UUris
 
@@ -83,19 +74,19 @@ NOTE: *vsomeip* hides IP endpoint information and uses `ServiceID`/`InstanceID` 
 
 | ue_version_major | Interface Version
 |
-* `Interface Version` field of *SOME/IP Header*. `[PRS_SOMEIP_00053]`.
+* `Interface Version` field of *SOME/IP Header*. ({autosar-someip}[PRS_SOMEIP_00053]).
 * Maps to `Major Version` for the `ServiceID`.
 * If set, it *SHOULD* be passed to underlying SOME/IP library to override it's default _Service Major Version_
 
 | resource_id | MethodID/EventID |
-* Identifier of the method/event placed in the lower 16 bits of the *SOME/IP Header* `MessageID`. `[PRS_SOMEIP_00034]`
+* Identifier of the method/event placed in the lower 16 bits of the *SOME/IP Header* `MessageID`. ({autosar-someip}[PRS_SOMEIP_00034])
 |===
 
 NOTES::
-* `ServiceID` and `MethodID` are defined in *SOME/IP Header format*, specified by AUTOSAR `[PRS_SOMEIP_00030]`.
-* `EventID` is an alias for `MethodID`, but used for events. `[PRS_SOMEIP_00245]`
-* `InstanceID` is defined in *SOME/IP-SD Service Entry Type*, specified by AUTOSAR `[PRS_SOMEIPSD_00268]`.
-* `InstanceID` is not present in *SOME/IP Header*, but is needed for _Service Discovery_ and events and *MUST* be provided for SOME/IP libraries (e.g. `vsomeip`). `[PRS_SOMEIP_00162]`
+* `ServiceID` and `MethodID` are defined in *SOME/IP Header format*, {autosar-someip}[PRS_SOMEIP_00030].
+* `EventID` is an alias for `MethodID`, but used for events. {autosar-someip}[PRS_SOMEIP_00245]
+* `InstanceID` is defined in *SOME/IP-SD Service Entry Type*, {autosar-someip}[PRS_SOMEIPSD_00268].
+* `InstanceID` is not present in *SOME/IP Header*, but is needed for _Service Discovery_ and events and *MUST* be provided for SOME/IP libraries (e.g. `vsomeip`). {autosar-someip}[PRS_SOMEIP_00162]
 * Additional mappings *MAY* be required by the underlying SOME/IP library, e.g. Service Major/Minor version. Such values *MAY* be pre-configured
 
 === UAttributes
@@ -152,29 +143,29 @@ or ignoring the `RESPONSE`.
 
 xref:../basics/uuid.adoc[uProtocol UUID] specifications create a unique identifier for each message along with timestamp information.
 
-The *UUid* is used for correlate between request and response as well. SOME/IP instead defines the `RequestID` as 16 bit `ClientID` + 16 bit `SessionID` (that is incremented). `[PRS_SOMEIP_00046]`
+The *UUid* is used for correlate between request and response as well. SOME/IP instead defines the `RequestID` as 16 bit `ClientID` + 16 bit `SessionID` (that is incremented). {autosar-someip}[PRS_SOMEIP_00046]
 
 * When messages are converted *SOME/IP* to/from *uProtocol*, care must be taken to ensure that the SOME/IP Response `RequestID` and uProtocol `UUID` are properly mapped, especially when corelating a request to a response.
 
-* Generated SOME/IP Events *MUST* set the 16 bit `ClientID` to 0 per `[PRS_SOMEIP_00925]`
+* Generated SOME/IP Events *MUST* set the 16 bit `ClientID` to 0 per {autosar-someip}[PRS_SOMEIP_00925]
 * Generated SOME/IP Responses *MUST* auto-populate the `RequestID` cached from the request message, into the response message and then flush the entry in the cache.
 
 Further details of the usage of IDs for the various message types is described <<umessagetype-mapping,below>>.
 
 ==== Message Type
 
-<<umessagetype-mapping>> table below maps of uProtocol messages to `[PRS_SOMEIP_00055]` SOME/IP message types.
+<<umessagetype-mapping>> table below maps of uProtocol messages to {autosar-someip}[PRS_SOMEIP_00055] SOME/IP message types.
 
 .UMessageType Mapping
 [[umessagetype-mapping]]
 [cols="1m,1m,2a", options="header,autowidth"]
 |===
-| UMessageType | SOME/IP Type | Details
+| UMessageType | SOME/IP Message Type | Details
 
 | Publish | NOTIFICATION | Publish SOME/IP Events.
-| Notification | n/a | Same as SOME/IP `NOTIFICATION`.
+| Notification | - | The SOME/IP `REQUEST_NO_RETURN` match seems to be the closest match regarding message exchange pattern, but is not compatible with the unsolicited nature of uProtocol Notifications.
 | RpcRequest | REQUEST | RPC Request
-| RpcResponse | RESPONSE or ERROR | RPC Response or Error has occurred while attempting to deliver the message.
+| RpcResponse | RESPONSE or EXCEPTION | A successful outcome is mapped to RESPONSE, erroneous outcome is mapped to EXCEPTION.
 |===
 
 * When receiving *uProtocol* initiated requests:
@@ -271,33 +262,73 @@ NOTES::
 
 ==== Communication Status
 
-<<commstatus-error-mapping>> below provides the mapping of xref:../basics/uattributes.adoc[UAttributes] `commstatus` `UCode` codes to SOME/IP error codes `[PRS_SOMEIP_0019]`.
+Incoming SOME/IP _RESPONSE_ and _EXCEPTION_ messages are mapped to uProtocol RPC Response messages. The _Return Code_ of these messages indicates the outcome of the RPC and *MUST* be translated to a corresponding _commstatus_ in the uProtocol xref:../basics/uattributes.adoc#response-attributes[RPC Response message] as defined below:
+
+.Return Code Mapping
+[cols="2,2", width="75%",options="header,autowidth"]
+|===
+| SOME/IP Return Code | commstatus
+
+| 0x00 (_E_OK_) | UCode.Ok
+| 0x01 (_E_NOT_OK_) | UCode.Unknown
+| 0x02 (_E_UNKNOWN_SERVICE_) | UCode.NotFound
+| 0x03 (_E_UNKNOWN_METHOD_) | UCode.NotFound
+| 0x04 (_E_NOT_READY_) | UCode.Unavailable
+| 0x05 (_E_NOT_REACHABLE_) | UCode.Unavailable
+| 0x06 (_E_TIMEOUT_) | UCode.Internal
+| 0x07 (_E_WRONG_PROTOCOL_VERSION_) | UCode.Internal
+| 0x08 (_E_WRONG_INTERFACE_VERSION_) | UCode.NotFound
+| 0x09 (_E_MALFORMED_MESSAGE_) | UCode.InvalidArgument
+| 0x0a (_E_WRONG_MESSAGE_TYPE_) | UCode.Internal
+| 0x0b - 0x1f | UCode.Internal
+| 0x20 | UCode.Unknown
+| 0x21 | UCode.Cancelled
+| 0x22 | UCode.Unknown
+| 0x23 | UCode.InvalidArgument
+| 0x24 | UCode.DeadlineExceeded
+| 0x25 | UCode.NotFound
+| 0x26 | UCode.AlreadyExists
+| 0x27 | UCode.PermissionDenied
+| 0x28 | UCode.ResourceExhausted
+| 0x29 | UCode.FailedPrecondition
+| 0x2a | UCode.Aborted
+| 0x2b | UCode.OutOfRange
+| 0x2c | UCode.Unimplemented
+| 0x2d | UCode.Internal
+| 0x2e | UCode.Unavailable
+| 0x2f | UCode.DataLoss
+| 0x30 | UCode.Unauthenticated
+| 0x31 - 0x5e | UCode.Unknown
+
+|===
+
+Outgoing uProtocol RPC Response messages are mapped to either a SOME/IP _RESPONSE_ or _EXCEPTION_ message. The _commstatus_ of the uProtocol xref:../basics/uattributes.adoc#response-attributes[RPC Response message] indicates the outcome of the RPC and *MUST* be translated to the corresponding _Message Type_ and _Return Code_ of the sent SOME/IP messages as defined below:
 
 .UCode to SOME/IP Error Code Mapping
-[[commstatus-error-mapping]]
-[cols="1m,3m", width="75%", options="header,autowidth"]
+[cols="2m,2m,1m", width="90%",options="header,autowidth"]
 |===
-| UCode | SOME/IP Error Codes
+| commstatus | SOME/IP Message Type | SOME/IP Return Code
 
-| Ok | E_OK
-| Cancelled | E_NOT_OK
-| Unknown | E_NOT_OK
-| InvalidArgument | E_WRONG_MESSAGE_TYPE / E_UNKNOWN_METHOD
-| DeadlineExceeded | E_TIMEOUT
-| NotFound | E_UNKNOWN_SERVICE
-| AlreadyExists | E_NOT_OK
-| PermissionDenied | E_NOT_OK
-| Unauthenticated | E_NOT_OK
-| ResourceExhausted | E_NOT_OK
-| FailedPrecondition | E_WRONG_PROTOCOL_VERSION / E_WRONG_INTERFACE_VERSION
-| Aborted | E_NOT_OK
-| OutOfRange | E_NOT_OK
-| Unimplemented | E_NOT_OK
-| Internal | E_NOT_REACHABLE
-| Unavailable | E_NOT_READY
-| DataLoss | E_MALFORMED_MESSAGE
+| UCode.Ok | 0x80 (_RESPONSE_) | 0x00 (_E_OK_)
+| UCode.Cancelled | 0x81 (_EXCEPTION_) | 0x21
+| UCode.Unknown | 0x81 (_EXCEPTION_) | 0x22
+| UCode.InvalidArgument | 0x81 (_EXCEPTION_) | 0x23
+| UCode.DeadlineExceeded | 0x81 (_EXCEPTION_) | 0x24
+| UCode.NotFound | 0x81 (_EXCEPTION_) | 0x25
+| UCode.AlreadyExists | 0x81 (_EXCEPTION_) | 0x26
+| UCode.PermissionDenied | 0x81 (_EXCEPTION_) | 0x27
+| UCode.ResourceExhausted | 0x81 (_EXCEPTION_) | 0x28
+| UCode.FailedPrecondition | 0x81 (_EXCEPTION_) | 0x29
+| UCode.Aborted | 0x81 (_EXCEPTION_) | 0x2a
+| UCode.OutOfRange | 0x81 (_EXCEPTION_) | 0x2b
+| UCode.Unimplemented | 0x81 (_EXCEPTION_) | 0x2c
+| UCode.Internal | 0x81 (_EXCEPTION_) | 0x2d
+| UCode.Unavailable | 0x81 (_EXCEPTION_) | 0x2e
+| UCode.DataLoss | 0x81 (_EXCEPTION_) | 0x2f
+| UCode.Unauthenticated | 0x81 (_EXCEPTION_) | 0x30
 |===
 
+NOTE: Mapping UCodes to Return Codes in the `0x21` - `0x30` range allows uProtocol application level errors to be used in SOME/IP service contracts. If a client does not recognize a specific Return Code, it can still simply handle these errors generically as _E_NOT_OK_. A service sending a SOME/IP _EXCEPTION_ message may also include error details in the payload as suggested by the {autosar-someip}[AUTOSAR SOME/IP Specification, Section 4.2.6.2].
 
 == Application Layer Translation
 
@@ -308,7 +339,7 @@ Application (or message payload) translation is the process of converting *SOME/
 The following section will elaborate only on the translation of *uSubscription* messages to/from *SOME/IP-SD* messages. Subscription state (persistent or not) is handled in the *uSubscription* services and not at the transport layer or this component.
 
 The following section we will elaborate on how Eventgroup Entry types are mapped to xref:../up-l3/usubscription/v4/README.adoc[*uSubscription*] messages for the subscribe
-and unsubscribe flows per `[PRS_SOMEIPSD_00385]`.
+and unsubscribe flows per {autosar-someip}[PRS_SOMEIPSD_00385].
 
 ==== Common Fields
 
