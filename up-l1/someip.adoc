@@ -299,6 +299,112 @@ NOTES::
 |===
 
 
+=== E2E Protection
+
+A SOME/IP message whose `UAttributes` contain an `e2eProfile` (see xref:../basics/uattributes.adoc#e2e-attributes[E2E Protection Attributes]) carries an End-to-End (E2E) header that allows the receiver to detect corrupted, lost, repeated or misrouted messages.
+
+.UAttributes to E2E Mapping
+[cols="1m,3a", options="header,autowidth"]
+|===
+| UAttributes | E2E Header
+
+| e2eProfile | Selects the header layout, see <<e2e-profile-4>> and <<e2e-profile-7>>.
+| dataId | The `DataID` field of the E2E header.
+|===
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-header-placement~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+If a message has an `e2eProfile`, the transport *MUST* place the E2E header at the start of the SOME/IP payload, followed by the message's payload.
+The receiver *MUST* remove the E2E header before handing the payload on to the application.
+--
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-byte-order~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+All multi-byte fields of an E2E header *MUST* be transmitted in big-endian byte order (most significant byte first).
+--
+
+[#e2e-profile-4]
+==== Profile 4 (CRC-32)
+
+.Profile 4 Header (12 bytes)
+[cols="1,1,1,3", options="header,autowidth"]
+|===
+| Offset | Size | Field | Description
+
+| 0 | 4 | CRC | CRC-32, see <<e2e-crc>>
+| 4 | 2 | Counter | 16-bit message counter
+| 6 | 4 | DataID | Identifies the protected data
+| 10 | 2 | Length | Total length in bytes of the E2E header and the payload
+|===
+
+[#e2e-profile-7]
+==== Profile 7 (CRC-64)
+
+.Profile 7 Header (16 bytes)
+[cols="1,1,1,3", options="header,autowidth"]
+|===
+| Offset | Size | Field | Description
+
+| 0 | 8 | CRC | CRC-64, see <<e2e-crc>>
+| 8 | 4 | Counter | 32-bit message counter
+| 12 | 4 | DataID | Identifies the protected data
+|===
+
+NOTE: The header layouts are defined by this specification. Only the CRC algorithms are taken from the AUTOSAR E2E profiles of the same number. The layouts are not wire-compatible with AUTOSAR E2E.
+
+[#e2e-counter]
+==== Counter
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-counter~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+A sender *MUST* increment the `Counter` by one for every message it protects with the same `DataID`. After the maximum value of the counter field (`0xFFFF` for Profile 4, `0xFFFFFFFF` for Profile 7) the counter *MUST* wrap around to `0`.
+--
+
+[#e2e-crc]
+==== CRC
+
+The CRC algorithms are the ones used by the AUTOSAR E2E profiles 4 and 7.
+
+.CRC Parameters
+[cols="1,1,1", options="header,autowidth"]
+|===
+| Parameter | Profile 4 | Profile 7
+
+| Width | 32 bit | 64 bit
+| Polynomial | `0xF4ACFB13` | `0x42F0E1EBA9EA3693`
+| Initial value | `0xFFFFFFFF` | `0xFFFFFFFFFFFFFFFF`
+| Input and output reflected | yes | yes
+| Final XOR value | `0xFFFFFFFF` | `0xFFFFFFFFFFFFFFFF`
+|===
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-crc~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+The `CRC` field *MUST* contain the CRC, calculated with the parameters above, over all bytes of the E2E header and the payload, except the `CRC` field itself.
+--
+
+==== DataID
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-data-id~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+The transport *MUST* determine the `dataId` of a message from a static transport configuration that maps the message's source UUri to a `dataId`. The same configuration *MUST* be available to sender and receiver.
+--
+
+NOTE: As in AUTOSAR E2E, the `dataId` is a configured identifier. It is not derived from the UUri.
+
+==== Receiver Checks
+
+[.specitem,oft-sid="dsn~up-transport-someip-e2e-check-order~1",oft-needs="impl,utest",oft-tags="TransportLayerImpl"]
+--
+A receiver of a message with an `e2eProfile` *MUST* perform the following checks, in this order, and stop at the first failing check:
+
+. The received data is at least as long as the E2E header (otherwise `E2E_CHECK_RESULT_LENGTH_ERROR`).
+. The `DataID` in the header matches the expected `dataId` (otherwise `E2E_CHECK_RESULT_DATA_ID_ERROR`).
+. The CRC computed by the receiver matches the CRC in the header (otherwise `E2E_CHECK_RESULT_CRC_ERROR`).
+. The `Counter` is the successor of the last received counter. A repeated counter results in `E2E_CHECK_RESULT_REPEATED`, a jump ahead (lost messages) in `E2E_CHECK_RESULT_COUNTER_ERROR`.
+--
+
+The outcome is reported to the application as an `E2EStatus` as described in xref:../up-l2/api.adoc#e2e-status[E2E Protection Status].
+
 == Application Layer Translation
 
 Application (or message payload) translation is the process of converting *SOME/IP-SD* subscription and discovery messages, to/from *uDiscovery* and *uSubscription* Messages.

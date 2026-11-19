@@ -68,6 +68,14 @@ message UAttributes {
     // The payload encoding identifier. See the uProtocol payload-encoding registry:
     // https://github.com/eclipse-uprotocol/up-spec/blob/main/basics/payload_encoding_registry.adoc
     optional uint32 payload_encoding_id = 12;
+
+    // The identifier of the End-to-End (E2E) protection profile that has been applied to this message's payload.
+    // If absent, the payload is not E2E protected.
+    optional uint32 e2e_profile = 13;
+
+    // The data identifier used by the E2E protection profile to detect masquerading and routing errors.
+    // Mandatory if e2e_profile is present.
+    optional uint32 data_id = 14;
 }
 
 
@@ -126,4 +134,53 @@ enum UPriority {
 
     // Network control such as Safety Critical
     UPRIORITY_CS6 = 7 [(uprotocol.ce_name) = "CS6"];
+}
+
+
+// The outcome of an End-to-End (E2E) protection check, performed by a receiver on a message's payload.
+// This is computed locally by the receiver and is never transmitted on the wire.
+enum E2ECheckResult {
+    // Unspecified result
+    E2E_CHECK_RESULT_UNSPECIFIED = 0;
+
+    // All checks passed. The payload can be used normally.
+    E2E_CHECK_RESULT_OK = 1;
+
+    // The received data is shorter than the E2E header. (Fatal)
+    E2E_CHECK_RESULT_LENGTH_ERROR = 2;
+
+    // The received data identifier does not match the expected one. (Fatal)
+    E2E_CHECK_RESULT_DATA_ID_ERROR = 3;
+
+    // The recomputed CRC does not match the received one. (Fatal)
+    E2E_CHECK_RESULT_CRC_ERROR = 4;
+
+    // The counter jumped ahead, i.e. one or more messages have been lost. (Degraded)
+    E2E_CHECK_RESULT_COUNTER_ERROR = 5;
+
+    // The counter is the same as in the previously received message. (Degraded)
+    E2E_CHECK_RESULT_REPEATED = 6;
+}
+
+
+// The result of the E2E protection check that a receiver has performed on a message.
+// This is computed locally by the receiver and is never transmitted on the wire.
+message E2EStatus {
+    // The outcome of the check.
+    E2ECheckResult result = 1;
+
+    // The identifier of the E2E protection profile that has been checked.
+    uint32 profile = 2;
+
+    // The data identifier contained in the received E2E header.
+    uint32 data_id = 3;
+
+    // The counter value contained in the received E2E header.
+    uint32 rx_counter = 4;
+
+    // The number of messages that have been lost since the last successfully checked message.
+    uint32 lost_msgs = 5;
+
+    // True only if the result is E2E_CHECK_RESULT_OK.
+    bool is_safe = 6;
 }
