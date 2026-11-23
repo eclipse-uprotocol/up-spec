@@ -89,22 +89,26 @@ Each xref:../languages.adoc[uProtocol Language Library]
 uProtocol defines four types of messages:
 
 .Message Types
-[cols="1,5"]
+[cols="1,1a,5"]
 |===
-|Type |Description
+|Type |String Representation |Description
 
 |Publish
+|`up-pub.v1`
 |A message that is used to notify all interested consumers about an event that has occurred.
 
 |Notification
+|`up-not.v1`
 |A message that is used to inform a specific consumer about an event that has occurred.
 
 |RpcRequest
+|`up-req.v1`
 |A message that is used by a service consumer to invoke one of a service provider's methods with some input data, expecting the service provider to reply with a response message.
 
 |RpcResponse
-|A message that is used by a service provider to send the outcome of processing a request message
-from a service consumer.
+|`up-res.v1`
+|A message that is used by a service provider to send the outcome of processing a request message from a service consumer.
+
 |===
 
 Each type of message is described by a set of mandatory and optional attributes.

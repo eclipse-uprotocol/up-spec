@@ -87,8 +87,7 @@ a| The destination (address) of the message
 | User Property [key: _5_]
 a| The message's priority class as defined in xref:../basics/upriority.adoc[Message Priority]
 
-* *MUST* be set to the value of the _uprotocol.ce_name_ option defined for the
-link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
+ *MUST* be set to the priority's string representation as defined in xref:../basics/upriority.adoc#message-priority-classes[Message Priority Classes].
 
 | _ttl_
 | User Property [key: _6_] +
@@ -126,13 +125,13 @@ a| The service consumer's permission level as defined in xref:../up-l2/permissio
 
 * *MUST* be set to the xref:../up-l2/permissions.adoc#_code_based_access_permissions_caps[CAP] value's decimal string representation. 
 
-| _commStatus_
+| _commstatus_
 | User Property [key: _8_]
 a| A UCode indicating an error that has occurred during the delivery of either an RPC Request or Response message
 
-* *MUST* be set to the link:../up-core-api/uprotocol/v1/ustatus.proto[UCode enum] integer value's decimal string representation.
+* *MUST* be set to the decimal string representation of the xref:../basics/error_model.adoc#uprotocol-status-codes[UCode's integer representation].
 
-| _reqId_
+| _requestId_
 | _Correlation Data_
 a| The identifier that a service consumer can use to correlate an RPC response message with its RPC request
 
@@ -150,7 +149,7 @@ a| A tracing identifier to use for correlating messages across the system
 
 * *MUST* be set to the traceparent value.
 
-| _payload_encoding_id_
+| _payloadEncodingId_
 | _Content Type_
 a| The identifier defined in the
 xref:../basics/payload_encoding_registry.adoc[payload-encoding registry]

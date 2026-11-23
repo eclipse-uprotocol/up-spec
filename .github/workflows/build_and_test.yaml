@@ -20,7 +20,7 @@ jobs:
       - name: Set up protoc
         uses: SierraSoftworks/setup-protoc@22288b621d6a32dcffc4baf189e88865cdf6aa66 # v3.0.1
         with:
-          version: "35.x"
+          version: "36.x"
       - name: Generate Java code
         shell: bash
         run: |

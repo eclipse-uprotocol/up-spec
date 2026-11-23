@@ -79,9 +79,7 @@ a|CloudEvent specification version. This is *NOT* the uProtocol version
 |String
 a|The type of the message
 
-* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
-link:../up-core-api/uprotocol/uattributes.proto[UMessageType enum].
-
+*MUST* be set to the type's string representation as defined in xref:../basics/uattributes.adoc#uattributes-message-types[UAttributes Message Types]
 
 |`id`
 |https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md#id[`id`]
@@ -112,9 +110,7 @@ a|The destination (address) of the message
 |String
 a| The message's priority as defined by xref:../basics/upriority.adoc[Message Priority].
 
-* *MUST* be set to the value of the `uprotocol.ce_name` option defined for the
-link:../up-core-api/uprotocol/uattributes.proto[UPriority enum].
-
+* *MUST* be set to the priority's string representation as defined in xref:../basics/upriority.adoc#message-priority-classes[Message Priority Classes].
 
 |`ttl`
 |`ttl`
@@ -127,32 +123,32 @@ a|The amount of time (in milliseconds) after which this message MUST no longer b
 |String
 a|The service consumer's access token.
 
-|`permission_level`
+|`permissionLevel`
 |`plevel`
 |Integer
 |The service consumer's permission level as defined in xref:../basics/permissions.adoc#_code_based_access_permissions_caps[Code-Based uEntity Access Permissions (CAPs)]
 
 
-|`reqid`
+|`requestId`
 |`reqid`
 |String 
 a|The identifier that a service consumer can use to correlate an RPC Repsonse message with its RPC Request.
 
-* MUST be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
+* *MUST* be set to the https://www.rfc-editor.org/rfc/rfc4122.html#section-3[hyphenated string representation] of the UUID.
 
 |`commstatus`
 |`commstatus`
 |Integer
-a|A code indicating an error that has occurred during the delivery of either an RPC Request or Response message.
+a|A code indicating the outcome of a Remote Procedure Call.
 
-* MUST be set to the link:../up-core-api/uprotocol/ustatus.proto[UCode]'s integer value
+* *MUST* be set to the xref:../basics/error_model.adoc#uprotocol-status-codes[UCode's integer representation].
 
 |`traceparent`
 |https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/extensions/distributed-tracing.md#traceparent[traceparent]
 |String
 |A tracing identifier to use for correlating messages across the system.
 
-|`payload_encoding_id`
+|`payloadEncodingId`
 |`pformat`
 |Integer
 a|The identifier defined in the
