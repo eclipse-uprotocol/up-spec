@@ -18,17 +18,50 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up protoc
-        uses: SierraSoftworks/setup-protoc@22288b621d6a32dcffc4baf189e88865cdf6aa66 # v3.0.1
+        uses: SierraSoftworks/setup-protoc@7d5925d8554bdbff807626bc785bff800f8bd8c4 # v3.0.3
         with:
-          version: "35.x"
+          version: "36.x"
       - name: Generate Java code
         shell: bash
         run: |
           shopt -s globstar
           target_dir="$RUNNER_TEMP/generated-sources/protobuf/java"
           mkdir -p "$target_dir"
-          protoc --java_out="$target_dir" --proto_path=./up-core-api up-core-api/**/*.proto
+          protoc \
+            --java_out="$target_dir" \
+            --proto_path=./up-core-api \
+            up-core-api/**/*.proto
           if [ -z "$(ls -A "$target_dir")" ]; then
             echo "Protoc did not create any Java files"
+            exit 1
+          fi
+
+  generate-rust-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up protoc
+        uses: SierraSoftworks/setup-protoc@7d5925d8554bdbff807626bc785bff800f8bd8c4 # v3.0.3
+        with:
+          version: "37.x"
+          include-pre-releases: true
+      - name: Generate Rust code
+        shell: bash
+        run: |
+          target_dir="$RUNNER_TEMP/generated-sources/protobuf/rust"
+          mkdir -p "$target_dir"
+          protoc --version
+          protoc \
+            --rust_out="$target_dir" \
+            --rust_opt=experimental-codegen=enabled \
+            --rust_opt=kernel=upb \
+            --rust_opt=crate_mapping=.github/workflows/crate_mapping.txt \
+            --proto_path=up-core-api \
+            up-core-api/uprotocol/v1/*.proto
+          if [ -z "$(ls -A "$target_dir")" ]; then
+            echo "Protoc did not create any Rust files"
             exit 1
           fi

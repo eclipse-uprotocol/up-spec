@@ -23,36 +23,44 @@ uProtocol allows messages to be exchanged between uEntities on the same and/or d
 
 For this purpose, each xref:umessage.adoc[UMessage] is assigned exactly one of the following classes:
 
+[#message-priority-classes]
 .Message Priority Classes
-[cols="1,4,3"]
+[cols="1,1a,4,3"]
 |===
-|Class |Description |Typical Use Case
+|Class |String Representation |Description |Typical Use Case
 
 |*CS0*
+|`CS0`
 |Low Priority. No bandwidth assurance
 |Bulk data transfer
 
 |*CS1*
+|`CS1`
 |Default priority
 |Generic, non-specific application level events
 
 |*CS2*
+|`CS2`
 |Operations, Administration, and Management
 |uSubscription messages (subscribe, etc.)
 
 |*CS3*
+|`CS3`
 |Multimedia streaming
 |Audio/Video frames
 
 |*CS4*
+|`CS4`
 |Real-time interactive
 |High priority (RPC messages)
 
 |*CS5*
+|`CS5`
 |Important
 |Signaling
 
 |*CS6*
+|`CS6`
 |Safety Critical
 |Network control
 |===

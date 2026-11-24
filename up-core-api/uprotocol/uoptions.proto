@@ -205,17 +205,6 @@ extend google.protobuf.EnumOptions {
 
 }
 
-// uProtocol options for an enum value definition
-extend google.protobuf.EnumValueOptions {
-
-  // MIME type mapping
-  optional string mime_type = 51600;
-
-  // CloudEvent String representation of the uProtocol enum value
-  optional string ce_name = 51601;
-}
-
-
 // Service topic definition
 message UServiceTopic {
 
